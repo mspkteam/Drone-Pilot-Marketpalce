@@ -14,7 +14,7 @@
     "db:studio": "prisma studio"
   },
   "prisma": {
-    "seed": "node prisma/seed.mjs"
+    "seed": "npx tsx prisma/seed.ts"
   },
   "dependencies": {
     "@prisma/adapter-better-sqlite3": "^7.8.0",

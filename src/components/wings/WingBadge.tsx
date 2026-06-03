@@ -11,9 +11,9 @@ type WingBadgeProps = {
 };
 
 const categoryTone: Record<WingCategory, string> = {
-  milestone: "border-gold/40 bg-gold/10 text-gold-dark",
-  trust: "border-emerald-500/30 bg-emerald-500/10 text-emerald-800",
-  community: "border-border bg-surface text-foreground",
+  milestone: "border-gold/40 bg-gold/15 text-gold-light",
+  trust: "border-gold/35 bg-gold/12 text-gold-light",
+  community: "border-border bg-surface text-muted-foreground",
 };
 
 export function WingBadge({

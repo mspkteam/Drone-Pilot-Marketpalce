@@ -1,6 +1,7 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
+import { PublicPageContainer } from "@/components/layout/PublicPageContainer";
 import { PublicPilotProfile } from "@/components/pilots/PublicPilotProfile";
-import { MarketingPage } from "@/components/layout/MarketingPage";
 import { getPublicPilotById } from "@/lib/pilot/public";
 
 type PageProps = {
@@ -26,12 +27,16 @@ export default async function PublicPilotProfilePage({ params }: PageProps) {
   }
 
   return (
-    <MarketingPage
-      title={pilot.displayName}
-      description="Licensed drone pilot on Drone Pilot Marketplace."
-      narrow
-    >
-      <PublicPilotProfile pilot={pilot} />
-    </MarketingPage>
+    <section className="marketing-section">
+      <PublicPageContainer>
+        <Link
+          href="/pilots"
+          className="mb-6 inline-flex text-sm font-medium text-gold-light transition-colors hover:text-gold"
+        >
+          ← Back to all pilots
+        </Link>
+        <PublicPilotProfile pilot={pilot} />
+      </PublicPageContainer>
+    </section>
   );
 }

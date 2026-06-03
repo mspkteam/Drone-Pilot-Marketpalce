@@ -76,8 +76,8 @@ export function PilotProfileFormFields({
     <div className="space-y-8">
       {showSection(section, "basics") ? (
       <section className="space-y-4">
-        <h2 className="text-lg font-semibold text-gold-light">Profile basics</h2>
-        <FormField label="Display name" htmlFor="displayName" required>
+        <h2 className="text-lg font-semibold text-gold-light">Basic information</h2>
+        <FormField label="Full name" htmlFor="displayName" required>
           <input
             id="displayName"
             className={inputClassName}
@@ -90,7 +90,7 @@ export function PilotProfileFormFields({
         <FormField
           label="Bio"
           htmlFor="bio"
-          hint="Brief summary of your experience and equipment."
+          hint="Experience, drone models, flight hours, and equipment — visible on your public profile."
         >
           <textarea
             id="bio"
@@ -106,7 +106,7 @@ export function PilotProfileFormFields({
 
       {showSection(section, "location") ? (
       <section className="space-y-4">
-        <h2 className="text-lg font-semibold text-gold-light">Service location</h2>
+        <h2 className="text-lg font-semibold text-gold-light">Location & service area</h2>
         <div className="grid gap-4 sm:grid-cols-2">
           <FormField label="City" htmlFor="locationCity" required>
             <input
@@ -156,7 +156,11 @@ export function PilotProfileFormFields({
 
       {showSection(section, "services") ? (
       <section className="space-y-4">
-        <h2 className="text-lg font-semibold text-gold-light">Services & rates</h2>
+        <h2 className="text-lg font-semibold text-gold-light">Services & equipment</h2>
+        <p className="text-sm text-muted-foreground">
+          Select services you offer and your typical rate range. Add drone models and flight
+          hours in your bio if helpful for clients.
+        </p>
         <fieldset>
           <legend className="text-sm font-medium">
             Services offered <span className="text-destructive">*</span>
@@ -213,7 +217,7 @@ export function PilotProfileFormFields({
 
       {showSection(section, "license") ? (
       <section className="space-y-4">
-        <h2 className="text-lg font-semibold text-gold-light">License & certification</h2>
+        <h2 className="text-lg font-semibold text-gold-light">FAA certificate / license</h2>
         <div className="grid gap-4 sm:grid-cols-2">
           <FormField
             label="License / certificate number"

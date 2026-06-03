@@ -25,7 +25,7 @@ export const emptyClientFormState: ClientFormState = {
   billingPostalCode: "",
 };
 
-export type ClientFormSection = "contact" | "company" | "billing";
+export type ClientFormSection = "basic" | "company" | "contact";
 
 type ClientProfileFormFieldsProps = {
   form: ClientFormState;
@@ -49,10 +49,15 @@ export function ClientProfileFormFields({
 }: ClientProfileFormFieldsProps) {
   return (
     <div className="space-y-8">
-      {showClientSection(section, "contact") ? (
+      {showClientSection(section, "basic") ? (
       <section className="space-y-4">
-        <h2 className="text-lg font-semibold text-gold-light">Contact details</h2>
-        <FormField label="Contact name" htmlFor="contactName" required>
+        <h2 className="text-lg font-semibold text-gold-light">Basic information</h2>
+        <FormField
+          label="Your name"
+          htmlFor="contactName"
+          hint="Primary contact for job postings and bookings."
+          required
+        >
           <input
             id="contactName"
             className={inputClassName}
@@ -81,6 +86,12 @@ export function ClientProfileFormFields({
             disabled={disabled}
           />
         </FormField>
+      </section>
+      ) : null}
+
+      {showClientSection(section, "contact") ? (
+      <section className="space-y-4">
+        <h2 className="text-lg font-semibold text-gold-light">Contact details</h2>
         <FormField label="Phone" htmlFor="phone" hint="Optional">
           <input
             id="phone"
@@ -91,12 +102,7 @@ export function ClientProfileFormFields({
             disabled={disabled}
           />
         </FormField>
-      </section>
-      ) : null}
-
-      {showClientSection(section, "billing") ? (
-      <section className="space-y-4">
-        <h2 className="text-lg font-semibold text-gold-light">Billing address</h2>
+        <h3 className="pt-2 text-sm font-medium text-foreground">Billing address</h3>
         <p className="text-sm text-muted-foreground">
           Optional for now — used for invoices when payments launch (M12).
         </p>

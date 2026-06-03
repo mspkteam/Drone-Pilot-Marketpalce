@@ -8,21 +8,42 @@ import {
   emptyClientFormState,
   type ClientFormState,
 } from "@/components/client/ClientProfileFormFields";
-import { Button } from "@/components/ui/Button";
+import { ProfileReviewSummary } from "@/components/ui/ProfileReviewSummary";
 import { MultiStepWizard, type WizardStep } from "@/components/ui/MultiStepWizard";
+import { WizardFormFooter } from "@/components/ui/WizardFormFooter";
 
 const STEPS: WizardStep[] = [
-  { id: "contact", title: "Basic info", description: "Your name" },
-  { id: "company", title: "Company", description: "Business details" },
-  { id: "billing", title: "Billing", description: "Optional address" },
-  { id: "review", title: "Review", description: "Save profile" },
+  { id: "basic", title: "Basic information", description: "Your name" },
+  { id: "company", title: "Company details", description: "Business name" },
+  { id: "contact", title: "Contact details", description: "Phone & billing" },
+  { id: "review", title: "Review & save", description: "Confirm details" },
 ];
+
+const SECTIONS = ["basic", "company", "contact"] as const;
 
 function validateStep(step: number, form: ClientFormState): string | null {
   if (step === 0 && form.contactName.trim().length < 2) {
-    return "Contact name is required.";
+    return "Your name is required (at least 2 characters).";
   }
   return null;
+}
+
+function validateAll(form: ClientFormState): string | null {
+  for (let i = 0; i < SECTIONS.length; i++) {
+    const err = validateStep(i, form);
+    if (err) return err;
+  }
+  return null;
+}
+
+function formatBilling(form: ClientFormState): string {
+  const parts = [
+    form.billingLine1,
+    [form.billingCity, form.billingRegion].filter(Boolean).join(", "),
+    form.billingPostalCode,
+    form.billingCountry,
+  ].filter((p) => p?.trim());
+  return parts.length ? parts.join(" · ") : "—";
 }
 
 export function ClientOnboardingForm() {
@@ -33,6 +54,11 @@ export function ClientOnboardingForm() {
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit() {
+    const err = validateAll(form);
+    if (err) {
+      setError(err);
+      return;
+    }
     setError(null);
     setLoading(true);
     const res = await fetch("/api/client/profile", {
@@ -65,33 +91,20 @@ export function ClientOnboardingForm() {
     setStep((s) => Math.max(s - 1, 0));
   }
 
-  const sectionMap = ["contact", "company", "billing"] as const;
-
   return (
     <MultiStepWizard
       steps={STEPS}
       currentStep={step}
       footer={
-        <>
-          <div>
-            {step > 0 ? (
-              <Button type="button" variant="outline" onClick={goBack} disabled={loading}>
-                Back
-              </Button>
-            ) : null}
-          </div>
-          <div className="flex gap-2">
-            {step < STEPS.length - 1 ? (
-              <Button type="button" onClick={goNext} disabled={loading}>
-                Continue
-              </Button>
-            ) : (
-              <Button type="button" onClick={() => void handleSubmit()} disabled={loading}>
-                {loading ? "Saving…" : "Complete setup"}
-              </Button>
-            )}
-          </div>
-        </>
+        <WizardFormFooter
+          step={step}
+          totalSteps={STEPS.length}
+          onBack={goBack}
+          onNext={goNext}
+          onSubmit={() => void handleSubmit()}
+          loading={loading}
+          submitLabel="Save profile"
+        />
       }
     >
       {error ? (
@@ -107,25 +120,23 @@ export function ClientOnboardingForm() {
         <ClientProfileFormFields
           form={form}
           onChange={(patch) => setForm((f) => ({ ...f, ...patch }))}
-          section={sectionMap[step]}
+          section={SECTIONS[step]}
           disabled={loading}
         />
       ) : (
-        <div className="space-y-4 text-sm">
-          <p className="text-muted-foreground">Review your details before saving.</p>
-          <dl className="premium-card divide-y divide-border">
-            {[
-              ["Contact", form.contactName],
-              ["Company", form.companyName || "—"],
-              ["Phone", form.phone || "—"],
-              ["Billing city", form.billingCity || "—"],
-            ].map(([label, value]) => (
-              <div key={label} className="flex justify-between gap-4 px-4 py-3">
-                <dt className="text-muted-foreground">{label}</dt>
-                <dd className="font-medium">{value}</dd>
-              </div>
-            ))}
-          </dl>
+        <div className="space-y-4">
+          <p className="text-sm text-muted-foreground">
+            Review your details before saving. You can update your profile anytime from
+            settings.
+          </p>
+          <ProfileReviewSummary
+            rows={[
+              { label: "Your name", value: form.contactName },
+              { label: "Company", value: form.companyName || "—" },
+              { label: "Phone", value: form.phone || "—" },
+              { label: "Billing address", value: formatBilling(form) },
+            ]}
+          />
         </div>
       )}
     </MultiStepWizard>

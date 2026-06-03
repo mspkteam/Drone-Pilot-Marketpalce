@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import {
@@ -8,20 +9,48 @@ import {
   pilotFormToPayload,
   type PilotFormState,
 } from "@/components/pilot/PilotProfileFormFields";
-import { Button } from "@/components/ui/Button";
+import { validateComplianceAcknowledgments } from "@/lib/pilot/compliance";
+import { PILOT_SERVICE_OPTIONS } from "@/types/pilot";
+import { ProfileReviewSummary } from "@/components/ui/ProfileReviewSummary";
 import { MultiStepWizard, type WizardStep } from "@/components/ui/MultiStepWizard";
+import { WizardFormFooter } from "@/components/ui/WizardFormFooter";
 
 const STEPS: WizardStep[] = [
-  { id: "basics", title: "Basic info", description: "Name & bio" },
-  { id: "location", title: "Location", description: "Service area" },
-  { id: "services", title: "Services", description: "Skills & rates" },
+  { id: "basics", title: "Basic information", description: "Name & bio" },
+  { id: "location", title: "Location & service area", description: "Where you fly" },
+  { id: "services", title: "Services & equipment", description: "Skills & rates" },
   { id: "compliance", title: "Compliance", description: "License & checklist" },
-  { id: "review", title: "Review", description: "Submit for approval" },
+  { id: "review", title: "Review & submit", description: "Send for approval" },
 ];
+
+function serviceLabels(ids: string[]): string {
+  if (ids.length === 0) return "—";
+  return ids
+    .map((id) => PILOT_SERVICE_OPTIONS.find((s) => s.id === id)?.label ?? id)
+    .join(", ");
+}
+
+function formatLocation(form: PilotFormState): string {
+  const parts = [
+    form.locationCity,
+    form.locationRegion,
+    form.locationCountry,
+  ].filter((p) => p.trim());
+  return parts.join(", ") || "—";
+}
+
+function formatRateRange(form: PilotFormState): string {
+  if (form.hourlyRateMin && form.hourlyRateMax) {
+    return `$${form.hourlyRateMin} – $${form.hourlyRateMax} / hr`;
+  }
+  if (form.hourlyRateMin) return `From $${form.hourlyRateMin} / hr`;
+  if (form.hourlyRateMax) return `Up to $${form.hourlyRateMax} / hr`;
+  return "—";
+}
 
 function validateStep(step: number, form: PilotFormState): string | null {
   if (step === 0 && form.displayName.trim().length < 2) {
-    return "Display name is required.";
+    return "Full name is required (at least 2 characters).";
   }
   if (step === 1) {
     if (!form.locationCity.trim()) return "City is required.";
@@ -31,10 +60,18 @@ function validateStep(step: number, form: PilotFormState): string | null {
     return "Select at least one service.";
   }
   if (step === 3) {
-    if (!form.licenseNumber.trim()) return "License number is required.";
-    if (form.complianceAcknowledged.length < 4) {
-      return "Complete the compliance checklist.";
+    if (!form.licenseNumber.trim()) return "License / certificate number is required.";
+    if (!validateComplianceAcknowledgments(form.complianceAcknowledged)) {
+      return "Complete all items on the compliance checklist.";
     }
+  }
+  return null;
+}
+
+function validateAll(form: PilotFormState): string | null {
+  for (let i = 0; i < STEPS.length - 1; i++) {
+    const err = validateStep(i, form);
+    if (err) return err;
   }
   return null;
 }
@@ -47,6 +84,11 @@ export function PilotOnboardingForm() {
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit() {
+    const err = validateAll(form);
+    if (err) {
+      setError(err);
+      return;
+    }
     setError(null);
     setLoading(true);
     const payload = pilotFormToPayload(form, true);
@@ -85,26 +127,15 @@ export function PilotOnboardingForm() {
       steps={STEPS}
       currentStep={step}
       footer={
-        <>
-          <div className="flex gap-2">
-            {step > 0 ? (
-              <Button type="button" variant="outline" onClick={goBack} disabled={loading}>
-                Back
-              </Button>
-            ) : null}
-          </div>
-          <div className="flex gap-2">
-            {step < STEPS.length - 1 ? (
-              <Button type="button" onClick={goNext} disabled={loading}>
-                Continue
-              </Button>
-            ) : (
-              <Button type="button" onClick={() => void handleSubmit()} disabled={loading}>
-                {loading ? "Submitting…" : "Submit profile for review"}
-              </Button>
-            )}
-          </div>
-        </>
+        <WizardFormFooter
+          step={step}
+          totalSteps={STEPS.length}
+          onBack={goBack}
+          onNext={goNext}
+          onSubmit={() => void handleSubmit()}
+          loading={loading}
+          submitLabel="Submit profile for review"
+        />
       }
     >
       {error ? (
@@ -148,6 +179,19 @@ export function PilotOnboardingForm() {
             section="license"
             disabled={loading}
           />
+          <div className="premium-card border-gold/20 p-4 text-sm text-muted-foreground">
+            <p className="font-medium text-foreground">Verification upload</p>
+            <p className="mt-1">
+              After you submit your profile, upload license and insurance documents under{" "}
+              <Link
+                href="/dashboard/pilot/verifications"
+                className="text-gold-light hover:text-gold underline"
+              >
+                Verifications
+              </Link>{" "}
+              for admin review.
+            </p>
+          </div>
           <PilotProfileFormFields
             form={form}
             onChange={(patch) => setForm((f) => ({ ...f, ...patch }))}
@@ -158,23 +202,38 @@ export function PilotOnboardingForm() {
         </div>
       ) : null}
       {step === 4 ? (
-        <div className="space-y-4 text-sm">
-          <p className="text-muted-foreground">
-            Review your profile before submitting for admin approval.
+        <div className="space-y-4">
+          <p className="text-sm text-muted-foreground">
+            Review your profile before submitting for admin approval. You will be notified
+            when your account is approved to browse jobs and bid.
           </p>
-          <dl className="premium-card divide-y divide-border">
-            {[
-              ["Display name", form.displayName],
-              ["Location", `${form.locationCity}, ${form.locationCountry}`],
-              ["Services", form.servicesOffered.join(", ") || "—"],
-              ["License", form.licenseNumber],
-            ].map(([label, value]) => (
-              <div key={label} className="flex justify-between gap-4 px-4 py-3">
-                <dt className="text-muted-foreground">{label}</dt>
-                <dd className="text-right font-medium">{value}</dd>
-              </div>
-            ))}
-          </dl>
+          <ProfileReviewSummary
+            rows={[
+              { label: "Full name", value: form.displayName },
+              { label: "Bio", value: form.bio || "—" },
+              { label: "Home location", value: formatLocation(form) },
+              {
+                label: "Travel radius",
+                value: form.serviceRadiusKm
+                  ? `${form.serviceRadiusKm} km`
+                  : "—",
+              },
+              { label: "Services", value: serviceLabels(form.servicesOffered) },
+              { label: "Rate range", value: formatRateRange(form) },
+              {
+                label: "License / certificate",
+                value: form.licenseNumber
+                  ? `${form.licenseNumber}${form.licenseCountry ? ` (${form.licenseCountry})` : ""}`
+                  : "—",
+              },
+              {
+                label: "Compliance checklist",
+                value: validateComplianceAcknowledgments(form.complianceAcknowledged)
+                  ? "Complete"
+                  : "Incomplete",
+              },
+            ]}
+          />
         </div>
       ) : null}
     </MultiStepWizard>

@@ -20,11 +20,11 @@ export function FormField({
   className,
 }: FormFieldProps) {
   return (
-    <div className={cn("space-y-1", className)}>
-      <label htmlFor={htmlFor} className="block text-sm font-medium">
+    <div className={cn("space-y-1.5", className)}>
+      <label htmlFor={htmlFor} className="block text-sm font-medium text-foreground">
         {label}
         {required ? (
-          <span className="text-destructive" aria-hidden>
+          <span className="text-gold" aria-hidden>
             {" "}
             *
           </span>
@@ -35,7 +35,7 @@ export function FormField({
         <p className="text-xs text-muted-foreground">{hint}</p>
       ) : null}
       {error ? (
-        <p className="text-xs text-destructive" role="alert">
+        <p className="text-xs text-red-400" role="alert">
           {error}
         </p>
       ) : null}
@@ -44,4 +44,6 @@ export function FormField({
 }
 
 export const inputClassName =
-  "mt-1 block w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold";
+  "mt-0 block w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground transition-colors focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold disabled:cursor-not-allowed disabled:opacity-50";
+
+export const selectClassName = inputClassName;

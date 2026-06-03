@@ -25,21 +25,33 @@ export const emptyClientFormState: ClientFormState = {
   billingPostalCode: "",
 };
 
+export type ClientFormSection = "contact" | "company" | "billing";
+
 type ClientProfileFormFieldsProps = {
   form: ClientFormState;
   onChange: (patch: Partial<ClientFormState>) => void;
   disabled?: boolean;
+  section?: ClientFormSection;
 };
+
+function showClientSection(
+  section: ClientFormSection | undefined,
+  target: ClientFormSection,
+) {
+  return !section || section === target;
+}
 
 export function ClientProfileFormFields({
   form,
   onChange,
   disabled,
+  section,
 }: ClientProfileFormFieldsProps) {
   return (
     <div className="space-y-8">
+      {showClientSection(section, "contact") ? (
       <section className="space-y-4">
-        <h2 className="text-lg font-semibold">Contact details</h2>
+        <h2 className="text-lg font-semibold text-gold-light">Contact details</h2>
         <FormField label="Contact name" htmlFor="contactName" required>
           <input
             id="contactName"
@@ -50,6 +62,12 @@ export function ClientProfileFormFields({
             required
           />
         </FormField>
+      </section>
+      ) : null}
+
+      {showClientSection(section, "company") ? (
+      <section className="space-y-4">
+        <h2 className="text-lg font-semibold text-gold-light">Company details</h2>
         <FormField
           label="Company name"
           htmlFor="companyName"
@@ -74,9 +92,11 @@ export function ClientProfileFormFields({
           />
         </FormField>
       </section>
+      ) : null}
 
+      {showClientSection(section, "billing") ? (
       <section className="space-y-4">
-        <h2 className="text-lg font-semibold">Billing address</h2>
+        <h2 className="text-lg font-semibold text-gold-light">Billing address</h2>
         <p className="text-sm text-muted-foreground">
           Optional for now — used for invoices when payments launch (M12).
         </p>
@@ -128,6 +148,7 @@ export function ClientProfileFormFields({
           </FormField>
         </div>
       </section>
+      ) : null}
     </div>
   );
 }

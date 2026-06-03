@@ -18,7 +18,7 @@ export function MarketingCta({
   secondaryLabel,
 }: MarketingCtaProps) {
   return (
-    <section className="rounded-lg border border-gold/30 bg-gold/10 px-6 py-10 text-center sm:px-10">
+    <section className="glass-card border-gold/25 px-6 py-10 text-center sm:px-10">
       <h2 className="text-xl font-semibold sm:text-2xl">{title}</h2>
       <p className="mx-auto mt-3 max-w-lg text-sm text-muted-foreground sm:text-base">
         {description}

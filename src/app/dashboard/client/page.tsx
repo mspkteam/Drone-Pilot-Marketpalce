@@ -57,7 +57,7 @@ export default async function ClientDashboardPage({ searchParams }: PageProps) {
         ) : null}
 
         <div className="grid gap-4 sm:grid-cols-2">
-          <div className="rounded-lg border border-border bg-surface-elevated p-4">
+          <div className="premium-card p-4">
             <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
               Account status
             </p>
@@ -78,7 +78,7 @@ export default async function ClientDashboardPage({ searchParams }: PageProps) {
               Edit profile
             </Button>
           </div>
-          <div className="rounded-lg border border-border bg-surface-elevated p-4">
+          <div className="premium-card p-4">
             <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
               Contact
             </p>
@@ -88,7 +88,7 @@ export default async function ClientDashboardPage({ searchParams }: PageProps) {
           </div>
         </div>
 
-        <div className="rounded-lg border border-border bg-surface-elevated p-4">
+        <div className="premium-card p-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">

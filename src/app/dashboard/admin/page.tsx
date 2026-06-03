@@ -92,7 +92,7 @@ export default async function AdminDashboardPage() {
         {cards.map((card) => (
           <div
             key={card.label}
-            className="rounded-lg border border-border bg-surface-elevated p-5"
+            className="stat-card"
           >
             <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
               {card.label}
@@ -117,7 +117,7 @@ export default async function AdminDashboardPage() {
         ))}
       </div>
 
-      <div className="mt-8 rounded-lg border border-border bg-surface-elevated p-5">
+      <div className="mt-8 premium-card p-5">
         <p className="text-sm font-medium">Quick links</p>
         <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-sm">
           <li>

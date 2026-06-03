@@ -144,6 +144,7 @@ Open [http://localhost:3000](http://localhost:3000).
 | `npm run build` | Production build |
 | `npm run start` | Start production server |
 | `npm run lint` | Run ESLint |
+| `npm run test` | Membership tier visibility tests |
 | `npm run db:push` | Sync Prisma schema to SQLite |
 | `npm run db:seed` | Seed demo users |
 | `npm run db:studio` | Open Prisma Studio |

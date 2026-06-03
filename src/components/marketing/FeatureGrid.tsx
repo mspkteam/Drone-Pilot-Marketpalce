@@ -9,7 +9,7 @@ export function FeatureGrid({ features }: { features: Feature[] }) {
       {features.map((feature) => (
         <div
           key={feature.title}
-          className="rounded-lg border border-border bg-surface-elevated p-6"
+          className="premium-card p-6"
         >
           <h3 className="font-semibold">{feature.title}</h3>
           <p className="mt-2 text-sm text-muted-foreground">{feature.description}</p>

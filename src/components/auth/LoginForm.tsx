@@ -3,7 +3,7 @@
 import { getSession, signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { resolvePostLoginRedirect } from "@/lib/auth/permissions";
 import type { UserRole } from "@/types/roles";
@@ -17,6 +17,13 @@ export function LoginForm() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const prefillEmail = searchParams.get("email");
+    const prefillPassword = searchParams.get("password");
+    if (prefillEmail) setEmail(prefillEmail);
+    if (prefillPassword) setPassword(prefillPassword);
+  }, [searchParams]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -47,7 +54,7 @@ export function LoginForm() {
   }
 
   return (
-    <div className="rounded-lg border border-border bg-background p-6 shadow-sm sm:p-8">
+    <div className="premium-panel p-6 sm:p-8">
       <h1 className="text-2xl font-semibold tracking-tight">Log in</h1>
       <p className="mt-2 text-sm text-muted-foreground">
         Access your pilot, client, or admin dashboard.

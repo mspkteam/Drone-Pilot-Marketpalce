@@ -4,9 +4,9 @@ import { cn } from "@/lib/utils";
 
 const toneClasses = {
   neutral: "bg-surface text-muted-foreground border-border",
-  warning: "bg-gold/10 text-gold-dark border-gold/30",
-  success: "bg-emerald-500/10 text-emerald-800 border-emerald-500/30",
-  error: "bg-destructive/10 text-destructive border-destructive/30",
+  warning: "bg-gold/15 text-gold-light border-gold/40",
+  success: "bg-emerald-500/15 text-emerald-300 border-emerald-500/35",
+  error: "bg-destructive/15 text-red-300 border-destructive/40",
 };
 
 export function JobStatusBadge({ status }: { status: JobStatus }) {

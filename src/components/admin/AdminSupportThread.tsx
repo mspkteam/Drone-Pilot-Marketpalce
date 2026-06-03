@@ -6,14 +6,25 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { inputClassName } from "@/components/ui/FormField";
 import { Button } from "@/components/ui/Button";
 import type { SupportChatStatus, SupportChatThreadDto } from "@/types/support";
-import { SUPPORT_CHAT_STATUSES } from "@/types/support";
 import { cn } from "@/lib/utils";
+import { TypingIndicator } from "@/components/support/TypingIndicator";
+import { TypewriterMessage } from "@/components/support/TypewriterMessage";
+
+const POLL_MS = 2000;
+const TYPING_PULSE_MS = 1000;
 
 const STATUS_LABELS: Record<SupportChatStatus, string> = {
   open: "Open",
-  pending: "Pending",
+  pending: "In progress",
   resolved: "Resolved",
   closed: "Closed",
+};
+
+const STATUS_BADGE: Record<SupportChatStatus, string> = {
+  open: "border-gold/40 bg-gold/10 text-gold-dark",
+  pending: "border-amber-500/40 bg-amber-500/10 text-amber-800",
+  resolved: "border-emerald-600/40 bg-emerald-600/10 text-emerald-800",
+  closed: "border-border bg-surface text-muted-foreground",
 };
 
 export function AdminSupportThread({
@@ -29,30 +40,96 @@ export function AdminSupportThread({
   const [status, setStatus] = useState<SupportChatStatus>("open");
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(true);
+  const [savingStatus, setSavingStatus] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [animateMessageIds, setAnimateMessageIds] = useState<Set<string>>(
+    () => new Set(),
+  );
   const bottomRef = useRef<HTMLDivElement>(null);
+  const seenMessageIdsRef = useRef<Set<string>>(new Set());
+  const threadInitializedRef = useRef(false);
+  const typingPulseRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    const res = await fetch(`/api/admin/support/chats/${chatId}`);
-    const data = await res.json();
-    if (!res.ok) {
-      setError(data.error ?? "Not found.");
-      setThread(null);
-    } else {
-      setThread(data.chat);
-      setStatus(data.chat.status);
+  const applyThread = useCallback((chat: SupportChatThreadDto) => {
+    const newAnimate = new Set<string>();
+    for (const m of chat.messages) {
+      if (seenMessageIdsRef.current.has(m.id)) continue;
+      if (
+        threadInitializedRef.current &&
+        m.senderRole !== "admin" &&
+        !m.isSystem
+      ) {
+        newAnimate.add(m.id);
+      }
+      seenMessageIdsRef.current.add(m.id);
     }
-    setLoading(false);
-  }, [chatId]);
+    threadInitializedRef.current = true;
+    if (newAnimate.size > 0) {
+      setAnimateMessageIds((prev) => new Set([...prev, ...newAnimate]));
+    }
+    setThread(chat);
+    setStatus(chat.status);
+  }, []);
+
+  const load = useCallback(
+    async (opts?: { silent?: boolean }) => {
+      if (!opts?.silent) setLoading(true);
+      const res = await fetch(`/api/admin/support/chats/${chatId}`, {
+        cache: "no-store",
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        if (!opts?.silent) {
+          setError(data.error ?? "Not found.");
+          setThread(null);
+        }
+      } else {
+        applyThread(data.chat);
+      }
+      if (!opts?.silent) setLoading(false);
+    },
+    [chatId, applyThread],
+  );
 
   useEffect(() => {
     void load();
+    const interval = setInterval(() => void load({ silent: true }), POLL_MS);
+    return () => clearInterval(interval);
   }, [load]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [thread?.messages.length]);
+  }, [thread?.messages.length, thread?.otherPartyTyping]);
+
+  useEffect(() => {
+    return () => stopTypingPulse();
+  }, []);
+
+  const pingTyping = useCallback(async () => {
+    if (readOnly) return;
+    await fetch(`/api/admin/support/chats/${chatId}/typing`, { method: "POST" });
+  }, [chatId, readOnly]);
+
+  function stopTypingPulse() {
+    if (typingPulseRef.current) {
+      clearInterval(typingPulseRef.current);
+      typingPulseRef.current = null;
+    }
+  }
+
+  function handleReplyChange(value: string) {
+    setReply(value);
+    if (readOnly || !value.trim()) {
+      stopTypingPulse();
+      return;
+    }
+    void pingTyping();
+    if (!typingPulseRef.current) {
+      typingPulseRef.current = setInterval(() => {
+        void pingTyping();
+      }, TYPING_PULSE_MS);
+    }
+  }
 
   async function sendReply(e: React.FormEvent) {
     e.preventDefault();
@@ -71,26 +148,41 @@ export function AdminSupportThread({
       setError(data.error ?? "Failed to send.");
       return;
     }
+    stopTypingPulse();
     setReply("");
     setFile(null);
-    await load();
+    await load({ silent: true });
   }
 
   async function saveStatus(next: SupportChatStatus) {
-    if (readOnly) return;
+    if (readOnly || savingStatus) return;
+    setSavingStatus(true);
+    setError(null);
     const res = await fetch(`/api/admin/support/chats/${chatId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status: next }),
     });
     const data = await res.json();
+    setSavingStatus(false);
     if (!res.ok) {
       setError(data.error ?? "Failed to update status.");
       return;
     }
     setStatus(next);
     router.refresh();
-    await load();
+    await load({ silent: true });
+  }
+
+  async function closeChat() {
+    if (
+      !window.confirm(
+        "Close this chat? The user will not be able to send new messages.",
+      )
+    ) {
+      return;
+    }
+    await saveStatus("closed");
   }
 
   if (loading) {
@@ -120,27 +212,84 @@ export function AdminSupportThread({
         <p className="mt-2 text-xs text-muted-foreground">
           Created {new Date(thread.createdAt).toLocaleString()}
         </p>
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          <span className="text-xs font-medium text-muted-foreground">
+            Status
+          </span>
+          <span
+            className={cn(
+              "rounded-full border px-3 py-1 text-xs font-semibold",
+              STATUS_BADGE[status],
+            )}
+          >
+            {STATUS_LABELS[status]}
+          </span>
+        </div>
+
         {!readOnly ? (
-          <div className="mt-4 flex flex-wrap gap-2">
-            {SUPPORT_CHAT_STATUSES.map((s) => (
-              <button
-                key={s}
-                type="button"
-                onClick={() => void saveStatus(s)}
-                className={cn(
-                  "rounded-full border px-3 py-1 text-xs",
-                  status === s
-                    ? "border-gold bg-gold/15 text-gold-dark"
-                    : "border-border",
-                )}
-              >
-                {STATUS_LABELS[s]}
-              </button>
-            ))}
+          <div className="mt-5 space-y-3 border-t border-border pt-4">
+            <p className="text-xs font-medium text-muted-foreground">
+              Manage conversation
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {status === "open" ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={savingStatus}
+                  onClick={() => void saveStatus("pending")}
+                >
+                  Mark in progress
+                </Button>
+              ) : null}
+              {status !== "resolved" && status !== "closed" ? (
+                <Button
+                  type="button"
+                  variant="primary"
+                  size="sm"
+                  disabled={savingStatus}
+                  onClick={() => void saveStatus("resolved")}
+                >
+                  Mark as resolved
+                </Button>
+              ) : null}
+              {status !== "closed" ? (
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  disabled={savingStatus}
+                  onClick={() => void closeChat()}
+                >
+                  Close chat
+                </Button>
+              ) : null}
+              {status === "resolved" || status === "closed" ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={savingStatus}
+                  onClick={() => void saveStatus("open")}
+                >
+                  Reopen chat
+                </Button>
+              ) : null}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {status === "closed"
+                ? "This chat is closed. Reopen it to allow the user to message again."
+                : status === "resolved"
+                  ? "Resolved — the user can still reply. Close the chat to lock it."
+                  : status === "pending"
+                    ? "In progress — mark resolved when the issue is handled."
+                    : "New request — mark in progress when you start helping."}
+            </p>
           </div>
         ) : (
-          <p className="mt-2 text-sm">
-            Status: <strong>{STATUS_LABELS[status]}</strong>
+          <p className="mt-3 text-xs text-muted-foreground">
+            Moderators can view status but cannot change it.
           </p>
         )}
       </div>
@@ -167,7 +316,13 @@ export function AdminSupportThread({
             {!m.isSystem ? (
               <p className="text-[10px] text-muted-foreground">{m.senderName}</p>
             ) : null}
-            <p className="whitespace-pre-wrap">{m.message}</p>
+            <p>
+              {animateMessageIds.has(m.id) && m.senderRole !== "admin" ? (
+                <TypewriterMessage text={m.message} animate />
+              ) : (
+                <span className="whitespace-pre-wrap">{m.message}</span>
+              )}
+            </p>
             {m.attachmentUrl ? (
               m.attachmentMimeType?.startsWith("image/") ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -189,6 +344,9 @@ export function AdminSupportThread({
             ) : null}
           </div>
         ))}
+        {thread.otherPartyTyping ? (
+          <TypingIndicator label={thread.requesterName} side="left" />
+        ) : null}
         <div ref={bottomRef} />
       </div>
 
@@ -196,14 +354,21 @@ export function AdminSupportThread({
         <p className="text-sm text-muted-foreground">
           Moderators have read-only access to this thread.
         </p>
+      ) : status === "closed" ? (
+        <p className="rounded-lg border border-border bg-surface px-4 py-3 text-sm text-muted-foreground">
+          This chat is closed. Reopen it above to send another reply.
+        </p>
       ) : (
-        <form onSubmit={sendReply} className="space-y-3 rounded-lg border border-border p-4">
+        <form
+          onSubmit={(e) => void sendReply(e)}
+          className="space-y-3 rounded-lg border border-border p-4"
+        >
           <label className="block text-sm font-medium">
             Reply as support
             <textarea
               rows={3}
               value={reply}
-              onChange={(e) => setReply(e.target.value)}
+              onChange={(e) => handleReplyChange(e.target.value)}
               className={cn(inputClassName, "mt-1 resize-none")}
               placeholder="Type your reply…"
             />

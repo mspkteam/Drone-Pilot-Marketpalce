@@ -1,22 +1,25 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-type ButtonVariant = "primary" | "secondary" | "ghost" | "outline";
+type ButtonVariant = "primary" | "secondary" | "ghost" | "outline" | "danger";
 type ButtonSize = "sm" | "md" | "lg";
 
 const variantStyles: Record<ButtonVariant, string> = {
   primary:
-    "bg-gold text-accent-foreground hover:bg-gold-dark focus-visible:ring-gold",
-  secondary: "bg-foreground text-background hover:bg-foreground/90",
-  ghost: "hover:bg-surface text-foreground",
+    "bg-gold text-white shadow-sm hover:bg-gold-light hover:shadow-[0_0_20px_rgba(201,162,39,0.35)] focus-visible:ring-gold",
+  secondary:
+    "border border-gold/50 bg-transparent text-gold hover:border-gold hover:bg-gold/10",
+  ghost: "text-foreground hover:bg-white/5",
   outline:
-    "border border-border bg-transparent hover:border-gold hover:text-gold",
+    "border border-border bg-transparent text-foreground hover:border-gold/50 hover:text-gold",
+  danger:
+    "border border-destructive/40 bg-destructive/15 text-red-300 hover:bg-destructive/25",
 };
 
 const sizeStyles: Record<ButtonSize, string> = {
-  sm: "h-9 px-3 text-sm",
-  md: "h-11 px-5 text-sm",
-  lg: "h-12 px-6 text-base",
+  sm: "h-9 px-3 text-sm rounded-lg",
+  md: "h-11 px-5 text-sm rounded-lg",
+  lg: "h-12 px-6 text-base rounded-xl",
 };
 
 type ButtonProps = {
@@ -37,7 +40,7 @@ export function Button({
   ...props
 }: ButtonProps) {
   const classes = cn(
-    "inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+    "inline-flex items-center justify-center font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50",
     variantStyles[variant],
     sizeStyles[size],
     className,

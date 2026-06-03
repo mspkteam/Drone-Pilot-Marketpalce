@@ -24,11 +24,11 @@ export function PageHeader({
     >
       <div>
         {badge ? (
-          <span className="mb-2 inline-block rounded-full bg-gold/15 px-3 py-0.5 text-xs font-medium text-gold-dark">
+          <span className="mb-2 inline-block rounded-full border border-gold/30 bg-gold/10 px-3 py-0.5 text-xs font-medium text-gold-light">
             {badge}
           </span>
         ) : null}
-        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+        <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
           {title}
         </h1>
         {description ? (

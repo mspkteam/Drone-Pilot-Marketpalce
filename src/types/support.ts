@@ -60,6 +60,8 @@ export type SupportChatThreadDto = SupportChatDto & {
   messages: SupportChatMessageDto[];
   canReply: boolean;
   canManageStatus: boolean;
+  /** True when the other party is actively typing (not yourself). */
+  otherPartyTyping: boolean;
 };
 
 export type AdminSupportChatListItemDto = {

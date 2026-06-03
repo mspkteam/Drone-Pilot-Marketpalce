@@ -26,7 +26,7 @@ export function DashboardShell({
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="flex min-h-screen bg-surface">
+    <div className="flex min-h-screen bg-background">
       {/* Mobile overlay */}
       {sidebarOpen ? (
         <button
@@ -63,8 +63,8 @@ export function DashboardShell({
                     className={cn(
                       "block rounded-md px-3 py-2 text-sm transition-colors",
                       active
-                        ? "bg-gold/15 font-medium text-gold-light"
-                        : "text-sidebar-muted hover:bg-white/5 hover:text-sidebar-foreground",
+                        ? "border border-gold/25 bg-gold/15 font-medium text-gold-light shadow-[0_0_12px_rgba(201,162,39,0.12)]"
+                        : "text-sidebar-muted hover:border hover:border-white/5 hover:bg-white/5 hover:text-sidebar-foreground",
                     )}
                     onClick={() => setSidebarOpen(false)}
                   >
@@ -91,7 +91,7 @@ export function DashboardShell({
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-border bg-background px-4 lg:px-6">
+        <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-border bg-surface/90 px-4 backdrop-blur-md lg:px-6">
           <button
             type="button"
             className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-border lg:hidden"

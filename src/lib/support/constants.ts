@@ -18,3 +18,9 @@ export const SUPPORT_MAX_BYTES = 5 * 1024 * 1024;
 
 export const SUPPORT_CONFIRMATION_MESSAGE =
   "Thanks for reaching out. Our support team will catch up with you within 10–15 minutes. You can keep this chat open and continue the conversation here.";
+
+export const SUPPORT_RESOLVED_USER_MESSAGE =
+  "Your issue has been marked as resolved. You can still send a follow-up below if you need anything else.";
+
+export const SUPPORT_CLOSED_USER_MESSAGE =
+  "Your issue has been resolved and this chat is now closed. You cannot send more messages here.";

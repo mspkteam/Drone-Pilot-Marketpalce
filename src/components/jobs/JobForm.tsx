@@ -69,15 +69,27 @@ export function jobFormToPayload(form: JobFormState) {
   };
 }
 
+export type JobFormSection = "basics" | "requirements" | "budget" | "location";
+
 type JobFormProps = {
   form: JobFormState;
   onChange: (patch: Partial<JobFormState>) => void;
   disabled?: boolean;
+  section?: JobFormSection;
 };
 
-export function JobForm({ form, onChange, disabled }: JobFormProps) {
+function showJobSection(
+  section: JobFormSection | undefined,
+  target: JobFormSection,
+) {
+  return !section || section === target;
+}
+
+export function JobForm({ form, onChange, disabled, section }: JobFormProps) {
   return (
     <div className="space-y-6">
+      {showJobSection(section, "basics") ? (
+      <>
       <FormField label="Job title" htmlFor="title" required>
         <input
           id="title"
@@ -113,10 +125,8 @@ export function JobForm({ form, onChange, disabled }: JobFormProps) {
               disabled={disabled}
               onClick={() => onChange({ category: cat.id })}
               className={cn(
-                "rounded-lg border px-3 py-2 text-left text-sm transition-colors",
-                form.category === cat.id
-                  ? "border-gold bg-gold/10 ring-1 ring-gold"
-                  : "border-border hover:border-gold/40",
+                "chip-select",
+                form.category === cat.id && "chip-select-active",
                 disabled && "cursor-not-allowed opacity-60",
               )}
             >
@@ -125,7 +135,65 @@ export function JobForm({ form, onChange, disabled }: JobFormProps) {
           ))}
         </div>
       </fieldset>
+      </>
+      ) : null}
 
+      {showJobSection(section, "requirements") ? (
+      <FormField
+        label="Requirements & deliverables"
+        htmlFor="requirements"
+        hint="FAA notes, shot list, file formats, etc."
+      >
+        <textarea
+          id="requirements"
+          rows={4}
+          className={inputClassName}
+          value={form.requirements}
+          onChange={(e) => onChange({ requirements: e.target.value })}
+          disabled={disabled}
+        />
+      </FormField>
+      ) : null}
+
+      {showJobSection(section, "budget") ? (
+      <div className="grid gap-4 sm:grid-cols-3">
+        <FormField label="Preferred date" htmlFor="scheduledDate">
+          <input
+            id="scheduledDate"
+            type="date"
+            className={inputClassName}
+            value={form.scheduledDate}
+            onChange={(e) => onChange({ scheduledDate: e.target.value })}
+            disabled={disabled}
+          />
+        </FormField>
+        <FormField label="Budget min ($)" htmlFor="budgetMin">
+          <input
+            id="budgetMin"
+            type="number"
+            min={0}
+            className={inputClassName}
+            value={form.budgetMin}
+            onChange={(e) => onChange({ budgetMin: e.target.value })}
+            disabled={disabled}
+          />
+        </FormField>
+        <FormField label="Budget max ($)" htmlFor="budgetMax">
+          <input
+            id="budgetMax"
+            type="number"
+            min={0}
+            className={inputClassName}
+            value={form.budgetMax}
+            onChange={(e) => onChange({ budgetMax: e.target.value })}
+            disabled={disabled}
+          />
+        </FormField>
+      </div>
+      ) : null}
+
+      {showJobSection(section, "location") ? (
+      <>
       <FormField label="Location (site name or address)" htmlFor="locationLabel" required>
         <input
           id="locationLabel"
@@ -165,56 +233,8 @@ export function JobForm({ form, onChange, disabled }: JobFormProps) {
           />
         </FormField>
       </div>
-
-      <div className="grid gap-4 sm:grid-cols-3">
-        <FormField label="Preferred date" htmlFor="scheduledDate">
-          <input
-            id="scheduledDate"
-            type="date"
-            className={inputClassName}
-            value={form.scheduledDate}
-            onChange={(e) => onChange({ scheduledDate: e.target.value })}
-            disabled={disabled}
-          />
-        </FormField>
-        <FormField label="Budget min ($)" htmlFor="budgetMin">
-          <input
-            id="budgetMin"
-            type="number"
-            min={0}
-            className={inputClassName}
-            value={form.budgetMin}
-            onChange={(e) => onChange({ budgetMin: e.target.value })}
-            disabled={disabled}
-          />
-        </FormField>
-        <FormField label="Budget max ($)" htmlFor="budgetMax">
-          <input
-            id="budgetMax"
-            type="number"
-            min={0}
-            className={inputClassName}
-            value={form.budgetMax}
-            onChange={(e) => onChange({ budgetMax: e.target.value })}
-            disabled={disabled}
-          />
-        </FormField>
-      </div>
-
-      <FormField
-        label="Requirements & deliverables"
-        htmlFor="requirements"
-        hint="FAA notes, shot list, file formats, etc."
-      >
-        <textarea
-          id="requirements"
-          rows={3}
-          className={inputClassName}
-          value={form.requirements}
-          onChange={(e) => onChange({ requirements: e.target.value })}
-          disabled={disabled}
-        />
-      </FormField>
+      </>
+      ) : null}
     </div>
   );
 }

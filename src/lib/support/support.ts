@@ -8,6 +8,11 @@ import {
   writeSupportFile,
 } from "@/lib/support/storage";
 import { SUPPORT_CONFIRMATION_MESSAGE } from "@/lib/support/constants";
+import {
+  clearSupportTyping,
+  isSupportPartyTyping,
+  pulseSupportTyping,
+} from "@/lib/support/typing";
 import type {
   AdminSupportChatListItemDto,
   SupportChatDto,
@@ -266,7 +271,35 @@ export async function getSupportChatThreadForRequester(
     messages: chat.messages.map(toMessageDto),
     canReply: true,
     canManageStatus: false,
+    otherPartyTyping: isSupportPartyTyping(chatId, "support"),
   };
+}
+
+export async function pulseRequesterTyping(
+  chatId: string,
+  userId: string | null,
+  guestToken?: string | null,
+): Promise<{ ok: true } | { ok: false; error: string; status: 403 | 404 }> {
+  const chat = await prisma.supportChat.findUnique({ where: { id: chatId } });
+  if (!chat) {
+    return { ok: false, error: "Support chat not found.", status: 404 };
+  }
+  if (!(await canRequesterAccessChat(chat, userId, guestToken))) {
+    return { ok: false, error: "Access denied.", status: 403 };
+  }
+  pulseSupportTyping(chatId, "requester");
+  return { ok: true };
+}
+
+export async function pulseAdminTyping(
+  chatId: string,
+): Promise<{ ok: true } | { ok: false; error: string; status: 404 }> {
+  const chat = await prisma.supportChat.findUnique({ where: { id: chatId } });
+  if (!chat) {
+    return { ok: false, error: "Support chat not found.", status: 404 };
+  }
+  pulseSupportTyping(chatId, "support");
+  return { ok: true };
 }
 
 export async function listSupportChatsForRequester(
@@ -354,6 +387,7 @@ export async function sendSupportMessageAsRequester(
     },
   });
 
+  clearSupportTyping(chatId, "requester");
   notifyAdminsNewSupportChat(chatId, input.senderName);
 
   const row = await prisma.supportChatMessage.findUnique({
@@ -424,6 +458,7 @@ export async function getSupportChatForAdmin(
     messages: chat.messages.map(toMessageDto),
     canReply: canManage,
     canManageStatus: canManage,
+    otherPartyTyping: isSupportPartyTyping(chatId, "requester"),
   };
 }
 
@@ -489,6 +524,8 @@ export async function sendSupportMessageAsAdmin(
       status: chat.status === "open" ? "pending" : chat.status,
     },
   });
+
+  clearSupportTyping(chatId, "support");
 
   if (chat.requesterUserId) {
     notifyAsync(async () => {

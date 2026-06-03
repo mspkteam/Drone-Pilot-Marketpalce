@@ -37,13 +37,24 @@ export const emptyPilotFormState: PilotFormState = {
   isPublic: false,
 };
 
+export type PilotFormSection = "basics" | "location" | "services" | "license" | "compliance" | "public";
+
 type PilotProfileFormFieldsProps = {
   form: PilotFormState;
   onChange: (patch: Partial<PilotFormState>) => void;
   showCompliance?: boolean;
   showPublicToggle?: boolean;
   disabled?: boolean;
+  /** When set, only render this section (multi-step onboarding). */
+  section?: PilotFormSection;
 };
+
+function showSection(
+  section: PilotFormSection | undefined,
+  target: PilotFormSection,
+) {
+  return !section || section === target;
+}
 
 export function PilotProfileFormFields({
   form,
@@ -51,6 +62,7 @@ export function PilotProfileFormFields({
   showCompliance = false,
   showPublicToggle = false,
   disabled,
+  section,
 }: PilotProfileFormFieldsProps) {
   function toggleService(id: string) {
     if (disabled) return;
@@ -62,8 +74,9 @@ export function PilotProfileFormFields({
 
   return (
     <div className="space-y-8">
+      {showSection(section, "basics") ? (
       <section className="space-y-4">
-        <h2 className="text-lg font-semibold">Profile basics</h2>
+        <h2 className="text-lg font-semibold text-gold-light">Profile basics</h2>
         <FormField label="Display name" htmlFor="displayName" required>
           <input
             id="displayName"
@@ -89,9 +102,11 @@ export function PilotProfileFormFields({
           />
         </FormField>
       </section>
+      ) : null}
 
+      {showSection(section, "location") ? (
       <section className="space-y-4">
-        <h2 className="text-lg font-semibold">Service location</h2>
+        <h2 className="text-lg font-semibold text-gold-light">Service location</h2>
         <div className="grid gap-4 sm:grid-cols-2">
           <FormField label="City" htmlFor="locationCity" required>
             <input
@@ -137,9 +152,11 @@ export function PilotProfileFormFields({
           </FormField>
         </div>
       </section>
+      ) : null}
 
+      {showSection(section, "services") ? (
       <section className="space-y-4">
-        <h2 className="text-lg font-semibold">Services & rates</h2>
+        <h2 className="text-lg font-semibold text-gold-light">Services & rates</h2>
         <fieldset>
           <legend className="text-sm font-medium">
             Services offered <span className="text-destructive">*</span>
@@ -154,10 +171,8 @@ export function PilotProfileFormFields({
                   disabled={disabled}
                   onClick={() => toggleService(service.id)}
                   className={cn(
-                    "rounded-lg border px-3 py-2 text-left text-sm transition-colors",
-                    selected
-                      ? "border-gold bg-gold/10 ring-1 ring-gold"
-                      : "border-border hover:border-gold/40",
+                    "chip-select",
+                    selected && "chip-select-active",
                     disabled && "cursor-not-allowed opacity-60",
                   )}
                 >
@@ -194,9 +209,11 @@ export function PilotProfileFormFields({
           </FormField>
         </div>
       </section>
+      ) : null}
 
+      {showSection(section, "license") ? (
       <section className="space-y-4">
-        <h2 className="text-lg font-semibold">License & certification</h2>
+        <h2 className="text-lg font-semibold text-gold-light">License & certification</h2>
         <div className="grid gap-4 sm:grid-cols-2">
           <FormField
             label="License / certificate number"
@@ -222,9 +239,10 @@ export function PilotProfileFormFields({
           </FormField>
         </div>
       </section>
+      ) : null}
 
-      {showPublicToggle ? (
-        <section className="rounded-lg border border-border p-4">
+      {showPublicToggle && showSection(section, "public") ? (
+        <section className="premium-card p-4">
           <label className="flex cursor-pointer items-start gap-3">
             <input
               type="checkbox"
@@ -244,7 +262,7 @@ export function PilotProfileFormFields({
         </section>
       ) : null}
 
-      {showCompliance ? (
+      {showCompliance && showSection(section, "compliance") ? (
         <section>
           <ComplianceChecklist
             value={form.complianceAcknowledged}

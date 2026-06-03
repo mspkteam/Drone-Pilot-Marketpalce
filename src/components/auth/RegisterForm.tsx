@@ -85,7 +85,7 @@ export function RegisterForm() {
   }
 
   return (
-    <div className="rounded-lg border border-border bg-background p-6 shadow-sm sm:p-8">
+    <div className="premium-panel p-6 sm:p-8">
       <h1 className="text-2xl font-semibold tracking-tight">Create account</h1>
       <p className="mt-2 text-sm text-muted-foreground">
         Register as a client or licensed drone pilot.

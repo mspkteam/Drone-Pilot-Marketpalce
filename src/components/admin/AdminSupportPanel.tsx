@@ -5,11 +5,17 @@ import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import type { AdminSupportChatListItemDto, SupportChatStatus } from "@/types/support";
 import { SUPPORT_CHAT_STATUSES } from "@/types/support";
-import { cn } from "@/lib/utils";
-
 const STATUS_LABELS: Record<SupportChatStatus, string> = {
   open: "Open",
-  pending: "Pending",
+  pending: "In progress",
+  resolved: "Resolved",
+  closed: "Closed",
+};
+
+const FILTER_LABELS: Record<SupportChatStatus | "all", string> = {
+  all: "All chats",
+  open: "Open",
+  pending: "In progress",
   resolved: "Resolved",
   closed: "Closed",
 };
@@ -53,25 +59,26 @@ export function AdminSupportPanel({ readOnly }: { readOnly: boolean }) {
         </p>
       ) : null}
 
-      <div className="flex flex-wrap items-center gap-2">
-        <Button type="button" variant="ghost" size="sm" onClick={() => void load()}>
-          Refresh
-        </Button>
-        {(["all", ...SUPPORT_CHAT_STATUSES] as const).map((s) => (
-          <button
-            key={s}
-            type="button"
-            onClick={() => setFilter(s)}
-            className={cn(
-              "rounded-full border px-3 py-1 text-xs",
-              filter === s
-                ? "border-gold bg-gold/15 text-gold-dark"
-                : "border-border text-muted-foreground",
-            )}
-          >
-            {s === "all" ? "All" : STATUS_LABELS[s]}
-          </button>
-        ))}
+      <div className="space-y-2">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <p className="text-sm font-medium">Filter by status</p>
+          <Button type="button" variant="ghost" size="sm" onClick={() => void load()}>
+            Refresh list
+          </Button>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {(["all", ...SUPPORT_CHAT_STATUSES] as const).map((s) => (
+            <Button
+              key={s}
+              type="button"
+              variant={filter === s ? "primary" : "outline"}
+              size="sm"
+              onClick={() => setFilter(s)}
+            >
+              {FILTER_LABELS[s]}
+            </Button>
+          ))}
+        </div>
       </div>
 
       {error ? (

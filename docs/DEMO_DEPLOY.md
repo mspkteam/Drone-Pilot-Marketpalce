@@ -9,13 +9,15 @@
 
 ## Vercel environment variables
 
-Set in the Vercel project **Settings → Environment Variables** (Production + Preview):
+`DATABASE_URL` is set in `vercel.json` for the internal demo (`file:./dev.db`). You can override it in the dashboard if needed.
 
-| Variable | Value |
-|----------|--------|
-| `DATABASE_URL` | `file:./dev.db` |
-| `AUTH_SECRET` | Random string (32+ chars). Generate: `openssl rand -base64 32` |
-| `AUTH_URL` | Your Vercel URL, e.g. `https://your-project.vercel.app` |
+Set these in the Vercel project **Settings → Environment Variables** (Production + Preview):
+
+| Variable | Required | Value |
+|----------|----------|--------|
+| `AUTH_SECRET` | **Yes** | Random string (32+ chars). Generate: `openssl rand -base64 32` |
+| `AUTH_URL` | **Yes** | Your Vercel URL, e.g. `https://your-project.vercel.app` |
+| `DATABASE_URL` | No (demo default in repo) | `file:./dev.db` |
 
 **Do not set** `SMTP_URL` or any Stripe keys. Emails log to the build/runtime console only; payments use internal demo pay.
 

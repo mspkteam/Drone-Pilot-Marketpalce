@@ -10,6 +10,7 @@ export default defineConfig({
     seed: "npx tsx prisma/seed.ts",
   },
   datasource: {
-    url: process.env["DATABASE_URL"],
+    // Default for local + Vercel demo when DATABASE_URL is not in the dashboard
+    url: process.env["DATABASE_URL"] ?? "file:./dev.db",
   },
 });

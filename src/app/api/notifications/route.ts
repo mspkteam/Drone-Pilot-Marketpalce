@@ -16,7 +16,11 @@ export async function GET(request: Request) {
   const unreadOnly = searchParams.get("unreadOnly") === "1";
 
   const [notifications, unreadCount] = await Promise.all([
-    listNotificationsForUser(session.user.id, { unreadOnly, limit: 30 }),
+    listNotificationsForUser(session.user.id, {
+      unreadOnly,
+      limit: 30,
+      role: session.user.role,
+    }),
     getUnreadCount(session.user.id),
   ]);
 

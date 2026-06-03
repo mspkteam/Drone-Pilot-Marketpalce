@@ -1,10 +1,12 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import type { NotificationDto } from "@/types/notification";
 import { cn } from "@/lib/utils";
 
 export function NotificationBell() {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [notifications, setNotifications] = useState<NotificationDto[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -38,6 +40,16 @@ export function NotificationBell() {
   async function markAllRead() {
     await fetch("/api/notifications", { method: "POST" });
     load();
+  }
+
+  async function handleNotificationClick(n: NotificationDto) {
+    if (!n.readAt) {
+      await markRead(n.id);
+    }
+    if (n.href) {
+      setOpen(false);
+      router.push(n.href);
+    }
   }
 
   return (
@@ -110,23 +122,27 @@ export function NotificationBell() {
                     <li
                       key={n.id}
                       className={cn(
-                        "border-b border-border px-4 py-3 text-sm last:border-0",
+                        "border-b border-border last:border-0",
                         !n.readAt && "bg-gold/5",
                       )}
                     >
                       <button
                         type="button"
-                        className="w-full text-left"
-                        onClick={() => {
-                          if (!n.readAt) markRead(n.id);
-                        }}
+                        className={cn(
+                          "w-full px-4 py-3 text-left text-sm transition-colors hover:bg-surface",
+                          n.href && "cursor-pointer",
+                        )}
+                        onClick={() => void handleNotificationClick(n)}
                       >
                         <p className="font-medium">{n.title}</p>
                         <p className="mt-1 text-xs text-muted-foreground line-clamp-2">
                           {n.body}
                         </p>
-                        <p className="mt-1 text-[10px] text-muted-foreground">
-                          {new Date(n.createdAt).toLocaleString()}
+                        <p className="mt-1 flex items-center justify-between gap-2 text-[10px] text-muted-foreground">
+                          <span>{new Date(n.createdAt).toLocaleString()}</span>
+                          {n.href ? (
+                            <span className="text-gold-dark">View →</span>
+                          ) : null}
                         </p>
                       </button>
                     </li>

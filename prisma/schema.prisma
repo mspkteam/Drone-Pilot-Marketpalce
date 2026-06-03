@@ -29,6 +29,9 @@ model User {
   disputesResolved     Dispute[]       @relation("DisputeResolvedBy")
   disputeEntries       DisputeEntry[]
   uniformOrders        UniformOrder[]
+  supportChatsRequested SupportChat[]     @relation("SupportChatRequester")
+  supportChatsAssigned  SupportChat[]     @relation("SupportChatAssigned")
+  supportMessagesSent   SupportChatMessage[]
 }
 
 model Notification {
@@ -565,4 +568,47 @@ model UniformOrderItem {
 
   @@index([orderId])
   @@index([variantId])
+}
+
+model SupportChat {
+  id               String               @id @default(cuid())
+  requesterUserId  String?
+  requesterUser    User?                @relation("SupportChatRequester", fields: [requesterUserId], references: [id], onDelete: SetNull)
+  guestToken       String?              @unique
+  requesterRole    String
+  requesterName    String
+  requesterEmail   String
+  subject          String?
+  initialMessage   String
+  status           String               @default("open")
+  assignedAdminId  String?
+  assignedAdmin    User?                @relation("SupportChatAssigned", fields: [assignedAdminId], references: [id], onDelete: SetNull)
+  lastMessageAt    DateTime             @default(now())
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+  messages         SupportChatMessage[]
+
+  @@index([requesterUserId])
+  @@index([requesterEmail])
+  @@index([status])
+  @@index([lastMessageAt])
+}
+
+model SupportChatMessage {
+  id                 String      @id @default(cuid())
+  supportChatId      String
+  supportChat        SupportChat @relation(fields: [supportChatId], references: [id], onDelete: Cascade)
+  senderUserId       String?
+  senderUser         User?       @relation(fields: [senderUserId], references: [id], onDelete: SetNull)
+  senderRole         String
+  senderName         String
+  message            String
+  attachmentUrl      String?
+  attachmentFileName String?
+  attachmentMimeType String?
+  isSystem           Boolean     @default(false)
+  createdAt          DateTime    @default(now())
+
+  @@index([supportChatId])
+  @@index([createdAt])
 }

@@ -3,7 +3,13 @@ import { PrismaClient } from "@/generated/prisma/client";
 
 const url = process.env.DATABASE_URL ?? "file:./dev.db";
 
-const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
+/** Bump when Prisma schema changes so dev HMR does not keep an old client. */
+const PRISMA_CLIENT_SCHEMA_VERSION = 28;
+
+const globalForPrisma = globalThis as unknown as {
+  prisma?: PrismaClient;
+  prismaSchemaVersion?: number;
+};
 
 function createPrismaClient(): PrismaClient {
   const adapter = new PrismaBetterSqlite3({ url });
@@ -64,19 +70,26 @@ function isStalePrismaClient(client: PrismaClient): boolean {
     typeof c.uniformProduct === "undefined" ||
     typeof c.uniformProductVariant === "undefined" ||
     typeof c.uniformOrder === "undefined" ||
-    typeof c.uniformOrderItem === "undefined"
+    typeof c.uniformOrderItem === "undefined" ||
+    typeof c.supportChat === "undefined" ||
+    typeof c.supportChatMessage === "undefined"
   );
 }
 
 function getPrismaClient(): PrismaClient {
   const cached = globalForPrisma.prisma;
-  if (cached && !isStalePrismaClient(cached)) {
+  if (
+    cached &&
+    globalForPrisma.prismaSchemaVersion === PRISMA_CLIENT_SCHEMA_VERSION &&
+    !isStalePrismaClient(cached)
+  ) {
     return cached;
   }
 
   const client = createPrismaClient();
   if (process.env.NODE_ENV !== "production") {
     globalForPrisma.prisma = client;
+    globalForPrisma.prismaSchemaVersion = PRISMA_CLIENT_SCHEMA_VERSION;
   }
   return client;
 }

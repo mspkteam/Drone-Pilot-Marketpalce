@@ -12,6 +12,7 @@ export const adminNav = [
   { label: "Verifications", href: "/dashboard/admin/verifications" },
   { label: "Certificates", href: "/dashboard/admin/certificates" },
   { label: "Messages", href: "/dashboard/admin/messages" },
+  { label: "Support Chat", href: "/dashboard/admin/support" },
   { label: "Waitlist", href: "/dashboard/admin/waitlist" },
   { label: "Disputes", href: "/dashboard/admin/disputes" },
   { label: "Achievements / Wings", href: "/dashboard/admin/achievements" },

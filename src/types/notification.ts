@@ -13,6 +13,7 @@ export const NOTIFICATION_TYPES = [
   "verification_approved",
   "verification_rejected",
   "wing_earned",
+  "support_chat",
 ] as const;
 
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
@@ -25,6 +26,7 @@ export type NotificationDto = {
   title: string;
   body: string;
   payload: Record<string, unknown> | null;
+  href: string | null;
   status: string;
   readAt: string | null;
   sentAt: string;

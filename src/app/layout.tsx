@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Geist_Mono } from "next/font/google";
 import { SessionProvider } from "@/components/providers/SessionProvider";
+import { SupportChatWidget } from "@/components/support/SupportChatWidget";
 import "./globals.css";
 
 const inter = Inter({
@@ -30,7 +31,10 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${geistMono.variable} h-full`}>
       <body className="min-h-full flex flex-col antialiased">
-        <SessionProvider>{children}</SessionProvider>
+        <SessionProvider>
+          {children}
+          <SupportChatWidget />
+        </SessionProvider>
       </body>
     </html>
   );

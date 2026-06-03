@@ -1,9 +1,14 @@
 import type { Notification } from "@/generated/prisma/client";
 import { prisma } from "@/lib/db";
 import { emailUser } from "@/lib/notifications/email";
+import { getNotificationHref } from "@/lib/notifications/routes";
 import type { NotificationDto, NotificationType } from "@/types/notification";
+import type { UserRole } from "@/types/roles";
 
-export function toNotificationDto(n: Notification): NotificationDto {
+export function toNotificationDto(
+  n: Notification,
+  options?: { role?: UserRole },
+): NotificationDto {
   let payload: Record<string, unknown> | null = null;
   if (n.payload) {
     try {
@@ -12,14 +17,21 @@ export function toNotificationDto(n: Notification): NotificationDto {
       payload = null;
     }
   }
+  const type = n.type as NotificationType;
+  const href =
+    options?.role != null
+      ? getNotificationHref(type, payload, options.role)
+      : null;
+
   return {
     id: n.id,
     userId: n.userId,
-    type: n.type as NotificationType,
+    type,
     channel: n.channel,
     title: n.title,
     body: n.body,
     payload,
+    href,
     status: n.status,
     readAt: n.readAt?.toISOString() ?? null,
     sentAt: n.sentAt.toISOString(),
@@ -65,7 +77,7 @@ export function notifyAsync(fn: () => Promise<void>) {
 
 export async function listNotificationsForUser(
   userId: string,
-  options?: { unreadOnly?: boolean; limit?: number },
+  options?: { unreadOnly?: boolean; limit?: number; role?: UserRole },
 ) {
   const notifications = await prisma.notification.findMany({
     where: {
@@ -76,7 +88,9 @@ export async function listNotificationsForUser(
     orderBy: { createdAt: "desc" },
     take: options?.limit ?? 50,
   });
-  return notifications.map(toNotificationDto);
+  return notifications.map((n) =>
+    toNotificationDto(n, { role: options?.role }),
+  );
 }
 
 export async function getUnreadCount(userId: string) {

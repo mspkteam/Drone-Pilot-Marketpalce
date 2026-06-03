@@ -4,7 +4,7 @@ import { marketingFooterNav } from "@/lib/navigation/marketing";
 
 export function MarketingFooter() {
   return (
-    <footer className="border-t border-border bg-foreground text-background">
+    <footer className="border-t border-border bg-sidebar text-sidebar-foreground">
       <div className="public-container py-12">
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
           <div className="sm:col-span-2">

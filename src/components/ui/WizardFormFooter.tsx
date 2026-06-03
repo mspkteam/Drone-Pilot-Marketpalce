@@ -11,6 +11,9 @@ type WizardFormFooterProps = {
   loading?: boolean;
   submitLabel?: string;
   nextLabel?: string;
+  /** Optional second action on the final step (e.g. save draft before submit). */
+  onSaveDraft?: () => void;
+  draftLabel?: string;
 };
 
 /**
@@ -26,6 +29,8 @@ export function WizardFormFooter({
   loading = false,
   submitLabel = "Submit",
   nextLabel = "Next",
+  onSaveDraft,
+  draftLabel = "Save draft",
 }: WizardFormFooterProps) {
   const isFirst = step === 0;
   const isLast = step === totalSteps - 1;
@@ -45,9 +50,21 @@ export function WizardFormFooter({
             {nextLabel}
           </Button>
         ) : (
-          <Button type="button" onClick={onSubmit} disabled={loading}>
-            {loading ? "Submitting…" : submitLabel}
-          </Button>
+          <>
+            {onSaveDraft ? (
+              <Button
+                type="button"
+                variant="outline"
+                disabled={loading}
+                onClick={onSaveDraft}
+              >
+                {loading ? "Saving…" : draftLabel}
+              </Button>
+            ) : null}
+            <Button type="button" onClick={onSubmit} disabled={loading}>
+              {loading ? "Submitting…" : submitLabel}
+            </Button>
+          </>
         )}
       </div>
     </>

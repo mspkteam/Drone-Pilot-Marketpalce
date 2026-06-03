@@ -1,6 +1,6 @@
 "use client";
 
-import { FormField, inputClassName } from "@/components/ui/FormField";
+import { FormField, inputClassName, textareaClassName } from "@/components/ui/FormField";
 import { Button } from "@/components/ui/Button";
 import { JOB_CATEGORIES } from "@/types/job";
 import type { JobDto } from "@/types/job";
@@ -90,6 +90,7 @@ export function JobForm({ form, onChange, disabled, section }: JobFormProps) {
     <div className="space-y-6">
       {showJobSection(section, "basics") ? (
       <>
+      <h2 className="text-lg font-semibold text-gold-light">Job basics</h2>
       <FormField label="Job title" htmlFor="title" required>
         <input
           id="title"
@@ -105,7 +106,7 @@ export function JobForm({ form, onChange, disabled, section }: JobFormProps) {
         <textarea
           id="description"
           rows={4}
-          className={inputClassName}
+          className={textareaClassName}
           value={form.description}
           onChange={(e) => onChange({ description: e.target.value })}
           disabled={disabled}
@@ -139,23 +140,28 @@ export function JobForm({ form, onChange, disabled, section }: JobFormProps) {
       ) : null}
 
       {showJobSection(section, "requirements") ? (
+      <>
+      <h2 className="text-lg font-semibold text-gold-light">Project requirements</h2>
       <FormField
-        label="Requirements & deliverables"
+        label="Technical requirements & deliverables"
         htmlFor="requirements"
-        hint="FAA notes, shot list, file formats, etc."
+        hint="Shot list, file formats, FAA/airspace notes, and other deliverables."
       >
         <textarea
           id="requirements"
           rows={4}
-          className={inputClassName}
+          className={textareaClassName}
           value={form.requirements}
           onChange={(e) => onChange({ requirements: e.target.value })}
           disabled={disabled}
         />
       </FormField>
+      </>
       ) : null}
 
       {showJobSection(section, "budget") ? (
+      <>
+      <h2 className="text-lg font-semibold text-gold-light">Budget & timeline</h2>
       <div className="grid gap-4 sm:grid-cols-3">
         <FormField label="Preferred date" htmlFor="scheduledDate">
           <input
@@ -190,11 +196,17 @@ export function JobForm({ form, onChange, disabled, section }: JobFormProps) {
           />
         </FormField>
       </div>
+      </>
       ) : null}
 
       {showJobSection(section, "location") ? (
       <>
-      <FormField label="Location (site name or address)" htmlFor="locationLabel" required>
+      <h2 className="text-lg font-semibold text-gold-light">Locations</h2>
+      <p className="text-sm text-muted-foreground">
+        Primary shoot site for this job. Add city, region, and country to help pilots plan
+        travel.
+      </p>
+      <FormField label="Site name or address" htmlFor="locationLabel" required>
         <input
           id="locationLabel"
           className={inputClassName}
@@ -205,7 +217,7 @@ export function JobForm({ form, onChange, disabled, section }: JobFormProps) {
       </FormField>
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <FormField label="City" htmlFor="locationCity">
+        <FormField label="City" htmlFor="locationCity" hint="Optional">
           <input
             id="locationCity"
             className={inputClassName}
@@ -214,7 +226,7 @@ export function JobForm({ form, onChange, disabled, section }: JobFormProps) {
             disabled={disabled}
           />
         </FormField>
-        <FormField label="Region" htmlFor="locationRegion">
+        <FormField label="State / region" htmlFor="locationRegion" hint="Optional">
           <input
             id="locationRegion"
             className={inputClassName}
@@ -223,7 +235,7 @@ export function JobForm({ form, onChange, disabled, section }: JobFormProps) {
             disabled={disabled}
           />
         </FormField>
-        <FormField label="Country" htmlFor="locationCountry">
+        <FormField label="Country" htmlFor="locationCountry" hint="Optional">
           <input
             id="locationCountry"
             className={inputClassName}

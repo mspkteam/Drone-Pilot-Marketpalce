@@ -8,17 +8,37 @@ import {
   jobFormToPayload,
   type JobFormState,
 } from "@/components/jobs/JobForm";
-import { Button } from "@/components/ui/Button";
+import { ProfileReviewSummary } from "@/components/ui/ProfileReviewSummary";
 import { MultiStepWizard, type WizardStep } from "@/components/ui/MultiStepWizard";
+import { WizardFormFooter } from "@/components/ui/WizardFormFooter";
 import { JOB_CATEGORIES } from "@/types/job";
 
 const STEPS: WizardStep[] = [
   { id: "basics", title: "Job basics", description: "Title & category" },
-  { id: "requirements", title: "Requirements", description: "Deliverables" },
+  { id: "requirements", title: "Project requirements", description: "Deliverables" },
   { id: "budget", title: "Budget & timeline", description: "Dates & budget" },
-  { id: "location", title: "Location", description: "Where to fly" },
-  { id: "review", title: "Review", description: "Submit or draft" },
+  { id: "location", title: "Locations", description: "Shoot site" },
+  { id: "review", title: "Review & submit", description: "Draft or approval" },
 ];
+
+function formatLocation(form: JobFormState): string {
+  const parts = [
+    form.locationLabel,
+    form.locationCity,
+    form.locationRegion,
+    form.locationCountry,
+  ].filter((p) => p.trim());
+  return parts.join(", ") || "—";
+}
+
+function formatBudget(form: JobFormState): string {
+  if (form.budgetMin && form.budgetMax) {
+    return `$${form.budgetMin} – $${form.budgetMax} USD`;
+  }
+  if (form.budgetMin) return `From $${form.budgetMin} USD`;
+  if (form.budgetMax) return `Up to $${form.budgetMax} USD`;
+  return "—";
+}
 
 function validateStep(step: number, form: JobFormState): string | null {
   if (step === 0) {
@@ -27,7 +47,15 @@ function validateStep(step: number, form: JobFormState): string | null {
     if (!form.category) return "Select a category.";
   }
   if (step === 3 && !form.locationLabel.trim()) {
-    return "Location is required.";
+    return "Location (site name or address) is required.";
+  }
+  return null;
+}
+
+function validateAll(form: JobFormState): string | null {
+  for (let i = 0; i < STEPS.length - 1; i++) {
+    const err = validateStep(i, form);
+    if (err) return err;
   }
   return null;
 }
@@ -40,6 +68,9 @@ export function JobPostForm() {
   const [loading, setLoading] = useState(false);
 
   async function createJob() {
+    const err = validateAll(form);
+    if (err) throw new Error(err);
+
     const res = await fetch("/api/client/jobs", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -110,36 +141,16 @@ export function JobPostForm() {
       steps={STEPS}
       currentStep={step}
       footer={
-        <>
-          <div>
-            {step > 0 ? (
-              <Button type="button" variant="outline" onClick={goBack} disabled={loading}>
-                Back
-              </Button>
-            ) : null}
-          </div>
-          <div className="flex flex-col gap-2 sm:flex-row">
-            {step < STEPS.length - 1 ? (
-              <Button type="button" onClick={goNext} disabled={loading}>
-                Continue
-              </Button>
-            ) : (
-              <>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  disabled={loading}
-                  onClick={() => void handleSaveDraft()}
-                >
-                  {loading ? "Saving…" : "Save draft"}
-                </Button>
-                <Button type="button" disabled={loading} onClick={() => void handleSubmit()}>
-                  {loading ? "Submitting…" : "Submit for approval"}
-                </Button>
-              </>
-            )}
-          </div>
-        </>
+        <WizardFormFooter
+          step={step}
+          totalSteps={STEPS.length}
+          onBack={goBack}
+          onNext={goNext}
+          onSubmit={() => void handleSubmit()}
+          onSaveDraft={() => void handleSaveDraft()}
+          loading={loading}
+          submitLabel="Submit for approval"
+        />
       }
     >
       {error ? (
@@ -184,24 +195,34 @@ export function JobPostForm() {
         />
       ) : null}
       {step === 4 ? (
-        <div className="space-y-4 text-sm">
-          <p className="text-muted-foreground">
-            Review your job posting before saving or submitting for admin approval.
+        <div className="space-y-4">
+          <p className="text-sm text-muted-foreground">
+            Review your job before saving as a draft or submitting for admin approval.
+            You can edit drafts until they are approved.
           </p>
-          <dl className="premium-card divide-y divide-border">
-            {[
-              ["Title", form.title],
-              ["Category", categoryLabel || "—"],
-              ["Location", form.locationLabel],
-              ["Budget", `${form.budgetMin || "—"} – ${form.budgetMax || "—"} USD`],
-              ["Date", form.scheduledDate || "Flexible"],
-            ].map(([label, value]) => (
-              <div key={label} className="flex justify-between gap-4 px-4 py-3">
-                <dt className="text-muted-foreground">{label}</dt>
-                <dd className="max-w-[60%] text-right font-medium">{value}</dd>
-              </div>
-            ))}
-          </dl>
+          <ProfileReviewSummary
+            rows={[
+              { label: "Title", value: form.title },
+              { label: "Category", value: categoryLabel || "—" },
+              {
+                label: "Description",
+                value:
+                  form.description.length > 120
+                    ? `${form.description.slice(0, 120)}…`
+                    : form.description,
+              },
+              {
+                label: "Requirements",
+                value: form.requirements || "—",
+              },
+              { label: "Budget", value: formatBudget(form) },
+              {
+                label: "Shoot date",
+                value: form.scheduledDate || "Flexible / TBD",
+              },
+              { label: "Location", value: formatLocation(form) },
+            ]}
+          />
         </div>
       ) : null}
     </MultiStepWizard>

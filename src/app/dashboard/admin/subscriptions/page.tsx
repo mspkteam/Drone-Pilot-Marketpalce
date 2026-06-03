@@ -23,7 +23,7 @@ export default async function AdminSubscriptionsPage() {
         title="Subscriptions"
         description="View subscription plans and pilot enrollments (Super Admin)."
       />
-      <div className="mt-8 max-w-4xl">
+      <div className="mt-8 w-full">
         <AdminSubscriptionsPanel />
       </div>
     </>

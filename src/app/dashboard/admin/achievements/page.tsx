@@ -23,7 +23,7 @@ export default async function AdminAchievementsPage() {
         title="Digital Wings"
         description="Define wings, configure auto-assign rules, and award pilots manually."
       />
-      <div className="mt-8 max-w-4xl">
+      <div className="mt-8 w-full">
         <AdminWingsPanel />
       </div>
     </>

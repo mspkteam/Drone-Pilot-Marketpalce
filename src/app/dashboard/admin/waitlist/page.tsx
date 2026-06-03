@@ -26,7 +26,7 @@ export default async function AdminWaitlistPage() {
         {subscriberCount} active subscriber{subscriberCount === 1 ? "" : "s"} on
         the waitlist.
       </p>
-      <div className="mt-8 max-w-5xl">
+      <div className="mt-8 w-full">
         <AdminWaitlistPanel />
       </div>
     </>

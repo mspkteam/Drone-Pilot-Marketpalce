@@ -5,7 +5,7 @@ import { marketingFooterNav } from "@/lib/navigation/marketing";
 export function MarketingFooter() {
   return (
     <footer className="border-t border-border bg-foreground text-background">
-      <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
+      <div className="public-container py-12">
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
           <div className="sm:col-span-2">
             <Logo variant="light" />

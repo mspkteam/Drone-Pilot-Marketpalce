@@ -19,7 +19,7 @@ export default async function AdminShopPage() {
         title="Uniform Shop"
         description="Fulfill pilot apparel orders and manage catalog (Super Admin)."
       />
-      <div className="mt-8 max-w-4xl">
+      <div className="mt-8 w-full">
         <AdminUniformShopPanel isSuperAdmin={role === "super_admin"} />
       </div>
     </>

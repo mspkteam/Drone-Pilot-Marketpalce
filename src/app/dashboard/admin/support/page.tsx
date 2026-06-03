@@ -25,7 +25,7 @@ export default async function AdminSupportPage() {
             : "Manage and reply to platform support conversations."
         }
       />
-      <div className="mt-8 max-w-4xl">
+      <div className="mt-8 w-full">
         <AdminSupportPanel readOnly={readOnly} />
       </div>
     </>

@@ -19,7 +19,7 @@ export default async function AdminReviewsPage() {
         title="Reviews"
         description="Moderate post-booking reviews — publish, hide, or flag."
       />
-      <div className="mt-8 max-w-4xl">
+      <div className="mt-8 w-full">
         <AdminReviewsPanel />
       </div>
     </>

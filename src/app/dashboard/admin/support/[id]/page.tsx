@@ -30,7 +30,7 @@ export default async function AdminSupportThreadPage({ params }: PageProps) {
             : "Reply and update status for this support request."
         }
       />
-      <div className="mt-8 max-w-4xl">
+      <div className="mt-8 w-full">
         <AdminSupportThread chatId={id} readOnly={readOnly} />
       </div>
     </>

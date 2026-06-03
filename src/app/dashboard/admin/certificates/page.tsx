@@ -19,7 +19,7 @@ export default async function AdminCertificatesPage() {
         title="Certificates"
         description="Create templates, issue PDF certificates to pilots, and audit issued records."
       />
-      <div className="mt-8 max-w-4xl">
+      <div className="mt-8 w-full">
         <AdminCertificatesPanel />
       </div>
     </>

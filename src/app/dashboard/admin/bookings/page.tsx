@@ -19,7 +19,7 @@ export default async function AdminBookingsPage() {
         title="Bookings"
         description="Monitor and support booking lifecycle across the platform."
       />
-      <div className="mt-8 max-w-4xl">
+      <div className="mt-8 w-full">
         <AdminBookingsPanel />
       </div>
     </>

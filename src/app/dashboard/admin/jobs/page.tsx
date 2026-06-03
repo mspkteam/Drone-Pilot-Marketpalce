@@ -27,7 +27,7 @@ export default async function AdminJobsPage() {
           {pendingCount} job{pendingCount === 1 ? "" : "s"} awaiting approval.
         </p>
       ) : null}
-      <div className="mt-8 max-w-4xl">
+      <div className="mt-8 w-full">
         <AdminJobsPanel />
       </div>
     </>

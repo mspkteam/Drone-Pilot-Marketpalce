@@ -23,7 +23,7 @@ export default async function AdminUsersPage() {
         title="Users"
         description="Manage all platform user accounts (Super Admin)."
       />
-      <div className="mt-8 max-w-5xl">
+      <div className="mt-8 w-full">
         <AdminUsersPanel />
       </div>
     </>

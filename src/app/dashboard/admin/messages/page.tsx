@@ -19,7 +19,7 @@ export default async function AdminMessagesPage() {
         title="Messages"
         description="Read-only view of client–pilot conversations for support and disputes."
       />
-      <div className="mt-8 max-w-4xl">
+      <div className="mt-8 w-full">
         <AdminMessagesPanel />
       </div>
     </>

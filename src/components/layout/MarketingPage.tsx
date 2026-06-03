@@ -1,4 +1,4 @@
-import { PageHeader } from "@/components/layout/PageHeader";
+import { PublicPageContainer } from "@/components/layout/PublicPageContainer";
 import { PlaceholderCard } from "@/components/layout/PlaceholderCard";
 import { cn } from "@/lib/utils";
 
@@ -20,12 +20,7 @@ export function MarketingPage({
   return (
     <>
       <section className="marketing-hero border-b border-border">
-        <div
-          className={cn(
-            "relative mx-auto px-4 py-14 sm:px-6 sm:py-20",
-            narrow ? "max-w-3xl" : "max-w-6xl",
-          )}
-        >
+        <PublicPageContainer className="py-14 sm:py-20">
           {badge ? (
             <p className="text-sm font-medium uppercase tracking-[0.2em] text-gold">
               {badge}
@@ -35,22 +30,21 @@ export function MarketingPage({
             {title}
           </h1>
           <p className="mt-4 max-w-2xl text-lg text-neutral-400">{description}</p>
-        </div>
+        </PublicPageContainer>
       </section>
-      <div
-        className={cn(
-          "marketing-section",
-          narrow ? "max-w-3xl" : "max-w-6xl",
-        )}
-      >
-        {children ?? (
-          <PlaceholderCard
-            title="Content coming soon"
-            description="This marketing page shell is ready. Final copy and layout will align to Figma."
-            moduleId="M17"
-          />
-        )}
-      </div>
+      <section className="marketing-section">
+        <PublicPageContainer
+          innerClassName={cn(narrow && "mx-auto max-w-xl")}
+        >
+          {children ?? (
+            <PlaceholderCard
+              title="Content coming soon"
+              description="This marketing page shell is ready. Final copy and layout will align to Figma."
+              moduleId="M17"
+            />
+          )}
+        </PublicPageContainer>
+      </section>
     </>
   );
 }

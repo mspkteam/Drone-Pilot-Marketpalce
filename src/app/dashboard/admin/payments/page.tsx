@@ -19,7 +19,7 @@ export default async function AdminPaymentsPage() {
         title="Payments"
         description="Payments and commission records from completed bookings."
       />
-      <div className="mt-8 max-w-4xl">
+      <div className="mt-8 w-full">
         <AdminPaymentsPanel />
       </div>
     </>

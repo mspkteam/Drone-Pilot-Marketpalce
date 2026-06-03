@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/Button";
+import { PublicPageContainer } from "@/components/layout/PublicPageContainer";
 import { MarketingHero } from "@/components/marketing/MarketingHero";
 import { MarketingCta } from "@/components/marketing/MarketingCta";
 
@@ -20,47 +21,49 @@ export default function HomePage() {
       </MarketingHero>
 
       <section className="marketing-section">
-        <h2 className="text-center text-sm font-medium uppercase tracking-[0.2em] text-gold">
-          How it works
-        </h2>
-        <div className="mt-10 grid gap-6 sm:grid-cols-3">
-          {[
-            {
-              step: "01",
-              title: "Post or browse",
-              text: "Clients post approved jobs. Pilots browse work that matches their credentials.",
-            },
-            {
-              step: "02",
-              title: "Bid & accept",
-              text: "Pilots submit proposals. Clients review and accept the right pilot for the mission.",
-            },
-            {
-              step: "03",
-              title: "Fly & review",
-              text: "Track booking status, complete the job, and build trust with reviews.",
-            },
-          ].map((item) => (
-            <div key={item.step} className="premium-card p-6">
-              <span className="font-mono text-2xl font-semibold text-gold">
-                {item.step}
-              </span>
-              <h3 className="mt-4 text-lg font-semibold text-foreground">
-                {item.title}
-              </h3>
-              <p className="mt-2 text-sm text-muted-foreground">{item.text}</p>
-            </div>
-          ))}
-        </div>
-        <div className="mt-12 text-center">
-          <Button href="/how-it-works" variant="secondary">
-            Learn more
-          </Button>
-        </div>
+        <PublicPageContainer>
+          <h2 className="text-center text-sm font-medium uppercase tracking-[0.2em] text-gold">
+            How it works
+          </h2>
+          <div className="mt-10 grid gap-6 sm:grid-cols-3">
+            {[
+              {
+                step: "01",
+                title: "Post or browse",
+                text: "Clients post approved jobs. Pilots browse work that matches their credentials.",
+              },
+              {
+                step: "02",
+                title: "Bid & accept",
+                text: "Pilots submit proposals. Clients review and accept the right pilot for the mission.",
+              },
+              {
+                step: "03",
+                title: "Fly & review",
+                text: "Track booking status, complete the job, and build trust with reviews.",
+              },
+            ].map((item) => (
+              <div key={item.step} className="premium-card p-6">
+                <span className="font-mono text-2xl font-semibold text-gold">
+                  {item.step}
+                </span>
+                <h3 className="mt-4 text-lg font-semibold text-foreground">
+                  {item.title}
+                </h3>
+                <p className="mt-2 text-sm text-muted-foreground">{item.text}</p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-12 text-center">
+            <Button href="/how-it-works" variant="secondary">
+              Learn more
+            </Button>
+          </div>
+        </PublicPageContainer>
       </section>
 
-      <section className="border-t border-border bg-surface/50">
-        <div className="marketing-section py-16 text-center">
+      <section className="marketing-section border-t border-border bg-surface/50">
+        <PublicPageContainer className="text-center">
           <MarketingCta
             title="Ready to take flight?"
             description="Join as a client or pilot. The marketplace is live for demo review — full Figma-aligned UI coming next."
@@ -69,7 +72,7 @@ export default function HomePage() {
             secondaryHref="/pricing"
             secondaryLabel="View pricing"
           />
-        </div>
+        </PublicPageContainer>
       </section>
     </>
   );

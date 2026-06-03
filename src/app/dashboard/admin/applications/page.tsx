@@ -19,7 +19,7 @@ export default async function AdminApplicationsPage() {
         title="Applications"
         description="View all pilot bids and applications across jobs."
       />
-      <div className="mt-8 max-w-4xl">
+      <div className="mt-8 w-full">
         <AdminApplicationsPanel />
       </div>
     </>

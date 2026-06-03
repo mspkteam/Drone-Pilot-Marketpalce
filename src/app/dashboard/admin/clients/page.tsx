@@ -19,7 +19,7 @@ export default async function AdminClientsPage() {
         title="Clients"
         description="View client accounts and job activity."
       />
-      <div className="mt-8 max-w-4xl">
+      <div className="mt-8 w-full">
         <AdminClientsPanel />
       </div>
     </>

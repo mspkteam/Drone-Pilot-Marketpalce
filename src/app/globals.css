@@ -24,6 +24,11 @@
   --destructive-muted: rgba(239, 68, 68, 0.15);
   --radius: 0.625rem;
   --glow-gold: 0 0 24px rgba(201, 162, 39, 0.22);
+  /* Layout canvas (Step 1 — containers only) */
+  --public-canvas-max: 71.25rem; /* 1140px */
+  --dashboard-padding-mobile: 1rem;
+  --dashboard-padding-tablet: 2rem;
+  --dashboard-padding-desktop: 5rem; /* 80px */
 }
 
 @theme inline {
@@ -146,17 +151,52 @@ body::before {
   pointer-events: none;
 }
 
-.marketing-section {
+/* Public/marketing inner content — 1140px centered canvas */
+.public-container {
+  width: 100%;
+  max-width: var(--public-canvas-max);
   margin-left: auto;
   margin-right: auto;
-  max-width: 72rem;
-  padding: 4rem 1rem;
+  padding-left: var(--dashboard-padding-mobile);
+  padding-right: var(--dashboard-padding-mobile);
+}
+
+@media (min-width: 640px) {
+  .public-container {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+/* Dashboard main panel — full width with consistent padding */
+.dashboard-main {
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 0;
+  padding: var(--dashboard-padding-mobile);
+}
+
+@media (min-width: 768px) {
+  .dashboard-main {
+    padding: var(--dashboard-padding-tablet);
+  }
+}
+
+@media (min-width: 1024px) {
+  .dashboard-main {
+    padding: var(--dashboard-padding-desktop);
+  }
+}
+
+/* Full-width section band; pair with .public-container for 1140px inner canvas */
+.marketing-section {
+  width: 100%;
+  padding-top: 4rem;
+  padding-bottom: 4rem;
 }
 
 @media (min-width: 640px) {
   .marketing-section {
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
     padding-top: 5rem;
     padding-bottom: 5rem;
   }

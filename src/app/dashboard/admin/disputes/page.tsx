@@ -19,7 +19,7 @@ export default async function AdminDisputesPage() {
         title="Disputes"
         description="Review booking disputes, collect evidence from both parties, and resolve payouts."
       />
-      <div className="mt-8 max-w-4xl">
+      <div className="mt-8 w-full">
         <AdminDisputesPanel />
       </div>
     </>

@@ -1,3 +1,4 @@
+import { PublicPageContainer } from "@/components/layout/PublicPageContainer";
 import { cn } from "@/lib/utils";
 
 type MarketingHeroProps = {
@@ -17,7 +18,7 @@ export function MarketingHero({
 }: MarketingHeroProps) {
   return (
     <section className={cn("marketing-hero", className)}>
-      <div className="relative mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-28 lg:py-32">
+      <PublicPageContainer className="py-20 sm:py-28 lg:py-32">
         <p className="text-sm font-medium uppercase tracking-[0.2em] text-gold">
           {eyebrow}
         </p>
@@ -30,7 +31,7 @@ export function MarketingHero({
             {children}
           </div>
         ) : null}
-      </div>
+      </PublicPageContainer>
     </section>
   );
 }

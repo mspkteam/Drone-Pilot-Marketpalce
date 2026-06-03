@@ -334,6 +334,24 @@ Initial project control documentation and planning foundation for Drone Pilot Ma
 
 ---
 
+## [0.26.0] — 2026-06-03
+
+### Added
+
+- **M27 Pilot membership tiers (A-1 – A-6)**
+  - Replaces Basic/Pro as active marketplace membership (legacy plans deactivated)
+  - Tier-based job visibility delay from `job.approvedAt`
+  - A-1 view-only after 48h; A-2+ can bid after their delay; A-6 immediate
+  - Instructor eligibility on A-4+
+  - Central `src/lib/membership/membership.ts` + 11 unit tests
+  - Updated pilot subscription UI, jobs list, admin pilots/subscriptions, pricing page
+
+### Docs
+
+- `docs/M27_PILOT_MEMBERSHIP_TIERS.md`
+
+---
+
 ## [0.25.0] — 2026-06-02
 
 ### Added

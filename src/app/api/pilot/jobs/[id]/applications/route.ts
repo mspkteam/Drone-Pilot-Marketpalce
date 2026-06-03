@@ -36,7 +36,10 @@ export async function POST(request: Request, context: RouteContext) {
     );
 
     if (!result.ok) {
-      return NextResponse.json({ error: result.error }, { status: result.status });
+      return NextResponse.json(
+        { error: result.error },
+        { status: result.status },
+      );
     }
 
     return NextResponse.json({ application: result.application }, { status: 201 });

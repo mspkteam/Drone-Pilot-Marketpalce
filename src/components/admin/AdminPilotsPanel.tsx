@@ -119,6 +119,21 @@ export function AdminPilotsPanel() {
                   {p.licenseNumber}
                   {p.isPublic ? " · Public" : ""}
                 </p>
+                {p.membershipTierName ? (
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {p.membershipTierName} ({p.membershipTierCode}) ·{" "}
+                    {p.membershipStatus} · visibility{" "}
+                    {p.jobVisibilityDelayHours === 0
+                      ? "immediate"
+                      : `${p.jobVisibilityDelayHours}h`}{" "}
+                    · {p.canApply ? "can bid" : "view only"}
+                    {p.instructorEligible ? " · instructor" : ""}
+                  </p>
+                ) : (
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    No active membership tier
+                  </p>
+                )}
               </div>
               <div className="flex flex-wrap items-center gap-2">
                 <PilotStatusBadge status={p.status} />

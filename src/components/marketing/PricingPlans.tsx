@@ -2,6 +2,11 @@ import { listActivePlans } from "@/lib/subscriptions/subscription";
 import { DEFAULT_COMMISSION_RATE } from "@/lib/commission/constants";
 import { Button } from "@/components/ui/Button";
 
+function formatDelay(hours: number) {
+  if (hours === 0) return "Immediate";
+  return `${hours}h after job approval`;
+}
+
 export async function PricingPlans() {
   const plans = await listActivePlans();
   const commissionPercent = Math.round(DEFAULT_COMMISSION_RATE * 100);
@@ -28,12 +33,12 @@ export async function PricingPlans() {
       </section>
 
       <section>
-        <h2 className="text-lg font-semibold">For pilots</h2>
+        <h2 className="text-lg font-semibold">For pilots — membership tiers</h2>
         <p className="mt-2 text-sm text-muted-foreground">
-          Monthly plans unlock marketplace access. Choose a tier that fits your
-          flight volume.
+          Annual A-1 through A-6 tiers control when you see new jobs and whether you
+          can bid. Higher tiers get earlier visibility.
         </p>
-        <div className="mt-6 grid gap-6 sm:grid-cols-2">
+        <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {plans.map((plan) => (
             <div
               key={plan.id}
@@ -41,15 +46,15 @@ export async function PricingPlans() {
             >
               <p className="font-semibold">{plan.name}</p>
               <p className="mt-2 text-3xl font-bold">
-                {plan.currency} {plan.priceMonthly.toLocaleString()}
-                <span className="text-sm font-normal text-muted-foreground">
-                  /mo
-                </span>
+                {plan.currency} {plan.priceYearly.toFixed(2)}
+                <span className="text-sm font-normal text-muted-foreground">/yr</span>
               </p>
               <ul className="mt-4 flex-1 space-y-2 text-sm text-muted-foreground">
-                {plan.features.map((f) => (
-                  <li key={f}>· {f}</li>
-                ))}
+                <li>· Job visibility: {formatDelay(plan.jobVisibilityDelayHours)}</li>
+                <li>
+                  · {plan.canApply ? "Can submit bids" : "View only — no bidding"}
+                </li>
+                {plan.instructorEligible ? <li>· Instructor eligible</li> : null}
               </ul>
               <Button href="/register" variant="outline" className="mt-6">
                 Join as pilot

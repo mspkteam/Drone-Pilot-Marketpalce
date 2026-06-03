@@ -4,15 +4,21 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { SubscriptionStatusBadge } from "@/components/subscriptions/SubscriptionStatusBadge";
 import { Button } from "@/components/ui/Button";
+import type { MembershipTierDto } from "@/types/membership";
 import type {
   PilotSubscriptionDto,
-  SubscriptionPlanDto,
   SubscriptionStatus,
 } from "@/types/subscription";
 
+function formatDelay(hours: number) {
+  if (hours === 0) return "Immediate";
+  if (hours === 1) return "1 hour";
+  return `${hours} hours`;
+}
+
 export function PilotSubscriptionManager() {
   const router = useRouter();
-  const [plans, setPlans] = useState<SubscriptionPlanDto[]>([]);
+  const [plans, setPlans] = useState<MembershipTierDto[]>([]);
   const [subscription, setSubscription] = useState<PilotSubscriptionDto | null>(
     null,
   );
@@ -40,11 +46,11 @@ export function PilotSubscriptionManager() {
 
   useEffect(() => {
     load()
-      .catch(() => setError("Failed to load subscription data."))
+      .catch(() => setError("Failed to load membership data."))
       .finally(() => setLoading(false));
   }, []);
 
-  async function handleSubscribe(planId: string) {
+  async function handleEnroll(planId: string) {
     setError(null);
     setActionLoading(planId);
     try {
@@ -55,13 +61,13 @@ export function PilotSubscriptionManager() {
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error ?? "Failed to subscribe.");
+        setError(data.error ?? "Failed to enroll.");
         return;
       }
       setSubscription(data.subscription);
       router.refresh();
     } catch {
-      setError("Failed to subscribe.");
+      setError("Failed to enroll.");
     } finally {
       setActionLoading(null);
     }
@@ -87,8 +93,10 @@ export function PilotSubscriptionManager() {
   }
 
   if (loading) {
-    return <p className="text-sm text-muted-foreground">Loading plans…</p>;
+    return <p className="text-sm text-muted-foreground">Loading membership tiers…</p>;
   }
+
+  const activePlan = subscription?.plan;
 
   return (
     <div className="space-y-8">
@@ -98,30 +106,49 @@ export function PilotSubscriptionManager() {
         </p>
       ) : null}
 
-      {subscription ? (
+      {activePlan ? (
         <div className="rounded-lg border border-gold/30 bg-gold/10 p-6">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <p className="text-xs font-medium uppercase tracking-wider text-gold-dark">
-                Current plan
+                Current membership
               </p>
-              <p className="mt-1 text-lg font-semibold">{subscription.plan.name}</p>
+              <p className="mt-1 text-lg font-semibold">{activePlan.name}</p>
+              <p className="text-xs text-muted-foreground">{activePlan.code}</p>
             </div>
             <SubscriptionStatusBadge
-              status={subscription.status as SubscriptionStatus}
+              status={subscription!.status as SubscriptionStatus}
             />
           </div>
-          <p className="mt-2 text-sm text-muted-foreground">
-            {subscription.plan.currency}{" "}
-            {subscription.plan.priceMonthly.toLocaleString()}/month
-          </p>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Renews{" "}
-            {new Date(subscription.currentPeriodEnd).toLocaleDateString()}
-          </p>
+          <dl className="mt-4 grid gap-2 text-sm sm:grid-cols-2">
+            <div>
+              <dt className="text-muted-foreground">Yearly price</dt>
+              <dd className="font-medium">
+                {activePlan.currency} {activePlan.priceYearly.toFixed(2)}/year
+              </dd>
+            </div>
+            <div>
+              <dt className="text-muted-foreground">Job visibility</dt>
+              <dd className="font-medium">
+                {formatDelay(activePlan.jobVisibilityDelayHours)} after approval
+              </dd>
+            </div>
+            <div>
+              <dt className="text-muted-foreground">Bidding</dt>
+              <dd className="font-medium">
+                {activePlan.canApply ? "Allowed" : "View only (upgrade to A-2+)"}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-muted-foreground">Instructor eligible</dt>
+              <dd className="font-medium">
+                {activePlan.instructorEligible ? "Yes" : "No"}
+              </dd>
+            </div>
+          </dl>
           <p className="mt-4 text-xs text-muted-foreground">
-            Phase 1: enrollment is recorded locally — payment gateway integration
-            comes later.
+            Demo mode: enrollment is recorded internally — no Stripe or card required.
+            Renews {new Date(subscription!.currentPeriodEnd).toLocaleDateString()}.
           </p>
           <Button
             type="button"
@@ -131,17 +158,17 @@ export function PilotSubscriptionManager() {
             disabled={actionLoading !== null}
             onClick={handleCancel}
           >
-            {actionLoading === "cancel" ? "Cancelling…" : "Cancel subscription"}
+            {actionLoading === "cancel" ? "Cancelling…" : "Cancel membership"}
           </Button>
         </div>
       ) : (
         <p className="rounded-lg border border-border bg-surface-elevated px-4 py-3 text-sm text-muted-foreground">
-          No active subscription. Choose a plan below to enroll (demo billing —
-          no card required).
+          No active membership. Select an A-1 through A-6 tier below (demo billing — no
+          card required).
         </p>
       )}
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {plans.map((plan) => (
           <div
             key={plan.id}
@@ -149,13 +176,18 @@ export function PilotSubscriptionManager() {
           >
             <p className="font-semibold">{plan.name}</p>
             <p className="mt-2 text-2xl font-bold">
-              {plan.currency} {plan.priceMonthly.toLocaleString()}
-              <span className="text-sm font-normal text-muted-foreground">
-                /mo
-              </span>
+              {plan.currency} {plan.priceYearly.toFixed(2)}
+              <span className="text-sm font-normal text-muted-foreground">/yr</span>
             </p>
             <ul className="mt-4 flex-1 space-y-2 text-sm text-muted-foreground">
-              {plan.features.map((feature) => (
+              <li>· Visibility: {formatDelay(plan.jobVisibilityDelayHours)}</li>
+              <li>
+                · {plan.canApply ? "Can submit bids" : "View jobs only — no bidding"}
+              </li>
+              {plan.instructorEligible ? (
+                <li>· Instructor eligible</li>
+              ) : null}
+              {plan.features.slice(0, 2).map((feature) => (
                 <li key={feature}>· {feature}</li>
               ))}
             </ul>
@@ -163,9 +195,9 @@ export function PilotSubscriptionManager() {
               type="button"
               className="mt-6"
               disabled={subscription !== null || actionLoading !== null}
-              onClick={() => handleSubscribe(plan.id)}
+              onClick={() => handleEnroll(plan.id)}
             >
-              {actionLoading === plan.id ? "Enrolling…" : "Subscribe"}
+              {actionLoading === plan.id ? "Enrolling…" : "Select tier"}
             </Button>
           </div>
         ))}

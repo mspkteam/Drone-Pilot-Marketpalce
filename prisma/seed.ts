@@ -8,6 +8,10 @@ import {
   evaluateAndAssignWings,
 } from "../src/lib/wings/wings";
 import { seedUniformCatalog } from "../src/lib/shop/shop";
+import {
+  enrollPilotInTierCode,
+  seedMembershipTiers,
+} from "../src/lib/membership/seed-tiers";
 
 const url = process.env.DATABASE_URL ?? "file:./dev.db";
 const adapter = new PrismaBetterSqlite3({ url });
@@ -22,52 +26,23 @@ const users = [
   { email: "client@dronepilot.local", role: "client" },
 ];
 
-const subscriptionPlans = [
+const SAMPLE_TIER_PILOTS = [
   {
-    slug: "basic",
-    name: "Basic",
-    priceMonthly: 29,
-    features: [
-      "Browse and bid on approved jobs",
-      "Up to 5 active applications",
-      "Standard profile listing",
-    ],
+    email: "pilot-a1@dronepilot.local",
+    displayName: "Demo A-1 Student",
+    tierCode: "A1_STUDENT",
   },
   {
-    slug: "pro",
-    name: "Pro",
-    priceMonthly: 79,
-    features: [
-      "Everything in Basic",
-      "Unlimited applications",
-      "Priority in client offer lists",
-      "Featured pilot badge (coming soon)",
-    ],
+    email: "pilot-a2@dronepilot.local",
+    displayName: "Demo A-2 Junior",
+    tierCode: "A2_JUNIOR_FLIGHT_OFFICER",
   },
-];
+] as const;
 
 async function main() {
   const passwordHash = await hash(SEED_PASSWORD, 12);
 
-  for (const plan of subscriptionPlans) {
-    await prisma.subscriptionPlan.upsert({
-      where: { slug: plan.slug },
-      update: {
-        name: plan.name,
-        priceMonthly: plan.priceMonthly,
-        features: JSON.stringify(plan.features),
-        isActive: true,
-      },
-      create: {
-        slug: plan.slug,
-        name: plan.name,
-        priceMonthly: plan.priceMonthly,
-        currency: "USD",
-        features: JSON.stringify(plan.features),
-        isActive: true,
-      },
-    });
-  }
+  await seedMembershipTiers(prisma);
 
   for (const user of users) {
     const record = await prisma.user.upsert({
@@ -171,7 +146,7 @@ async function main() {
         },
         create: {
           userId: record.id,
-          displayName: "Demo Pilot",
+          displayName: "Demo Pilot (Captain)",
           bio: "Seeded pilot profile for local development.",
           locationCity: "Austin",
           locationRegion: "TX",
@@ -191,6 +166,40 @@ async function main() {
         },
       });
     }
+  }
+
+  for (const sample of SAMPLE_TIER_PILOTS) {
+    const record = await prisma.user.upsert({
+      where: { email: sample.email },
+      update: { passwordHash, role: "pilot", status: "active" },
+      create: {
+        email: sample.email,
+        passwordHash,
+        role: "pilot",
+        status: "active",
+      },
+    });
+    const now = new Date();
+    const profile = await prisma.pilotProfile.upsert({
+      where: { userId: record.id },
+      update: {
+        displayName: sample.displayName,
+        status: "approved",
+        complianceAcceptedAt: now,
+        onboardingCompletedAt: now,
+      },
+      create: {
+        userId: record.id,
+        displayName: sample.displayName,
+        licenseNumber: `DEMO-${sample.tierCode}`,
+        licenseCountry: "United States",
+        servicesOffered: JSON.stringify(["aerial_video"]),
+        status: "approved",
+        complianceAcceptedAt: now,
+        onboardingCompletedAt: now,
+      },
+    });
+    await enrollPilotInTierCode(prisma, profile.id, sample.tierCode);
   }
 
   const clientUser = await prisma.user.findUnique({
@@ -243,31 +252,11 @@ async function main() {
   }
 
   if (pilotUser?.pilotProfile) {
-    const basicPlan = await prisma.subscriptionPlan.findUnique({
-      where: { slug: "basic" },
-    });
-    if (basicPlan) {
-      const activeSub = await prisma.pilotSubscription.findFirst({
-        where: {
-          pilotProfileId: pilotUser.pilotProfile.id,
-          status: { in: ["active", "trialing"] },
-        },
-      });
-      if (!activeSub) {
-        const now = new Date();
-        const periodEnd = new Date(now);
-        periodEnd.setDate(periodEnd.getDate() + 30);
-        await prisma.pilotSubscription.create({
-          data: {
-            pilotProfileId: pilotUser.pilotProfile.id,
-            subscriptionPlanId: basicPlan.id,
-            status: "active",
-            currentPeriodStart: now,
-            currentPeriodEnd: periodEnd,
-          },
-        });
-      }
-    }
+    await enrollPilotInTierCode(
+      prisma,
+      pilotUser.pilotProfile.id,
+      "A6_CAPTAIN",
+    );
 
     const pendingVerification = await prisma.verification.findFirst({
       where: {

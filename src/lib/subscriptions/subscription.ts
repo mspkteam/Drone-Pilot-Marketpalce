@@ -1,32 +1,16 @@
 import type { PilotSubscription, SubscriptionPlan } from "@/generated/prisma/client";
+import { toMembershipTierDto } from "@/lib/membership/membership";
 import { prisma } from "@/lib/db";
 import type {
   PilotSubscriptionDto,
-  SubscriptionPlanDto,
   SubscriptionStatus,
 } from "@/types/subscription";
+import type { MembershipTierDto } from "@/types/membership";
 
 const ACTIVE_STATUSES = ["trialing", "active"] as const;
 
-export function parsePlanFeatures(features: string): string[] {
-  try {
-    const parsed = JSON.parse(features);
-    return Array.isArray(parsed) ? parsed.map(String) : [];
-  } catch {
-    return [];
-  }
-}
-
-export function toPlanDto(plan: SubscriptionPlan): SubscriptionPlanDto {
-  return {
-    id: plan.id,
-    name: plan.name,
-    slug: plan.slug,
-    priceMonthly: plan.priceMonthly,
-    currency: plan.currency,
-    features: parsePlanFeatures(plan.features),
-    isActive: plan.isActive,
-  };
+export function toPlanDto(plan: SubscriptionPlan): MembershipTierDto {
+  return toMembershipTierDto(plan);
 }
 
 export function toSubscriptionDto(
@@ -46,10 +30,10 @@ export function toSubscriptionDto(
   };
 }
 
-export async function listActivePlans() {
+export async function listActivePlans(): Promise<MembershipTierDto[]> {
   const plans = await prisma.subscriptionPlan.findMany({
     where: { isActive: true },
-    orderBy: { priceMonthly: "asc" },
+    orderBy: { sortOrder: "asc" },
   });
   return plans.map(toPlanDto);
 }
@@ -66,9 +50,9 @@ export async function getCurrentPilotSubscription(pilotProfileId: string) {
   return sub ? toSubscriptionDto(sub) : null;
 }
 
-function addDays(date: Date, days: number) {
+function addYears(date: Date, years: number) {
   const d = new Date(date);
-  d.setDate(d.getDate() + days);
+  d.setFullYear(d.getFullYear() + years);
   return d;
 }
 
@@ -84,7 +68,7 @@ export async function enrollPilotInPlan(
   });
 
   if (!plan) {
-    return { ok: false, error: "Plan not found.", status: 404 };
+    return { ok: false, error: "Membership tier not found.", status: 404 };
   }
 
   const existing = await prisma.pilotSubscription.findFirst({
@@ -97,13 +81,14 @@ export async function enrollPilotInPlan(
   if (existing) {
     return {
       ok: false,
-      error: "You already have an active subscription. Cancel it before switching plans.",
+      error:
+        "You already have an active membership. Cancel it before switching tiers.",
       status: 409,
     };
   }
 
   const now = new Date();
-  const periodEnd = addDays(now, 30);
+  const periodEnd = addYears(now, 1);
 
   const sub = await prisma.pilotSubscription.create({
     data: {
@@ -112,6 +97,7 @@ export async function enrollPilotInPlan(
       status: "active",
       currentPeriodStart: now,
       currentPeriodEnd: periodEnd,
+      externalSubscriptionId: "demo_internal",
     },
     include: { subscriptionPlan: true },
   });
@@ -135,7 +121,7 @@ export async function cancelPilotSubscription(
   });
 
   if (!existing) {
-    return { ok: false, error: "No active subscription to cancel.", status: 404 };
+    return { ok: false, error: "No active membership to cancel.", status: 404 };
   }
 
   const updated = await prisma.pilotSubscription.update({

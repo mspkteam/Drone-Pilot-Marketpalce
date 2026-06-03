@@ -17,6 +17,6 @@ export async function GET() {
     return NextResponse.json({ error: eligible.error }, { status: eligible.status });
   }
 
-  const jobs = await listOpenJobsForPilot(eligible.profile.id);
-  return NextResponse.json({ jobs });
+  const result = await listOpenJobsForPilot(eligible.profile.id);
+  return NextResponse.json(result);
 }

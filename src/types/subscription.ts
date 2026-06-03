@@ -1,3 +1,5 @@
+import type { MembershipTierDto } from "@/types/membership";
+
 export const SUBSCRIPTION_STATUSES = [
   "trialing",
   "active",
@@ -8,15 +10,8 @@ export const SUBSCRIPTION_STATUSES = [
 
 export type SubscriptionStatus = (typeof SUBSCRIPTION_STATUSES)[number];
 
-export type SubscriptionPlanDto = {
-  id: string;
-  name: string;
-  slug: string;
-  priceMonthly: number;
-  currency: string;
-  features: string[];
-  isActive: boolean;
-};
+/** @deprecated Use MembershipTierDto — kept as alias during migration */
+export type SubscriptionPlanDto = MembershipTierDto;
 
 export type PilotSubscriptionDto = {
   id: string;
@@ -28,5 +23,5 @@ export type PilotSubscriptionDto = {
   externalSubscriptionId: string | null;
   createdAt: string;
   updatedAt: string;
-  plan: SubscriptionPlanDto;
+  plan: MembershipTierDto;
 };

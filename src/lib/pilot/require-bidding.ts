@@ -1,3 +1,4 @@
+import { getPilotActiveTier } from "@/lib/membership/membership";
 import { getPilotProfileByUserId, isOnboardingComplete } from "@/lib/pilot/profile";
 import type { PilotProfileStatus } from "@/types/pilot";
 
@@ -22,5 +23,15 @@ export async function requirePilotEligibleToBid(userId: string) {
     };
   }
 
-  return { ok: true as const, profile };
+  const tier = await getPilotActiveTier(profile.id);
+  if (!tier) {
+    return {
+      ok: false as const,
+      status: 403 as const,
+      error:
+        "Enroll in a membership tier (A-1 through A-6) before browsing marketplace jobs.",
+    };
+  }
+
+  return { ok: true as const, profile, tier };
 }

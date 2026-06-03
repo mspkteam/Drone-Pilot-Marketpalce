@@ -1,9 +1,12 @@
 import { prisma } from "@/lib/db";
+import { toMembershipTierDto } from "@/lib/membership/membership";
 import { notifyAsync, sendNotification } from "@/lib/notifications/notify";
 import { evaluateAndAssignWings } from "@/lib/wings/wings";
 import type { AdminPilotDto } from "@/types/admin";
 import type { PilotProfileStatus } from "@/types/pilot";
 import { PILOT_PROFILE_STATUSES } from "@/types/pilot";
+
+const ACTIVE_MEMBERSHIP = ["active", "trialing"] as const;
 
 export async function listPilotsForAdmin(
   filter?: PilotProfileStatus | "all",
@@ -13,23 +16,41 @@ export async function listPilotsForAdmin(
 
   const pilots = await prisma.pilotProfile.findMany({
     where,
-    include: { user: { select: { email: true } } },
+    include: {
+      user: { select: { email: true } },
+      subscriptions: {
+        where: { status: { in: [...ACTIVE_MEMBERSHIP] } },
+        include: { subscriptionPlan: true },
+        orderBy: { createdAt: "desc" },
+        take: 1,
+      },
+    },
     orderBy: { updatedAt: "desc" },
   });
 
-  return pilots.map((p) => ({
-    id: p.id,
-    userId: p.userId,
-    email: p.user.email,
-    displayName: p.displayName,
-    status: p.status as PilotProfileStatus,
-    isPublic: p.isPublic,
-    locationCity: p.locationCity,
-    locationRegion: p.locationRegion,
-    licenseNumber: p.licenseNumber,
-    onboardingCompletedAt: p.onboardingCompletedAt?.toISOString() ?? null,
-    createdAt: p.createdAt.toISOString(),
-  }));
+  return pilots.map((p) => {
+    const sub = p.subscriptions[0];
+    const tier = sub ? toMembershipTierDto(sub.subscriptionPlan) : null;
+    return {
+      id: p.id,
+      userId: p.userId,
+      email: p.user.email,
+      displayName: p.displayName,
+      status: p.status as PilotProfileStatus,
+      isPublic: p.isPublic,
+      locationCity: p.locationCity,
+      locationRegion: p.locationRegion,
+      licenseNumber: p.licenseNumber,
+      onboardingCompletedAt: p.onboardingCompletedAt?.toISOString() ?? null,
+      createdAt: p.createdAt.toISOString(),
+      membershipTierName: tier?.name ?? null,
+      membershipTierCode: tier?.code ?? null,
+      membershipStatus: sub?.status ?? null,
+      canApply: tier?.canApply ?? null,
+      instructorEligible: tier?.instructorEligible ?? null,
+      jobVisibilityDelayHours: tier?.jobVisibilityDelayHours ?? null,
+    };
+  });
 }
 
 export async function approvePilotProfile(pilotProfileId: string) {

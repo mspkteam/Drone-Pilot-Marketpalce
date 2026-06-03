@@ -355,16 +355,26 @@ model Review {
 }
 
 model SubscriptionPlan {
-  id            String              @id @default(cuid())
-  name          String
-  slug          String              @unique
-  priceMonthly  Float
-  currency      String              @default("USD")
-  features      String              @default("[]")
-  isActive      Boolean             @default(true)
-  createdAt     DateTime            @default(now())
-  updatedAt     DateTime            @updatedAt
-  subscriptions PilotSubscription[]
+  id                      String              @id @default(cuid())
+  code                    String?             @unique
+  name                    String
+  slug                    String              @unique
+  priceMonthly            Float               @default(0)
+  priceYearly             Float               @default(0)
+  jobVisibilityDelayHours Int                 @default(0)
+  canViewJobs             Boolean             @default(true)
+  canApply                Boolean             @default(false)
+  instructorEligible      Boolean             @default(false)
+  sortOrder               Int                 @default(0)
+  currency                String              @default("USD")
+  features                String              @default("[]")
+  isActive                Boolean             @default(true)
+  createdAt               DateTime            @default(now())
+  updatedAt               DateTime            @updatedAt
+  subscriptions           PilotSubscription[]
+
+  @@index([isActive])
+  @@index([sortOrder])
 }
 
 model PilotSubscription {

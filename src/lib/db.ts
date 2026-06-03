@@ -19,7 +19,7 @@ function isStalePrismaClient(client: PrismaClient): boolean {
     jobApplication?: unknown;
     booking?: unknown;
     review?: unknown;
-    subscriptionPlan?: unknown;
+    subscriptionPlan?: unknown & { code?: unknown };
     pilotSubscription?: unknown;
     payment?: unknown;
     commission?: unknown;

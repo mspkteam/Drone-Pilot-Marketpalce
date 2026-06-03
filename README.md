@@ -96,8 +96,7 @@ All planning and control docs live in **`/docs`**:
 
 **Post-MVP features (Priorities 2–7)** — see [`docs/DEVELOPMENT_ROADMAP.md`](docs/DEVELOPMENT_ROADMAP.md).
 
-- **Done (latest):** Priority 2 Certificates — [`docs/M22_CERTIFICATE_SYSTEM.md`](docs/M22_CERTIFICATE_SYSTEM.md)
-- **Next:** Priority 3 Dispute Resolution
+- **Done (latest):** A-1 – A-6 pilot membership tiers — [`docs/M27_PILOT_MEMBERSHIP_TIERS.md`](docs/M27_PILOT_MEMBERSHIP_TIERS.md)
 - **Deferred:** Stripe, SMTP, M19 SEO, M20 launch QA, publishing
 
 Module tracker: [`docs/BUILD_CONTROL.md`](docs/BUILD_CONTROL.md)
@@ -132,7 +131,9 @@ Open [http://localhost:3000](http://localhost:3000).
 | Role | Email | Password |
 |------|-------|----------|
 | Client | `client@dronepilot.local` | `Demo123!` |
-| Pilot | `pilot@dronepilot.local` | `Demo123!` |
+| Pilot (A-6 Captain) | `pilot@dronepilot.local` | `Demo123!` |
+| Pilot (A-1 Student) | `pilot-a1@dronepilot.local` | `Demo123!` |
+| Pilot (A-2 Junior) | `pilot-a2@dronepilot.local` | `Demo123!` |
 | Admin | `admin@dronepilot.local` | `Demo123!` |
 
 ### Scripts

@@ -37,8 +37,34 @@ export type PilotOpenJobDto = {
   requirements: string | null;
   status: string;
   createdAt: string;
+  approvedAt: string | null;
+  visibleAt: string;
+  canApply: boolean;
   hasApplied: boolean;
   applicationId: string | null;
+};
+
+export type PilotLockedJobDto = {
+  id: string;
+  title: string;
+  locationLabel: string;
+  category: string;
+  status: string;
+  visibleAt: string;
+  jobVisibilityDelayHours: number;
+};
+
+export type PilotJobsListResponse = {
+  jobs: PilotOpenJobDto[];
+  lockedJobs: PilotLockedJobDto[];
+  membership: {
+    tierName: string;
+    tierCode: string;
+    jobVisibilityDelayHours: number;
+    canApply: boolean;
+    instructorEligible: boolean;
+  } | null;
+  applyBlockedMessage: string | null;
 };
 
 export type PilotApplicationListItemDto = JobApplicationDto & {
@@ -48,4 +74,11 @@ export type PilotApplicationListItemDto = JobApplicationDto & {
     locationLabel: string;
     status: string;
   };
+};
+
+export type PilotJobDetailDto = {
+  job: PilotOpenJobDto;
+  application: JobApplicationDto | null;
+  canApply: boolean;
+  applyBlockedMessage: string | null;
 };

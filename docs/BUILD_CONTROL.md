@@ -16,7 +16,8 @@ Master build control table for tracking modules, status, and sprint alignment. U
 | M08 | Pilot Bidding / Applications | Pilots browse jobs and submit bids/applications | Ready for Review | P1 | — | M05, M07 | Sprint 7 | JobApplication model, open jobs browse, submit bid |
 | M09 | Booking Workflow | Client accepts bid, booking states, assignment lifecycle | Ready for Review | P1 | — | M08 | Sprint 8 | Booking model, accept bid, status flow |
 | M10 | Reviews & Ratings | Post-job reviews for pilots and clients | Ready for Review | P2 | — | M09 | Sprint 9 | Review model, post-completion reviews |
-| M11 | Pilot Subscriptions | Plans, enrollment, subscription status | Ready for Review | P1 | — | M02 | Sprint 10 | Plans, enroll/cancel, seed Basic on demo pilot |
+| M11 | Pilot Subscriptions | A-1–A-6 tiers, visibility delay, demo enroll | Ready for Review | P1 | — | M02 | Sprint 10 | See M27 — replaces Basic/Pro as primary logic |
+| M27 | Pilot Membership Tiers | A-1–A-6 visibility, bidding rules, instructor flag | Ready for Review | P1 | — | M02, M07, M08 | Sprint 25 | `M27_PILOT_MEMBERSHIP_TIERS.md` |
 | M12 | Commission System | Platform commission (10% Phase 1), calculation and records | Ready for Review | P1 | — | M09, M11 | Sprint 11 | Payment + 10% commission on booking complete |
 | M13 | Admin Dashboard | Admin UI for users, jobs, bookings, settings | Ready for Review | P1 | — | M02 | Sprint 15 | Pilots, bookings, payments, reviews, overview stats |
 | M14 | Verification System | Pilot license/cert verification workflow | Ready for Review | P2 | — | M03, M13 | Sprint 16 | Submit docs, admin queue, public verified badges |

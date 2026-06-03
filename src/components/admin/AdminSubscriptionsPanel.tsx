@@ -21,7 +21,7 @@ export function AdminSubscriptionsPanel() {
       const res = await fetch("/api/admin/subscriptions");
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error ?? "Failed to load subscriptions.");
+        setError(data.error ?? "Failed to load memberships.");
         setPlans([]);
         setSubscriptions([]);
       } else {
@@ -29,7 +29,7 @@ export function AdminSubscriptionsPanel() {
         setSubscriptions(data.subscriptions ?? []);
       }
     } catch {
-      setError("Failed to load subscriptions.");
+      setError("Failed to load memberships.");
       setPlans([]);
       setSubscriptions([]);
     } finally {
@@ -58,10 +58,9 @@ export function AdminSubscriptionsPanel() {
       ) : (
         <>
           <section>
-            <h2 className="text-lg font-semibold">Plans</h2>
+            <h2 className="text-lg font-semibold">Membership tiers (A-1 – A-6)</h2>
             <p className="text-sm text-muted-foreground">
-              Plan CRUD and Stripe billing are deferred; seed defines Basic and
-              Pro.
+              Demo/internal billing only — Stripe deferred.
             </p>
             <ul className="mt-4 divide-y divide-border rounded-lg border border-border">
               {plans.map((p) => (
@@ -69,12 +68,15 @@ export function AdminSubscriptionsPanel() {
                   <p className="font-medium">
                     {p.name}{" "}
                     <span className="text-sm font-normal text-muted-foreground">
-                      ({p.slug})
+                      ({p.code})
                     </span>
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    {p.currency} {p.priceMonthly}/mo · {p.subscriberCount}{" "}
-                    subscriber{p.subscriberCount === 1 ? "" : "s"} ·{" "}
+                    {p.currency} {p.priceYearly.toFixed(2)}/yr · visibility{" "}
+                    {p.jobVisibilityDelayHours}h ·{" "}
+                    {p.canApply ? "can bid" : "view only"} ·{" "}
+                    {p.instructorEligible ? "instructor" : "not instructor"} ·{" "}
+                    {p.subscriberCount} enrolled ·{" "}
                     {p.isActive ? "Active" : "Inactive"}
                   </p>
                 </li>
@@ -86,7 +88,7 @@ export function AdminSubscriptionsPanel() {
             <h2 className="text-lg font-semibold">Pilot enrollments</h2>
             {subscriptions.length === 0 ? (
               <p className="mt-4 text-sm text-muted-foreground">
-                No pilot subscriptions yet.
+                No pilot memberships yet.
               </p>
             ) : (
               <ul className="mt-4 divide-y divide-border rounded-lg border border-border">
@@ -98,11 +100,13 @@ export function AdminSubscriptionsPanel() {
                     <div>
                       <p className="font-medium">{s.pilotName}</p>
                       <p className="text-sm text-muted-foreground">
-                        {s.pilotEmail} · {s.planName}
+                        {s.pilotEmail} · {s.planName} ({s.tierCode})
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        Period ends{" "}
-                        {new Date(s.currentPeriodEnd).toLocaleDateString()}
+                        Visibility {s.jobVisibilityDelayHours}h ·{" "}
+                        {s.canApply ? "can bid" : "view only"} ·{" "}
+                        {s.instructorEligible ? "instructor" : "not instructor"} ·
+                        ends {new Date(s.currentPeriodEnd).toLocaleDateString()}
                       </p>
                     </div>
                     <SubscriptionStatusBadge

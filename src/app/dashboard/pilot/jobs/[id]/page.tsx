@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import { ApplicationStatusBadge } from "@/components/applications/ApplicationStatusBadge";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { PilotBidForm, PilotJobSummary } from "@/components/pilot/PilotBidForm";
+import { Button } from "@/components/ui/Button";
 import { formatJobBudget } from "@/lib/jobs/format-budget";
 import { getOpenJobForPilot } from "@/lib/applications/application";
 import {
@@ -44,7 +45,7 @@ export default async function PilotJobDetailPage({ params }: PageProps) {
     notFound();
   }
 
-  const { job, application } = result;
+  const { job, application, canApply, applyBlockedMessage } = result;
   const budget = formatJobBudget(job.budgetMin, job.budgetMax, job.currency);
 
   return (
@@ -95,7 +96,7 @@ export default async function PilotJobDetailPage({ params }: PageProps) {
               </p>
             ) : null}
           </div>
-        ) : (
+        ) : canApply ? (
           <div className="rounded-lg border border-border p-6">
             <h2 className="text-lg font-semibold">Submit your bid</h2>
             <p className="mt-1 text-sm text-muted-foreground">
@@ -105,6 +106,24 @@ export default async function PilotJobDetailPage({ params }: PageProps) {
             <div className="mt-6">
               <PilotBidForm jobId={job.id} currency={job.currency} />
             </div>
+          </div>
+        ) : (
+          <div className="rounded-lg border border-gold/30 bg-gold/10 p-6">
+            <h2 className="text-lg font-semibold text-gold-dark">
+              Bidding not available
+            </h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {applyBlockedMessage ??
+                "Your membership tier does not allow bidding on this job."}
+            </p>
+            <Button
+              href="/dashboard/pilot/subscription"
+              variant="outline"
+              size="sm"
+              className="mt-4"
+            >
+              View membership tiers
+            </Button>
           </div>
         )}
       </div>

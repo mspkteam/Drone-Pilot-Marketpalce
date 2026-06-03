@@ -40,6 +40,12 @@ export type AdminPilotDto = {
   licenseNumber: string;
   onboardingCompletedAt: string | null;
   createdAt: string;
+  membershipTierName: string | null;
+  membershipTierCode: string | null;
+  membershipStatus: string | null;
+  canApply: boolean | null;
+  instructorEligible: boolean | null;
+  jobVisibilityDelayHours: number | null;
 };
 
 export type AdminClientDto = {
@@ -100,15 +106,24 @@ export type AdminSubscriptionRowDto = {
   pilotName: string;
   pilotEmail: string;
   planName: string;
+  tierCode: string;
   status: string;
   currentPeriodEnd: string;
+  jobVisibilityDelayHours: number;
+  canApply: boolean;
+  instructorEligible: boolean;
 };
 
 export type AdminPlanDto = {
   id: string;
+  code: string;
   name: string;
   slug: string;
+  priceYearly: number;
   priceMonthly: number;
+  jobVisibilityDelayHours: number;
+  canApply: boolean;
+  instructorEligible: boolean;
   currency: string;
   isActive: boolean;
   subscriberCount: number;

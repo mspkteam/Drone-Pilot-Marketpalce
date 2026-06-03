@@ -1,10 +1,18 @@
-import type { JobApplication } from "@/generated/prisma/client";
+import type { Job, JobApplication } from "@/generated/prisma/client";
+import {
+  canPilotApplyToJobById,
+  getPilotActiveTier,
+  getVisibleJobsForPilot,
+} from "@/lib/membership/membership";
 import { prisma } from "@/lib/db";
 import { triggerBidReceived } from "@/lib/notifications/triggers";
 import type {
   ApplicationStatus,
   JobApplicationDto,
   PilotApplicationListItemDto,
+  PilotJobDetailDto,
+  PilotJobsListResponse,
+  PilotLockedJobDto,
   PilotOpenJobDto,
 } from "@/types/application";
 
@@ -23,54 +31,12 @@ export function toApplicationDto(app: JobApplication): JobApplicationDto {
   };
 }
 
-export async function listOpenJobsForPilot(pilotProfileId: string) {
-  const jobs = await prisma.job.findMany({
-    where: { status: { in: ["open", "in_bidding"] } },
-    orderBy: { approvedAt: "desc" },
-    include: {
-      applications: {
-        where: { pilotProfileId },
-        select: { id: true },
-      },
-    },
-  });
-
-  return jobs.map(
-    (job): PilotOpenJobDto => ({
-      id: job.id,
-      title: job.title,
-      description: job.description,
-      category: job.category,
-      locationLabel: job.locationLabel,
-      locationCity: job.locationCity,
-      locationRegion: job.locationRegion,
-      locationCountry: job.locationCountry,
-      scheduledDate: job.scheduledDate?.toISOString() ?? null,
-      budgetMin: job.budgetMin,
-      budgetMax: job.budgetMax,
-      currency: job.currency,
-      requirements: job.requirements,
-      status: job.status,
-      createdAt: job.createdAt.toISOString(),
-      hasApplied: job.applications.length > 0,
-      applicationId: job.applications[0]?.id ?? null,
-    }),
-  );
-}
-
-export async function getOpenJobForPilot(jobId: string, pilotProfileId: string) {
-  const job = await prisma.job.findFirst({
-    where: { id: jobId, status: { in: ["open", "in_bidding"] } },
-    include: {
-      applications: {
-        where: { pilotProfileId },
-      },
-    },
-  });
-
-  if (!job) return null;
-
-  const dto: PilotOpenJobDto = {
+function mapJobToOpenDto(
+  job: Job & { applications: { id: string }[] },
+  visibleAt: Date,
+  canApply: boolean,
+): PilotOpenJobDto {
+  return {
     id: job.id,
     title: job.title,
     description: job.description,
@@ -86,15 +52,120 @@ export async function getOpenJobForPilot(jobId: string, pilotProfileId: string) 
     requirements: job.requirements,
     status: job.status,
     createdAt: job.createdAt.toISOString(),
+    approvedAt: job.approvedAt?.toISOString() ?? null,
+    visibleAt: visibleAt.toISOString(),
+    canApply,
     hasApplied: job.applications.length > 0,
     applicationId: job.applications[0]?.id ?? null,
   };
+}
+
+function mapLockedJob(
+  job: Job,
+  visibleAt: Date,
+  delayHours: number,
+): PilotLockedJobDto {
+  return {
+    id: job.id,
+    title: job.title,
+    locationLabel: job.locationLabel,
+    category: job.category,
+    status: job.status,
+    visibleAt: visibleAt.toISOString(),
+    jobVisibilityDelayHours: delayHours,
+  };
+}
+
+const A1_APPLY_MESSAGE =
+  "Your A-1 Student tier allows job viewing after 48 hours, but bidding requires upgrading to A-2 or higher.";
+
+export async function listOpenJobsForPilot(
+  pilotProfileId: string,
+): Promise<PilotJobsListResponse> {
+  const { tier, visible, locked } = await getVisibleJobsForPilot(pilotProfileId);
+
+  if (!tier) {
+    return {
+      jobs: [],
+      lockedJobs: [],
+      membership: null,
+      applyBlockedMessage: "Enroll in a membership tier to browse marketplace jobs.",
+    };
+  }
+
+  const jobs = visible.map(({ job, visibleAt, canApply }) =>
+    mapJobToOpenDto(job, visibleAt, canApply),
+  );
+
+  const lockedJobs = locked.map(({ job, visibleAt }) =>
+    mapLockedJob(job, visibleAt, tier.jobVisibilityDelayHours),
+  );
+
+  return {
+    jobs,
+    lockedJobs,
+    membership: {
+      tierName: tier.name,
+      tierCode: tier.code,
+      jobVisibilityDelayHours: tier.jobVisibilityDelayHours,
+      canApply: tier.canApply,
+      instructorEligible: tier.instructorEligible,
+    },
+    applyBlockedMessage: tier.canApply ? null : A1_APPLY_MESSAGE,
+  };
+}
+
+/** @deprecated Use listOpenJobsForPilot — returns visible jobs only */
+export async function listVisibleOpenJobsForPilot(pilotProfileId: string) {
+  const result = await listOpenJobsForPilot(pilotProfileId);
+  return result.jobs;
+}
+
+export async function getOpenJobForPilot(
+  jobId: string,
+  pilotProfileId: string,
+): Promise<PilotJobDetailDto | null> {
+  const tier = await getPilotActiveTier(pilotProfileId);
+  if (!tier) return null;
+
+  const job = await prisma.job.findFirst({
+    where: { id: jobId, status: { in: ["open", "in_bidding"] } },
+    include: {
+      applications: {
+        where: { pilotProfileId },
+      },
+    },
+  });
+
+  if (!job || !job.approvedAt) return null;
+
+  const { visible, locked } = await getVisibleJobsForPilot(pilotProfileId);
+  const inVisible = visible.some((v) => v.job.id === jobId);
+  const inLocked = locked.some((l) => l.job.id === jobId);
+
+  if (!inVisible && !inLocked) return null;
+
+  const visibleEntry = visible.find((v) => v.job.id === jobId);
+  const lockedEntry = locked.find((l) => l.job.id === jobId);
+  const visibleAt = visibleEntry?.visibleAt ?? lockedEntry!.visibleAt;
+
+  const applyCheck = await canPilotApplyToJobById(pilotProfileId, jobId);
+
+  const dto = mapJobToOpenDto(
+    job,
+    visibleAt,
+    applyCheck.allowed && !job.applications.length,
+  );
 
   return {
     job: dto,
     application: job.applications[0]
       ? toApplicationDto(job.applications[0])
       : null,
+    canApply: applyCheck.allowed && !job.applications.length,
+    applyBlockedMessage: applyCheck.allowed
+      ? null
+      : (applyCheck.reason ?? A1_APPLY_MESSAGE),
   };
 }
 
@@ -109,8 +180,17 @@ export async function createJobApplication(
   },
 ): Promise<
   | { ok: true; application: JobApplicationDto }
-  | { ok: false; error: string; status: 404 | 409 }
+  | { ok: false; error: string; status: 403 | 404 | 409 }
 > {
+  const applyCheck = await canPilotApplyToJobById(pilotProfileId, jobId);
+  if (!applyCheck.allowed) {
+    return {
+      ok: false,
+      error: applyCheck.reason ?? "You cannot apply to this job.",
+      status: 403,
+    };
+  }
+
   const job = await prisma.job.findFirst({
     where: { id: jobId, status: { in: ["open", "in_bidding"] } },
   });

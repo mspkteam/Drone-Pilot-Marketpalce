@@ -16,7 +16,7 @@ export function PlaceholderCard({
   return (
     <div
       className={cn(
-        "rounded-lg border border-dashed border-border bg-surface/50 p-8 text-center",
+        "premium-card border-dashed bg-card/80 p-8 text-center",
         className,
       )}
     >

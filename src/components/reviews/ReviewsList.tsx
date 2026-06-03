@@ -48,14 +48,14 @@ export function ReviewsList({
 
   if (reviews.length === 0) {
     return (
-      <div className="rounded-lg border border-dashed border-border p-8 text-center">
+      <div className="empty-state">
         <p className="text-muted-foreground">{emptyMessage}</p>
       </div>
     );
   }
 
   return (
-    <ul className="divide-y divide-border rounded-lg border border-border">
+    <ul className="list-panel">
       {reviews.map((review) => (
         <li key={review.id} className="p-4">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">

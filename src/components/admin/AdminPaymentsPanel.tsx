@@ -58,7 +58,7 @@ export function AdminPaymentsPanel() {
       {loading ? (
         <p className="text-sm text-muted-foreground">Loading payments…</p>
       ) : payments.length === 0 ? (
-        <p className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+        <p className="empty-state">
           No payment records yet. Complete a booking to generate payment and
           commission entries.
         </p>
@@ -67,7 +67,7 @@ export function AdminPaymentsPanel() {
           <p className="text-sm font-medium">
             Total commission recorded: USD {totalCommission.toLocaleString()}
           </p>
-          <ul className="divide-y divide-border rounded-lg border border-border">
+          <ul className="list-panel">
             {payments.map((p) => (
               <li key={p.id} className="p-4">
                 <p className="font-medium">{p.jobTitle}</p>

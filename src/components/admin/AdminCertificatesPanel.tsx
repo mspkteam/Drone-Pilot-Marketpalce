@@ -217,7 +217,7 @@ export function AdminCertificatesPanel() {
         ) : templates.length === 0 ? (
           <p className="mt-4 text-sm text-muted-foreground">No templates yet.</p>
         ) : (
-          <ul className="mt-4 divide-y divide-border rounded-lg border border-border">
+          <ul className="mt-4 list-panel">
             {templates.map((t) => (
               <li
                 key={t.id}
@@ -301,7 +301,7 @@ export function AdminCertificatesPanel() {
         {certificates.length === 0 ? (
           <p className="mt-4 text-sm text-muted-foreground">None issued yet.</p>
         ) : (
-          <ul className="mt-4 divide-y divide-border rounded-lg border border-border">
+          <ul className="mt-4 list-panel">
             {certificates.map((c) => (
               <li
                 key={c.id}

@@ -24,7 +24,7 @@ export function MultiStepWizard({
   className,
 }: MultiStepWizardProps) {
   return (
-    <div className={cn("premium-panel p-6 sm:p-8", className)}>
+    <div className={cn("premium-panel p-6 sm:p-8 lg:p-10", className)}>
       <nav aria-label="Form progress" className="mb-8">
         <ol className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           {steps.map((step, index) => {

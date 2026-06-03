@@ -48,13 +48,13 @@ export function AdminUsersPanel() {
       {loading ? (
         <p className="text-sm text-muted-foreground">Loading users…</p>
       ) : users.length === 0 ? (
-        <p className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+        <p className="empty-state">
           No users found.
         </p>
       ) : (
-        <div className="overflow-x-auto rounded-lg border border-border">
-          <table className="w-full min-w-[640px] text-left text-sm">
-            <thead className="border-b border-border bg-surface text-xs uppercase tracking-wider text-muted-foreground">
+        <div className="data-table-wrap">
+          <table className="data-table min-w-[640px]">
+            <thead>
               <tr>
                 <th className="px-4 py-3 font-medium">Email</th>
                 <th className="px-4 py-3 font-medium">Role</th>
@@ -63,7 +63,7 @@ export function AdminUsersPanel() {
                 <th className="px-4 py-3 font-medium">Joined</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-border">
+            <tbody>
               {users.map((u) => (
                 <tr key={u.id}>
                   <td className="px-4 py-3">{u.email}</td>

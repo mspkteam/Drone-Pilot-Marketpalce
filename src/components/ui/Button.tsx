@@ -6,14 +6,15 @@ type ButtonSize = "sm" | "md" | "lg";
 
 const variantStyles: Record<ButtonVariant, string> = {
   primary:
-    "bg-gold text-white shadow-sm hover:bg-gold-light hover:shadow-[0_0_20px_rgba(201,162,39,0.35)] focus-visible:ring-gold",
+    "border border-gold/30 bg-gold text-white shadow-[0_2px_12px_rgba(201,162,39,0.25)] hover:border-gold-light hover:bg-gold-light hover:text-white hover:shadow-[0_0_22px_rgba(201,162,39,0.38)] active:brightness-95 focus-visible:ring-gold",
   secondary:
-    "border border-gold/50 bg-transparent text-gold hover:border-gold hover:bg-gold/10",
-  ghost: "text-foreground hover:bg-white/5",
+    "border border-gold/45 bg-transparent text-gold-light hover:border-gold hover:bg-gold/12 hover:text-gold-light",
+  ghost:
+    "text-foreground hover:bg-white/6 hover:text-foreground",
   outline:
-    "border border-border bg-transparent text-foreground hover:border-gold/50 hover:text-gold",
+    "border border-border bg-surface/40 text-foreground hover:border-gold/45 hover:bg-gold/5 hover:text-gold-light",
   danger:
-    "border border-destructive/40 bg-destructive/15 text-red-300 hover:bg-destructive/25",
+    "border border-destructive/45 bg-destructive/15 text-red-300 hover:border-destructive/60 hover:bg-destructive/22",
 };
 
 const sizeStyles: Record<ButtonSize, string> = {

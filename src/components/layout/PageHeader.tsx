@@ -18,13 +18,13 @@ export function PageHeader({
   return (
     <div
       className={cn(
-        "flex flex-col gap-4 border-b border-border pb-6 sm:flex-row sm:items-end sm:justify-between",
+        "flex flex-col gap-4 border-b border-border/80 pb-6 sm:flex-row sm:items-end sm:justify-between",
         className,
       )}
     >
       <div>
         {badge ? (
-          <span className="mb-2 inline-block rounded-full border border-gold/30 bg-gold/10 px-3 py-0.5 text-xs font-medium text-gold-light">
+          <span className="status-badge status-badge-warning mb-2">
             {badge}
           </span>
         ) : null}

@@ -48,12 +48,12 @@ export function PilotCertificatesPanel() {
       {loading ? (
         <p className="text-sm text-muted-foreground">Loading certificates…</p>
       ) : certificates.length === 0 ? (
-        <p className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+        <p className="empty-state">
           No certificates issued yet. Admins assign platform certificates after
           review.
         </p>
       ) : (
-        <ul className="divide-y divide-border rounded-lg border border-border">
+        <ul className="list-panel">
           {certificates.map((c) => (
             <li
               key={c.id}

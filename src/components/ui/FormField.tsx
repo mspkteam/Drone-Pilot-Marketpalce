@@ -44,6 +44,9 @@ export function FormField({
 }
 
 export const inputClassName =
-  "mt-0 block w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground transition-colors focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold disabled:cursor-not-allowed disabled:opacity-50";
+  "mt-0 block w-full rounded-lg border border-border bg-[var(--input-bg)] px-3 py-2.5 text-sm text-foreground shadow-[inset_0_1px_2px_rgba(0,0,0,0.35)] placeholder:text-muted-foreground transition-[border-color,box-shadow] duration-200 hover:border-gold/35 focus:border-gold focus:outline-none focus:ring-2 focus:ring-gold/35 disabled:cursor-not-allowed disabled:opacity-50";
 
 export const selectClassName = inputClassName;
+
+export const textareaClassName =
+  "mt-0 block w-full min-h-[7rem] resize-y rounded-lg border border-border bg-[var(--input-bg)] px-3 py-2.5 text-sm text-foreground shadow-[inset_0_1px_2px_rgba(0,0,0,0.35)] placeholder:text-muted-foreground transition-[border-color,box-shadow] duration-200 hover:border-gold/35 focus:border-gold focus:outline-none focus:ring-2 focus:ring-gold/35 disabled:cursor-not-allowed disabled:opacity-50";

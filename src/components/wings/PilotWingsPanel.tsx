@@ -53,7 +53,7 @@ export function PilotWingsPanel() {
       ) : null}
 
       {wings.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-border p-8 text-center">
+        <div className="empty-state">
           <p className="text-sm text-muted-foreground">
             No wings earned yet. Complete bookings and build trust to unlock
             milestones.

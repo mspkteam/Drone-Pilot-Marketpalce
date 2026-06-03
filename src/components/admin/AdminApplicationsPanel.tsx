@@ -50,11 +50,11 @@ export function AdminApplicationsPanel() {
       {loading ? (
         <p className="text-sm text-muted-foreground">Loading applications…</p>
       ) : applications.length === 0 ? (
-        <p className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+        <p className="empty-state">
           No applications yet.
         </p>
       ) : (
-        <ul className="divide-y divide-border rounded-lg border border-border">
+        <ul className="list-panel">
           {applications.map((a) => (
             <li
               key={a.id}

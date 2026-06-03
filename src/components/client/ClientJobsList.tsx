@@ -43,7 +43,7 @@ export function ClientJobsList() {
 
   if (jobs.length === 0) {
     return (
-      <div className="rounded-lg border border-dashed border-border p-8 text-center">
+      <div className="empty-state">
         <p className="text-muted-foreground">No jobs posted yet.</p>
         <Button href="/dashboard/client/jobs/new" className="mt-4">
           Post your first job
@@ -53,12 +53,12 @@ export function ClientJobsList() {
   }
 
   return (
-    <ul className="divide-y divide-border rounded-lg border border-border">
+    <ul className="list-panel">
       {jobs.map((job) => (
         <li key={job.id}>
           <Link
             href={`/dashboard/client/jobs/${job.id}`}
-            className="flex flex-col gap-2 p-4 transition-colors hover:bg-surface sm:flex-row sm:items-center sm:justify-between"
+            className="list-panel-row"
           >
             <div>
               <p className="font-medium">{job.title}</p>

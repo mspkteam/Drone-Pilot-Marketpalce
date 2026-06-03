@@ -39,7 +39,7 @@ export function PilotUniformOrdersList() {
       ) : orders.length === 0 ? (
         <p className="text-sm text-muted-foreground">No orders yet.</p>
       ) : (
-        <ul className="divide-y divide-border rounded-lg border border-border">
+        <ul className="list-panel">
           {orders.map((o) => (
             <li key={o.id} className="p-4 hover:bg-surface/50">
               <Link

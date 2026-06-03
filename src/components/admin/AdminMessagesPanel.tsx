@@ -61,11 +61,11 @@ export function AdminMessagesPanel() {
       {loading ? (
         <p className="text-sm text-muted-foreground">Loading…</p>
       ) : conversations.length === 0 ? (
-        <p className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+        <p className="empty-state">
           No conversations yet.
         </p>
       ) : (
-        <ul className="divide-y divide-border rounded-lg border border-border">
+        <ul className="list-panel">
           {conversations.map((c) => (
             <li key={c.id}>
               <Link

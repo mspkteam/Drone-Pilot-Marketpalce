@@ -48,19 +48,19 @@ export function BookingsList({
 
   if (bookings.length === 0) {
     return (
-      <div className="rounded-lg border border-dashed border-border p-8 text-center">
+      <div className="empty-state">
         <p className="text-muted-foreground">{emptyMessage}</p>
       </div>
     );
   }
 
   return (
-    <ul className="divide-y divide-border rounded-lg border border-border">
+    <ul className="list-panel">
       {bookings.map((booking) => (
         <li key={booking.id}>
           <Link
             href={`${detailBase}/${booking.id}`}
-            className="flex flex-col gap-2 p-4 transition-colors hover:bg-surface sm:flex-row sm:items-center sm:justify-between"
+            className="list-panel-row"
           >
             <div>
               <p className="font-medium">{booking.job.title}</p>

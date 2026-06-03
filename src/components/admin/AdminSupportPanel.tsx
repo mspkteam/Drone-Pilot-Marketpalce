@@ -90,16 +90,16 @@ export function AdminSupportPanel({ readOnly }: { readOnly: boolean }) {
       {loading ? (
         <p className="text-sm text-muted-foreground">Loading…</p>
       ) : chats.length === 0 ? (
-        <p className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+        <p className="empty-state">
           No support chats in this filter.
         </p>
       ) : (
-        <ul className="divide-y divide-border rounded-lg border border-border">
+        <ul className="list-panel">
           {chats.map((c) => (
             <li key={c.id}>
               <Link
                 href={`/dashboard/admin/support/${c.id}`}
-                className="flex flex-col gap-2 p-4 transition-colors hover:bg-surface sm:flex-row sm:items-center sm:justify-between"
+                className="list-panel-row"
               >
                 <div>
                   <p className="font-medium">

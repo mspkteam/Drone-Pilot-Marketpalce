@@ -62,7 +62,7 @@ export function AdminSubscriptionsPanel() {
             <p className="text-sm text-muted-foreground">
               Demo/internal billing only — Stripe deferred.
             </p>
-            <ul className="mt-4 divide-y divide-border rounded-lg border border-border">
+            <ul className="mt-4 list-panel">
               {plans.map((p) => (
                 <li key={p.id} className="p-4">
                   <p className="font-medium">
@@ -91,7 +91,7 @@ export function AdminSubscriptionsPanel() {
                 No pilot memberships yet.
               </p>
             ) : (
-              <ul className="mt-4 divide-y divide-border rounded-lg border border-border">
+              <ul className="mt-4 list-panel">
                 {subscriptions.map((s) => (
                   <li
                     key={s.id}

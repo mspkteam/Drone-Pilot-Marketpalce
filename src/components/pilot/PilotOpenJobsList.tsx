@@ -54,7 +54,7 @@ export function PilotOpenJobsList() {
 
   if (!data?.membership) {
     return (
-      <div className="rounded-lg border border-dashed border-border p-8 text-center">
+      <div className="empty-state">
         <p className="text-muted-foreground">
           Enroll in a membership tier to browse marketplace jobs.
         </p>
@@ -90,7 +90,7 @@ export function PilotOpenJobsList() {
       ) : null}
 
       {jobs.length === 0 && lockedJobs.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-border p-8 text-center">
+        <div className="empty-state">
           <p className="text-muted-foreground">
             No open jobs right now. Check back after admins approve client postings.
           </p>
@@ -98,7 +98,7 @@ export function PilotOpenJobsList() {
       ) : (
         <>
           {jobs.length > 0 ? (
-            <ul className="divide-y divide-border rounded-lg border border-border">
+            <ul className="list-panel">
               {jobs.map((job) => (
                 <JobRow key={job.id} job={job} />
               ))}
@@ -129,7 +129,7 @@ function JobRow({ job }: { job: PilotOpenJobDto }) {
     <li>
       <Link
         href={`/dashboard/pilot/jobs/${job.id}`}
-        className="flex flex-col gap-2 p-4 transition-colors hover:bg-surface sm:flex-row sm:items-center sm:justify-between"
+        className="list-panel-row"
       >
         <div>
           <p className="font-medium">{job.title}</p>

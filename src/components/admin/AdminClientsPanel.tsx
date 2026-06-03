@@ -48,11 +48,11 @@ export function AdminClientsPanel() {
       {loading ? (
         <p className="text-sm text-muted-foreground">Loading clients…</p>
       ) : clients.length === 0 ? (
-        <p className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+        <p className="empty-state">
           No clients found.
         </p>
       ) : (
-        <ul className="divide-y divide-border rounded-lg border border-border">
+        <ul className="list-panel">
           {clients.map((c) => (
             <li key={c.id} className="p-4">
               <p className="font-medium">{c.contactName}</p>

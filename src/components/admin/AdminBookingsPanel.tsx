@@ -77,10 +77,8 @@ export function AdminBookingsPanel() {
             type="button"
             onClick={() => setFilter(f.value)}
             className={cn(
-              "rounded-full border px-3 py-1 text-sm capitalize transition-colors",
-              filter === f.value
-                ? "border-gold bg-gold/15 text-gold-dark"
-                : "border-border hover:border-gold/40",
+              "filter-pill capitalize",
+              filter === f.value && "filter-pill-active",
             )}
           >
             {f.label}
@@ -100,11 +98,11 @@ export function AdminBookingsPanel() {
       {loading ? (
         <p className="text-sm text-muted-foreground">Loading bookings…</p>
       ) : bookings.length === 0 ? (
-        <p className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+        <p className="empty-state">
           No bookings in this queue.
         </p>
       ) : (
-        <ul className="divide-y divide-border rounded-lg border border-border">
+        <ul className="list-panel">
           {bookings.map((b) => (
             <li
               key={b.id}

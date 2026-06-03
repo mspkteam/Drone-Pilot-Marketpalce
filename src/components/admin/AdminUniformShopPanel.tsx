@@ -137,12 +137,7 @@ export function AdminUniformShopPanel({
         <button
           type="button"
           onClick={() => setTab("orders")}
-          className={cn(
-            "rounded-full border px-3 py-1 text-sm",
-            tab === "orders"
-              ? "border-gold bg-gold/10 text-gold-dark"
-              : "border-border",
-          )}
+          className={cn("filter-pill", tab === "orders" && "filter-pill-active")}
         >
           Orders
         </button>
@@ -150,12 +145,7 @@ export function AdminUniformShopPanel({
           <button
             type="button"
             onClick={() => setTab("catalog")}
-            className={cn(
-              "rounded-full border px-3 py-1 text-sm",
-              tab === "catalog"
-                ? "border-gold bg-gold/10 text-gold-dark"
-                : "border-border",
-            )}
+            className={cn("filter-pill", tab === "catalog" && "filter-pill-active")}
           >
             Catalog
           </button>
@@ -197,7 +187,7 @@ export function AdminUniformShopPanel({
           {orders.length === 0 ? (
             <p className="text-sm text-muted-foreground">No orders.</p>
           ) : (
-            <ul className="divide-y divide-border rounded-lg border border-border">
+            <ul className="list-panel">
               {orders.map((o) => (
                 <li key={o.id} className="space-y-3 p-4">
                   <div className="flex flex-wrap items-start justify-between gap-2">

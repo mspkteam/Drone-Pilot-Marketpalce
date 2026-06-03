@@ -52,10 +52,8 @@ export function AdminDisputesPanel() {
             type="button"
             onClick={() => setFilter(f.value)}
             className={cn(
-              "rounded-full border px-3 py-1 text-sm transition-colors",
-              filter === f.value
-                ? "border-gold bg-gold/10 text-gold-dark"
-                : "border-border text-muted-foreground hover:text-foreground",
+              "filter-pill",
+              filter === f.value && "filter-pill-active",
             )}
           >
             {f.label}
@@ -74,7 +72,7 @@ export function AdminDisputesPanel() {
       ) : disputes.length === 0 ? (
         <p className="text-sm text-muted-foreground">No disputes in this queue.</p>
       ) : (
-        <ul className="divide-y divide-border rounded-lg border border-border">
+        <ul className="list-panel">
           {disputes.map((d) => (
             <li key={d.id} className="p-4 hover:bg-surface/50">
               <Link

@@ -107,13 +107,13 @@ export function ClientJobOffers({ jobId }: ClientJobOffersProps) {
       ) : null}
 
       {submitted.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-border p-8 text-center">
+        <div className="empty-state">
           <p className="text-muted-foreground">
             No pending offers yet. Pilots can bid once your job is open.
           </p>
         </div>
       ) : (
-        <ul className="divide-y divide-border rounded-lg border border-border">
+        <ul className="list-panel">
           {data.offers.map((offer) => (
             <li key={offer.id} className="p-4">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">

@@ -98,11 +98,11 @@ export function MessagesInbox({ role, listApi, threadBase }: MessagesInboxProps)
         {loading ? (
           <p className="mt-4 text-sm text-muted-foreground">Loading…</p>
         ) : conversations.length === 0 ? (
-          <p className="mt-4 rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+          <p className="mt-4 empty-state">
             No conversations yet.
           </p>
         ) : (
-          <ul className="mt-4 divide-y divide-border rounded-lg border border-border">
+          <ul className="mt-4 list-panel">
             {conversations.map((c) => (
               <li key={c.id}>
                 <Link
@@ -142,7 +142,7 @@ export function MessagesInbox({ role, listApi, threadBase }: MessagesInboxProps)
           <p className="mt-1 text-sm text-muted-foreground">
             Message a pilot after you receive their application on your job.
           </p>
-          <ul className="mt-4 divide-y divide-border rounded-lg border border-border">
+          <ul className="mt-4 list-panel">
             {eligible.map((a) => (
               <li
                 key={a.id}

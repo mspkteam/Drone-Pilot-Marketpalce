@@ -290,7 +290,7 @@ export function AdminWingsPanel() {
 
       <section>
         <h2 className="font-semibold">Wing definitions</h2>
-        <ul className="mt-4 divide-y divide-border rounded-lg border border-border">
+        <ul className="mt-4 list-panel">
           {definitions.map((d) => (
             <li key={d.id} className="flex flex-wrap items-start justify-between gap-3 p-4">
               <div>
@@ -323,7 +323,7 @@ export function AdminWingsPanel() {
         {recentAwards.length === 0 ? (
           <p className="mt-2 text-sm text-muted-foreground">No awards yet.</p>
         ) : (
-          <ul className="mt-4 divide-y divide-border rounded-lg border border-border">
+          <ul className="mt-4 list-panel">
             {recentAwards.map((a) => (
               <li key={a.id} className="p-4 text-sm">
                 <span className="font-medium">{a.pilot.displayName}</span> earned{" "}

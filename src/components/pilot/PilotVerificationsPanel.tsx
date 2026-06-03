@@ -224,11 +224,11 @@ export function PilotVerificationsPanel() {
         {loading ? (
           <p className="mt-4 text-sm text-muted-foreground">Loading…</p>
         ) : verifications.length === 0 ? (
-          <p className="mt-4 rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+          <p className="mt-4 empty-state">
             No verifications submitted yet.
           </p>
         ) : (
-          <ul className="mt-4 divide-y divide-border rounded-lg border border-border">
+          <ul className="mt-4 list-panel">
             {verifications.map((v) => (
               <li key={v.id} className="p-4">
                 <div className="flex flex-wrap items-center justify-between gap-2">

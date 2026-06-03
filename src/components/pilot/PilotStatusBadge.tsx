@@ -1,27 +1,19 @@
 import { getProfileStatusLabel } from "@/lib/pilot/status";
+import { StatusBadge, type StatusBadgeTone } from "@/components/ui/StatusBadge";
 import type { PilotProfileStatus } from "@/types/pilot";
-import { cn } from "@/lib/utils";
 
-const toneClasses: Record<
-  PilotProfileStatus,
-  string
-> = {
-  draft: "bg-surface text-muted-foreground border-border",
-  pending_review: "bg-gold/10 text-gold-dark border-gold/30",
-  approved: "bg-emerald-500/10 text-emerald-800 border-emerald-500/30",
-  rejected: "bg-destructive/10 text-destructive border-destructive/30",
-  suspended: "bg-destructive/10 text-destructive border-destructive/30",
+const statusTone: Record<PilotProfileStatus, StatusBadgeTone> = {
+  draft: "neutral",
+  pending_review: "warning",
+  approved: "success",
+  rejected: "error",
+  suspended: "error",
 };
 
 export function PilotStatusBadge({ status }: { status: PilotProfileStatus }) {
   return (
-    <span
-      className={cn(
-        "inline-flex rounded-full border px-2.5 py-0.5 text-xs font-medium",
-        toneClasses[status],
-      )}
-    >
+    <StatusBadge tone={statusTone[status]}>
       {getProfileStatusLabel(status)}
-    </span>
+    </StatusBadge>
   );
 }

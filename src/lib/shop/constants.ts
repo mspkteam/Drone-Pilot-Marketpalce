@@ -1,0 +1,1 @@
+export const UNIFORM_SHIPPING_FLAT_RATE = 12;

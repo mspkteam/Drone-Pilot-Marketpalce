@@ -1,0 +1,58 @@
+import { NextResponse } from "next/server";
+import {
+  issueCertificateToPilot,
+  listCertificatesForAdmin,
+  listPilotsForCertificateAssign,
+} from "@/lib/certificates/certificate";
+import { requireAdminSession } from "@/lib/auth/require-admin";
+
+export async function GET() {
+  const authResult = await requireAdminSession();
+  if (!authResult.ok) {
+    return NextResponse.json(
+      { error: authResult.error },
+      { status: authResult.status },
+    );
+  }
+
+  const [certificates, pilots] = await Promise.all([
+    listCertificatesForAdmin(),
+    listPilotsForCertificateAssign(),
+  ]);
+
+  return NextResponse.json({ certificates, pilots });
+}
+
+export async function POST(request: Request) {
+  const authResult = await requireAdminSession();
+  if (!authResult.ok) {
+    return NextResponse.json(
+      { error: authResult.error },
+      { status: authResult.status },
+    );
+  }
+
+  const body = await request.json();
+  if (!body.pilotProfileId || !body.templateId) {
+    return NextResponse.json(
+      { error: "pilotProfileId and templateId are required." },
+      { status: 400 },
+    );
+  }
+
+  const result = await issueCertificateToPilot(
+    authResult.userId,
+    body.pilotProfileId,
+    body.templateId,
+    body.notes,
+  );
+
+  if (!result.ok) {
+    return NextResponse.json(
+      { error: result.error },
+      { status: result.status },
+    );
+  }
+
+  return NextResponse.json({ certificate: result.certificate }, { status: 201 });
+}

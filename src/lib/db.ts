@@ -1,0 +1,84 @@
+import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import { PrismaClient } from "@/generated/prisma/client";
+
+const url = process.env.DATABASE_URL ?? "file:./dev.db";
+
+const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
+
+function createPrismaClient(): PrismaClient {
+  const adapter = new PrismaBetterSqlite3({ url });
+  return new PrismaClient({ adapter });
+}
+
+/** Stale singleton from before profile models were added (common in dev HMR). */
+function isStalePrismaClient(client: PrismaClient): boolean {
+  const c = client as PrismaClient & {
+    pilotProfile?: unknown;
+    clientProfile?: unknown;
+    job?: unknown;
+    jobApplication?: unknown;
+    booking?: unknown;
+    review?: unknown;
+    subscriptionPlan?: unknown;
+    pilotSubscription?: unknown;
+    payment?: unknown;
+    commission?: unknown;
+    notification?: unknown;
+    verification?: unknown;
+    waitlistEntry?: unknown;
+    conversation?: unknown;
+    message?: unknown;
+    certificateTemplate?: unknown;
+    pilotCertificate?: unknown;
+    dispute?: unknown;
+    disputeEntry?: unknown;
+    wingDefinition?: unknown;
+    pilotWing?: unknown;
+    uniformProduct?: unknown;
+    uniformProductVariant?: unknown;
+    uniformOrder?: unknown;
+    uniformOrderItem?: unknown;
+  };
+  return (
+    typeof c.pilotProfile === "undefined" ||
+    typeof c.clientProfile === "undefined" ||
+    typeof c.job === "undefined" ||
+    typeof c.jobApplication === "undefined" ||
+    typeof c.booking === "undefined" ||
+    typeof c.review === "undefined" ||
+    typeof c.subscriptionPlan === "undefined" ||
+    typeof c.pilotSubscription === "undefined" ||
+    typeof c.payment === "undefined" ||
+    typeof c.commission === "undefined" ||
+    typeof c.notification === "undefined" ||
+    typeof c.verification === "undefined" ||
+    typeof c.waitlistEntry === "undefined" ||
+    typeof c.conversation === "undefined" ||
+    typeof c.message === "undefined" ||
+    typeof c.certificateTemplate === "undefined" ||
+    typeof c.pilotCertificate === "undefined" ||
+    typeof c.dispute === "undefined" ||
+    typeof c.disputeEntry === "undefined" ||
+    typeof c.wingDefinition === "undefined" ||
+    typeof c.pilotWing === "undefined" ||
+    typeof c.uniformProduct === "undefined" ||
+    typeof c.uniformProductVariant === "undefined" ||
+    typeof c.uniformOrder === "undefined" ||
+    typeof c.uniformOrderItem === "undefined"
+  );
+}
+
+function getPrismaClient(): PrismaClient {
+  const cached = globalForPrisma.prisma;
+  if (cached && !isStalePrismaClient(cached)) {
+    return cached;
+  }
+
+  const client = createPrismaClient();
+  if (process.env.NODE_ENV !== "production") {
+    globalForPrisma.prisma = client;
+  }
+  return client;
+}
+
+export const prisma = getPrismaClient();

@@ -1,0 +1,104 @@
+"use client";
+
+import Link from "next/link";
+import { useCallback, useEffect, useState } from "react";
+import { DisputeStatusBadge } from "@/components/disputes/DisputeStatusBadge";
+import type { DisputeListItemDto, DisputeStatus } from "@/types/dispute";
+import { cn } from "@/lib/utils";
+
+const FILTERS: { value: DisputeStatus | "all"; label: string }[] = [
+  { value: "open", label: "Open" },
+  { value: "under_review", label: "Under review" },
+  { value: "resolved", label: "Resolved" },
+  { value: "all", label: "All" },
+];
+
+export function AdminDisputesPanel() {
+  const [filter, setFilter] = useState<DisputeStatus | "all">("open");
+  const [disputes, setDisputes] = useState<DisputeListItemDto[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/admin/disputes?status=${filter}`);
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error ?? "Failed to load disputes.");
+        setDisputes([]);
+      } else {
+        setDisputes(data.disputes ?? []);
+      }
+    } catch {
+      setError("Failed to load disputes.");
+      setDisputes([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [filter]);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-wrap gap-2">
+        {FILTERS.map((f) => (
+          <button
+            key={f.value}
+            type="button"
+            onClick={() => setFilter(f.value)}
+            className={cn(
+              "rounded-full border px-3 py-1 text-sm transition-colors",
+              filter === f.value
+                ? "border-gold bg-gold/10 text-gold-dark"
+                : "border-border text-muted-foreground hover:text-foreground",
+            )}
+          >
+            {f.label}
+          </button>
+        ))}
+      </div>
+
+      {error ? (
+        <p className="text-sm text-destructive" role="alert">
+          {error}
+        </p>
+      ) : null}
+
+      {loading ? (
+        <p className="text-sm text-muted-foreground">Loading disputes…</p>
+      ) : disputes.length === 0 ? (
+        <p className="text-sm text-muted-foreground">No disputes in this queue.</p>
+      ) : (
+        <ul className="divide-y divide-border rounded-lg border border-border">
+          {disputes.map((d) => (
+            <li key={d.id} className="p-4 hover:bg-surface/50">
+              <Link
+                href={`/dashboard/admin/disputes/${d.id}`}
+                className="block space-y-2"
+              >
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span className="font-medium">{d.booking.job.title}</span>
+                  <DisputeStatusBadge status={d.status} />
+                </div>
+                <p className="text-sm text-muted-foreground line-clamp-2">
+                  {d.reason}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {d.booking.client.companyName ?? d.booking.client.contactName}{" "}
+                  ↔ {d.booking.pilot.displayName} · ${d.booking.agreedAmount}{" "}
+                  {d.booking.currency} · {d.entryCount} entries · opened by{" "}
+                  {d.openedByRole}
+                </p>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}

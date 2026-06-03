@@ -1,0 +1,32 @@
+import type { PilotServiceId } from "@/types/pilot";
+import type { VerificationType } from "@/types/verification";
+import type { PublicPilotWingDto } from "@/types/wing";
+
+export type PublicPilotReviewDto = {
+  id: string;
+  rating: number;
+  comment: string | null;
+  authorLabel: string;
+  createdAt: string;
+};
+
+export type PublicPilotListItemDto = {
+  id: string;
+  displayName: string;
+  bio: string | null;
+  locationCity: string | null;
+  locationRegion: string | null;
+  locationCountry: string | null;
+  servicesOffered: PilotServiceId[];
+  hourlyRateMin: number | null;
+  hourlyRateMax: number | null;
+  averageRating: number | null;
+  reviewCount: number;
+};
+
+export type PublicPilotProfileDto = PublicPilotListItemDto & {
+  serviceRadiusKm: number | null;
+  verifiedTypes: VerificationType[];
+  recentReviews: PublicPilotReviewDto[];
+  wings: PublicPilotWingDto[];
+};

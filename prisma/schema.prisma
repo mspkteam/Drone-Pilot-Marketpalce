@@ -1,0 +1,558 @@
+// Drone Pilot Marketplace — see docs/DATA_MODEL_OVERVIEW.md
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id              String         @id @default(cuid())
+  email           String         @unique
+  passwordHash    String
+  role            String
+  status          String         @default("active")
+  emailVerifiedAt DateTime?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  pilotProfile    PilotProfile?
+  clientProfile   ClientProfile?
+  reviewsWritten       Review[]
+  notifications        Notification[]
+  messagesSent         Message[]
+  conversationReadStates ConversationReadState[]
+  disputesOpened       Dispute[]       @relation("DisputeOpenedBy")
+  disputesReviewed     Dispute[]       @relation("DisputeReviewedBy")
+  disputesResolved     Dispute[]       @relation("DisputeResolvedBy")
+  disputeEntries       DisputeEntry[]
+  uniformOrders        UniformOrder[]
+}
+
+model Notification {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String
+  channel   String    @default("in_app")
+  title     String
+  body      String
+  payload   String?
+  status    String    @default("sent")
+  readAt    DateTime?
+  sentAt    DateTime  @default(now())
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+  @@index([userId, readAt])
+}
+
+model PilotProfile {
+  id                    String              @id @default(cuid())
+  userId                String              @unique
+  user                  User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  displayName           String
+  bio                   String?
+  locationCity          String?
+  locationRegion        String?
+  locationCountry       String?
+  serviceRadiusKm       Int?
+  servicesOffered       String              @default("[]")
+  hourlyRateMin         Float?
+  hourlyRateMax         Float?
+  licenseNumber         String
+  licenseCountry        String?
+  isPublic              Boolean             @default(false)
+  status                String              @default("draft")
+  complianceAcceptedAt  DateTime?
+  onboardingCompletedAt DateTime?
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+  applications          JobApplication[]
+  bookings              Booking[]
+  reviewsReceived       Review[]            @relation("ReviewsForPilot")
+  subscriptions         PilotSubscription[]
+  verifications         Verification[]
+  conversationsAsPilot  Conversation[] @relation("PilotConversations")
+  certificates          PilotCertificate[]
+  wings                 PilotWing[]
+}
+
+model Verification {
+  id               String       @id @default(cuid())
+  pilotProfileId   String
+  pilotProfile     PilotProfile @relation(fields: [pilotProfileId], references: [id], onDelete: Cascade)
+  type             String
+  documentUrl      String?
+  documentFileName String?
+  documentMimeType String?
+  originalFileName String?
+  notes            String?
+  status           String       @default("pending")
+  submittedAt      DateTime     @default(now())
+  reviewedAt       DateTime?
+  reviewedByUserId String?
+  rejectionReason  String?
+  expiresAt        DateTime?
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  @@index([pilotProfileId])
+  @@index([status])
+  @@index([pilotProfileId, type, status])
+}
+
+model ClientProfile {
+  id                    String    @id @default(cuid())
+  userId                String    @unique
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  companyName           String?
+  contactName           String
+  phone                 String?
+  billingAddress        String?
+  status                String    @default("draft")
+  onboardingCompletedAt DateTime?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  jobs                  Job[]
+  bookings              Booking[]
+  reviewsReceived       Review[]         @relation("ReviewsForClient")
+  conversationsAsClient Conversation[]   @relation("ClientConversations")
+}
+
+model Job {
+  id               String           @id @default(cuid())
+  clientProfileId  String
+  clientProfile    ClientProfile    @relation(fields: [clientProfileId], references: [id], onDelete: Cascade)
+  title            String
+  description      String
+  category         String
+  locationLabel    String
+  locationCity     String?
+  locationRegion   String?
+  locationCountry  String?
+  scheduledDate    DateTime?
+  budgetMin        Float?
+  budgetMax        Float?
+  currency         String           @default("USD")
+  requirements     String?
+  status           String           @default("draft")
+  rejectionReason  String?
+  approvedAt       DateTime?
+  approvedByUserId String?
+  submittedAt      DateTime?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  applications     JobApplication[]
+  booking          Booking?
+  conversations    Conversation[]
+
+  @@index([clientProfileId])
+  @@index([status])
+}
+
+model JobApplication {
+  id                    String       @id @default(cuid())
+  jobId                 String
+  job                   Job          @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  pilotProfileId        String
+  pilotProfile          PilotProfile @relation(fields: [pilotProfileId], references: [id], onDelete: Cascade)
+  proposedAmount        Float
+  currency              String       @default("USD")
+  message               String?
+  estimatedDeliveryDate DateTime?
+  status                String       @default("submitted")
+  submittedAt           DateTime     @default(now())
+  updatedAt             DateTime     @updatedAt
+  booking               Booking?
+  conversation          Conversation?
+
+  @@unique([jobId, pilotProfileId])
+  @@index([jobId])
+  @@index([pilotProfileId])
+}
+
+model Booking {
+  id                String         @id @default(cuid())
+  jobId             String         @unique
+  job               Job            @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  jobApplicationId  String         @unique
+  jobApplication    JobApplication @relation(fields: [jobApplicationId], references: [id], onDelete: Cascade)
+  pilotProfileId    String
+  pilotProfile      PilotProfile   @relation(fields: [pilotProfileId], references: [id], onDelete: Cascade)
+  clientProfileId   String
+  clientProfile     ClientProfile  @relation(fields: [clientProfileId], references: [id], onDelete: Cascade)
+  agreedAmount      Float
+  currency          String         @default("USD")
+  status            String         @default("pending")
+  scheduledStartAt  DateTime?
+  scheduledEndAt    DateTime?
+  completedAt       DateTime?
+  cancelledAt       DateTime?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  reviews           Review[]
+  payment           Payment?
+  commission        Commission?
+  conversation      Conversation?
+  dispute           Dispute?
+
+  @@index([pilotProfileId])
+  @@index([clientProfileId])
+  @@index([status])
+}
+
+model Dispute {
+  id               String         @id @default(cuid())
+  bookingId        String         @unique
+  booking          Booking        @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  openedByUserId   String
+  openedByUser     User           @relation("DisputeOpenedBy", fields: [openedByUserId], references: [id], onDelete: Cascade)
+  openedByRole     String
+  status           String         @default("open")
+  reason           String
+  resolutionType   String?
+  resolutionAmount Float?
+  resolutionNotes  String?
+  reviewedByUserId String?
+  reviewedByUser   User?          @relation("DisputeReviewedBy", fields: [reviewedByUserId], references: [id], onDelete: SetNull)
+  reviewedAt       DateTime?
+  resolvedByUserId String?
+  resolvedByUser   User?          @relation("DisputeResolvedBy", fields: [resolvedByUserId], references: [id], onDelete: SetNull)
+  resolvedAt       DateTime?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  entries          DisputeEntry[]
+
+  @@index([status])
+  @@index([openedByUserId])
+  @@index([createdAt])
+}
+
+model DisputeEntry {
+  id            String   @id @default(cuid())
+  disputeId     String
+  dispute       Dispute  @relation(fields: [disputeId], references: [id], onDelete: Cascade)
+  authorUserId  String
+  authorUser    User     @relation(fields: [authorUserId], references: [id], onDelete: Cascade)
+  entryType     String
+  body          String
+  attachmentUrl String?
+  createdAt     DateTime @default(now())
+
+  @@index([disputeId])
+  @@index([authorUserId])
+  @@index([createdAt])
+}
+
+model Conversation {
+  id               String         @id @default(cuid())
+  jobId            String
+  job              Job            @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  jobApplicationId String         @unique
+  jobApplication   JobApplication @relation(fields: [jobApplicationId], references: [id], onDelete: Cascade)
+  bookingId        String?        @unique
+  booking          Booking?       @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  clientProfileId  String
+  clientProfile    ClientProfile  @relation("ClientConversations", fields: [clientProfileId], references: [id], onDelete: Cascade)
+  pilotProfileId   String
+  pilotProfile     PilotProfile   @relation("PilotConversations", fields: [pilotProfileId], references: [id], onDelete: Cascade)
+  lastMessageAt    DateTime?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  messages         Message[]
+  readStates       ConversationReadState[]
+
+  @@index([clientProfileId])
+  @@index([pilotProfileId])
+  @@index([jobId])
+  @@index([lastMessageAt])
+}
+
+model ConversationReadState {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lastReadAt     DateTime     @default(now())
+
+  @@unique([conversationId, userId])
+  @@index([userId])
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderUserId   String
+  senderUser     User         @relation(fields: [senderUserId], references: [id], onDelete: Cascade)
+  body           String
+  createdAt      DateTime     @default(now())
+
+  @@index([conversationId])
+  @@index([senderUserId])
+  @@index([createdAt])
+}
+
+model Payment {
+  id                String      @id @default(cuid())
+  bookingId         String      @unique
+  booking           Booking     @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  payerUserId       String
+  payeeUserId       String
+  amountGross       Float
+  amountNet         Float
+  currency          String      @default("USD")
+  provider          String      @default("internal")
+  providerPaymentId String?
+  status            String      @default("succeeded")
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  commission        Commission?
+
+  @@index([payerUserId])
+  @@index([payeeUserId])
+}
+
+model Commission {
+  id            String    @id @default(cuid())
+  bookingId     String    @unique
+  booking       Booking   @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  paymentId     String?   @unique
+  payment       Payment?  @relation(fields: [paymentId], references: [id], onDelete: SetNull)
+  rate          Float     @default(0.1)
+  amount        Float
+  currency      String    @default("USD")
+  status        String    @default("calculated")
+  calculatedAt  DateTime  @default(now())
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Review {
+  id                    String         @id @default(cuid())
+  bookingId             String
+  booking               Booking        @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  authorUserId          String
+  authorUser            User           @relation(fields: [authorUserId], references: [id], onDelete: Cascade)
+  targetPilotProfileId  String?
+  targetPilotProfile    PilotProfile?  @relation("ReviewsForPilot", fields: [targetPilotProfileId], references: [id], onDelete: Cascade)
+  targetClientProfileId String?
+  targetClientProfile   ClientProfile? @relation("ReviewsForClient", fields: [targetClientProfileId], references: [id], onDelete: Cascade)
+  rating                Int
+  comment               String?
+  status                String         @default("published")
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @updatedAt
+
+  @@unique([bookingId, authorUserId])
+  @@index([targetPilotProfileId])
+  @@index([targetClientProfileId])
+  @@index([authorUserId])
+}
+
+model SubscriptionPlan {
+  id            String              @id @default(cuid())
+  name          String
+  slug          String              @unique
+  priceMonthly  Float
+  currency      String              @default("USD")
+  features      String              @default("[]")
+  isActive      Boolean             @default(true)
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+  subscriptions PilotSubscription[]
+}
+
+model PilotSubscription {
+  id                     String           @id @default(cuid())
+  pilotProfileId         String
+  pilotProfile           PilotProfile     @relation(fields: [pilotProfileId], references: [id], onDelete: Cascade)
+  subscriptionPlanId     String
+  subscriptionPlan       SubscriptionPlan @relation(fields: [subscriptionPlanId], references: [id], onDelete: Restrict)
+  status                 String           @default("active")
+  currentPeriodStart     DateTime
+  currentPeriodEnd       DateTime
+  externalSubscriptionId String?
+  createdAt              DateTime         @default(now())
+  updatedAt              DateTime         @updatedAt
+
+  @@index([pilotProfileId])
+  @@index([status])
+}
+
+model WaitlistEntry {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String?
+  roleInterest String
+  region       String?
+  source       String?
+  status       String   @default("subscribed")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([status])
+  @@index([roleInterest])
+  @@index([createdAt])
+}
+
+model CertificateTemplate {
+  id           String             @id @default(cuid())
+  name         String
+  slug         String             @unique
+  description  String?
+  title        String
+  bodyTemplate String
+  isActive     Boolean            @default(true)
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+  certificates PilotCertificate[]
+}
+
+model PilotCertificate {
+  id                String              @id @default(cuid())
+  certificateNumber String              @unique
+  pilotProfileId    String
+  pilotProfile      PilotProfile        @relation(fields: [pilotProfileId], references: [id], onDelete: Cascade)
+  templateId        String
+  template          CertificateTemplate @relation(fields: [templateId], references: [id], onDelete: Restrict)
+  pilotDisplayName  String
+  licenseNumber     String?
+  issuedAt          DateTime            @default(now())
+  issuedByUserId    String
+  pdfFileName       String
+  notes             String?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  @@index([pilotProfileId])
+  @@index([templateId])
+  @@index([issuedAt])
+}
+
+model WingDefinition {
+  id          String      @id @default(cuid())
+  code        String      @unique
+  title       String
+  description String
+  category    String      @default("milestone")
+  iconLabel   String?
+  autoRule    String?
+  ruleParam   String?
+  threshold   Int?
+  isActive    Boolean     @default(true)
+  sortOrder   Int         @default(0)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  pilotWings  PilotWing[]
+
+  @@index([isActive])
+  @@index([sortOrder])
+}
+
+model PilotWing {
+  id               String         @id @default(cuid())
+  pilotProfileId   String
+  pilotProfile     PilotProfile   @relation(fields: [pilotProfileId], references: [id], onDelete: Cascade)
+  wingDefinitionId String
+  wingDefinition   WingDefinition @relation(fields: [wingDefinitionId], references: [id], onDelete: Cascade)
+  source           String         @default("auto")
+  assignedByUserId String?
+  earnedAt         DateTime       @default(now())
+  metadata         String?
+
+  @@unique([pilotProfileId, wingDefinitionId])
+  @@index([pilotProfileId])
+  @@index([earnedAt])
+}
+
+model UniformProduct {
+  id          String                   @id @default(cuid())
+  name        String
+  slug        String                   @unique
+  description String
+  imageUrl    String?
+  isActive    Boolean                  @default(true)
+  sortOrder   Int                      @default(0)
+  createdAt   DateTime                 @default(now())
+  updatedAt   DateTime                 @updatedAt
+  variants    UniformProductVariant[]
+
+  @@index([isActive])
+  @@index([sortOrder])
+}
+
+model UniformProductVariant {
+  id            String             @id @default(cuid())
+  productId     String
+  product       UniformProduct     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  sku           String             @unique
+  label         String
+  size          String?
+  color         String?
+  price         Float
+  stockQuantity Int                @default(0)
+  isActive      Boolean            @default(true)
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+  orderItems    UniformOrderItem[]
+
+  @@index([productId])
+  @@index([isActive])
+}
+
+model UniformOrder {
+  id              String             @id @default(cuid())
+  orderNumber     String             @unique
+  userId          String
+  user            User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status          String             @default("pending_payment")
+  paymentStatus   String             @default("pending")
+  currency        String             @default("USD")
+  subtotal        Float
+  shippingAmount  Float              @default(0)
+  total           Float
+  shippingName    String
+  shippingLine1   String
+  shippingLine2   String?
+  shippingCity    String
+  shippingRegion  String?
+  shippingPostal  String
+  shippingCountry String             @default("United States")
+  shippingPhone   String?
+  notes           String?
+  placedAt        DateTime           @default(now())
+  paidAt          DateTime?
+  shippedAt       DateTime?
+  deliveredAt     DateTime?
+  cancelledAt     DateTime?
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  items           UniformOrderItem[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([paymentStatus])
+  @@index([placedAt])
+}
+
+model UniformOrderItem {
+  id           String                @id @default(cuid())
+  orderId      String
+  order        UniformOrder          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  variantId    String
+  variant      UniformProductVariant @relation(fields: [variantId], references: [id], onDelete: Restrict)
+  productName  String
+  variantLabel String
+  sku          String
+  unitPrice    Float
+  quantity     Int
+  lineTotal    Float
+
+  @@index([orderId])
+  @@index([variantId])
+}

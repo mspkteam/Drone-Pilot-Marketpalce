@@ -1,0 +1,28 @@
+---
+description: Follow DEVELOPMENT_ROADMAP priorities 1-7. No Stripe, SMTP, SEO, or launch QA unless user asks.
+globs:
+alwaysApply: true
+---
+
+# Development phase (active)
+
+**Roadmap:** `docs/DEVELOPMENT_ROADMAP.md` — complete **one priority at a time**.
+
+**Do not implement:** Stripe, Stripe Connect, SMTP/production email, M19 SEO, M20 launch QA, production publishing.
+
+**Current default:** Priority 1 Messaging (`docs/M21_MESSAGING.md`).
+
+## When implementing a priority
+
+1. Prisma model + relations + `db.ts` stale guard
+2. `src/lib/<module>/` + `src/types/`
+3. API routes with existing `require-*` session helpers
+4. Dashboard pages + client components
+5. Module doc + `CHANGELOG` + version bump
+6. `npm run build` must pass
+
+## Preserve
+
+- M02 register: email, password, role only (ADR-010)
+- Working marketplace flows (jobs, bids, bookings, commission)
+- Minimize unrelated refactors

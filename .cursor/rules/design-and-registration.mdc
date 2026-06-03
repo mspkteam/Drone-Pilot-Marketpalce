@@ -1,0 +1,18 @@
+---
+description: Figma UI/UX and future registration fields — project planning constraints
+alwaysApply: true
+---
+
+# Design & registration (planned)
+
+## Figma UI/UX
+
+- Current UI (black/white/gold, layout components) is an **interim foundation**, not final design.
+- Future work will **align the site to Figma** (marketing, auth, dashboards). Prefer token-based updates to shared components over one-off page CSS.
+- See `docs/DESIGN_AND_FORMS_ROADMAP.md` and ADR-009 in `docs/DECISIONS.md`.
+
+## Registration
+
+- M02 register: **email, password, role only** on `User`.
+- **Additional Client and Pilot fields** will come later (Figma + M03/M04). Do not add role-specific register fields without updating the data model docs and `DESIGN_AND_FORMS_ROADMAP.md`.
+- See ADR-010.

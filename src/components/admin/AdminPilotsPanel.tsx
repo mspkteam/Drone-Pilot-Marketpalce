@@ -1,0 +1,161 @@
+"use client";
+
+import Link from "next/link";
+import { useCallback, useEffect, useState } from "react";
+import { PilotStatusBadge } from "@/components/pilot/PilotStatusBadge";
+import { Button } from "@/components/ui/Button";
+import type { AdminPilotDto } from "@/types/admin";
+import type { PilotProfileStatus } from "@/types/pilot";
+import { cn } from "@/lib/utils";
+
+const FILTERS: { value: PilotProfileStatus | "all"; label: string }[] = [
+  { value: "pending_review", label: "Pending" },
+  { value: "approved", label: "Approved" },
+  { value: "rejected", label: "Rejected" },
+  { value: "all", label: "All" },
+];
+
+export function AdminPilotsPanel() {
+  const [filter, setFilter] = useState<PilotProfileStatus | "all">(
+    "pending_review",
+  );
+  const [pilots, setPilots] = useState<AdminPilotDto[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [actingId, setActingId] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/admin/pilots?status=${filter}`);
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error ?? "Failed to load pilots.");
+        setPilots([]);
+      } else {
+        setPilots(data.pilots ?? []);
+      }
+    } catch {
+      setError("Failed to load pilots.");
+      setPilots([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [filter]);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  async function moderate(id: string, action: "approve" | "reject") {
+    setActingId(id);
+    setError(null);
+    try {
+      const res = await fetch(`/api/admin/pilots/${id}/${action}`, {
+        method: "POST",
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error ?? "Action failed.");
+      } else {
+        await load();
+      }
+    } catch {
+      setError("Action failed.");
+    } finally {
+      setActingId(null);
+    }
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-wrap gap-2">
+        {FILTERS.map((f) => (
+          <button
+            key={f.value}
+            type="button"
+            onClick={() => setFilter(f.value)}
+            className={cn(
+              "rounded-full border px-3 py-1 text-sm transition-colors",
+              filter === f.value
+                ? "border-gold bg-gold/15 text-gold-dark"
+                : "border-border hover:border-gold/40",
+            )}
+          >
+            {f.label}
+          </button>
+        ))}
+        <Button type="button" variant="ghost" size="sm" onClick={() => void load()}>
+          Refresh
+        </Button>
+      </div>
+
+      {error ? (
+        <p className="text-sm text-destructive" role="alert">
+          {error}
+        </p>
+      ) : null}
+
+      {loading ? (
+        <p className="text-sm text-muted-foreground">Loading pilots…</p>
+      ) : pilots.length === 0 ? (
+        <p className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+          No pilots in this queue.
+        </p>
+      ) : (
+        <ul className="divide-y divide-border rounded-lg border border-border">
+          {pilots.map((p) => (
+            <li
+              key={p.id}
+              className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between"
+            >
+              <div>
+                <p className="font-medium">{p.displayName}</p>
+                <p className="text-sm text-muted-foreground">{p.email}</p>
+                <p className="text-xs text-muted-foreground">
+                  {p.locationCity ?? "—"}
+                  {p.locationRegion ? `, ${p.locationRegion}` : ""} · License{" "}
+                  {p.licenseNumber}
+                  {p.isPublic ? " · Public" : ""}
+                </p>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <PilotStatusBadge status={p.status} />
+                {p.status === "approved" ? (
+                  <Link
+                    href={`/pilots/${p.id}`}
+                    className="text-sm text-gold-dark hover:text-gold"
+                  >
+                    Public profile
+                  </Link>
+                ) : null}
+                {p.status === "pending_review" ? (
+                  <>
+                    <Button
+                      type="button"
+                      size="sm"
+                      disabled={actingId === p.id}
+                      onClick={() => void moderate(p.id, "approve")}
+                    >
+                      Approve
+                    </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="ghost"
+                      disabled={actingId === p.id}
+                      onClick={() => void moderate(p.id, "reject")}
+                    >
+                      Reject
+                    </Button>
+                  </>
+                ) : null}
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}

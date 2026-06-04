@@ -7,6 +7,7 @@ type DashboardEmptyStateProps = {
   className?: string;
 };
 
+/** Empty state — matches public pilot profile dashed panels. */
 export function DashboardEmptyState({
   title,
   message,

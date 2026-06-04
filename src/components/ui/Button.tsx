@@ -8,7 +8,7 @@ const variantStyles: Record<ButtonVariant, string> = {
   primary:
     "border border-gold/30 bg-gold text-white shadow-[0_2px_12px_rgba(201,162,39,0.25)] hover:border-gold-light hover:bg-gold-light hover:text-white hover:shadow-[0_0_22px_rgba(201,162,39,0.38)] active:brightness-95 focus-visible:ring-gold",
   secondary:
-    "border border-gold/45 bg-transparent text-gold-light hover:border-gold hover:bg-gold/12 hover:text-gold-light",
+    "border border-gold/45 bg-surface/80 text-white hover:border-gold hover:bg-gold/12 hover:text-white",
   ghost:
     "text-foreground hover:bg-white/6 hover:text-foreground",
   outline:

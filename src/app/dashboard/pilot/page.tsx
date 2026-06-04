@@ -6,7 +6,9 @@ import {
   DashboardEmptyState,
   DashboardHero,
   DashboardModuleCard,
+  DashboardModulesGrid,
   DashboardPageLayout,
+  DashboardStatsGrid,
   DashboardStatusBanner,
   IconJobs,
   IconProfile,
@@ -109,7 +111,7 @@ export default async function PilotDashboardPage({ searchParams }: PageProps) {
         </DashboardStatusBanner>
       ) : null}
 
-      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
+      <DashboardStatsGrid>
         <StatCard
           label="Profile status"
           value={getProfileStatusLabel(status)}
@@ -129,7 +131,7 @@ export default async function PilotDashboardPage({ searchParams }: PageProps) {
         >
           <p className="text-sm text-muted-foreground">{location}</p>
         </StatCard>
-      </div>
+      </DashboardStatsGrid>
 
       {!approved ? (
         <DashboardModuleCard
@@ -179,7 +181,7 @@ export default async function PilotDashboardPage({ searchParams }: PageProps) {
             </DashboardModuleCard>
           )}
 
-          <div className="grid gap-5 md:grid-cols-2 lg:gap-6">
+          <DashboardModulesGrid>
             <ActionCard
               title="Find jobs"
               description="Browse open jobs (visibility depends on your tier)."
@@ -211,7 +213,7 @@ export default async function PilotDashboardPage({ searchParams }: PageProps) {
               icon={<IconShield className="h-5 w-5" />}
               className="md:col-span-2"
             />
-          </div>
+          </DashboardModulesGrid>
         </>
       )}
 

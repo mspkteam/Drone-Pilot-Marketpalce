@@ -5,7 +5,9 @@ import {
   DashboardDetailRow,
   DashboardHero,
   DashboardModuleCard,
+  DashboardModulesGrid,
   DashboardPageLayout,
+  DashboardStatsGrid,
   DashboardStatusBanner,
   IconJobs,
   IconProfile,
@@ -74,7 +76,7 @@ export default async function ClientDashboardPage({ searchParams }: PageProps) {
         </DashboardStatusBanner>
       ) : null}
 
-      <div className="grid gap-5 sm:grid-cols-2 lg:gap-6">
+      <DashboardStatsGrid>
         <StatCard
           label="Account status"
           value={getClientProfileStatusLabel(status)}
@@ -87,7 +89,7 @@ export default async function ClientDashboardPage({ searchParams }: PageProps) {
           icon={<IconServices className="h-5 w-5" />}
           helperText={profile?.phone ? "On file" : "Not set"}
         />
-      </div>
+      </DashboardStatsGrid>
 
       <DashboardModuleCard
         title="Jobs & missions"
@@ -142,7 +144,7 @@ export default async function ClientDashboardPage({ searchParams }: PageProps) {
         )}
       </DashboardModuleCard>
 
-      <div className="grid gap-5 md:grid-cols-2 lg:gap-6">
+      <DashboardModulesGrid>
         <DashboardModuleCard
           title="Account details"
           icon={<IconProfile className="h-5 w-5" />}
@@ -193,7 +195,7 @@ export default async function ClientDashboardPage({ searchParams }: PageProps) {
             </li>
           </ul>
         </DashboardModuleCard>
-      </div>
+      </DashboardModulesGrid>
 
       <p className="text-center text-sm text-muted-foreground">
         <Link

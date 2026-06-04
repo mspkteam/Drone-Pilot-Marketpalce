@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 
-/** Vertical rhythm matching public pilot profile (`space-y-8 sm:space-y-10`). */
+/** Page rhythm — matches public pilot profile vertical spacing. */
 export function DashboardPageLayout({
   children,
   className,
@@ -8,7 +8,5 @@ export function DashboardPageLayout({
   children: React.ReactNode;
   className?: string;
 }) {
-  return (
-    <div className={cn("space-y-8 sm:space-y-10", className)}>{children}</div>
-  );
+  return <div className={cn("dashboard-page", className)}>{children}</div>;
 }

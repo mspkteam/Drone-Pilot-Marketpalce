@@ -5,7 +5,9 @@ import {
   ActionCard,
   DashboardHero,
   DashboardModuleCard,
+  DashboardModulesGrid,
   DashboardPageLayout,
+  DashboardStatsGrid,
   IconChart,
   IconJobs,
   IconShield,
@@ -113,7 +115,7 @@ export default async function AdminDashboardPage() {
         description="Platform health — users, jobs, bookings, verifications, and payouts."
       />
 
-      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
+      <DashboardStatsGrid>
         {statCards.map((card) => (
           <StatCard
             key={card.label}
@@ -124,9 +126,9 @@ export default async function AdminDashboardPage() {
             helperText={card.helperText}
           />
         ))}
-      </div>
+      </DashboardStatsGrid>
 
-      <div className="grid gap-5 md:grid-cols-2 lg:gap-6">
+      <DashboardModulesGrid>
         <DashboardModuleCard
           title="Priority queues"
           icon={<IconShield className="h-5 w-5" />}
@@ -166,7 +168,7 @@ export default async function AdminDashboardPage() {
             ))}
           </ul>
         </DashboardModuleCard>
-      </div>
+      </DashboardModulesGrid>
     </DashboardPageLayout>
   );
 }

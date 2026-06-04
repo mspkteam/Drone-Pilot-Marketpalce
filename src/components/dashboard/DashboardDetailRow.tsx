@@ -3,6 +3,7 @@ type DashboardDetailRowProps = {
   value: string;
 };
 
+/** Detail list row inside `.dashboard-inner-surface` blocks. */
 export function DashboardDetailRow({ label, value }: DashboardDetailRowProps) {
   return (
     <div className="flex items-start justify-between gap-4 border-b border-border/60 py-3 last:border-0">

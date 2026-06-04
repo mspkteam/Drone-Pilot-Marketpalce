@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { DashboardIconBox } from "@/components/dashboard/DashboardIconBox";
 import { cn } from "@/lib/utils";
 
 type StatCardProps = {
@@ -13,7 +12,7 @@ type StatCardProps = {
 };
 
 /**
- * Compact metric box with gold accent — for dashboard stats grids.
+ * Stat metric card — aligned with public pilot profile `StatCard`.
  */
 export function StatCard({
   label,
@@ -26,7 +25,9 @@ export function StatCard({
 }: StatCardProps) {
   const content = (
     <>
-      <DashboardIconBox size="md">{icon}</DashboardIconBox>
+      <span className="flex h-11 w-11 items-center justify-center rounded-lg border border-gold/35 bg-gold/10 text-gold">
+        {icon}
+      </span>
       <p className="mt-5 text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
         {label}
       </p>
@@ -44,8 +45,8 @@ export function StatCard({
   );
 
   const classes = cn(
-    "premium-card flex h-full flex-col p-6 transition-shadow duration-200",
-    href && "hover:border-gold/40 hover:shadow-[var(--glow-gold)]",
+    "dashboard-card flex h-full flex-col p-6 transition-shadow duration-200",
+    href && "dashboard-card-interactive",
     className,
   );
 

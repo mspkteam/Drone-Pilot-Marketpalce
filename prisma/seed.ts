@@ -1,7 +1,6 @@
 import "dotenv/config";
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 import { hash } from "bcryptjs";
-import { PrismaClient } from "../src/generated/prisma/client";
+import { createPrismaClient } from "../src/lib/create-prisma-client";
 import { issueCertificateToPilot } from "../src/lib/certificates/certificate";
 import {
   ensureDefaultWingDefinitions,
@@ -13,9 +12,7 @@ import {
   seedMembershipTiers,
 } from "../src/lib/membership/seed-tiers";
 
-const url = process.env.DATABASE_URL ?? "file:./dev.db";
-const adapter = new PrismaBetterSqlite3({ url });
-const prisma = new PrismaClient({ adapter });
+const prisma = createPrismaClient();
 
 const SEED_PASSWORD = "Demo123!";
 

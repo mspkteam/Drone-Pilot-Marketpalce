@@ -3,6 +3,23 @@
 import "dotenv/config";
 import { defineConfig } from "prisma/config";
 
+/** Prisma CLI (migrate, db push, studio) uses direct Neon URL — not the pooler. */
+function cliDatabaseUrl(): string {
+  const direct = process.env["DIRECT_URL"]?.trim();
+  if (direct) return direct;
+
+  const pooled = process.env["DATABASE_URL"]?.trim();
+  if (
+    pooled?.startsWith("postgresql://") ||
+    pooled?.startsWith("postgres://")
+  ) {
+    return pooled;
+  }
+
+  // `prisma generate` does not connect; postinstall must work before .env exists
+  return "postgresql://127.0.0.1:5432/placeholder?sslmode=disable";
+}
+
 export default defineConfig({
   schema: "prisma/schema.prisma",
   migrations: {
@@ -10,7 +27,6 @@ export default defineConfig({
     seed: "npx tsx prisma/seed.ts",
   },
   datasource: {
-    // Default for local + Vercel demo when DATABASE_URL is not in the dashboard
-    url: process.env["DATABASE_URL"] ?? "file:./dev.db",
+    url: cliDatabaseUrl(),
   },
 });

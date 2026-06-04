@@ -1,20 +1,13 @@
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 import { PrismaClient } from "@/generated/prisma/client";
-
-const url = process.env.DATABASE_URL ?? "file:./dev.db";
+import { createPrismaClient } from "@/lib/create-prisma-client";
 
 /** Bump when Prisma schema changes so dev HMR does not keep an old client. */
-const PRISMA_CLIENT_SCHEMA_VERSION = 28;
+const PRISMA_CLIENT_SCHEMA_VERSION = 29;
 
 const globalForPrisma = globalThis as unknown as {
   prisma?: PrismaClient;
   prismaSchemaVersion?: number;
 };
-
-function createPrismaClient(): PrismaClient {
-  const adapter = new PrismaBetterSqlite3({ url });
-  return new PrismaClient({ adapter });
-}
 
 /** Stale singleton from before profile models were added (common in dev HMR). */
 function isStalePrismaClient(client: PrismaClient): boolean {
@@ -76,7 +69,7 @@ function isStalePrismaClient(client: PrismaClient): boolean {
   );
 }
 
-function getPrismaClient(): PrismaClient {
+function resolvePrismaClient(): PrismaClient {
   const cached = globalForPrisma.prisma;
   if (
     cached &&
@@ -94,4 +87,16 @@ function getPrismaClient(): PrismaClient {
   return client;
 }
 
-export const prisma = getPrismaClient();
+/**
+ * Lazy Prisma client — avoids requiring DATABASE_URL during `next build` until a query runs.
+ */
+export const prisma: PrismaClient = new Proxy({} as PrismaClient, {
+  get(_target, prop) {
+    const client = resolvePrismaClient();
+    const value = Reflect.get(client, prop, client) as unknown;
+    if (typeof value === "function") {
+      return (value as (...args: unknown[]) => unknown).bind(client);
+    }
+    return value;
+  },
+});

@@ -167,12 +167,10 @@ See: [`DESIGN_AND_FORMS_ROADMAP.md`](DESIGN_AND_FORMS_ROADMAP.md)
 | **Decision ID** | ADR-011 |
 | **Date** | 2026-06-02 |
 | **Topic** | Production database hosting |
-| **Decision** | **Neon** (serverless PostgreSQL) for production and staging `DATABASE_URL`. Local dev and the internal Vercel demo keep **SQLite** (`file:./dev.db`) until a production cutover. Prisma will use `postgresql` provider + `@prisma/adapter-pg` when deploying against Neon. |
+| **Decision** | **Neon** (serverless PostgreSQL) for all environments. Prisma `postgresql` provider + `@prisma/adapter-neon` at runtime; `DIRECT_URL` for CLI (`db push`, migrate). See [`NEON_SETUP.md`](NEON_SETUP.md). |
 | **Reason** | Managed Postgres with connection pooling, works well with Vercel/serverless and Prisma; avoids coupling marketplace data to Supabase. Auth stays on Auth.js (ADR-007), not Supabase Auth. |
-| **Alternatives considered** | Supabase Postgres; Vercel Postgres; PlanetScale; self-hosted RDS |
-| **Status** | Accepted |
-
-**When going live:** create a Neon project, set `DATABASE_URL` in Vercel (pooled URL recommended), switch `datasource db` in `prisma/schema.prisma` to `postgresql`, run migrations, and remove SQLite-only assumptions (e.g. demo `vercel.json` default).
+| **Alternatives considered** | Supabase Postgres; Vercel Postgres; PlanetScale; SQLite on serverless |
+| **Status** | Accepted (implemented) |
 
 ---
 

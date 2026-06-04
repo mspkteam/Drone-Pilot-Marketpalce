@@ -68,8 +68,7 @@ Module tracker: [`docs/BUILD_CONTROL.md`](docs/BUILD_CONTROL.md)
 | Frontend | Next.js (App Router) |
 | Styling | Tailwind CSS |
 | UI | Mobile-first, aviation-inspired (black / white / gold) |
-| Database (local / demo) | SQLite via Prisma |
-| Database (production) | **Neon** PostgreSQL (not Supabase) — see ADR-011 |
+| Database | **Neon** PostgreSQL via Prisma — see [`docs/NEON_SETUP.md`](docs/NEON_SETUP.md) |
 
 Stack decisions: [`docs/DECISIONS.md`](docs/DECISIONS.md)
 
@@ -120,8 +119,8 @@ Job posting: [`docs/M06_CLIENT_JOB_POSTING.md`](docs/M06_CLIENT_JOB_POSTING.md)
 
 ```bash
 npm install
-# Create .env from .env.example (copy the file on Windows)
-npm run db:push        # create SQLite database
+# Copy .env.example → .env and add Neon DATABASE_URL + DIRECT_URL (see docs/NEON_SETUP.md)
+npm run db:push        # sync schema to Neon
 npm run db:seed        # demo users (password: Demo123!)
 npm run dev
 ```
@@ -147,7 +146,7 @@ Open [http://localhost:3000](http://localhost:3000).
 | `npm run start` | Start production server |
 | `npm run lint` | Run ESLint |
 | `npm run test` | Membership tier visibility tests |
-| `npm run db:push` | Sync Prisma schema to SQLite |
+| `npm run db:push` | Sync Prisma schema to Neon |
 | `npm run db:seed` | Seed demo users |
 | `npm run db:studio` | Open Prisma Studio |
 

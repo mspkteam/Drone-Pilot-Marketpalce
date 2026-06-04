@@ -2,24 +2,23 @@
 
 **Not for production.** Demo/mock only — no Stripe, no real SMTP.
 
-Production database hosting is **Neon PostgreSQL** (ADR-011), not Supabase. This demo uses SQLite via `DATABASE_URL=file:./dev.db`.
+Production database is **Neon PostgreSQL** (ADR-011). Setup: [`NEON_SETUP.md`](NEON_SETUP.md).
 
 ## GitHub
 
-- Repo: `https://github.com/MalikTayyabDev/Drone-Marketpalce`
+- Repo: `https://github.com/mspkteam/Drone-Pilot-Marketpalce`
 - Branch: `main`
 
 ## Vercel environment variables
-
-`DATABASE_URL` is set in `vercel.json` for the internal demo (`file:./dev.db`). You can override it in the dashboard if needed.
 
 Set these in the Vercel project **Settings → Environment Variables** (Production + Preview):
 
 | Variable | Required | Value |
 |----------|----------|--------|
+| `DATABASE_URL` | **Yes** | Neon **pooled** connection string (`-pooler` host) |
+| `DIRECT_URL` | **Yes** | Neon **direct** connection string (for build `db push`) |
 | `AUTH_SECRET` | **Yes** | Random string (32+ chars). Generate: `openssl rand -base64 32` |
 | `AUTH_URL` | **Yes** | Your Vercel URL, e.g. `https://your-project.vercel.app` |
-| `DATABASE_URL` | No (demo default in repo) | `file:./dev.db` |
 
 **Do not set** `SMTP_URL` or any Stripe keys. Emails log to the build/runtime console only; payments use internal demo pay.
 
@@ -38,7 +37,7 @@ Set these in the Vercel project **Settings → Environment Variables** (Producti
 
 ## Known demo limitations
 
-- SQLite on serverless: data may not persist across cold starts or regions; fine for UI walkthrough, not load testing.
+- Neon free tier may sleep after inactivity (cold start on first request).
 - Uploaded verification files and generated certificate PDFs use local `storage/` (not durable on Vercel).
 - Marketplace and uniform shop payments are **demo internal pay** only.
 - No real email delivery without `SMTP_URL`.

@@ -23,23 +23,21 @@ export function ActionCard({
   className,
 }: ActionCardProps) {
   const inner = (
-    <div className="flex h-full flex-col">
-      <div className="flex items-start gap-4">
-        {icon ? <DashboardIconBox>{icon}</DashboardIconBox> : null}
-        <div className="min-w-0 flex-1">
-          <h3 className="text-lg font-semibold text-foreground">{title}</h3>
-          <p className="mt-2 text-sm text-muted-foreground">{description}</p>
-        </div>
+    <>
+      <div className="flex items-center gap-3 border-b border-border/80 pb-4">
+        {icon ? <DashboardIconBox size="md">{icon}</DashboardIconBox> : null}
+        <h3 className="text-base font-semibold text-foreground">{title}</h3>
       </div>
+      <p className="mt-5 flex-1 text-sm text-muted-foreground">{description}</p>
       {href ? (
-        <p className="mt-5 text-sm font-medium text-gold-light">{ctaLabel} →</p>
+        <p className="mt-4 text-sm font-medium text-gold-light">{ctaLabel} →</p>
       ) : null}
-    </div>
+    </>
   );
 
   const classes = cn(
-    "premium-panel flex h-full flex-col border-gold/30 p-6 transition-all duration-200 sm:p-7",
-    href && "hover:border-gold/50 hover:shadow-[var(--glow-gold)]",
+    "premium-card flex h-full flex-col p-6 transition-all duration-200",
+    href && "hover:border-gold/40 hover:shadow-[var(--glow-gold)]",
     className,
   );
 

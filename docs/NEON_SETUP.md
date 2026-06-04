@@ -50,7 +50,7 @@ In the Vercel project (**mspkteam/Drone-Pilot-Marketpalce**), set **Environment 
 | Variable | Required | Notes |
 |----------|----------|--------|
 | `DATABASE_URL` | Yes | Neon **pooled** connection string |
-| `DIRECT_URL` | Yes | Neon **direct** string (for `prisma db push` in build) |
+| `DIRECT_URL` or `DATABASE_URL_UNPOOLED` | Yes | Neon **direct** string (for `prisma db push` in build) |
 | `AUTH_SECRET` | Yes | Random 32+ chars |
 | `AUTH_URL` | Yes | e.g. `https://your-app.vercel.app` |
 

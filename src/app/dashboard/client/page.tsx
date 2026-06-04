@@ -1,7 +1,17 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { PageHeader } from "@/components/layout/PageHeader";
+import {
+  DashboardDetailRow,
+  DashboardHero,
+  DashboardModuleCard,
+  DashboardPageLayout,
+  DashboardStatusBanner,
+  IconJobs,
+  IconProfile,
+  IconServices,
+  StatCard,
+} from "@/components/dashboard";
 import { Button } from "@/components/ui/Button";
 import {
   getClientProfileByUserId,
@@ -38,116 +48,161 @@ export default async function ClientDashboardPage({ searchParams }: PageProps) {
   const recentJobs = allJobs.slice(0, 3).map(toJobDto);
 
   return (
-    <>
-      <PageHeader
-        badge="Client"
+    <DashboardPageLayout>
+      <DashboardHero
+        eyebrow="Client dashboard"
         title={`Welcome${profile?.contactName ? `, ${profile.contactName}` : ""}`}
-        description="Overview of your jobs, offers, and active bookings."
-      />
-
-      <div className="mt-8 space-y-6">
-        {justCompleted ? (
-          <p
-            className="rounded-lg border border-gold/30 bg-gold/10 px-4 py-3 text-sm text-gold-dark"
-            role="status"
-          >
-            Your client profile is set up. You can post your first job when job
-            posting launches (M06).
-          </p>
-        ) : null}
-
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="premium-card p-4">
-            <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Account status
-            </p>
-            <p className="mt-2 text-lg font-semibold">
-              {getClientProfileStatusLabel(status)}
-            </p>
-            {profile?.companyName ? (
-              <p className="mt-1 text-sm text-muted-foreground">
+        description="Overview of your jobs, offers, bookings, and payments."
+        aside={
+          profile?.companyName ? (
+            <div className="rounded-xl border border-gold/30 bg-gold/5 px-5 py-4 text-center lg:text-right">
+              <p className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                Company
+              </p>
+              <p className="mt-2 text-lg font-semibold text-foreground">
                 {profile.companyName}
               </p>
-            ) : null}
-            <Button
-              href="/dashboard/client/profile"
-              variant="ghost"
-              size="sm"
-              className="mt-3"
-            >
-              Edit profile
+            </div>
+          ) : null
+        }
+      />
+
+      {justCompleted ? (
+        <DashboardStatusBanner>
+          Your client profile is set up. Post your first job and track approval
+          from the jobs module below.
+        </DashboardStatusBanner>
+      ) : null}
+
+      <div className="grid gap-5 sm:grid-cols-2 lg:gap-6">
+        <StatCard
+          label="Account status"
+          value={getClientProfileStatusLabel(status)}
+          icon={<IconProfile className="h-5 w-5" />}
+          href="/dashboard/client/profile"
+        />
+        <StatCard
+          label="Contact phone"
+          value={profile?.phone || "—"}
+          icon={<IconServices className="h-5 w-5" />}
+          helperText={profile?.phone ? "On file" : "Not set"}
+        />
+      </div>
+
+      <DashboardModuleCard
+        title="Jobs & missions"
+        icon={<IconJobs className="h-5 w-5" />}
+        action={
+          <div className="flex flex-wrap gap-2">
+            <Button href="/dashboard/client/jobs/new" size="sm">
+              Post job
+            </Button>
+            <Button href="/dashboard/client/jobs" variant="outline" size="sm">
+              My jobs
             </Button>
           </div>
-          <div className="premium-card p-4">
-            <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Contact
-            </p>
-            <p className="mt-2 text-sm text-muted-foreground">
-              {profile?.phone || "No phone on file"}
-            </p>
-          </div>
-        </div>
-
-        <div className="premium-card p-4">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Jobs
-              </p>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Post drone missions and track approval status.
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <Button href="/dashboard/client/jobs/new" size="sm">
-                Post job
-              </Button>
-              <Button href="/dashboard/client/jobs" variant="outline" size="sm">
-                My jobs
-              </Button>
-              <Button href="/dashboard/client/bookings" variant="outline" size="sm">
-                Bookings
-              </Button>
-              <Button href="/dashboard/client/reviews" variant="outline" size="sm">
-                Reviews
-              </Button>
-              <Button href="/dashboard/client/payments" variant="outline" size="sm">
-                Payments
-              </Button>
-            </div>
-          </div>
-          {recentJobs.length > 0 ? (
-            <ul className="mt-4 space-y-2 border-t border-border pt-4">
-              {recentJobs.map((job) => (
-                <li key={job.id}>
-                  <Link
-                    href={`/dashboard/client/jobs/${job.id}`}
-                    className="flex items-center justify-between text-sm hover:text-gold-dark"
-                  >
-                    <span className="font-medium">{job.title}</span>
-                    <span className="text-muted-foreground">
-                      {getJobStatusLabel(job.status as JobStatus)}
-                    </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="mt-4 text-sm text-muted-foreground">
-              No jobs yet — post your first mission.
-            </p>
-          )}
-        </div>
-
-        <p className="text-center text-sm text-muted-foreground">
-          <Link
-            href="/dashboard/client/profile"
-            className="text-gold-dark hover:text-gold"
-          >
-            View full profile →
-          </Link>
+        }
+      >
+        <p className="text-sm text-muted-foreground">
+          Post drone missions and track approval status.
         </p>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <Button href="/dashboard/client/bookings" variant="outline" size="sm">
+            Bookings
+          </Button>
+          <Button href="/dashboard/client/reviews" variant="outline" size="sm">
+            Reviews
+          </Button>
+          <Button href="/dashboard/client/payments" variant="outline" size="sm">
+            Payments
+          </Button>
+        </div>
+        {recentJobs.length > 0 ? (
+          <dl className="mt-6 rounded-lg border border-border bg-surface/50 px-4">
+            {recentJobs.map((job) => (
+              <div key={job.id} className="border-b border-border/60 py-3 last:border-0">
+                <Link
+                  href={`/dashboard/client/jobs/${job.id}`}
+                  className="flex items-center justify-between gap-4 hover:text-gold-light"
+                >
+                  <span className="text-sm font-medium text-foreground">
+                    {job.title}
+                  </span>
+                  <span className="text-sm text-muted-foreground">
+                    {getJobStatusLabel(job.status as JobStatus)}
+                  </span>
+                </Link>
+              </div>
+            ))}
+          </dl>
+        ) : (
+          <p className="mt-6 rounded-lg border border-dashed border-border bg-surface/40 px-4 py-8 text-center text-sm text-muted-foreground">
+            No jobs yet — post your first mission.
+          </p>
+        )}
+      </DashboardModuleCard>
+
+      <div className="grid gap-5 md:grid-cols-2 lg:gap-6">
+        <DashboardModuleCard
+          title="Account details"
+          icon={<IconProfile className="h-5 w-5" />}
+        >
+          <dl className="rounded-lg border border-border bg-surface/50 px-4">
+            <DashboardDetailRow
+              label="Status"
+              value={getClientProfileStatusLabel(status)}
+            />
+            <DashboardDetailRow
+              label="Company"
+              value={profile?.companyName || "—"}
+            />
+            <DashboardDetailRow
+              label="Phone"
+              value={profile?.phone || "—"}
+            />
+          </dl>
+          <Button
+            href="/dashboard/client/profile"
+            variant="ghost"
+            size="sm"
+            className="mt-4"
+          >
+            Edit profile
+          </Button>
+        </DashboardModuleCard>
+        <DashboardModuleCard
+          title="Quick actions"
+          icon={<IconJobs className="h-5 w-5" />}
+        >
+          <ul className="space-y-3 text-sm">
+            <li>
+              <Link
+                href="/dashboard/client/messages"
+                className="font-medium text-gold-light hover:text-gold"
+              >
+                Messages →
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/pilots"
+                className="font-medium text-gold-light hover:text-gold"
+              >
+                Browse pilots →
+              </Link>
+            </li>
+          </ul>
+        </DashboardModuleCard>
       </div>
-    </>
+
+      <p className="text-center text-sm text-muted-foreground">
+        <Link
+          href="/dashboard/client/profile"
+          className="font-medium text-gold-light hover:text-gold"
+        >
+          View full profile →
+        </Link>
+      </p>
+    </DashboardPageLayout>
   );
 }

@@ -1,8 +1,17 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { PageHeader } from "@/components/layout/PageHeader";
-import { Button } from "@/components/ui/Button";
+import {
+  ActionCard,
+  DashboardHero,
+  DashboardModuleCard,
+  DashboardPageLayout,
+  IconChart,
+  IconJobs,
+  IconShield,
+  IconUsers,
+  StatCard,
+} from "@/components/dashboard";
 import { getAdminOverviewStats } from "@/lib/admin/stats";
 import { DEFAULT_COMMISSION_RATE } from "@/lib/commission/constants";
 import { isAdminRole, type UserRole } from "@/types/roles";
@@ -18,176 +27,146 @@ export default async function AdminDashboardPage() {
 
   const stats = await getAdminOverviewStats();
 
-  const cards = [
+  const statCards = [
     {
       label: "Jobs pending approval",
-      value: stats.pendingJobs,
+      value: String(stats.pendingJobs),
+      icon: <IconJobs className="h-5 w-5" />,
       href: "/dashboard/admin/jobs",
-      cta: "Review jobs",
     },
     {
       label: "Pilots pending review",
-      value: stats.pendingPilots,
+      value: String(stats.pendingPilots),
+      icon: <IconUsers className="h-5 w-5" />,
       href: "/dashboard/admin/pilots",
-      cta: "Review pilots",
     },
     {
       label: "Verifications pending",
-      value: stats.pendingVerifications,
+      value: String(stats.pendingVerifications),
+      icon: <IconShield className="h-5 w-5" />,
       href: "/dashboard/admin/verifications",
-      cta: "Review verifications",
     },
     {
       label: "Active disputes",
-      value: stats.activeDisputes,
+      value: String(stats.activeDisputes),
+      icon: <IconShield className="h-5 w-5" />,
       href: "/dashboard/admin/disputes",
-      cta: "Review disputes",
     },
     {
       label: "Open jobs",
-      value: stats.openJobs,
+      value: String(stats.openJobs),
+      icon: <IconJobs className="h-5 w-5" />,
       href: "/dashboard/admin/jobs",
-      cta: "View jobs",
     },
     {
       label: "Active bookings",
-      value: stats.activeBookings,
+      value: String(stats.activeBookings),
+      icon: <IconChart className="h-5 w-5" />,
       href: "/dashboard/admin/bookings",
-      cta: "View bookings",
     },
     {
       label: "Platform users",
-      value: stats.totalUsers,
+      value: String(stats.totalUsers),
+      icon: <IconUsers className="h-5 w-5" />,
       href: role === "super_admin" ? "/dashboard/admin/users" : undefined,
-      sub: `${stats.totalPilots} pilots · ${stats.totalClients} clients`,
+      helperText: `${stats.totalPilots} pilots · ${stats.totalClients} clients`,
     },
     {
       label: "Completed bookings",
-      value: stats.completedBookings,
+      value: String(stats.completedBookings),
+      icon: <IconChart className="h-5 w-5" />,
       href: "/dashboard/admin/bookings",
     },
     {
       label: "Commission recorded",
       value: `USD ${stats.totalCommission.toLocaleString()}`,
+      icon: <IconChart className="h-5 w-5" />,
       href: "/dashboard/admin/payments",
-      sub: `${(DEFAULT_COMMISSION_RATE * 100).toFixed(0)}% rate`,
+      helperText: `${(DEFAULT_COMMISSION_RATE * 100).toFixed(0)}% rate`,
     },
     {
       label: "Waitlist subscribers",
-      value: stats.waitlistSubscribers,
+      value: String(stats.waitlistSubscribers),
+      icon: <IconUsers className="h-5 w-5" />,
       href: "/dashboard/admin/waitlist",
-      cta: "View waitlist",
     },
   ];
 
+  const quickLinks = [
+    { label: "Waitlist", href: "/dashboard/admin/waitlist" },
+    { label: "Verifications", href: "/dashboard/admin/verifications" },
+    { label: "Disputes", href: "/dashboard/admin/disputes" },
+    { label: "Messages", href: "/dashboard/admin/messages" },
+    { label: "Applications", href: "/dashboard/admin/applications" },
+    { label: "Reviews", href: "/dashboard/admin/reviews" },
+    { label: "Payments", href: "/dashboard/admin/payments" },
+    ...(role === "super_admin"
+      ? [{ label: "Settings", href: "/dashboard/admin/settings" }]
+      : []),
+  ];
+
   return (
-    <>
-      <PageHeader
-        badge="Admin"
-        title="Dashboard"
-        description="Platform overview — users, jobs, bookings, and operations."
+    <DashboardPageLayout>
+      <DashboardHero
+        eyebrow="Admin dashboard"
+        title="Operations overview"
+        description="Platform health — users, jobs, bookings, verifications, and payouts."
       />
 
-      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {cards.map((card) => (
-          <div
+      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
+        {statCards.map((card) => (
+          <StatCard
             key={card.label}
-            className="stat-card"
-          >
-            <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              {card.label}
-            </p>
-            <p className="mt-2 text-3xl font-semibold">{card.value}</p>
-            {card.sub ? (
-              <p className="mt-1 text-sm text-muted-foreground">{card.sub}</p>
-            ) : null}
-            {card.href && card.cta ? (
-              <Button href={card.href} size="sm" className="mt-4">
-                {card.cta}
-              </Button>
-            ) : card.href ? (
-              <Link
-                href={card.href}
-                className="mt-4 inline-block text-sm font-medium text-gold-dark hover:text-gold"
-              >
-                View →
-              </Link>
-            ) : null}
-          </div>
+            label={card.label}
+            value={card.value}
+            icon={card.icon}
+            href={card.href}
+            helperText={card.helperText}
+          />
         ))}
       </div>
 
-      <div className="mt-8 premium-card p-5">
-        <p className="text-sm font-medium">Quick links</p>
-        <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-sm">
-          <li>
-            <Link
-              href="/dashboard/admin/waitlist"
-              className="text-gold-dark hover:text-gold"
-            >
-              Waitlist
-            </Link>
-          </li>
-          <li>
-            <Link
-              href="/dashboard/admin/verifications"
-              className="text-gold-dark hover:text-gold"
-            >
-              Verifications
-            </Link>
-          </li>
-          <li>
-            <Link
-              href="/dashboard/admin/disputes"
-              className="text-gold-dark hover:text-gold"
-            >
-              Disputes
-            </Link>
-          </li>
-          <li>
-            <Link
-              href="/dashboard/admin/messages"
-              className="text-gold-dark hover:text-gold"
-            >
-              Messages
-            </Link>
-          </li>
-          <li>
-            <Link
-              href="/dashboard/admin/applications"
-              className="text-gold-dark hover:text-gold"
-            >
-              Applications
-            </Link>
-          </li>
-          <li>
-            <Link
-              href="/dashboard/admin/reviews"
-              className="text-gold-dark hover:text-gold"
-            >
-              Reviews
-            </Link>
-          </li>
-          <li>
-            <Link
-              href="/dashboard/admin/payments"
-              className="text-gold-dark hover:text-gold"
-            >
-              Payments
-            </Link>
-          </li>
-          {role === "super_admin" ? (
-            <li>
-              <Link
-                href="/dashboard/admin/settings"
-                className="text-gold-dark hover:text-gold"
-              >
-                Settings
-              </Link>
-            </li>
-          ) : null}
-        </ul>
+      <div className="grid gap-5 md:grid-cols-2 lg:gap-6">
+        <DashboardModuleCard
+          title="Priority queues"
+          icon={<IconShield className="h-5 w-5" />}
+        >
+          <div className="grid gap-4 sm:grid-cols-2">
+            <ActionCard
+              title="Review jobs"
+              description={`${stats.pendingJobs} job(s) awaiting approval.`}
+              href="/dashboard/admin/jobs"
+              ctaLabel="Open queue"
+              icon={<IconJobs className="h-5 w-5" />}
+            />
+            <ActionCard
+              title="Review pilots"
+              description={`${stats.pendingPilots} pilot profile(s) in queue.`}
+              href="/dashboard/admin/pilots"
+              ctaLabel="Open queue"
+              icon={<IconUsers className="h-5 w-5" />}
+            />
+          </div>
+        </DashboardModuleCard>
+
+        <DashboardModuleCard
+          title="Quick links"
+          icon={<IconChart className="h-5 w-5" />}
+        >
+          <ul className="grid gap-2 sm:grid-cols-2">
+            {quickLinks.map((link) => (
+              <li key={link.href}>
+                <Link
+                  href={link.href}
+                  className="block rounded-lg border border-border bg-surface/50 px-4 py-3 text-sm font-medium text-gold-light transition-colors hover:border-gold/40 hover:bg-gold/5"
+                >
+                  {link.label} →
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </DashboardModuleCard>
       </div>
-    </>
+    </DashboardPageLayout>
   );
 }

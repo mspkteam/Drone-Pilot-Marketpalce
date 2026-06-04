@@ -1,7 +1,19 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { PageHeader } from "@/components/layout/PageHeader";
+import {
+  ActionCard,
+  DashboardEmptyState,
+  DashboardHero,
+  DashboardModuleCard,
+  DashboardPageLayout,
+  DashboardStatusBanner,
+  IconJobs,
+  IconProfile,
+  IconServices,
+  IconShield,
+  StatCard,
+} from "@/components/dashboard";
 import { Button } from "@/components/ui/Button";
 import { getPilotMembershipSummary } from "@/lib/membership/membership";
 import {
@@ -54,33 +66,26 @@ export default async function PilotDashboardPage({ searchParams }: PageProps) {
     ? await getPilotMembershipSummary(profile.id)
     : null;
 
+  const location =
+    [profile?.locationCity, profile?.locationRegion, profile?.locationCountry]
+      .filter(Boolean)
+      .join(", ") || "Location not set";
+  const serviceCount = profile
+    ? parseServicesOffered(profile.servicesOffered).length
+    : 0;
+
   return (
-    <>
-      <PageHeader
-        badge="Pilot"
+    <DashboardPageLayout>
+      <DashboardHero
+        eyebrow="Pilot dashboard"
         title={`Welcome${profile?.displayName ? `, ${profile.displayName}` : ""}`}
-        description="Your mission control — jobs, applications, and bookings at a glance."
-      />
-
-      <div className="mt-8 space-y-6">
-        {justCompleted ? (
-          <p
-            className="rounded-lg border border-gold/30 bg-gold/10 px-4 py-3 text-sm text-gold-dark"
-            role="status"
-          >
-            Profile submitted. Status:{" "}
-            <strong>{getProfileStatusLabel(status)}</strong>. You will be able
-            to browse jobs after an admin approves your profile and you enroll
-            in a membership tier.
-          </p>
-        ) : null}
-
-        <div className="grid gap-4 sm:grid-cols-3">
-          <div className="premium-card p-4">
-            <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+        description="Mission control for jobs, applications, bookings, and your public pilot profile."
+        aside={
+          <div className="rounded-xl border border-gold/30 bg-gold/5 px-5 py-4 text-center lg:text-right">
+            <p className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
               Profile status
             </p>
-            <p className="mt-2 text-lg font-semibold">
+            <p className="mt-2 text-lg font-bold text-gold-light">
               {getProfileStatusLabel(status)}
             </p>
             <Button
@@ -92,123 +97,132 @@ export default async function PilotDashboardPage({ searchParams }: PageProps) {
               Edit profile
             </Button>
           </div>
-          <div className="premium-card p-4 sm:col-span-2">
-            <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Services
-            </p>
-            <p className="mt-2 text-sm text-muted-foreground">
-              {profile
-                ? parseServicesOffered(profile.servicesOffered).length
-                : 0}{" "}
-              service types listed ·{" "}
-              {[profile?.locationCity, profile?.locationRegion, profile?.locationCountry]
-                .filter(Boolean)
-                .join(", ") || "Location not set"}
-            </p>
-          </div>
-        </div>
+        }
+      />
 
-        {!approved ? (
-          <div className="rounded-lg border border-dashed border-border bg-surface/50 p-8 text-center">
-            <h2 className="text-lg font-medium">Jobs & bidding locked</h2>
-            <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-              {profileApprovalHint(status)}
-            </p>
-            <p className="mt-3 text-sm text-muted-foreground">
-              Current status:{" "}
-              <strong>{getProfileStatusLabel(status)}</strong>
-            </p>
-            <div className="mt-6 flex flex-wrap justify-center gap-3">
-              <Button href="/dashboard/pilot/profile" variant="outline" size="sm">
-                Review profile
-              </Button>
-            </div>
-            <p className="mt-4 text-xs text-muted-foreground">
-              Demo tip: sign in as{" "}
-              <span className="font-mono">pilot@dronepilot.local</span> (pre-approved
-              Captain) or ask an admin to approve your profile under Admin → Pilots.
-            </p>
-          </div>
-        ) : (
-          <>
-            {membership ? (
-              <div className="rounded-lg border border-gold/30 bg-gold/10 px-4 py-3 text-sm">
-                <strong>{membership.tier.name}</strong> membership ·{" "}
-                {membership.tier.jobVisibilityDelayHours === 0
-                  ? "jobs visible immediately after approval"
-                  : `jobs visible ${membership.tier.jobVisibilityDelayHours}h after admin approval`}
-                {membership.tier.canApply
-                  ? " · bidding enabled"
-                  : " · view-only (upgrade to A-2+ to bid)"}
-              </div>
-            ) : (
-              <div className="premium-card px-4 py-3 text-sm text-muted-foreground">
+      {justCompleted ? (
+        <DashboardStatusBanner>
+          Profile submitted. Status:{" "}
+          <strong>{getProfileStatusLabel(status)}</strong>. You will be able to
+          browse jobs after an admin approves your profile and you enroll in a
+          membership tier.
+        </DashboardStatusBanner>
+      ) : null}
+
+      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
+        <StatCard
+          label="Profile status"
+          value={getProfileStatusLabel(status)}
+          icon={<IconProfile className="h-5 w-5" />}
+        />
+        <StatCard
+          label="Service types"
+          value={String(serviceCount)}
+          icon={<IconServices className="h-5 w-5" />}
+          helperText={serviceCount === 1 ? "1 listed" : `${serviceCount} listed`}
+        />
+        <StatCard
+          label="Base location"
+          value=""
+          icon={<IconShield className="h-5 w-5" />}
+          className="sm:col-span-2"
+        >
+          <p className="text-sm text-muted-foreground">{location}</p>
+        </StatCard>
+      </div>
+
+      {!approved ? (
+        <DashboardModuleCard
+          title="Jobs & bidding"
+          icon={<IconJobs className="h-5 w-5" />}
+        >
+          <DashboardEmptyState
+            title="Jobs & bidding locked"
+            message={profileApprovalHint(status)}
+          >
+            <Button href="/dashboard/pilot/profile" variant="outline" size="sm">
+              Review profile
+            </Button>
+          </DashboardEmptyState>
+          <p className="mt-4 text-center text-xs text-muted-foreground">
+            Demo tip: sign in as{" "}
+            <span className="font-mono">pilot@dronepilot.local</span> (pre-approved
+            Captain) or ask an admin to approve your profile under Admin → Pilots.
+          </p>
+        </DashboardModuleCard>
+      ) : (
+        <>
+          {membership ? (
+            <DashboardStatusBanner>
+              <strong>{membership.tier.name}</strong> membership ·{" "}
+              {membership.tier.jobVisibilityDelayHours === 0
+                ? "jobs visible immediately after approval"
+                : `jobs visible ${membership.tier.jobVisibilityDelayHours}h after admin approval`}
+              {membership.tier.canApply
+                ? " · bidding enabled"
+                : " · view-only (upgrade to A-2+ to bid)"}
+            </DashboardStatusBanner>
+          ) : (
+            <DashboardModuleCard
+              title="Membership tier"
+              icon={<IconShield className="h-5 w-5" />}
+            >
+              <p className="text-sm text-muted-foreground">
                 No active membership tier.{" "}
                 <Link
                   href="/dashboard/pilot/subscription"
-                  className="font-medium text-gold-dark hover:text-gold"
+                  className="font-medium text-gold-light hover:text-gold"
                 >
                   Enroll in A-1 through A-6 →
                 </Link>
-              </div>
-            )}
+              </p>
+            </DashboardModuleCard>
+          )}
 
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Link
-                href="/dashboard/pilot/jobs"
-                className="premium-card p-6 transition-colors hover:border-gold/40"
-              >
-                <p className="font-semibold">Find jobs</p>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  Browse open jobs (visibility depends on your tier).
-                </p>
-              </Link>
-              <Link
-                href="/dashboard/pilot/applications"
-                className="premium-card p-6 transition-colors hover:border-gold/40"
-              >
-                <p className="font-semibold">My applications</p>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  Track submitted bids and their status.
-                </p>
-              </Link>
-              <Link
-                href="/dashboard/pilot/bookings"
-                className="premium-card p-6 transition-colors hover:border-gold/40"
-              >
-                <p className="font-semibold">My jobs (bookings)</p>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  Manage confirmed work after a client accepts your bid.
-                </p>
-              </Link>
-              <Link
-                href="/dashboard/pilot/reviews"
-                className="premium-card p-6 transition-colors hover:border-gold/40"
-              >
-                <p className="font-semibold">Reviews</p>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  See ratings from completed missions.
-                </p>
-              </Link>
-              <Link
-                href="/dashboard/pilot/subscription"
-                className="premium-card p-6 transition-colors hover:border-gold/40 sm:col-span-2"
-              >
-                <p className="font-semibold">Membership tier</p>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  View or change your A-1 through A-6 marketplace membership.
-                </p>
-              </Link>
-            </div>
-          </>
-        )}
+          <div className="grid gap-5 md:grid-cols-2 lg:gap-6">
+            <ActionCard
+              title="Find jobs"
+              description="Browse open jobs (visibility depends on your tier)."
+              href="/dashboard/pilot/jobs"
+              icon={<IconJobs className="h-5 w-5" />}
+            />
+            <ActionCard
+              title="My applications"
+              description="Track submitted bids and their status."
+              href="/dashboard/pilot/applications"
+              icon={<IconServices className="h-5 w-5" />}
+            />
+            <ActionCard
+              title="My jobs (bookings)"
+              description="Manage confirmed work after a client accepts your bid."
+              href="/dashboard/pilot/bookings"
+              icon={<IconJobs className="h-5 w-5" />}
+            />
+            <ActionCard
+              title="Reviews"
+              description="See ratings from completed missions."
+              href="/dashboard/pilot/reviews"
+              icon={<IconProfile className="h-5 w-5" />}
+            />
+            <ActionCard
+              title="Membership tier"
+              description="View or change your A-1 through A-6 marketplace membership."
+              href="/dashboard/pilot/subscription"
+              icon={<IconShield className="h-5 w-5" />}
+              className="md:col-span-2"
+            />
+          </div>
+        </>
+      )}
 
-        <p className="text-center text-sm text-muted-foreground">
-          <Link href="/dashboard/pilot/profile" className="text-gold-dark hover:text-gold">
-            View full profile →
-          </Link>
-        </p>
-      </div>
-    </>
+      <p className="text-center text-sm text-muted-foreground">
+        <Link
+          href="/dashboard/pilot/profile"
+          className="font-medium text-gold-light hover:text-gold"
+        >
+          View full profile →
+        </Link>
+      </p>
+    </DashboardPageLayout>
   );
 }

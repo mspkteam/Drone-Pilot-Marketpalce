@@ -44,7 +44,7 @@ export function StatCard({
   );
 
   const classes = cn(
-    "stat-card flex h-full flex-col transition-shadow duration-200",
+    "premium-card flex h-full flex-col p-6 transition-shadow duration-200",
     href && "hover:border-gold/40 hover:shadow-[var(--glow-gold)]",
     className,
   );

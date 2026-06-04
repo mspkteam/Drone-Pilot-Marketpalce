@@ -5,7 +5,9 @@ import { defineConfig } from "prisma/config";
 
 /** Prisma CLI (migrate, db push, studio) uses direct Neon URL — not the pooler. */
 function cliDatabaseUrl(): string {
-  const direct = process.env["DIRECT_URL"]?.trim();
+  const direct =
+    process.env["DIRECT_URL"]?.trim() ||
+    process.env["DATABASE_URL_UNPOOLED"]?.trim();
   if (direct) return direct;
 
   const pooled = process.env["DATABASE_URL"]?.trim();

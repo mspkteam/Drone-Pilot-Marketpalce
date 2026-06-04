@@ -16,7 +16,7 @@ Set these in the Vercel project **Settings → Environment Variables** (Producti
 | Variable | Required | Value |
 |----------|----------|--------|
 | `DATABASE_URL` | **Yes** | Neon **pooled** connection string (`-pooler` host) |
-| `DIRECT_URL` | **Yes** | Neon **direct** connection string (for build `db push`) |
+| `DIRECT_URL` or `DATABASE_URL_UNPOOLED` | **Yes** | Neon **direct** connection (for build `db push`) |
 | `AUTH_SECRET` | **Yes** | Random string (32+ chars). Generate: `openssl rand -base64 32` |
 | `AUTH_URL` | **Yes** | Your Vercel URL, e.g. `https://your-project.vercel.app` |
 

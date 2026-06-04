@@ -1,6 +1,24 @@
 import type { PilotServiceId } from "@/types/pilot";
+import type { SubscriptionStatus } from "@/types/subscription";
 import type { VerificationType } from "@/types/verification";
 import type { PublicPilotWingDto } from "@/types/wing";
+
+export type PublicPilotCertificateDto = {
+  id: string;
+  certificateNumber: string;
+  templateName: string;
+  issuedAt: string;
+};
+
+export type PublicPilotMembershipDto = {
+  tierCode: string;
+  tierName: string;
+  status: SubscriptionStatus;
+  jobVisibilityDelayHours: number;
+  canApply: boolean;
+  canViewJobs: boolean;
+  instructorEligible: boolean;
+};
 
 export type PublicPilotReviewDto = {
   id: string;
@@ -29,4 +47,6 @@ export type PublicPilotProfileDto = PublicPilotListItemDto & {
   verifiedTypes: VerificationType[];
   recentReviews: PublicPilotReviewDto[];
   wings: PublicPilotWingDto[];
+  certificates: PublicPilotCertificateDto[];
+  membership: PublicPilotMembershipDto | null;
 };

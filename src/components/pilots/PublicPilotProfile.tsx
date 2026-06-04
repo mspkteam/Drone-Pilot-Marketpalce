@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { StarRating } from "@/components/reviews/StarRating";
+import { SubscriptionStatusBadge } from "@/components/subscriptions/SubscriptionStatusBadge";
 import { Button } from "@/components/ui/Button";
+import { formatJobVisibilityDelay } from "@/lib/subscriptions/status";
 import {
   formatPilotLocation,
   formatPilotRateRange,
@@ -214,6 +216,15 @@ function EmptyState({ message }: { message: string }) {
   );
 }
 
+function DetailRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-start justify-between gap-4 border-b border-border/60 py-3 last:border-0">
+      <dt className="text-sm text-muted-foreground">{label}</dt>
+      <dd className="text-right text-sm font-medium text-foreground">{value}</dd>
+    </div>
+  );
+}
+
 function ServiceChip({ label }: { label: string }) {
   return (
     <span className="inline-flex rounded-full border border-gold/40 bg-gold/10 px-3 py-1 text-xs font-medium text-gold-light">
@@ -401,14 +412,85 @@ export function PublicPilotProfile({ pilot }: { pilot: PublicPilotProfileDto }) 
           title="Certificates"
           icon={<IconCertificate className="h-5 w-5" />}
         >
-          <EmptyState message="No certificates issued yet." />
+          {pilot.certificates.length > 0 ? (
+            <ul className="space-y-3">
+              {pilot.certificates.map((cert) => (
+                <li
+                  key={cert.id}
+                  className="rounded-lg border border-border bg-surface/50 px-4 py-3"
+                >
+                  <p className="font-medium text-foreground">
+                    {cert.templateName}
+                  </p>
+                  <p className="mt-1 font-mono text-xs text-gold-light">
+                    {cert.certificateNumber}
+                  </p>
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    Issued {new Date(cert.issuedAt).toLocaleDateString()}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <EmptyState message="No certificates issued yet." />
+          )}
         </ProfileModuleCard>
 
         <ProfileModuleCard
-          title="Membership"
+          title="Membership tier"
           icon={<IconTier className="h-5 w-5" />}
         >
-          <EmptyState message="Membership details are not shown on public profiles." />
+          {pilot.membership ? (
+            <div className="space-y-4">
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="inline-flex rounded-lg border border-gold/45 bg-gold/15 px-4 py-2 font-mono text-lg font-bold text-gold-light">
+                  {pilot.membership.tierCode}
+                </span>
+                <div>
+                  <p className="font-semibold text-foreground">
+                    {pilot.membership.tierName}
+                  </p>
+                  <div className="mt-1">
+                    <SubscriptionStatusBadge status={pilot.membership.status} />
+                  </div>
+                </div>
+              </div>
+              <dl className="rounded-lg border border-border bg-surface/50 px-4">
+                <DetailRow
+                  label="Job visibility"
+                  value={formatJobVisibilityDelay(
+                    pilot.membership.jobVisibilityDelayHours,
+                  )}
+                />
+                <DetailRow
+                  label="Bidding"
+                  value={
+                    pilot.membership.canApply
+                      ? "Can submit bids"
+                      : "View only"
+                  }
+                />
+                <DetailRow
+                  label="Job board"
+                  value={
+                    pilot.membership.canViewJobs
+                      ? "Can browse jobs"
+                      : "No job board access"
+                  }
+                />
+                <DetailRow
+                  label="Instructor"
+                  value={
+                    pilot.membership.instructorEligible
+                      ? "Eligible"
+                      : "Not eligible"
+                  }
+                />
+              </dl>
+            </div>
+          ) : (
+            <EmptyState message="No active membership tier." />
+          )}
         </ProfileModuleCard>
 
         <ProfileModuleCard

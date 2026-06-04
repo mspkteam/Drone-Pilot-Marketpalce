@@ -2,6 +2,8 @@
 
 **Not for production.** Demo/mock only — no Stripe, no real SMTP.
 
+Production database hosting is **Neon PostgreSQL** (ADR-011), not Supabase. This demo uses SQLite via `DATABASE_URL=file:./dev.db`.
+
 ## GitHub
 
 - Repo: `https://github.com/MalikTayyabDev/Drone-Marketpalce`

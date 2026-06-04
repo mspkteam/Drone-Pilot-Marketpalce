@@ -195,57 +195,6 @@ body::before {
   }
 }
 
-/* Dashboard layout grids (Step 1 — shared with dashboard components) */
-.dashboard-stats-grid {
-  display: grid;
-  gap: 1.25rem;
-  grid-template-columns: 1fr;
-}
-
-@media (min-width: 640px) {
-  .dashboard-stats-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (min-width: 1024px) {
-  .dashboard-stats-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 1.5rem;
-  }
-}
-
-.dashboard-feature-grid {
-  display: grid;
-  gap: 1rem;
-  grid-template-columns: 1fr;
-}
-
-@media (min-width: 640px) {
-  .dashboard-feature-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1.25rem;
-  }
-}
-
-@media (min-width: 1280px) {
-  .dashboard-feature-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-
-.dashboard-stack {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-}
-
-@media (min-width: 640px) {
-  .dashboard-stack {
-    gap: 2.5rem;
-  }
-}
-
 /* Full-width section band; pair with .public-container for 1140px inner canvas */
 .marketing-section {
   width: 100%;

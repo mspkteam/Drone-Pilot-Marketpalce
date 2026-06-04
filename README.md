@@ -68,6 +68,8 @@ Module tracker: [`docs/BUILD_CONTROL.md`](docs/BUILD_CONTROL.md)
 | Frontend | Next.js (App Router) |
 | Styling | Tailwind CSS |
 | UI | Mobile-first, aviation-inspired (black / white / gold) |
+| Database (local / demo) | SQLite via Prisma |
+| Database (production) | **Neon** PostgreSQL (not Supabase) — see ADR-011 |
 
 Stack decisions: [`docs/DECISIONS.md`](docs/DECISIONS.md)
 

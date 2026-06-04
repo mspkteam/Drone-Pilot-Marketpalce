@@ -9,13 +9,34 @@ import { TypingIndicator } from "@/components/support/TypingIndicator";
 import { TypewriterMessage } from "@/components/support/TypewriterMessage";
 import {
   SUPPORT_CLOSED_USER_MESSAGE,
+  SUPPORT_INACTIVITY_CLOSE_MS,
   SUPPORT_RESOLVED_USER_MESSAGE,
 } from "@/lib/support/constants";
+import type { SupportChatMessageDto } from "@/types/support";
 
 const STORAGE_CHAT_ID = "dm_support_chat_id";
 const STORAGE_GUEST_TOKEN = "dm_support_guest_token";
 const POLL_MS = 2000;
+const POLL_BACKGROUND_MS = 30000;
 const TYPING_PULSE_MS = 1000;
+
+function isRequesterMessage(m: SupportChatMessageDto): boolean {
+  return (
+    !m.isSystem &&
+    m.senderRole !== "admin" &&
+    m.senderRole !== "system"
+  );
+}
+
+function getLastRequesterMessageAt(messages: SupportChatMessageDto[]): number | null {
+  let latest: number | null = null;
+  for (const m of messages) {
+    if (!isRequesterMessage(m)) continue;
+    const t = new Date(m.createdAt).getTime();
+    if (latest === null || t > latest) latest = t;
+  }
+  return latest;
+}
 
 type View = "closed" | "form" | "chat";
 
@@ -61,9 +82,11 @@ function SupportChatWidgetInner({
   const [animateMessageIds, setAnimateMessageIds] = useState<Set<string>>(
     () => new Set(),
   );
+  const [hasUnread, setHasUnread] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const seenMessageIdsRef = useRef<Set<string>>(new Set());
   const typingPulseRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const inactivityClosingRef = useRef(false);
 
   useEffect(() => {
     if (session?.user) {
@@ -78,37 +101,55 @@ function SupportChatWidgetInner({
     if (savedId) {
       setChatId(savedId);
       setGuestToken(savedToken);
-      setView("chat");
     }
   }, []);
+
+  function clearStoredChat() {
+    localStorage.removeItem(STORAGE_CHAT_ID);
+    localStorage.removeItem(STORAGE_GUEST_TOKEN);
+    setChatId(null);
+    setGuestToken(null);
+  }
 
   const threadInitializedRef = useRef(false);
 
-  const applyThread = useCallback((chat: SupportChatThreadDto) => {
-    const newAnimate = new Set<string>();
-    for (const m of chat.messages) {
-      if (seenMessageIdsRef.current.has(m.id)) continue;
-      if (
-        threadInitializedRef.current &&
-        m.senderRole === "admin" &&
-        !m.isSystem
-      ) {
-        newAnimate.add(m.id);
+  const applyThread = useCallback(
+    (chat: SupportChatThreadDto, panelOpen: boolean) => {
+      const newAnimate = new Set<string>();
+      let newAdminWhileClosed = false;
+      for (const m of chat.messages) {
+        if (seenMessageIdsRef.current.has(m.id)) continue;
+        if (
+          threadInitializedRef.current &&
+          m.senderRole === "admin" &&
+          !m.isSystem
+        ) {
+          newAnimate.add(m.id);
+          if (!panelOpen) newAdminWhileClosed = true;
+        }
+        seenMessageIdsRef.current.add(m.id);
       }
-      seenMessageIdsRef.current.add(m.id);
-    }
-    threadInitializedRef.current = true;
-    if (newAnimate.size > 0) {
-      setAnimateMessageIds((prev) => new Set([...prev, ...newAnimate]));
-    }
-    setThread(chat);
-    if (chat.status === "closed") {
-      stopTypingPulse();
-    }
-  }, []);
+      threadInitializedRef.current = true;
+      if (newAnimate.size > 0) {
+        setAnimateMessageIds((prev) => new Set([...prev, ...newAnimate]));
+      }
+      if (newAdminWhileClosed && chat.status !== "closed") {
+        setHasUnread(true);
+      }
+      setThread(chat);
+      if (chat.status === "closed") {
+        stopTypingPulse();
+        setHasUnread(false);
+      }
+    },
+    [],
+  );
 
   const loadThread = useCallback(
-    async (id: string, token: string | null): Promise<boolean> => {
+    async (
+      id: string,
+      token: string | null,
+    ): Promise<SupportChatThreadDto | null> => {
       const headers: HeadersInit = {};
       if (token) headers["X-Support-Guest-Token"] = token;
       const url = token
@@ -117,33 +158,76 @@ function SupportChatWidgetInner({
       const res = await fetch(url, { headers, cache: "no-store" });
       const data = await res.json();
       if (res.ok && data.chat) {
-        applyThread(data.chat);
-        return true;
+        applyThread(data.chat, view === "chat");
+        return data.chat as SupportChatThreadDto;
       }
-      return false;
+      return null;
     },
-    [applyThread],
+    [applyThread, view],
+  );
+
+  const closeForInactivity = useCallback(async () => {
+    if (!chatId || inactivityClosingRef.current) return;
+    inactivityClosingRef.current = true;
+    stopTypingPulse();
+    try {
+      const headers: HeadersInit = { "Content-Type": "application/json" };
+      if (guestToken) headers["X-Support-Guest-Token"] = guestToken;
+      const url = guestToken
+        ? `/api/support/chats/${chatId}/close?guestToken=${encodeURIComponent(guestToken)}`
+        : `/api/support/chats/${chatId}/close`;
+      await fetch(url, { method: "POST", headers });
+    } catch {
+      /* still dismiss locally */
+    }
+    clearStoredChat();
+    seenMessageIdsRef.current = new Set();
+    threadInitializedRef.current = false;
+    setAnimateMessageIds(new Set());
+    setThread(null);
+    setReply("");
+    setReplyFile(null);
+    setView("closed");
+    setHasUnread(false);
+    setError(null);
+    inactivityClosingRef.current = false;
+  }, [chatId, guestToken]);
+
+  const checkInactivity = useCallback(
+    (chat: SupportChatThreadDto | null) => {
+      if (!chat || chat.status === "closed") return;
+      const lastRequesterAt = getLastRequesterMessageAt(chat.messages);
+      if (lastRequesterAt === null) return;
+      if (Date.now() - lastRequesterAt >= SUPPORT_INACTIVITY_CLOSE_MS) {
+        void closeForInactivity();
+      }
+    },
+    [closeForInactivity],
   );
 
   useEffect(() => {
-    if (view !== "chat" || !chatId) return;
+    if (!chatId) return;
 
-    void loadThread(chatId, guestToken).then((ok) => {
-      if (!ok) {
-        localStorage.removeItem(STORAGE_CHAT_ID);
-        localStorage.removeItem(STORAGE_GUEST_TOKEN);
-        setChatId(null);
-        setGuestToken(null);
-        setView("form");
+    const poll = async () => {
+      const chat = await loadThread(chatId, guestToken);
+      if (!chat) {
+        clearStoredChat();
+        setThread(null);
+        setView((v) => (v === "chat" ? "form" : v));
+        return;
       }
-    });
+      checkInactivity(chat);
+    };
 
-    const interval = setInterval(() => {
-      void loadThread(chatId, guestToken);
-    }, POLL_MS);
+    void poll();
+
+    const interval = setInterval(
+      () => void poll(),
+      view === "chat" ? POLL_MS : POLL_BACKGROUND_MS,
+    );
 
     return () => clearInterval(interval);
-  }, [view, chatId, guestToken, loadThread]);
+  }, [view, chatId, guestToken, loadThread, checkInactivity]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -214,8 +298,9 @@ function SupportChatWidgetInner({
       setGuestToken(token);
       localStorage.setItem(STORAGE_CHAT_ID, id);
       if (token) localStorage.setItem(STORAGE_GUEST_TOKEN, token);
-      applyThread(data.chat);
+      applyThread(data.chat, true);
       setView("chat");
+      setHasUnread(false);
       setMessage("");
       setFormFile(null);
     } catch {
@@ -261,17 +346,15 @@ function SupportChatWidgetInner({
 
   function startNewChat() {
     stopTypingPulse();
-    localStorage.removeItem(STORAGE_CHAT_ID);
-    localStorage.removeItem(STORAGE_GUEST_TOKEN);
+    clearStoredChat();
     seenMessageIdsRef.current = new Set();
     threadInitializedRef.current = false;
     setAnimateMessageIds(new Set());
-    setChatId(null);
-    setGuestToken(null);
     setThread(null);
     setReply("");
     setReplyFile(null);
     setView("form");
+    setHasUnread(false);
     setError(null);
   }
 
@@ -279,12 +362,22 @@ function SupportChatWidgetInner({
     setError(null);
     if (view !== "closed") {
       setView("closed");
+      stopTypingPulse();
       return;
     }
+    setHasUnread(false);
     const nextView = chatId ? "chat" : "form";
     setView(nextView);
     if (chatId && nextView === "chat") {
-      await loadThread(chatId, guestToken);
+      const chat = await loadThread(chatId, guestToken);
+      if (!chat) {
+        clearStoredChat();
+        setView("form");
+      } else if (chat.status === "closed") {
+        clearStoredChat();
+        setThread(null);
+        setView("form");
+      }
     }
   }
 
@@ -432,7 +525,7 @@ function SupportChatWidgetInner({
               </div>
 
               {isChatResolved && !isChatClosed ? (
-                <div className="border-t border-emerald-600/30 bg-emerald-600/10 px-4 py-3 text-sm text-emerald-900">
+                <div className="border-t border-gold/30 bg-gold/10 px-4 py-3 text-sm text-gold-light">
                   {SUPPORT_RESOLVED_USER_MESSAGE}
                 </div>
               ) : null}
@@ -492,9 +585,15 @@ function SupportChatWidgetInner({
       <button
         type="button"
         onClick={() => void openWidget()}
-        className="rounded-full bg-gold px-5 py-3 text-sm font-semibold text-black shadow-lg hover:bg-gold-light"
+        className="relative rounded-full bg-gold px-5 py-3 text-sm font-semibold text-white shadow-lg hover:bg-gold-light"
       >
         Talk to Support
+        {hasUnread ? (
+          <span
+            className="absolute -right-0.5 -top-0.5 h-3 w-3 rounded-full border-2 border-background bg-gold-light shadow-[0_0_8px_rgba(201,162,39,0.8)]"
+            aria-label="New support message"
+          />
+        ) : null}
       </button>
     </div>
   );

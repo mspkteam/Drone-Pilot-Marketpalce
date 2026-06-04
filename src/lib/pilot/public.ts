@@ -1,13 +1,15 @@
 import { prisma } from "@/lib/db";
+import { listCertificatesForPilot } from "@/lib/certificates/certificate";
+import { getPilotMembershipSummary } from "@/lib/membership/membership";
 import { averageRating } from "@/lib/reviews/review";
-import {
-  parseServicesOffered,
-} from "@/lib/pilot/profile";
+import { parseServicesOffered } from "@/lib/pilot/profile";
 import { getApprovedVerificationTypes } from "@/lib/verification/verification";
 import { listPublicPilotWings } from "@/lib/wings/wings";
 import type { PilotServiceId } from "@/types/pilot";
 import type {
+  PublicPilotCertificateDto,
   PublicPilotListItemDto,
+  PublicPilotMembershipDto,
   PublicPilotProfileDto,
   PublicPilotReviewDto,
 } from "@/types/public-pilot";
@@ -119,10 +121,33 @@ export async function getPublicPilotById(
     createdAt: r.createdAt.toISOString(),
   }));
 
-  const [verifiedTypes, wings] = await Promise.all([
-    getApprovedVerificationTypes(profile.id),
-    listPublicPilotWings(profile.id),
-  ]);
+  const [verifiedTypes, wings, certRows, membershipSummary] =
+    await Promise.all([
+      getApprovedVerificationTypes(profile.id),
+      listPublicPilotWings(profile.id),
+      listCertificatesForPilot(profile.id),
+      getPilotMembershipSummary(profile.id),
+    ]);
+
+  const certificates: PublicPilotCertificateDto[] = certRows.map((c) => ({
+    id: c.id,
+    certificateNumber: c.certificateNumber,
+    templateName: c.templateName,
+    issuedAt: c.issuedAt,
+  }));
+
+  const membership: PublicPilotMembershipDto | null = membershipSummary
+    ? {
+        tierCode: membershipSummary.tier.code,
+        tierName: membershipSummary.tier.name,
+        status: membershipSummary.status,
+        jobVisibilityDelayHours:
+          membershipSummary.tier.jobVisibilityDelayHours,
+        canApply: membershipSummary.tier.canApply,
+        canViewJobs: membershipSummary.tier.canViewJobs,
+        instructorEligible: membershipSummary.tier.instructorEligible,
+      }
+    : null;
 
   return {
     ...toListItem(profile, stat),
@@ -130,5 +155,7 @@ export async function getPublicPilotById(
     verifiedTypes,
     recentReviews,
     wings,
+    certificates,
+    membership,
   };
 }

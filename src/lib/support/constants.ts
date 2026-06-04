@@ -24,3 +24,9 @@ export const SUPPORT_RESOLVED_USER_MESSAGE =
 
 export const SUPPORT_CLOSED_USER_MESSAGE =
   "Your issue has been resolved and this chat is now closed. You cannot send more messages here.";
+
+/** Close chat when the requester has not sent a message for this long (ms). */
+export const SUPPORT_INACTIVITY_CLOSE_MS = 5 * 60 * 1000;
+
+export const SUPPORT_INACTIVITY_CLOSE_MESSAGE =
+  "This chat was closed after 5 minutes without a reply. Start a new support chat if you still need help.";

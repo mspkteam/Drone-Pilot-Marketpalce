@@ -31,3 +31,9 @@ export function getSubscriptionStatusTone(
 export function isSubscriptionUsable(status: SubscriptionStatus): boolean {
   return status === "active" || status === "trialing";
 }
+
+export function formatJobVisibilityDelay(hours: number): string {
+  if (hours === 0) return "Immediate";
+  if (hours === 1) return "1 hour after job approval";
+  return `${hours} hours after job approval`;
+}

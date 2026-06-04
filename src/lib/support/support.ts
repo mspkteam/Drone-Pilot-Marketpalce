@@ -7,7 +7,10 @@ import {
   validateSupportFileBuffer,
   writeSupportFile,
 } from "@/lib/support/storage";
-import { SUPPORT_CONFIRMATION_MESSAGE } from "@/lib/support/constants";
+import {
+  SUPPORT_CONFIRMATION_MESSAGE,
+  SUPPORT_INACTIVITY_CLOSE_MESSAGE,
+} from "@/lib/support/constants";
 import {
   clearSupportTyping,
   isSupportPartyTyping,
@@ -544,6 +547,62 @@ export async function sendSupportMessageAsAdmin(
     where: { id: created.id },
   });
   return { ok: true, message: toMessageDto(row!) };
+}
+
+export async function closeSupportChatForInactivity(
+  chatId: string,
+  userId: string | null,
+  guestToken?: string | null,
+): Promise<
+  | { ok: true; chat: SupportChatThreadDto }
+  | { ok: false; error: string; status: 403 | 404 | 400 }
+> {
+  const chat = await prisma.supportChat.findUnique({ where: { id: chatId } });
+  if (!chat) {
+    return { ok: false, error: "Support chat not found.", status: 404 };
+  }
+  if (!(await canRequesterAccessChat(chat, userId, guestToken))) {
+    return { ok: false, error: "Access denied.", status: 403 };
+  }
+  if (chat.status === "closed") {
+    const thread = await getSupportChatThreadForRequester(
+      chatId,
+      userId,
+      guestToken,
+    );
+    if (!thread) {
+      return { ok: false, error: "Support chat not found.", status: 404 };
+    }
+    return { ok: true, chat: thread };
+  }
+
+  await prisma.$transaction(async (tx) => {
+    await tx.supportChatMessage.create({
+      data: {
+        supportChatId: chatId,
+        senderRole: "system",
+        senderName: "Support",
+        message: SUPPORT_INACTIVITY_CLOSE_MESSAGE,
+        isSystem: true,
+      },
+    });
+    await tx.supportChat.update({
+      where: { id: chatId },
+      data: { status: "closed", lastMessageAt: new Date() },
+    });
+  });
+
+  clearSupportTyping(chatId, "requester");
+
+  const thread = await getSupportChatThreadForRequester(
+    chatId,
+    userId,
+    guestToken,
+  );
+  if (!thread) {
+    return { ok: false, error: "Failed to load support chat.", status: 400 };
+  }
+  return { ok: true, chat: thread };
 }
 
 export async function updateSupportChatStatus(

@@ -42,15 +42,6 @@ export const authConfig = {
       const isLoggedIn = !!auth?.user;
       const role = auth?.user?.role as UserRole | undefined;
 
-      if (pathname === "/login" || pathname === "/register") {
-        if (isLoggedIn && role) {
-          return Response.redirect(
-            new URL(getDashboardHomeForRole(role), request.nextUrl),
-          );
-        }
-        return true;
-      }
-
       if (!pathname.startsWith("/dashboard")) {
         return true;
       }

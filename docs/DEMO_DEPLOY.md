@@ -7,9 +7,14 @@ Production database is **Neon PostgreSQL** (ADR-011). Setup: [`NEON_SETUP.md`](N
 ## GitHub
 
 - Repo: `https://github.com/mspkteam/Drone-Pilot-Marketpalce`
-- Branch: `main`
+- **`main`** — integration (PRs only; Preview on Vercel)
+- **`production`** — live testing site (Vercel Production)
+
+See [`GIT_WORKFLOW.md`](GIT_WORKFLOW.md) for the full branch flow.
 
 ## Vercel environment variables
+
+**Vercel Git:** set **Production Branch** to `production` (not `main`). See [`GIT_WORKFLOW.md`](GIT_WORKFLOW.md).
 
 Set these in the Vercel project **Settings → Environment Variables** (Production + Preview):
 
@@ -21,6 +26,10 @@ Set these in the Vercel project **Settings → Environment Variables** (Producti
 | `AUTH_URL` | **Yes** | Your Vercel URL, e.g. `https://your-project.vercel.app` |
 
 **Do not set** `SMTP_URL` or any Stripe keys. Emails log to the build/runtime console only; payments use internal demo pay.
+
+### `500` / `MIDDLEWARE_INVOCATION_FAILED` on `/login`
+
+Almost always **missing `AUTH_SECRET`** on the Vercel **Production** environment (not only Preview). Auth middleware runs on `/dashboard`; if you still see this on `/login` after a deploy, redeploy after adding variables below.
 
 ### Login shows “problem with the server configuration”
 

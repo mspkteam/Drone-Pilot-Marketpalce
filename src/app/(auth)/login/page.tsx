@@ -1,9 +1,11 @@
 import { Suspense } from "react";
 import { LoginForm } from "@/components/auth/LoginForm";
+import { redirectIfAuthenticated } from "@/lib/auth/redirect-if-authenticated";
 
 export const metadata = { title: "Log in" };
 
-export default function LoginPage() {
+export default async function LoginPage() {
+  await redirectIfAuthenticated();
   return (
     <Suspense
       fallback={

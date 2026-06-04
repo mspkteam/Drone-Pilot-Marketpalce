@@ -1,9 +1,11 @@
 import { Suspense } from "react";
 import { RegisterForm } from "@/components/auth/RegisterForm";
+import { redirectIfAuthenticated } from "@/lib/auth/redirect-if-authenticated";
 
 export const metadata = { title: "Register" };
 
-export default function RegisterPage() {
+export default async function RegisterPage() {
+  await redirectIfAuthenticated();
   return (
     <Suspense
       fallback={

@@ -25,17 +25,23 @@ export function FeatureCard({
   const inner = (
     <>
       <div className="dashboard-card-header">
-        <div className="flex min-w-0 items-center gap-3">
+        <div>
           {icon ? <DashboardIconBox size="md">{icon}</DashboardIconBox> : null}
-          <h3 className="text-base font-semibold text-foreground">{title}</h3>
+          <h3 className="truncate text-base font-semibold text-foreground">
+            {title}
+          </h3>
         </div>
       </div>
-      <p className="dashboard-card-body text-sm leading-relaxed text-muted-foreground">
-        {description}
-      </p>
-      {href ? (
-        <p className="mt-4 text-sm font-medium text-gold-light">{ctaLabel} →</p>
-      ) : null}
+      <div className="dashboard-card-body flex flex-col">
+        <p className="flex-1 text-sm leading-relaxed text-muted-foreground">
+          {description}
+        </p>
+        {href ? (
+          <p className="mt-4 shrink-0 text-sm font-medium text-gold-light">
+            {ctaLabel} →
+          </p>
+        ) : null}
+      </div>
     </>
   );
 

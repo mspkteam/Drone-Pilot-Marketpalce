@@ -2,29 +2,43 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import {
-  ActionCard,
+  DashboardChip,
+  DashboardDetailRow,
   DashboardEmptyState,
   DashboardHero,
   DashboardModuleCard,
   DashboardModulesGrid,
   DashboardPageLayout,
   DashboardStatsGrid,
+  DashboardStatusBadge,
   DashboardStatusBanner,
+  FeatureCard,
+  IconCertificate,
+  IconDollar,
   IconJobs,
   IconProfile,
   IconServices,
   IconShield,
+  IconStar,
+  IconWings,
   StatCard,
 } from "@/components/dashboard";
+import { StarRating } from "@/components/reviews/StarRating";
+import { SubscriptionStatusBadge } from "@/components/subscriptions/SubscriptionStatusBadge";
 import { Button } from "@/components/ui/Button";
+import { getPilotDashboardOverview } from "@/lib/pilot/dashboard";
+import { formatPilotLocation } from "@/lib/pilot/format";
 import { getPilotMembershipSummary } from "@/lib/membership/membership";
 import {
   getPilotProfileByUserId,
   isOnboardingComplete,
-  parseServicesOffered,
 } from "@/lib/pilot/profile";
 import { getProfileStatusLabel } from "@/lib/pilot/status";
+import { formatJobVisibilityDelay } from "@/lib/subscriptions/status";
+import { getVerificationTypeLabel } from "@/lib/verification/status";
 import type { PilotProfileStatus } from "@/types/pilot";
+import type { SubscriptionStatus } from "@/types/subscription";
+import type { VerificationType } from "@/types/verification";
 
 export const metadata = { title: "Pilot Dashboard" };
 
@@ -64,41 +78,108 @@ export default async function PilotDashboardPage({ searchParams }: PageProps) {
   const status = (profile?.status ?? "draft") as PilotProfileStatus;
   const justCompleted = params.onboarding === "complete";
   const approved = status === "approved";
-  const membership = approved && profile
-    ? await getPilotMembershipSummary(profile.id)
-    : null;
+  const membership =
+    approved && profile ? await getPilotMembershipSummary(profile.id) : null;
 
-  const location =
-    [profile?.locationCity, profile?.locationRegion, profile?.locationCountry]
-      .filter(Boolean)
-      .join(", ") || "Location not set";
-  const serviceCount = profile
-    ? parseServicesOffered(profile.servicesOffered).length
-    : 0;
+  const overview = await getPilotDashboardOverview(
+    profile!.id,
+    session.user.id,
+    profile!,
+    approved,
+  );
+
+  const location = formatPilotLocation(
+    profile!.locationCity,
+    profile!.locationRegion,
+    profile!.locationCountry,
+  );
+
+  const heroFooter = (
+    <>
+      <p className="mb-3 text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
+        Operations status
+      </p>
+      <div className="flex flex-wrap gap-2">
+        <DashboardStatusBadge tone={approved ? "success" : "warning"}>
+          {getProfileStatusLabel(status)}
+        </DashboardStatusBadge>
+        <DashboardChip>{overview.profileCompletionPct}% profile complete</DashboardChip>
+        {membership ? (
+          <DashboardChip>{membership.tier.code}</DashboardChip>
+        ) : (
+          <DashboardStatusBadge tone="neutral">No membership tier</DashboardStatusBadge>
+        )}
+        {overview.verifiedTypes.map((t) => (
+          <DashboardStatusBadge key={t} tone="warning">
+            Verified {getVerificationTypeLabel(t as VerificationType)}
+          </DashboardStatusBadge>
+        ))}
+      </div>
+    </>
+  );
 
   return (
     <DashboardPageLayout>
       <DashboardHero
-        eyebrow="Pilot dashboard"
-        title={`Welcome${profile?.displayName ? `, ${profile.displayName}` : ""}`}
-        description="Mission control for jobs, applications, bookings, and your public pilot profile."
+        eyebrow="Pilot operations"
+        title={profile!.displayName}
+        description={location}
         aside={
-          <div className="rounded-xl border border-gold/30 bg-gold/5 px-5 py-4 text-center lg:text-right">
-            <p className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
-              Profile status
-            </p>
-            <p className="mt-2 text-lg font-bold text-gold-light">
-              {getProfileStatusLabel(status)}
-            </p>
-            <Button
-              href="/dashboard/pilot/profile"
-              variant="ghost"
-              size="sm"
-              className="mt-3"
-            >
-              Edit profile
-            </Button>
-          </div>
+          overview.reviewCount > 0 && overview.averageRating != null ? (
+            <div className="rounded-xl border border-gold/30 bg-gold/5 px-5 py-4 text-center lg:text-right">
+              <StarRating
+                value={Math.round(overview.averageRating)}
+                size="md"
+              />
+              <p className="mt-2 text-2xl font-bold text-gold-light">
+                {overview.averageRating}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {overview.reviewCount} review
+                {overview.reviewCount === 1 ? "" : "s"}
+              </p>
+            </div>
+          ) : (
+            <div className="rounded-xl border border-border bg-surface/50 px-5 py-4 text-center lg:text-right">
+              <p className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                Rating
+              </p>
+              <p className="mt-2 text-sm text-muted-foreground">No reviews yet</p>
+            </div>
+          )
+        }
+        footer={
+          <>
+            {heroFooter}
+            <div className="mt-6 flex flex-wrap gap-3">
+              {approved ? (
+                <>
+                  <Button href="/dashboard/pilot/jobs" size="sm">
+                    Find jobs
+                  </Button>
+                  <Button
+                    href="/dashboard/pilot/applications"
+                    variant="secondary"
+                    size="sm"
+                  >
+                    My applications
+                  </Button>
+                </>
+              ) : (
+                <Button href="/dashboard/pilot/profile" size="sm">
+                  Complete profile
+                </Button>
+              )}
+              <Button href="/dashboard/pilot/profile" variant="outline" size="sm">
+                Edit profile
+              </Button>
+              {profile!.isPublic ? (
+                <Button href={`/pilots/${profile!.id}`} variant="ghost" size="sm">
+                  Public profile
+                </Button>
+              ) : null}
+            </div>
+          </>
         }
       />
 
@@ -111,118 +192,240 @@ export default async function PilotDashboardPage({ searchParams }: PageProps) {
         </DashboardStatusBanner>
       ) : null}
 
+      {!approved ? (
+        <DashboardStatusBanner variant="muted">
+          {profileApprovalHint(status)} Demo tip: use{" "}
+          <span className="font-mono text-foreground">pilot@dronepilot.local</span>{" "}
+          for a pre-approved Captain account.
+        </DashboardStatusBanner>
+      ) : null}
+
       <DashboardStatsGrid>
         <StatCard
-          label="Profile status"
-          value={getProfileStatusLabel(status)}
-          icon={<IconProfile className="h-5 w-5" />}
+          label="Available jobs"
+          value={approved ? String(overview.availableJobs) : "—"}
+          icon={<IconJobs className="h-5 w-5" />}
+          href={approved ? "/dashboard/pilot/jobs" : undefined}
         />
         <StatCard
-          label="Service types"
-          value={String(serviceCount)}
+          label="Active bookings"
+          value={String(overview.activeBookings)}
           icon={<IconServices className="h-5 w-5" />}
-          helperText={serviceCount === 1 ? "1 listed" : `${serviceCount} listed`}
+          href="/dashboard/pilot/bookings"
         />
         <StatCard
-          label="Base location"
-          value=""
+          label="Submitted bids"
+          value={String(overview.submittedBids)}
+          icon={<IconProfile className="h-5 w-5" />}
+          href="/dashboard/pilot/applications"
+        />
+        <StatCard
+          label="Completed jobs"
+          value={String(overview.completedBookings)}
           icon={<IconShield className="h-5 w-5" />}
-          className="sm:col-span-2"
-        >
-          <p className="text-sm text-muted-foreground">{location}</p>
-        </StatCard>
+          href="/dashboard/pilot/bookings"
+        />
+        <StatCard
+          label="Demo payouts"
+          value={`$${overview.demoEarningsUsd.toLocaleString()}`}
+          icon={<IconDollar className="h-5 w-5" />}
+          href="/dashboard/pilot/payments"
+          helperText="Internal demo payments"
+        />
+        <StatCard
+          label="Average rating"
+          value={overview.averageRating != null ? String(overview.averageRating) : "—"}
+          icon={<IconStar className="h-5 w-5" />}
+          href="/dashboard/pilot/reviews"
+        />
+        <StatCard
+          label="Digital wings"
+          value={String(overview.wingsCount)}
+          icon={<IconWings className="h-5 w-5" />}
+          href="/dashboard/pilot/achievements"
+        />
+        <StatCard
+          label="Certificates"
+          value={String(overview.certificatesCount)}
+          icon={<IconCertificate className="h-5 w-5" />}
+          href="/dashboard/pilot/certificates"
+        />
       </DashboardStatsGrid>
 
-      {!approved ? (
+      <DashboardModulesGrid>
         <DashboardModuleCard
-          title="Jobs & bidding"
+          title="Membership tier"
+          icon={<IconShield className="h-5 w-5" />}
+          action={
+            <Button href="/dashboard/pilot/subscription" variant="ghost" size="sm">
+              Manage
+            </Button>
+          }
+        >
+          {membership ? (
+            <div className="space-y-4">
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="inline-flex rounded-lg border border-gold/45 bg-gold/15 px-4 py-2 font-mono text-lg font-bold text-gold-light">
+                  {membership.tier.code}
+                </span>
+                <div>
+                  <p className="font-semibold text-foreground">
+                    {membership.tier.name}
+                  </p>
+                  <SubscriptionStatusBadge
+                    status={membership.status as SubscriptionStatus}
+                  />
+                </div>
+              </div>
+              <dl className="dashboard-inner-surface px-4">
+                <DashboardDetailRow
+                  label="Job visibility"
+                  value={formatJobVisibilityDelay(
+                    membership.tier.jobVisibilityDelayHours,
+                  )}
+                />
+                <DashboardDetailRow
+                  label="Bidding"
+                  value={
+                    membership.tier.canApply ? "Enabled" : "View only (A-2+ to bid)"
+                  }
+                />
+              </dl>
+            </div>
+          ) : (
+            <DashboardEmptyState message="No active membership. Enroll in A-1 through A-6 to access the job board.">
+              <Button href="/dashboard/pilot/subscription" size="sm">
+                View tiers
+              </Button>
+            </DashboardEmptyState>
+          )}
+        </DashboardModuleCard>
+
+        <DashboardModuleCard
+          title="Job visibility"
           icon={<IconJobs className="h-5 w-5" />}
         >
-          <DashboardEmptyState
-            title="Jobs & bidding locked"
-            message={profileApprovalHint(status)}
-          >
-            <Button href="/dashboard/pilot/profile" variant="outline" size="sm">
-              Review profile
-            </Button>
-          </DashboardEmptyState>
-          <p className="mt-4 text-center text-xs text-muted-foreground">
-            Demo tip: sign in as{" "}
-            <span className="font-mono">pilot@dronepilot.local</span> (pre-approved
-            Captain) or ask an admin to approve your profile under Admin → Pilots.
-          </p>
-        </DashboardModuleCard>
-      ) : (
-        <>
-          {membership ? (
-            <DashboardStatusBanner>
-              <strong>{membership.tier.name}</strong> membership ·{" "}
+          {approved && membership ? (
+            <p className="text-sm text-muted-foreground">
               {membership.tier.jobVisibilityDelayHours === 0
-                ? "jobs visible immediately after approval"
-                : `jobs visible ${membership.tier.jobVisibilityDelayHours}h after admin approval`}
-              {membership.tier.canApply
-                ? " · bidding enabled"
-                : " · view-only (upgrade to A-2+ to bid)"}
-            </DashboardStatusBanner>
+                ? "Open jobs appear on your board immediately after client approval."
+                : `Tier delay: ${formatJobVisibilityDelay(membership.tier.jobVisibilityDelayHours)}. Locked jobs unlock on your Find Jobs page.`}
+            </p>
           ) : (
-            <DashboardModuleCard
-              title="Membership tier"
-              icon={<IconShield className="h-5 w-5" />}
-            >
-              <p className="text-sm text-muted-foreground">
-                No active membership tier.{" "}
-                <Link
-                  href="/dashboard/pilot/subscription"
-                  className="font-medium text-gold-light hover:text-gold"
-                >
-                  Enroll in A-1 through A-6 →
-                </Link>
-              </p>
-            </DashboardModuleCard>
+            <DashboardEmptyState message="Enroll in a tier and get profile approval to unlock job visibility rules." />
           )}
+        </DashboardModuleCard>
 
-          <DashboardModulesGrid>
-            <ActionCard
-              title="Find jobs"
-              description="Browse open jobs (visibility depends on your tier)."
-              href="/dashboard/pilot/jobs"
-              icon={<IconJobs className="h-5 w-5" />}
-            />
-            <ActionCard
-              title="My applications"
-              description="Track submitted bids and their status."
-              href="/dashboard/pilot/applications"
-              icon={<IconServices className="h-5 w-5" />}
-            />
-            <ActionCard
-              title="My jobs (bookings)"
-              description="Manage confirmed work after a client accepts your bid."
-              href="/dashboard/pilot/bookings"
-              icon={<IconJobs className="h-5 w-5" />}
-            />
-            <ActionCard
-              title="Reviews"
-              description="See ratings from completed missions."
-              href="/dashboard/pilot/reviews"
-              icon={<IconProfile className="h-5 w-5" />}
-            />
-            <ActionCard
-              title="Membership tier"
-              description="View or change your A-1 through A-6 marketplace membership."
-              href="/dashboard/pilot/subscription"
-              icon={<IconShield className="h-5 w-5" />}
-              className="md:col-span-2"
-            />
-          </DashboardModulesGrid>
-        </>
-      )}
+        <DashboardModuleCard
+          title="Verification"
+          icon={<IconShield className="h-5 w-5" />}
+          action={
+            <Button href="/dashboard/pilot/verifications" variant="ghost" size="sm">
+              Upload docs
+            </Button>
+          }
+        >
+          {overview.verifiedTypes.length > 0 ? (
+            <div className="flex flex-wrap gap-2">
+              {overview.verifiedTypes.map((t) => (
+                <DashboardStatusBadge key={t} tone="warning">
+                  {getVerificationTypeLabel(t as VerificationType)}
+                </DashboardStatusBadge>
+              ))}
+            </div>
+          ) : (
+            <DashboardEmptyState message="No approved verifications yet. Submit license or insurance documents for review." />
+          )}
+        </DashboardModuleCard>
+
+        <FeatureCard
+          title="Digital wings"
+          description={`${overview.wingsCount} achievement${overview.wingsCount === 1 ? "" : "s"} earned on the platform.`}
+          href="/dashboard/pilot/achievements"
+          icon={<IconWings className="h-5 w-5" />}
+          ctaLabel="View wings"
+        />
+
+        <FeatureCard
+          title="Certificates"
+          description={`${overview.certificatesCount} platform certificate${overview.certificatesCount === 1 ? "" : "s"} issued to your profile.`}
+          href="/dashboard/pilot/certificates"
+          icon={<IconCertificate className="h-5 w-5" />}
+          ctaLabel="View certificates"
+        />
+
+        <FeatureCard
+          title="Ratings & reviews"
+          description={
+            overview.reviewCount > 0
+              ? `${overview.reviewCount} published review${overview.reviewCount === 1 ? "" : "s"} from completed missions.`
+              : "Complete bookings to receive client ratings."
+          }
+          href="/dashboard/pilot/reviews"
+          icon={<IconStar className="h-5 w-5" />}
+          ctaLabel="View reviews"
+        />
+
+        <FeatureCard
+          title="Uniform shop"
+          description="Browse catalog and place uniform orders (demo checkout)."
+          href="/dashboard/pilot/shop"
+          icon={<IconServices className="h-5 w-5" />}
+          ctaLabel="Open shop"
+        />
+
+        <FeatureCard
+          title="Messages"
+          description="Client threads linked to jobs, bids, and bookings."
+          href="/dashboard/pilot/messages"
+          icon={<IconProfile className="h-5 w-5" />}
+          ctaLabel="Open inbox"
+        />
+
+        <FeatureCard
+          title="Support"
+          description="Use the Talk to Support bubble on any page for platform help."
+          href="/contact"
+          icon={<IconShield className="h-5 w-5" />}
+          ctaLabel="Contact support"
+        />
+      </DashboardModulesGrid>
+
+      {approved ? (
+        <DashboardModulesGrid>
+          <FeatureCard
+            title="Find jobs"
+            description="Browse open missions matching your tier visibility."
+            href="/dashboard/pilot/jobs"
+            icon={<IconJobs className="h-5 w-5" />}
+          />
+          <FeatureCard
+            title="My applications"
+            description="Track bids awaiting client decisions."
+            href="/dashboard/pilot/applications"
+            icon={<IconServices className="h-5 w-5" />}
+          />
+          <FeatureCard
+            title="My bookings"
+            description="Manage active and completed work."
+            href="/dashboard/pilot/bookings"
+            icon={<IconJobs className="h-5 w-5" />}
+          />
+          <FeatureCard
+            title="Payments"
+            description="Demo payout history for completed bookings."
+            href="/dashboard/pilot/payments"
+            icon={<IconDollar className="h-5 w-5" />}
+          />
+        </DashboardModulesGrid>
+      ) : null}
 
       <p className="text-center text-sm text-muted-foreground">
         <Link
-          href="/dashboard/pilot/profile"
+          href={profile!.isPublic ? `/pilots/${profile!.id}` : "/dashboard/pilot/profile"}
           className="font-medium text-gold-light hover:text-gold"
         >
-          View full profile →
+          {profile!.isPublic ? "View public pilot profile →" : "Enable public profile →"}
         </Link>
       </p>
     </DashboardPageLayout>

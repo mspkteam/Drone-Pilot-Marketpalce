@@ -133,7 +133,7 @@ export function AdminUniformShopPanel({
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap gap-2">
+      <div className="dashboard-filter-bar">
         <button
           type="button"
           onClick={() => setTab("orders")}
@@ -162,11 +162,14 @@ export function AdminUniformShopPanel({
         <p className="text-sm text-muted-foreground">Loading…</p>
       ) : tab === "orders" ? (
         <>
-          <div className="flex flex-wrap gap-2">
+          <div className="dashboard-filter-bar">
             <button
               type="button"
               onClick={() => setOrderFilter("all")}
-              className="text-sm underline-offset-2 hover:underline"
+              className={cn(
+                "filter-pill",
+                orderFilter === "all" && "filter-pill-active",
+              )}
             >
               All
             </button>
@@ -176,8 +179,8 @@ export function AdminUniformShopPanel({
                 type="button"
                 onClick={() => setOrderFilter(s)}
                 className={cn(
-                  "text-sm",
-                  orderFilter === s ? "font-medium text-gold-dark" : "text-muted-foreground",
+                  "filter-pill",
+                  orderFilter === s && "filter-pill-active",
                 )}
               >
                 {getUniformOrderStatusLabel(s)}

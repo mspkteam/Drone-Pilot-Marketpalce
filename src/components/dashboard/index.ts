@@ -11,12 +11,16 @@ export {
   DashboardStatsGrid,
 } from "@/components/dashboard/DashboardGrid";
 export {
+  IconCertificate,
   IconChart,
+  IconDollar,
   IconJobs,
   IconProfile,
   IconServices,
   IconShield,
+  IconStar,
   IconUsers,
+  IconWings,
 } from "@/components/dashboard/DashboardIcons";
 export { DashboardModuleCard } from "@/components/dashboard/DashboardModuleCard";
 export { DashboardPageLayout } from "@/components/dashboard/DashboardPageLayout";

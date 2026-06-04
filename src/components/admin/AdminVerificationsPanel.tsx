@@ -6,16 +6,16 @@ import { VerificationStatusBadge } from "@/components/verification/VerificationS
 import { Button } from "@/components/ui/Button";
 import { FormField, inputClassName } from "@/components/ui/FormField";
 import { getVerificationTypeLabel } from "@/lib/verification/status";
+import { approvalStatusFilterTabs } from "@/lib/ui/status-filter-tabs";
 import type { AdminVerificationDto } from "@/types/verification";
 import type { VerificationStatus } from "@/types/verification";
 import { cn } from "@/lib/utils";
 
-const FILTERS: { value: VerificationStatus | "all"; label: string }[] = [
-  { value: "pending", label: "Pending" },
-  { value: "approved", label: "Approved" },
-  { value: "rejected", label: "Rejected" },
-  { value: "all", label: "All" },
-];
+const FILTERS = approvalStatusFilterTabs({
+  pending: "pending",
+  approved: "approved",
+  rejected: "rejected",
+});
 
 export function AdminVerificationsPanel() {
   const [filter, setFilter] = useState<VerificationStatus | "all">("pending");
@@ -101,7 +101,7 @@ export function AdminVerificationsPanel() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap gap-2">
+      <div className="dashboard-filter-bar">
         {FILTERS.map((f) => (
           <button
             key={f.value}

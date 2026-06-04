@@ -4,16 +4,16 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { PilotStatusBadge } from "@/components/pilot/PilotStatusBadge";
 import { Button } from "@/components/ui/Button";
+import { approvalStatusFilterTabs } from "@/lib/ui/status-filter-tabs";
 import type { AdminPilotDto } from "@/types/admin";
 import type { PilotProfileStatus } from "@/types/pilot";
 import { cn } from "@/lib/utils";
 
-const FILTERS: { value: PilotProfileStatus | "all"; label: string }[] = [
-  { value: "pending_review", label: "Pending" },
-  { value: "approved", label: "Approved" },
-  { value: "rejected", label: "Rejected" },
-  { value: "all", label: "All" },
-];
+const FILTERS = approvalStatusFilterTabs({
+  pending: "pending_review",
+  approved: "approved",
+  rejected: "rejected",
+});
 
 export function AdminPilotsPanel() {
   const [filter, setFilter] = useState<PilotProfileStatus | "all">(
@@ -70,7 +70,7 @@ export function AdminPilotsPanel() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap gap-2">
+      <div className="dashboard-filter-bar">
         {FILTERS.map((f) => (
           <button
             key={f.value}

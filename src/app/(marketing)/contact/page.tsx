@@ -9,6 +9,7 @@ export const metadata = {
 export default function ContactPage() {
   return (
     <MarketingPage
+      badge="Support"
       title="Contact"
       description="Questions about the platform, partnerships, or support — send us a message."
       narrow

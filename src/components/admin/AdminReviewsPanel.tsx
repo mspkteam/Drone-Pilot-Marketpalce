@@ -68,7 +68,7 @@ export function AdminReviewsPanel() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap gap-2">
+      <div className="dashboard-filter-bar">
         {FILTERS.map((f) => (
           <button
             key={f.value}

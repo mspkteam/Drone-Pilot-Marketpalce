@@ -57,7 +57,7 @@ export function DashboardHero({
           {aside ? <div className="shrink-0">{aside}</div> : null}
         </div>
         {footer ? (
-          <div className="relative mt-8 border-t border-border/60 pt-6">
+          <div className="relative mt-8 w-full border-t border-border/60 pt-6">
             {footer}
           </div>
         ) : null}

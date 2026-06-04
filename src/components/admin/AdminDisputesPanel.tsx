@@ -3,15 +3,11 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { DisputeStatusBadge } from "@/components/disputes/DisputeStatusBadge";
+import { disputeStatusFilterTabs } from "@/lib/ui/status-filter-tabs";
 import type { DisputeListItemDto, DisputeStatus } from "@/types/dispute";
 import { cn } from "@/lib/utils";
 
-const FILTERS: { value: DisputeStatus | "all"; label: string }[] = [
-  { value: "open", label: "Open" },
-  { value: "under_review", label: "Under review" },
-  { value: "resolved", label: "Resolved" },
-  { value: "all", label: "All" },
-];
+const FILTERS = disputeStatusFilterTabs();
 
 export function AdminDisputesPanel() {
   const [filter, setFilter] = useState<DisputeStatus | "all">("open");
@@ -45,7 +41,7 @@ export function AdminDisputesPanel() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap gap-2">
+      <div className="dashboard-filter-bar">
         {FILTERS.map((f) => (
           <button
             key={f.value}

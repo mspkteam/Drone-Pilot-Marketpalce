@@ -131,11 +131,20 @@ a.dashboard-card:hover {
   box-shadow: var(--glow-gold);
 }
 
-/* Dashboard layout grids — match public pilot profile */
+/* Centered content column for every dashboard route */
+.dashboard-canvas {
+  width: 100%;
+  max-width: var(--public-canvas-max);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Dashboard home/overview vertical rhythm */
 .dashboard-page {
   display: flex;
   flex-direction: column;
   gap: 2rem;
+  width: 100%;
 }
 
 @media (min-width: 640px) {
@@ -146,8 +155,9 @@ a.dashboard-card:hover {
 
 .dashboard-stats-grid {
   display: grid;
-  gap: var(--dashboard-grid-gap);
-  grid-template-columns: 1fr;
+  align-items: stretch;
+  gap: 1.25rem;
+  grid-template-columns: minmax(0, 1fr);
 }
 
 @media (min-width: 640px) {
@@ -159,20 +169,21 @@ a.dashboard-card:hover {
 @media (min-width: 1024px) {
   .dashboard-stats-grid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: var(--dashboard-grid-gap-lg);
+    gap: 1.5rem;
   }
 }
 
 .dashboard-modules-grid {
   display: grid;
-  gap: var(--dashboard-grid-gap);
-  grid-template-columns: 1fr;
+  align-items: stretch;
+  gap: 1.25rem;
+  grid-template-columns: minmax(0, 1fr);
 }
 
 @media (min-width: 768px) {
   .dashboard-modules-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--dashboard-grid-gap-lg);
+    gap: 1.5rem;
   }
 }
 
@@ -210,19 +221,30 @@ a.dashboard-card:hover {
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
-  border-bottom: 1px solid rgba(42, 42, 42, 0.9);
+  flex-shrink: 0;
+  border-bottom: 1px solid rgba(42, 42, 42, 0.8);
   padding-bottom: 1rem;
+}
+
+.dashboard-card-header > :first-child {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 auto;
+  align-items: center;
+  gap: 0.75rem;
 }
 
 .dashboard-card-body {
   margin-top: 1.25rem;
   flex: 1 1 auto;
+  min-height: 0;
 }
 
 .dashboard-inner-surface {
   border-radius: var(--radius-md);
   border: 1px solid var(--border);
   background: rgba(23, 23, 23, 0.65);
+  overflow: hidden;
 }
 
 .dashboard-cta-panel {
@@ -270,6 +292,67 @@ a.dashboard-card:hover {
   pointer-events: none;
 }
 
+/* Home — split client / pilot banner */
+.home-split-banner {
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid var(--border);
+  background: #0a0a0a;
+}
+
+.home-split-panel {
+  background: #0d0d0d;
+  transition: background-color 0.25s ease;
+}
+
+.home-split-panel--client {
+  border-bottom: 1px solid var(--border);
+}
+
+.home-split-panel--pilot {
+  background: #0a0a0a;
+}
+
+@media (min-width: 1024px) {
+  .home-split-panel--client {
+    border-bottom: none;
+    border-right: 1px solid rgba(42, 42, 42, 0.85);
+  }
+}
+
+.home-split-panel--client::before,
+.home-split-panel--pilot::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.home-split-panel--client::before {
+  background:
+    radial-gradient(ellipse 90% 70% at 0% 0%, rgba(201, 162, 39, 0.16), transparent 55%),
+    linear-gradient(160deg, rgba(28, 28, 28, 0.5) 0%, transparent 50%);
+}
+
+.home-split-panel--pilot::before {
+  background:
+    radial-gradient(ellipse 90% 70% at 100% 100%, rgba(201, 162, 39, 0.14), transparent 55%),
+    linear-gradient(200deg, transparent 40%, rgba(24, 24, 24, 0.6) 100%);
+}
+
+.home-split-panel:hover::before {
+  opacity: 1.15;
+}
+
+.home-split-panel--client:hover {
+  background: #101010;
+}
+
+.home-split-panel--pilot:hover {
+  background: #0c0c0c;
+}
+
 /* Public/marketing inner content — 1140px centered canvas */
 .public-container {
   width: 100%;
@@ -287,7 +370,7 @@ a.dashboard-card:hover {
   }
 }
 
-/* Dashboard main panel — full width with consistent padding */
+/* Dashboard main panel — padding + centered page canvas inside */
 .dashboard-main {
   flex: 1 1 auto;
   width: 100%;
@@ -303,7 +386,7 @@ a.dashboard-card:hover {
 
 @media (min-width: 1024px) {
   .dashboard-main {
-    padding: var(--dashboard-padding-desktop);
+    padding: var(--dashboard-padding-tablet);
   }
 }
 
@@ -387,6 +470,14 @@ a.dashboard-card:hover {
   border-color: rgba(147, 197, 253, 0.35);
   background: rgba(59, 130, 246, 0.12);
   color: #93c5fd;
+}
+
+/* Filter tab row — consistent spacing on dashboard list views */
+.dashboard-filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 /* Filter pills (admin lists, tabs) */

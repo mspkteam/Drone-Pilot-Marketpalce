@@ -4,16 +4,12 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { JobStatusBadge } from "@/components/jobs/JobStatusBadge";
 import { Button } from "@/components/ui/Button";
+import { jobAdminStatusFilterTabs } from "@/lib/ui/status-filter-tabs";
 import { JOB_CATEGORIES, type JobStatus } from "@/types/job";
 import type { AdminJobDto } from "@/types/admin-job";
 import { cn } from "@/lib/utils";
 
-const FILTERS: { value: JobStatus | "all"; label: string }[] = [
-  { value: "pending_approval", label: "Pending" },
-  { value: "open", label: "Open" },
-  { value: "rejected", label: "Rejected" },
-  { value: "all", label: "All" },
-];
+const FILTERS = jobAdminStatusFilterTabs();
 
 function categoryLabel(id: string) {
   return JOB_CATEGORIES.find((c) => c.id === id)?.label ?? id;
@@ -51,7 +47,7 @@ export function AdminJobsPanel() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap gap-2">
+      <div className="dashboard-filter-bar">
         {FILTERS.map((f) => (
           <button
             key={f.value}

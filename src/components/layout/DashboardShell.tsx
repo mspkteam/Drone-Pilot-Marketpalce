@@ -61,10 +61,10 @@ export function DashboardShell({
                   <Link
                     href={item.href}
                     className={cn(
-                      "block rounded-md px-3 py-2 text-sm transition-colors",
+                      "block rounded-md border px-3 py-2 text-sm transition-[color,background-color,border-color,box-shadow] duration-150",
                       active
-                        ? "border border-gold/25 bg-gold/15 font-medium text-gold-light shadow-[0_0_12px_rgba(201,162,39,0.12)]"
-                        : "text-sidebar-muted hover:border hover:border-white/5 hover:bg-white/5 hover:text-sidebar-foreground",
+                        ? "border-gold/25 bg-gold/15 font-medium text-gold-light shadow-[0_0_12px_rgba(201,162,39,0.12)]"
+                        : "border-transparent text-sidebar-muted hover:border-white/10 hover:bg-white/5 hover:text-sidebar-foreground",
                     )}
                     onClick={() => setSidebarOpen(false)}
                   >
@@ -119,7 +119,9 @@ export function DashboardShell({
             <DashboardUserMenu />
           </div>
         </header>
-        <main className="dashboard-main">{children}</main>
+        <main className="dashboard-main">
+          <div className="dashboard-canvas">{children}</div>
+        </main>
       </div>
     </div>
   );

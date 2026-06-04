@@ -45,7 +45,7 @@ export function StatCard({
   );
 
   const classes = cn(
-    "dashboard-card flex h-full flex-col p-6 transition-shadow duration-200",
+    "dashboard-card flex h-full min-h-0 flex-col p-6 transition-[border-color,box-shadow] duration-200",
     href && "dashboard-card-interactive",
     className,
   );

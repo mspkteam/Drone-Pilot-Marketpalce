@@ -4,6 +4,8 @@ import { hashPassword } from "@/lib/auth/password";
 import { validateRegisterInput } from "@/lib/auth/validation";
 import { triggerWelcome } from "@/lib/notifications/triggers";
 
+export const runtime = "nodejs";
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -45,7 +47,8 @@ export async function POST(request: Request) {
       { user: { id: user.id, email: user.email, role: user.role } },
       { status: 201 },
     );
-  } catch {
+  } catch (err) {
+    console.error("[auth] register failed:", err);
     return NextResponse.json(
       { error: "Registration failed. Please try again." },
       { status: 500 },

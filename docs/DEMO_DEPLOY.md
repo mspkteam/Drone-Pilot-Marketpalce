@@ -22,6 +22,18 @@ Set these in the Vercel project **Settings → Environment Variables** (Producti
 
 **Do not set** `SMTP_URL` or any Stripe keys. Emails log to the build/runtime console only; payments use internal demo pay.
 
+### Login shows “problem with the server configuration”
+
+Almost always **missing `AUTH_SECRET`** on Vercel (Production **and** Preview). Fix:
+
+1. Generate: `openssl rand -base64 32`
+2. Add env var `AUTH_SECRET` with that value (not the placeholder from `.env.example`)
+3. Redeploy after saving variables
+
+Also confirm `DATABASE_URL` (Neon pooled) and `DIRECT_URL` are set so login/register can reach the same database you seeded.
+
+Optional: set `AUTH_URL` to your exact Vercel URL (e.g. `https://your-app.vercel.app`). `trustHost` is enabled in code if you omit it.
+
 ## Build
 
 `vercel.json` runs: `prisma generate`, `prisma db push`, seed (`npx tsx prisma/seed.ts`), then `next build`.

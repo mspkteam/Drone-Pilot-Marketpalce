@@ -5,6 +5,7 @@ import {
   getDashboardHomeForRole,
   getDashboardTypeFromPath,
 } from "@/lib/auth/permissions";
+import { getAuthSecret } from "@/lib/auth/secret";
 import type { UserRole } from "@/types/roles";
 
 /**
@@ -12,6 +13,7 @@ import type { UserRole } from "@/types/roles";
  * Used by middleware. Extended in auth.ts with the Credentials provider.
  */
 export const authConfig = {
+  secret: getAuthSecret(),
   pages: {
     signIn: "/login",
   },

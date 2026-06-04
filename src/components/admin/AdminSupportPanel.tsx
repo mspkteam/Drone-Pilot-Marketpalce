@@ -3,13 +3,27 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
-import type { AdminSupportChatListItemDto, SupportChatStatus } from "@/types/support";
+import { formatSupportTicketId } from "@/components/support/support-chat-ui";
+import type {
+  AdminSupportChatListItemDto,
+  SupportChatStatus,
+  SupportRequesterRole,
+} from "@/types/support";
 import { SUPPORT_CHAT_STATUSES } from "@/types/support";
+import { cn } from "@/lib/utils";
+
 const STATUS_LABELS: Record<SupportChatStatus, string> = {
   open: "Open",
-  pending: "In progress",
+  pending: "Pending",
   resolved: "Resolved",
   closed: "Closed",
+};
+
+const REQUESTER_ROLE_LABELS: Record<SupportRequesterRole, string> = {
+  guest: "Guest",
+  client: "Client",
+  pilot: "Pilot",
+  admin: "Admin",
 };
 
 const FILTER_LABELS: Record<SupportChatStatus | "all", string> = {
@@ -66,17 +80,19 @@ export function AdminSupportPanel({ readOnly }: { readOnly: boolean }) {
             Refresh list
           </Button>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="dashboard-filter-bar">
           {(["all", ...SUPPORT_CHAT_STATUSES] as const).map((s) => (
-            <Button
+            <button
               key={s}
               type="button"
-              variant={filter === s ? "primary" : "outline"}
-              size="sm"
               onClick={() => setFilter(s)}
+              className={cn(
+                "filter-pill",
+                filter === s && "filter-pill-active",
+              )}
             >
               {FILTER_LABELS[s]}
-            </Button>
+            </button>
           ))}
         </div>
       </div>
@@ -101,21 +117,35 @@ export function AdminSupportPanel({ readOnly }: { readOnly: boolean }) {
                 href={`/dashboard/admin/support/${c.id}`}
                 className="list-panel-row"
               >
-                <div>
+                <div className="min-w-0 flex-1">
                   <p className="font-medium">
                     {c.requesterName}
                     {c.unreadForAdmin ? (
-                      <span className="ml-2 inline-flex h-2 w-2 rounded-full bg-gold" />
+                      <span
+                        className="ml-2 inline-flex h-2 w-2 rounded-full bg-gold"
+                        aria-label="Unread"
+                      />
                     ) : null}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    {c.requesterEmail} · {c.requesterRole}
+                    {c.requesterEmail} ·{" "}
+                    {REQUESTER_ROLE_LABELS[c.requesterRole]}
+                  </p>
+                  <p className="mt-0.5 font-mono text-[10px] text-muted-foreground">
+                    #{formatSupportTicketId(c.id)}
+                  </p>
+                  <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
+                    <span className="text-foreground/80">Initial: </span>
+                    {c.initialMessage}
                   </p>
                   <p className="mt-1 line-clamp-1 text-xs text-muted-foreground">
-                    {c.lastMessagePreview}
+                    Latest: {c.lastMessagePreview}
+                    {c.hasAttachment ? (
+                      <span className="ml-2 text-gold-light">· Has attachment</span>
+                    ) : null}
                   </p>
                 </div>
-                <div className="text-right text-xs text-muted-foreground">
+                <div className="shrink-0 text-right text-xs text-muted-foreground">
                   <span className="rounded-full border border-border px-2 py-0.5">
                     {STATUS_LABELS[c.status]}
                   </span>

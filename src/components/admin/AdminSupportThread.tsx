@@ -3,28 +3,28 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { SupportAttachmentUpload } from "@/components/support/SupportAttachmentUpload";
+import { SupportMessageBubble } from "@/components/support/SupportMessageBubble";
+import {
+  formatSupportTicketId,
+  SUPPORT_STATUS_BADGE,
+  SUPPORT_STATUS_LABELS,
+} from "@/components/support/support-chat-ui";
 import { inputClassName } from "@/components/ui/FormField";
 import { Button } from "@/components/ui/Button";
 import type { SupportChatStatus, SupportChatThreadDto } from "@/types/support";
+import type { SupportRequesterRole } from "@/types/support";
 import { cn } from "@/lib/utils";
 import { TypingIndicator } from "@/components/support/TypingIndicator";
-import { TypewriterMessage } from "@/components/support/TypewriterMessage";
 
 const POLL_MS = 2000;
 const TYPING_PULSE_MS = 1000;
 
-const STATUS_LABELS: Record<SupportChatStatus, string> = {
-  open: "Open",
-  pending: "In progress",
-  resolved: "Resolved",
-  closed: "Closed",
-};
-
-const STATUS_BADGE: Record<SupportChatStatus, string> = {
-  open: "border-gold/40 bg-gold/10 text-gold-dark",
-  pending: "border-amber-500/40 bg-amber-500/10 text-amber-800",
-  resolved: "border-emerald-600/40 bg-emerald-600/10 text-emerald-800",
-  closed: "border-border bg-surface text-muted-foreground",
+const REQUESTER_ROLE_LABELS: Record<SupportRequesterRole, string> = {
+  guest: "Guest",
+  client: "Client",
+  pilot: "Pilot",
+  admin: "Admin",
 };
 
 export function AdminSupportThread({
@@ -40,33 +40,19 @@ export function AdminSupportThread({
   const [status, setStatus] = useState<SupportChatStatus>("open");
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(true);
+  const [sending, setSending] = useState(false);
   const [savingStatus, setSavingStatus] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [animateMessageIds, setAnimateMessageIds] = useState<Set<string>>(
-    () => new Set(),
-  );
   const bottomRef = useRef<HTMLDivElement>(null);
   const seenMessageIdsRef = useRef<Set<string>>(new Set());
   const threadInitializedRef = useRef(false);
   const typingPulseRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const applyThread = useCallback((chat: SupportChatThreadDto) => {
-    const newAnimate = new Set<string>();
     for (const m of chat.messages) {
-      if (seenMessageIdsRef.current.has(m.id)) continue;
-      if (
-        threadInitializedRef.current &&
-        m.senderRole !== "admin" &&
-        !m.isSystem
-      ) {
-        newAnimate.add(m.id);
-      }
       seenMessageIdsRef.current.add(m.id);
     }
     threadInitializedRef.current = true;
-    if (newAnimate.size > 0) {
-      setAnimateMessageIds((prev) => new Set([...prev, ...newAnimate]));
-    }
     setThread(chat);
     setStatus(chat.status);
   }, []);
@@ -133,25 +119,33 @@ export function AdminSupportThread({
 
   async function sendReply(e: React.FormEvent) {
     e.preventDefault();
-    if (readOnly) return;
+    if (readOnly || sending) return;
+    if (!reply.trim() && !file) return;
     setError(null);
+    setSending(true);
     const formData = new FormData();
     formData.set("message", reply);
     if (file) formData.set("attachment", file);
 
-    const res = await fetch(`/api/admin/support/chats/${chatId}/messages`, {
-      method: "POST",
-      body: formData,
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      setError(data.error ?? "Failed to send.");
-      return;
+    try {
+      const res = await fetch(`/api/admin/support/chats/${chatId}/messages`, {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error ?? "Failed to send.");
+        return;
+      }
+      stopTypingPulse();
+      setReply("");
+      setFile(null);
+      await load({ silent: true });
+    } catch {
+      setError("Failed to send.");
+    } finally {
+      setSending(false);
     }
-    stopTypingPulse();
-    setReply("");
-    setFile(null);
-    await load({ silent: true });
   }
 
   async function saveStatus(next: SupportChatStatus) {
@@ -195,6 +189,8 @@ export function AdminSupportThread({
     );
   }
 
+  const canSend = !sending && (reply.trim().length > 0 || file != null);
+
   return (
     <div className="space-y-6">
       <Link
@@ -204,34 +200,51 @@ export function AdminSupportThread({
         ← Support chat list
       </Link>
 
-      <div className="rounded-lg border border-border bg-surface-elevated p-4">
-        <h2 className="text-lg font-semibold">{thread.requesterName}</h2>
-        <p className="text-sm text-muted-foreground">
-          {thread.requesterEmail} · {thread.requesterRole}
-        </p>
-        <p className="mt-2 text-xs text-muted-foreground">
-          Created {new Date(thread.createdAt).toLocaleString()}
-        </p>
-        <div className="mt-4 flex flex-wrap items-center gap-2">
-          <span className="text-xs font-medium text-muted-foreground">
-            Status
-          </span>
+      <div className="rounded-lg border border-border bg-surface-elevated p-4 sm:p-5">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="min-w-0">
+            <p className="font-mono text-xs text-muted-foreground">
+              Ticket #{formatSupportTicketId(thread.id)}
+            </p>
+            <h2 className="mt-1 text-lg font-semibold">{thread.requesterName}</h2>
+            <p className="text-sm text-muted-foreground">{thread.requesterEmail}</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              User type:{" "}
+              <span className="font-medium text-foreground">
+                {REQUESTER_ROLE_LABELS[thread.requesterRole]}
+              </span>
+            </p>
+          </div>
           <span
             className={cn(
               "rounded-full border px-3 py-1 text-xs font-semibold",
-              STATUS_BADGE[status],
+              SUPPORT_STATUS_BADGE[status],
             )}
           >
-            {STATUS_LABELS[status]}
+            {SUPPORT_STATUS_LABELS[status]}
           </span>
         </div>
+
+        <div className="mt-4 rounded-lg border border-border/80 bg-surface/60 p-3">
+          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            Initial message
+          </p>
+          <p className="mt-2 whitespace-pre-wrap text-sm text-foreground">
+            {thread.initialMessage}
+          </p>
+        </div>
+
+        <p className="mt-3 text-xs text-muted-foreground">
+          Created {new Date(thread.createdAt).toLocaleString()} · Last updated{" "}
+          {new Date(thread.lastMessageAt).toLocaleString()}
+        </p>
 
         {!readOnly ? (
           <div className="mt-5 space-y-3 border-t border-border pt-4">
             <p className="text-xs font-medium text-muted-foreground">
-              Manage conversation
+              Status controls
             </p>
-            <div className="flex flex-wrap gap-2">
+            <div className="dashboard-filter-bar">
               {status === "open" ? (
                 <Button
                   type="button"
@@ -240,7 +253,7 @@ export function AdminSupportThread({
                   disabled={savingStatus}
                   onClick={() => void saveStatus("pending")}
                 >
-                  Mark in progress
+                  Mark pending
                 </Button>
               ) : null}
               {status !== "resolved" && status !== "closed" ? (
@@ -251,7 +264,7 @@ export function AdminSupportThread({
                   disabled={savingStatus}
                   onClick={() => void saveStatus("resolved")}
                 >
-                  Mark as resolved
+                  Mark resolved
                 </Button>
               ) : null}
               {status !== "closed" ? (
@@ -273,23 +286,15 @@ export function AdminSupportThread({
                   disabled={savingStatus}
                   onClick={() => void saveStatus("open")}
                 >
-                  Reopen chat
+                  Reopen
                 </Button>
               ) : null}
             </div>
-            <p className="text-xs text-muted-foreground">
-              {status === "closed"
-                ? "This chat is closed. Reopen it to allow the user to message again."
-                : status === "resolved"
-                  ? "Resolved — the user can still reply. Close the chat to lock it."
-                  : status === "pending"
-                    ? "In progress — mark resolved when the issue is handled."
-                    : "New request — mark in progress when you start helping."}
-            </p>
           </div>
         ) : (
-          <p className="mt-3 text-xs text-muted-foreground">
-            Moderators can view status but cannot change it.
+          <p className="mt-4 text-xs text-muted-foreground">
+            Moderators can view this thread and attachments but cannot reply or
+            change status.
           </p>
         )}
       </div>
@@ -300,49 +305,13 @@ export function AdminSupportThread({
         </p>
       ) : null}
 
-      <div className="max-h-[50vh] space-y-3 overflow-y-auto rounded-lg border border-border p-4">
+      <div className="max-h-[min(55vh,520px)] space-y-3 overflow-y-auto rounded-lg border border-border bg-background/50 p-4">
         {thread.messages.map((m) => (
-          <div
+          <SupportMessageBubble
             key={m.id}
-            className={cn(
-              "max-w-[85%] rounded-lg px-3 py-2 text-sm",
-              m.isSystem
-                ? "mx-auto max-w-full border border-gold/30 bg-gold/10 text-gold-dark"
-                : m.senderRole === "admin"
-                  ? "ml-auto bg-gold/15"
-                  : "bg-surface-elevated",
-            )}
-          >
-            {!m.isSystem ? (
-              <p className="text-[10px] text-muted-foreground">{m.senderName}</p>
-            ) : null}
-            <p>
-              {animateMessageIds.has(m.id) && m.senderRole !== "admin" ? (
-                <TypewriterMessage text={m.message} animate />
-              ) : (
-                <span className="whitespace-pre-wrap">{m.message}</span>
-              )}
-            </p>
-            {m.attachmentUrl ? (
-              m.attachmentMimeType?.startsWith("image/") ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={`/api/support/files/${encodeURIComponent(m.attachmentUrl)}`}
-                  alt=""
-                  className="mt-2 max-h-40 rounded border border-border"
-                />
-              ) : (
-                <a
-                  href={`/api/support/files/${encodeURIComponent(m.attachmentUrl)}`}
-                  className="mt-2 block text-xs text-gold-dark underline"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  {m.attachmentFileName ?? "Attachment"}
-                </a>
-              )
-            ) : null}
-          </div>
+            message={m}
+            variant="admin"
+          />
         ))}
         {thread.otherPartyTyping ? (
           <TypingIndicator label={thread.requesterName} side="left" />
@@ -361,26 +330,26 @@ export function AdminSupportThread({
       ) : (
         <form
           onSubmit={(e) => void sendReply(e)}
-          className="space-y-3 rounded-lg border border-border p-4"
+          className="space-y-4 rounded-lg border border-border bg-surface-elevated p-4"
         >
-          <label className="block text-sm font-medium">
+          <label className="block text-sm font-medium text-foreground">
             Reply as support
             <textarea
-              rows={3}
+              rows={4}
               value={reply}
               onChange={(e) => handleReplyChange(e.target.value)}
-              className={cn(inputClassName, "mt-1 resize-none")}
+              className={cn(inputClassName, "mt-1.5 min-h-[100px] resize-none")}
               placeholder="Type your reply…"
             />
           </label>
-          <input
-            type="file"
-            accept="image/jpeg,image/png,image/webp,application/pdf"
-            className="block text-xs"
-            onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+          <SupportAttachmentUpload
+            file={file}
+            onFileChange={setFile}
+            disabled={sending}
+            label="Attach file"
           />
-          <Button type="submit" disabled={!reply.trim() && !file}>
-            Send reply
+          <Button type="submit" disabled={!canSend}>
+            {sending ? "Sending…" : "Send reply"}
           </Button>
         </form>
       )}

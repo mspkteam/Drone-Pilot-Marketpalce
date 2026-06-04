@@ -2,17 +2,23 @@
 
 import { useSession } from "next-auth/react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { inputClassName } from "@/components/ui/FormField";
-import { cn } from "@/lib/utils";
-import type { SupportChatThreadDto } from "@/types/support";
+import { SupportAttachmentUpload } from "@/components/support/SupportAttachmentUpload";
+import { SupportMessageBubble } from "@/components/support/SupportMessageBubble";
+import {
+  formatSupportTicketId,
+  SUPPORT_STATUS_BADGE,
+  SUPPORT_STATUS_LABELS,
+} from "@/components/support/support-chat-ui";
 import { TypingIndicator } from "@/components/support/TypingIndicator";
-import { TypewriterMessage } from "@/components/support/TypewriterMessage";
+import { inputClassName } from "@/components/ui/FormField";
 import {
   SUPPORT_CLOSED_USER_MESSAGE,
   SUPPORT_INACTIVITY_CLOSE_MS,
   SUPPORT_RESOLVED_USER_MESSAGE,
 } from "@/lib/support/constants";
+import { cn } from "@/lib/utils";
 import type { SupportChatMessageDto } from "@/types/support";
+import type { SupportChatThreadDto } from "@/types/support";
 
 const STORAGE_CHAT_ID = "dm_support_chat_id";
 const STORAGE_GUEST_TOKEN = "dm_support_guest_token";
@@ -39,17 +45,6 @@ function getLastRequesterMessageAt(messages: SupportChatMessageDto[]): number | 
 }
 
 type View = "closed" | "form" | "chat";
-
-function attachmentSrc(
-  fileName: string,
-  guestToken: string | null,
-): string {
-  const base = `/api/support/files/${encodeURIComponent(fileName)}`;
-  if (guestToken) {
-    return `${base}?guestToken=${encodeURIComponent(guestToken)}`;
-  }
-  return base;
-}
 
 export function SupportChatWidget() {
   const { data: session } = useSession();
@@ -89,11 +84,32 @@ function SupportChatWidgetInner({
   const inactivityClosingRef = useRef(false);
 
   useEffect(() => {
-    if (session?.user) {
-      setName(session.user.name ?? "");
-      setEmail(session.user.email ?? "");
+    if (!session?.user?.id) {
+      setName("");
+      setEmail("");
+      return;
     }
-  }, [session]);
+
+    let cancelled = false;
+    void (async () => {
+      try {
+        const res = await fetch("/api/support/intake", { cache: "no-store" });
+        const data = await res.json();
+        if (!cancelled && res.ok) {
+          setName(data.name ?? "");
+          setEmail(data.email ?? "");
+        }
+      } catch {
+        if (!cancelled && session.user?.email) {
+          setEmail(session.user.email);
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [session?.user?.id, session?.user?.email]);
 
   useEffect(() => {
     const savedId = localStorage.getItem(STORAGE_CHAT_ID);
@@ -274,8 +290,8 @@ function SupportChatWidgetInner({
     setLoading(true);
     try {
       const formData = new FormData();
-      formData.set("requesterName", name);
-      formData.set("requesterEmail", email);
+      formData.set("requesterName", name.trim());
+      formData.set("requesterEmail", email.trim());
       formData.set("message", message);
       if (formFile) formData.set("attachment", formFile);
 
@@ -312,7 +328,8 @@ function SupportChatWidgetInner({
 
   async function sendReply(e: React.FormEvent) {
     e.preventDefault();
-    if (!chatId) return;
+    if (!chatId || loading) return;
+    if (!reply.trim() && !replyFile) return;
     setError(null);
     stopTypingPulse();
     setLoading(true);
@@ -384,139 +401,138 @@ function SupportChatWidgetInner({
   const chatStatus = thread?.status;
   const isChatClosed = chatStatus === "closed";
   const isChatResolved = chatStatus === "resolved";
+  const canSendReply =
+    !loading && (reply.trim().length > 0 || replyFile != null);
 
   return (
     <div className="fixed bottom-4 right-4 z-[60] flex flex-col items-end gap-2 sm:bottom-6 sm:right-6">
       {view !== "closed" ? (
         <div
-          className="flex h-[min(520px,75vh)] w-[min(380px,calc(100vw-2rem))] flex-col overflow-hidden rounded-xl border border-border bg-background shadow-2xl"
+          className="flex h-[min(80vh,640px)] w-[min(400px,calc(100vw-1.5rem))] flex-col overflow-hidden rounded-xl border border-border bg-background shadow-2xl sm:w-[min(420px,calc(100vw-2rem))]"
           role="dialog"
           aria-label="Talk to Support"
         >
-          <div className="flex items-center justify-between border-b border-border bg-surface-elevated px-4 py-3">
-            <div>
-              <p className="text-sm font-semibold">Talk to Support</p>
-              <p className="text-xs text-muted-foreground">Platform help desk</p>
+          <div className="shrink-0 border-b border-border bg-surface-elevated px-4 py-3">
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-foreground">
+                  Talk to Support
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Platform help desk
+                </p>
+                {chatId ? (
+                  <p className="mt-1 font-mono text-[10px] text-muted-foreground">
+                    Ticket #{formatSupportTicketId(chatId)}
+                  </p>
+                ) : null}
+              </div>
+              <div className="flex shrink-0 flex-col items-end gap-1.5">
+                {thread?.status ? (
+                  <span
+                    className={cn(
+                      "rounded-full border px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide",
+                      SUPPORT_STATUS_BADGE[thread.status],
+                    )}
+                  >
+                    {SUPPORT_STATUS_LABELS[thread.status]}
+                  </span>
+                ) : null}
+                <button
+                  type="button"
+                  className="rounded-md px-2 py-1 text-sm text-muted-foreground hover:bg-surface"
+                  onClick={() => setView("closed")}
+                  aria-label="Minimize"
+                >
+                  −
+                </button>
+              </div>
             </div>
-            <button
-              type="button"
-              className="rounded-md px-2 py-1 text-sm text-muted-foreground hover:bg-surface"
-              onClick={() => setView("closed")}
-              aria-label="Minimize"
-            >
-              −
-            </button>
           </div>
 
           {error ? (
-            <p className="bg-destructive/10 px-4 py-2 text-xs text-destructive" role="alert">
+            <p
+              className="shrink-0 bg-destructive/10 px-4 py-2 text-xs text-destructive"
+              role="alert"
+            >
               {error}
             </p>
           ) : null}
 
           {view === "form" ? (
-            <form onSubmit={startChat} className="flex flex-1 flex-col overflow-y-auto p-4">
-              <p className="text-sm text-muted-foreground">
-                Need help? Send us a quick message and our support team will get back
+            <form
+              onSubmit={startChat}
+              className="flex min-h-0 flex-1 flex-col overflow-y-auto p-4"
+            >
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                Need help? Send us a message and our support team will get back
                 to you.
               </p>
-              <label className="mt-4 block text-xs font-medium">
+              <label className="mt-4 block text-xs font-medium text-foreground">
                 Full name *
                 <input
                   required
+                  minLength={2}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className={cn(inputClassName, "mt-1")}
-                  disabled={!!session?.user}
+                  className={cn(inputClassName, "mt-1.5 h-10")}
+                  placeholder="Your name"
+                  autoComplete="name"
                 />
               </label>
-              <label className="mt-3 block text-xs font-medium">
+              <label className="mt-3 block text-xs font-medium text-foreground">
                 Email *
                 <input
                   type="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className={cn(inputClassName, "mt-1")}
-                  disabled={!!session?.user}
+                  className={cn(inputClassName, "mt-1.5 h-10")}
+                  placeholder="you@example.com"
+                  autoComplete="email"
                 />
               </label>
-              <label className="mt-3 block text-xs font-medium">
+              <label className="mt-3 block text-xs font-medium text-foreground">
                 What do you need help with? *
                 <textarea
                   required
-                  rows={4}
+                  rows={5}
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
-                  className={cn(inputClassName, "mt-1 resize-none")}
+                  className={cn(inputClassName, "mt-1.5 min-h-[120px] resize-none")}
+                  placeholder="Describe your issue…"
                 />
               </label>
-              <label className="mt-3 block text-xs font-medium">
-                Upload image (optional)
-                <input
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp,application/pdf"
-                  className="mt-1 block w-full text-xs"
-                  onChange={(e) =>
-                    setFormFile(e.target.files?.[0] ?? null)
-                  }
+              <div className="mt-4">
+                <p className="mb-2 text-xs font-medium text-foreground">
+                  Attachment (optional)
+                </p>
+                <SupportAttachmentUpload
+                  file={formFile}
+                  onFileChange={setFormFile}
+                  disabled={loading}
+                  label="Attach image"
                 />
-              </label>
+              </div>
               <button
                 type="submit"
                 disabled={loading}
-                className="mt-4 w-full rounded-lg bg-gold px-4 py-2.5 text-sm font-semibold text-white hover:bg-gold-light hover:shadow-[0_0_16px_rgba(201,162,39,0.35)] disabled:opacity-60"
+                className="mt-5 w-full shrink-0 rounded-lg bg-gold px-4 py-3 text-sm font-semibold text-white hover:bg-gold-light hover:shadow-[0_0_16px_rgba(201,162,39,0.35)] disabled:opacity-60"
               >
                 {loading ? "Starting…" : "Start Support Chat"}
               </button>
             </form>
           ) : (
-            <>
-              <div className="flex-1 space-y-3 overflow-y-auto p-4">
+            <div className="flex min-h-0 flex-1 flex-col">
+              <div className="min-h-0 flex-1 space-y-3 overflow-y-auto p-4">
                 {thread?.messages.map((m) => (
-                  <div
+                  <SupportMessageBubble
                     key={m.id}
-                    className={cn(
-                      "max-w-[90%] rounded-lg px-3 py-2 text-sm",
-                      m.isSystem
-                        ? "mx-auto max-w-full border border-gold/30 bg-gold/10 text-gold-dark"
-                        : m.senderRole === "admin"
-                          ? "ml-0 mr-auto bg-surface-elevated"
-                          : "ml-auto mr-0 bg-gold/15",
-                    )}
-                  >
-                    {!m.isSystem ? (
-                      <p className="text-[10px] font-medium text-muted-foreground">
-                        {m.senderName}
-                      </p>
-                    ) : null}
-                    <p>
-                      {animateMessageIds.has(m.id) && m.senderRole === "admin" ? (
-                        <TypewriterMessage text={m.message} animate />
-                      ) : (
-                        <span className="whitespace-pre-wrap">{m.message}</span>
-                      )}
-                    </p>
-                    {m.attachmentUrl ? (
-                      m.attachmentMimeType?.startsWith("image/") ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={attachmentSrc(m.attachmentUrl, guestToken)}
-                          alt=""
-                          className="mt-2 max-h-32 rounded border border-border"
-                        />
-                      ) : (
-                        <a
-                          href={attachmentSrc(m.attachmentUrl, guestToken)}
-                          className="mt-2 block text-xs text-gold-dark underline"
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          {m.attachmentFileName ?? "View attachment"}
-                        </a>
-                      )
-                    ) : null}
-                  </div>
+                    message={m}
+                    guestToken={guestToken}
+                    variant="user"
+                    animate={animateMessageIds.has(m.id)}
+                  />
                 ))}
                 {thread?.otherPartyTyping && !isChatClosed ? (
                   <TypingIndicator label="Support" side="left" />
@@ -525,13 +541,13 @@ function SupportChatWidgetInner({
               </div>
 
               {isChatResolved && !isChatClosed ? (
-                <div className="border-t border-gold/30 bg-gold/10 px-4 py-3 text-sm text-gold-light">
+                <div className="shrink-0 border-t border-gold/30 bg-gold/10 px-4 py-3 text-sm text-gold-light">
                   {SUPPORT_RESOLVED_USER_MESSAGE}
                 </div>
               ) : null}
 
               {isChatClosed ? (
-                <div className="space-y-3 border-t border-border bg-surface px-4 py-4">
+                <div className="shrink-0 space-y-3 border-t border-border bg-surface px-4 py-4">
                   <p className="text-sm font-medium text-foreground">
                     {SUPPORT_CLOSED_USER_MESSAGE}
                   </p>
@@ -541,7 +557,7 @@ function SupportChatWidgetInner({
                   <button
                     type="button"
                     onClick={startNewChat}
-                    className="w-full rounded-md border border-gold bg-gold/10 px-4 py-2.5 text-sm font-semibold text-gold-dark hover:bg-gold/20"
+                    className="w-full rounded-lg border border-gold bg-gold/10 px-4 py-2.5 text-sm font-semibold text-gold-light hover:bg-gold/20"
                   >
                     Start a new support chat
                   </button>
@@ -549,35 +565,34 @@ function SupportChatWidgetInner({
               ) : (
                 <form
                   onSubmit={sendReply}
-                  className="border-t border-border p-3"
+                  className="shrink-0 border-t border-border bg-surface/50 p-3"
                 >
                   <textarea
-                    rows={2}
+                    rows={3}
                     value={reply}
                     onChange={(e) => handleReplyChange(e.target.value)}
                     placeholder="Type a message…"
-                    className={cn(inputClassName, "resize-none text-sm")}
+                    className={cn(inputClassName, "min-h-[72px] resize-none text-sm")}
                   />
-                  <div className="mt-2 flex items-center gap-2">
-                    <input
-                      type="file"
-                      accept="image/jpeg,image/png,image/webp,application/pdf"
-                      className="max-w-[140px] text-[10px]"
-                      onChange={(e) =>
-                        setReplyFile(e.target.files?.[0] ?? null)
-                      }
+                  <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                    <SupportAttachmentUpload
+                      file={replyFile}
+                      onFileChange={setReplyFile}
+                      disabled={loading}
+                      label="Attach"
+                      className="flex-1"
                     />
                     <button
                       type="submit"
-                      disabled={loading}
-                      className="ml-auto rounded-lg bg-gold px-3 py-1.5 text-xs font-semibold text-white hover:bg-gold-light disabled:opacity-60"
+                      disabled={!canSendReply}
+                      className="shrink-0 rounded-lg bg-gold px-4 py-2.5 text-sm font-semibold text-white hover:bg-gold-light disabled:opacity-50"
                     >
-                      Send
+                      {loading ? "Sending…" : "Send"}
                     </button>
                   </div>
                 </form>
               )}
-            </>
+            </div>
           )}
         </div>
       ) : null}
@@ -585,7 +600,7 @@ function SupportChatWidgetInner({
       <button
         type="button"
         onClick={() => void openWidget()}
-        className="relative rounded-full bg-gold px-5 py-3 text-sm font-semibold text-white shadow-lg hover:bg-gold-light"
+        className="relative rounded-full bg-gold px-5 py-3 text-sm font-semibold text-white shadow-lg transition-colors hover:bg-gold-light"
       >
         Talk to Support
         {hasUnread ? (

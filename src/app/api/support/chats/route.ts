@@ -1,11 +1,13 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
+import { getSupportRequesterDisplayForUser } from "@/lib/support/requester-display";
 import { parseSupportCreateForm } from "@/lib/support/parse";
 import {
   createSupportChat,
   listSupportChatsForRequester,
   mapUserRoleToRequesterRole,
 } from "@/lib/support/support";
+import type { UserRole } from "@/types/roles";
 
 export async function GET() {
   const session = await auth();
@@ -57,8 +59,13 @@ export async function POST(request: Request) {
         { status: 403 },
       );
     }
-    requesterName = requesterName || session.user.name || "User";
-    requesterEmail = requesterEmail || session.user.email || "";
+    const display = await getSupportRequesterDisplayForUser(
+      session.user.id,
+      session.user.role as UserRole,
+    );
+    const trimmedName = requesterName.trim();
+    requesterName = trimmedName.length >= 2 ? trimmedName : display.name;
+    requesterEmail = requesterEmail.trim() || display.email;
   }
 
   const role = requesterRole ?? "guest";

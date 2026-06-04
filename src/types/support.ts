@@ -75,4 +75,5 @@ export type AdminSupportChatListItemDto = {
   lastMessageAt: string;
   createdAt: string;
   unreadForAdmin: boolean;
+  hasAttachment: boolean;
 };

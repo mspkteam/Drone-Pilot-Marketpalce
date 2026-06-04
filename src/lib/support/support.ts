@@ -417,6 +417,22 @@ export async function listSupportChatsForAdmin(
     take: 100,
   });
 
+  const chatIds = chats.map((c) => c.id);
+  const chatsWithAttachments =
+    chatIds.length > 0
+      ? await prisma.supportChatMessage.findMany({
+          where: {
+            supportChatId: { in: chatIds },
+            attachmentUrl: { not: null },
+          },
+          select: { supportChatId: true },
+          distinct: ["supportChatId"],
+        })
+      : [];
+  const attachmentChatIds = new Set(
+    chatsWithAttachments.map((r) => r.supportChatId),
+  );
+
   return chats.map((c) => {
     const last = c.messages[0];
     const unreadForAdmin =
@@ -436,6 +452,7 @@ export async function listSupportChatsForAdmin(
       lastMessageAt: c.lastMessageAt.toISOString(),
       createdAt: c.createdAt.toISOString(),
       unreadForAdmin,
+      hasAttachment: attachmentChatIds.has(c.id),
     };
   });
 }

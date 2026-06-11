@@ -1,8 +1,10 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { AdminMessagesPanel } from "@/components/admin/AdminMessagesPanel";
-import { PageHeader } from "@/components/layout/PageHeader";
+import { AdminMessagesTracking } from "@/components/dashboard/admin/messages/AdminMessagesTracking";
+import { DashboardPageLayout } from "@/components/dashboard";
 import { isAdminRole, type UserRole } from "@/types/roles";
+import "@/styles/admin-dashboard.css";
+import "@/styles/admin-messages.css";
 
 export const metadata = { title: "Messages" };
 
@@ -14,14 +16,8 @@ export default async function AdminMessagesPage() {
   }
 
   return (
-    <>
-      <PageHeader
-        title="Messages"
-        description="Read-only view of client–pilot conversations for support and disputes."
-      />
-      <div className="mt-8 w-full">
-        <AdminMessagesPanel />
-      </div>
-    </>
+    <DashboardPageLayout className="admin-messages-shell">
+      <AdminMessagesTracking />
+    </DashboardPageLayout>
   );
 }

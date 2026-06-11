@@ -30,3 +30,10 @@ export { DashboardStatusBanner } from "@/components/dashboard/DashboardStatusBan
 export { DashboardTable } from "@/components/dashboard/DashboardTable";
 export { FeatureCard } from "@/components/dashboard/FeatureCard";
 export { StatCard } from "@/components/dashboard/StatCard";
+export { DashboardNavGroup } from "@/components/dashboard/shell/DashboardNavGroup";
+export { DashboardNavItem } from "@/components/dashboard/shell/DashboardNavItem";
+export { DashboardRankCard } from "@/components/dashboard/shell/DashboardRankCard";
+export { DashboardSidebar } from "@/components/dashboard/shell/DashboardSidebar";
+export { DashboardTopbar } from "@/components/dashboard/shell/DashboardTopbar";
+export { DashboardUserCard } from "@/components/dashboard/shell/DashboardUserCard";
+export { ClientDashboardOverview } from "@/components/dashboard/client/ClientDashboardOverview";

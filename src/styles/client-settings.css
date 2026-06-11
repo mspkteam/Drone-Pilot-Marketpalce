@@ -1,0 +1,354 @@
+/* Client Account Settings — screenshot layout (imported by settings page) */
+
+.client-settings-shell.dashboard-page {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: none;
+  gap: 0;
+}
+
+.client-settings-page {
+  width: 100%;
+  min-width: 0;
+}
+
+.client-settings-header {
+  margin-bottom: 1.625rem;
+}
+
+.client-settings-title {
+  margin: 0;
+  font-size: clamp(1.75rem, 2.2vw, 2.125rem);
+  font-weight: 800;
+  line-height: 1.15;
+  color: var(--color-text);
+}
+
+.client-settings-subtitle {
+  margin: 0.5rem 0 0;
+  max-width: 40rem;
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: var(--color-text-muted);
+}
+
+.client-settings-status {
+  font-size: 0.875rem;
+  color: var(--color-text-soft);
+}
+
+.client-settings-status--error {
+  color: var(--color-danger-soft);
+}
+
+.client-settings-banner {
+  margin: 0 0 1rem;
+  border-radius: 0.625rem;
+  border: 1px solid rgba(70, 140, 90, 0.35);
+  background: rgba(40, 90, 55, 0.2);
+  padding: 0.75rem 1rem;
+  font-size: 0.8125rem;
+  color: var(--color-success-bright);
+}
+
+.client-settings-banner--error {
+  border-color: rgba(180, 70, 70, 0.35);
+  background: rgba(120, 40, 40, 0.2);
+  color: var(--color-danger-soft);
+}
+
+.client-settings-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.client-settings-card {
+  margin-bottom: 1.5rem;
+  border: 1px solid rgba(244, 241, 234, 0.08);
+  border-radius: 0.75rem;
+  background: var(--color-card-warm);
+  padding: 1.5rem 1.625rem;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+}
+
+.client-settings-card-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.client-settings-card-hint {
+  margin: 0.5rem 0 1rem;
+  font-size: 0.8125rem;
+  color: var(--color-text-soft);
+}
+
+.client-settings-field-grid {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.25rem;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 768px) {
+  .client-settings-field-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.client-settings-field {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.client-settings-field--full {
+  grid-column: 1 / -1;
+}
+
+.client-settings-label {
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.client-settings-shell .client-settings-input {
+  box-sizing: border-box;
+  width: 100%;
+  height: 2.5rem;
+  margin: 0;
+  border: 1px solid rgba(244, 241, 234, 0.12);
+  border-radius: 0.625rem;
+  background: var(--color-panel);
+  padding: 0 0.875rem;
+  font-family: inherit;
+  font-size: 0.875rem;
+  color: var(--color-text);
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.client-settings-shell .client-settings-input::placeholder {
+  color: var(--color-text-soft);
+}
+
+.client-settings-shell .client-settings-input:focus {
+  border-color: var(--color-gold);
+  box-shadow: 0 0 0 3px rgba(216, 179, 57, 0.12);
+}
+
+.client-settings-input--readonly {
+  opacity: 0.85;
+  cursor: not-allowed;
+}
+
+.client-settings-inline-link {
+  margin: 1rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--color-text-soft);
+}
+
+.client-settings-inline-link a {
+  color: var(--color-gold);
+  text-decoration: none;
+}
+
+.client-settings-inline-link a:hover {
+  text-decoration: underline;
+}
+
+.client-settings-notifications {
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.client-settings-notification-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.125rem 0;
+  border-top: 1px solid rgba(244, 241, 234, 0.06);
+}
+
+.client-settings-notification-row:first-child {
+  border-top: none;
+  padding-top: 0.25rem;
+}
+
+.client-settings-notification-title {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.client-settings-notification-desc {
+  margin: 0.25rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--color-text-soft);
+}
+
+.client-settings-shell .client-settings-toggle {
+  position: relative;
+  flex-shrink: 0;
+  width: 2.75rem;
+  height: 1.5rem;
+  margin: 0;
+  border: 1px solid rgba(244, 241, 234, 0.08);
+  border-radius: 9999px;
+  background: var(--color-card);
+  padding: 0;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.client-settings-shell .client-settings-toggle:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.client-settings-toggle-thumb {
+  position: absolute;
+  top: 0.125rem;
+  left: 0.125rem;
+  width: 1.125rem;
+  height: 1.125rem;
+  border-radius: 50%;
+  background: var(--color-text);
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.client-settings-toggle--on {
+  background: var(--color-gold);
+  border-color: rgba(216, 179, 57, 0.45);
+}
+
+.client-settings-toggle--on .client-settings-toggle-thumb {
+  transform: translateX(1.25rem);
+  background: var(--color-bg-deeper);
+}
+
+.client-settings-inbox-meta {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(244, 241, 234, 0.06);
+  font-size: 0.8125rem;
+  color: var(--color-text-soft);
+}
+
+.client-settings-inbox-meta p {
+  margin: 0 0 0.5rem;
+}
+
+.client-settings-inbox-meta strong {
+  color: var(--color-text);
+}
+
+.client-settings-save-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1.5rem;
+}
+
+.client-settings-shell .client-settings-save-btn {
+  margin: 0;
+  border: none;
+  border-radius: 0.625rem;
+  background: var(--color-gold);
+  padding: 0.75rem 1.375rem;
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--color-bg-deeper);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.client-settings-shell .client-settings-save-btn:hover:not(:disabled) {
+  background: var(--color-gold-soft);
+}
+
+.client-settings-shell .client-settings-save-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.client-settings-shell .client-settings-secondary-btn {
+  margin-top: 0.75rem;
+  border: 1px solid rgba(244, 241, 234, 0.12);
+  border-radius: 0.625rem;
+  background: var(--color-bg-section);
+  padding: 0.625rem 1rem;
+  font-family: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-text);
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.client-settings-shell .client-settings-secondary-btn:hover:not(:disabled) {
+  border-color: rgba(216, 179, 57, 0.45);
+  color: var(--color-gold);
+}
+
+.client-settings-shell .client-settings-secondary-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.client-settings-account-grid {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1rem;
+  grid-template-columns: minmax(0, 1fr);
+  font-size: 0.875rem;
+}
+
+@media (min-width: 640px) {
+  .client-settings-account-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.client-settings-account-grid dt {
+  color: var(--color-text-soft);
+}
+
+.client-settings-account-grid dd {
+  margin: 0.125rem 0 0;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.client-settings-password-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+@media (max-width: 640px) {
+  .client-settings-save-row {
+    justify-content: stretch;
+  }
+
+  .client-settings-shell .client-settings-save-btn {
+    width: 100%;
+  }
+
+  .client-settings-notification-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

@@ -1,11 +1,12 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { PageHeader } from "@/components/layout/PageHeader";
-import { PilotSubscriptionManager } from "@/components/pilot/PilotSubscriptionManager";
+import { PilotSubscriptionView } from "@/components/dashboard/pilot/subscription/PilotSubscriptionView";
+import { DashboardPageLayout } from "@/components/dashboard";
 import {
   getPilotProfileByUserId,
   isOnboardingComplete,
 } from "@/lib/pilot/profile";
+import "@/styles/pilot-subscription.css";
 
 export const metadata = { title: "Subscription" };
 
@@ -21,14 +22,8 @@ export default async function PilotSubscriptionPage() {
   }
 
   return (
-    <>
-      <PageHeader
-        title="Subscription"
-        description="View and manage your pilot marketplace plan."
-      />
-      <div className="mt-8 max-w-3xl">
-        <PilotSubscriptionManager />
-      </div>
-    </>
+    <DashboardPageLayout className="pilot-subscription-shell">
+      <PilotSubscriptionView />
+    </DashboardPageLayout>
   );
 }

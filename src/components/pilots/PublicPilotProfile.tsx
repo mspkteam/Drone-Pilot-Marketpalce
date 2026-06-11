@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { MembershipRankBadge } from "@/components/membership/MembershipRankBadge";
 import { StarRating } from "@/components/reviews/StarRating";
 import { SubscriptionStatusBadge } from "@/components/subscriptions/SubscriptionStatusBadge";
 import { Button } from "@/components/ui/Button";
@@ -12,6 +13,25 @@ import { getVerificationTypeLabel } from "@/lib/verification/status";
 import { WingBadge } from "@/components/wings/WingBadge";
 import { cn } from "@/lib/utils";
 import type { PublicPilotProfileDto } from "@/types/public-pilot";
+
+function IconChat({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.5}
+      aria-hidden
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z"
+      />
+    </svg>
+  );
+}
 
 function IconDollar({ className }: { className?: string }) {
   return (
@@ -248,32 +268,23 @@ export function PublicPilotProfile({ pilot }: { pilot: PublicPilotProfileDto }) 
 
   return (
     <div className="space-y-8 sm:space-y-10">
-      {/* Hero */}
-      <article className="premium-panel relative overflow-hidden border-gold/25 p-6 sm:p-8 lg:p-10">
+      {/* Hero — Figma pilot profile frame (279:58686) */}
+      <article className="figma-pilot-public-hero relative overflow-hidden rounded-xl border border-[rgba(216,179,57,0.45)] bg-ras-card-warm p-6 shadow-[0_0_40px_rgba(216,179,57,0.08)] sm:p-8 lg:p-10">
         <div
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_60%_at_100%_0%,rgba(201,162,39,0.12),transparent_55%),radial-gradient(ellipse_50%_40%_at_0%_100%,rgba(201,162,39,0.06),transparent_50%)]"
-          aria-hidden
-        />
-        <div
-          className="pointer-events-none absolute inset-0 opacity-[0.04]"
-          style={{
-            backgroundImage:
-              "linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px)",
-            backgroundSize: "32px 32px",
-          }}
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_55%_at_100%_0%,rgba(216,179,57,0.14),transparent_58%)]"
           aria-hidden
         />
 
         <div className="relative">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
             <div className="min-w-0 flex-1">
-              <p className="text-xs font-medium uppercase tracking-[0.2em] text-gold">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold">
                 Licensed pilot
               </p>
-              <h1 className="mt-2 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+              <h1 className="mt-2 text-3xl font-bold tracking-tight text-ras-text sm:text-4xl">
                 {pilot.displayName}
               </h1>
-              <p className="mt-3 flex items-center gap-2 text-sm text-muted-foreground sm:text-base">
+              <p className="mt-3 flex items-center gap-2 text-sm text-ras-dim-alt sm:text-base">
                 <svg
                   className="h-4 w-4 shrink-0 text-gold"
                   fill="none"
@@ -296,32 +307,45 @@ export function PublicPilotProfile({ pilot }: { pilot: PublicPilotProfileDto }) 
                 {location}
               </p>
               {pilot.bio ? (
-                <p className="mt-5 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
+                <p className="mt-5 max-w-2xl text-sm leading-relaxed text-ras-muted sm:text-base">
                   {pilot.bio}
                 </p>
               ) : null}
             </div>
 
-            {hasReviews ? (
-              <div className="shrink-0 rounded-xl border border-gold/30 bg-gold/5 px-5 py-4 text-center lg:text-right">
-                <StarRating
-                  value={Math.round(pilot.averageRating!)}
-                  size="md"
+            <div className="flex shrink-0 flex-row items-stretch gap-3 sm:gap-4">
+              {pilot.membership ? (
+                <MembershipRankBadge
+                  tierCode={pilot.membership.tierCode}
+                  tierName={pilot.membership.tierName}
+                  size="lg"
+                  className="figma-pilot-hero-stat self-stretch"
                 />
-                <p className="mt-2 text-2xl font-bold text-gold-light">
-                  {pilot.averageRating}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {pilot.reviewCount} review{pilot.reviewCount === 1 ? "" : "s"}
-                </p>
-              </div>
-            ) : null}
+              ) : null}
+              {hasReviews ? (
+                <div className="figma-pilot-hero-stat flex min-w-[7.5rem] flex-col justify-center self-stretch rounded-xl border border-[rgba(216,179,57,0.3)] bg-[rgba(216,179,57,0.06)] px-5 py-4 text-center">
+                  <StarRating
+                    value={Math.round(pilot.averageRating!)}
+                    size="md"
+                  />
+                  <p className="mt-2 flex items-baseline justify-center gap-1.5 leading-none">
+                    <span className="text-2xl font-bold text-gold-light">
+                      {pilot.averageRating}
+                    </span>
+                    <span className="text-xs text-ras-dim-alt">
+                      {pilot.reviewCount} review
+                      {pilot.reviewCount === 1 ? "" : "s"}
+                    </span>
+                  </p>
+                </div>
+              ) : null}
+            </div>
           </div>
 
           {hasBadges ? (
-            <div className="relative mt-8 border-t border-border/60 pt-6">
-              <p className="mb-3 text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
-                Verifications & achievements
+            <div className="relative mt-8 border-t border-[rgba(255,255,255,0.06)] pt-6">
+              <p className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-ras-dim-alt">
+                Digital wings & verifications
               </p>
               <div className="flex flex-wrap gap-2">
                 {pilot.wings.map((w) => (
@@ -330,6 +354,7 @@ export function PublicPilotProfile({ pilot }: { pilot: PublicPilotProfileDto }) 
                     title={w.title}
                     iconLabel={w.iconLabel}
                     category={w.category}
+                    size="md"
                   />
                 ))}
                 {pilot.verifiedTypes.map((t) => (
@@ -340,6 +365,30 @@ export function PublicPilotProfile({ pilot }: { pilot: PublicPilotProfileDto }) 
               </div>
             </div>
           ) : null}
+
+          <div className="figma-pilot-public-actions mt-8 flex flex-col gap-3 border-t border-[rgba(255,255,255,0.06)] pt-6 sm:flex-row sm:flex-wrap sm:items-center">
+            <Link
+              href="/register?role=client"
+              className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-[rgba(216,179,57,0.35)] bg-[rgba(216,179,57,0.08)] text-gold transition-colors hover:border-gold/55 hover:bg-[rgba(216,179,57,0.14)] hover:text-gold-light"
+              aria-label={`Message ${pilot.displayName}`}
+              title="Message pilot"
+            >
+              <IconChat className="h-5 w-5" />
+            </Link>
+            <Button
+              href="/register?role=client"
+              className="h-11 min-w-44 flex-1 sm:flex-none"
+            >
+              Hire via marketplace
+            </Button>
+            <Button
+              href="/pilots"
+              variant="secondary"
+              className="h-11 min-w-44 flex-1 border-[rgba(216,179,57,0.35)] sm:flex-none"
+            >
+              Browse more pilots
+            </Button>
+          </div>
         </div>
       </article>
 
@@ -442,18 +491,13 @@ export function PublicPilotProfile({ pilot }: { pilot: PublicPilotProfileDto }) 
         >
           {pilot.membership ? (
             <div className="space-y-4">
-              <div className="flex flex-wrap items-center gap-3">
-                <span className="inline-flex rounded-lg border border-gold/45 bg-gold/15 px-4 py-2 font-mono text-lg font-bold text-gold-light">
-                  {pilot.membership.tierCode}
-                </span>
-                <div>
-                  <p className="font-semibold text-foreground">
-                    {pilot.membership.tierName}
-                  </p>
-                  <div className="mt-1">
-                    <SubscriptionStatusBadge status={pilot.membership.status} />
-                  </div>
-                </div>
+              <div className="flex items-center justify-between gap-4">
+                <MembershipRankBadge
+                  tierCode={pilot.membership.tierCode}
+                  tierName={pilot.membership.tierName}
+                  size="md"
+                />
+                <SubscriptionStatusBadge status={pilot.membership.status} />
               </div>
               <dl className="rounded-lg border border-border bg-surface/50 px-4">
                 <DetailRow

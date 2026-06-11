@@ -1,10 +1,13 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { AdminCertificatesPanel } from "@/components/admin/AdminCertificatesPanel";
-import { PageHeader } from "@/components/layout/PageHeader";
+import { AdminCertificateEnginePortal } from "@/components/admin/certificates/AdminCertificateEnginePortal";
+import { DashboardPageLayout } from "@/components/dashboard";
+import { canPerform, getModeratorPermissions } from "@/lib/auth/moderator-permissions";
 import { isAdminRole, type UserRole } from "@/types/roles";
+import "@/styles/admin-dashboard.css";
+import "@/styles/admin-certificates.css";
 
-export const metadata = { title: "Certificates" };
+export const metadata = { title: "Automated Certificates" };
 
 export default async function AdminCertificatesPage() {
   const session = await auth();
@@ -13,15 +16,15 @@ export default async function AdminCertificatesPage() {
     redirect("/login");
   }
 
+  const permissionConfig =
+    role === "moderator" ? getModeratorPermissions(session.user.id) : null;
+  const canManageTemplates =
+    canPerform(role, session.user.id, "certificates", "create", permissionConfig) ||
+    canPerform(role, session.user.id, "certificates", "edit", permissionConfig);
+
   return (
-    <>
-      <PageHeader
-        title="Certificates"
-        description="Create templates, issue PDF certificates to pilots, and audit issued records."
-      />
-      <div className="mt-8 w-full">
-        <AdminCertificatesPanel />
-      </div>
-    </>
+    <DashboardPageLayout className="admin-certificates-shell">
+      <AdminCertificateEnginePortal canManageTemplates={canManageTemplates} />
+    </DashboardPageLayout>
   );
 }

@@ -1,11 +1,13 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { AdminWingsPanel } from "@/components/admin/AdminWingsPanel";
-import { PageHeader } from "@/components/layout/PageHeader";
-import { roleMeetsRequirement } from "@/lib/auth/permissions";
+import { AdminBadgesWingsPortal } from "@/components/admin/badges/AdminBadgesWingsPortal";
+import { DashboardPageLayout } from "@/components/dashboard";
+import { canPerform, getModeratorPermissions } from "@/lib/auth/moderator-permissions";
 import { isAdminRole, type UserRole } from "@/types/roles";
+import "@/styles/admin-dashboard.css";
+import "@/styles/admin-badges.css";
 
-export const metadata = { title: "Achievements / Wings" };
+export const metadata = { title: "Badges & Wings" };
 
 export default async function AdminAchievementsPage() {
   const session = await auth();
@@ -13,19 +15,16 @@ export default async function AdminAchievementsPage() {
   if (!session?.user?.id || !role || !isAdminRole(role)) {
     redirect("/login");
   }
-  if (!roleMeetsRequirement(role, "super_admin")) {
-    redirect("/dashboard/admin");
-  }
+  const permissionConfig =
+    role === "moderator" ? getModeratorPermissions(session.user.id) : null;
+  const canManage =
+    canPerform(role, session.user.id, "badges", "create", permissionConfig) ||
+    canPerform(role, session.user.id, "badges", "edit", permissionConfig) ||
+    canPerform(role, session.user.id, "badges", "assign", permissionConfig);
 
   return (
-    <>
-      <PageHeader
-        title="Digital Wings"
-        description="Define wings, configure auto-assign rules, and award pilots manually."
-      />
-      <div className="mt-8 w-full">
-        <AdminWingsPanel />
-      </div>
-    </>
+    <DashboardPageLayout className="admin-badges-shell">
+      <AdminBadgesWingsPortal canManage={canManage} />
+    </DashboardPageLayout>
   );
 }

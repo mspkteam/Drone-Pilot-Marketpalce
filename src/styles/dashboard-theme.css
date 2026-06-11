@@ -1,0 +1,291 @@
+/**
+ * Remote Air Service — unified dashboard theme (matches home / marketing).
+ * Applied to all client, pilot, admin, and moderator dashboards via .dashboard-app.
+ */
+
+.dashboard-app {
+  background: var(--color-bg-soft);
+  color: var(--color-text-muted);
+}
+
+/* ——— Shared hero panels (client / pilot / admin) ——— */
+.dashboard-app .client-dashboard-welcome,
+.dashboard-app .admin-ops-hero,
+.dashboard-app .pilot-dashboard-hero,
+.dashboard-app .admin-config-hero,
+.dashboard-app .admin-perms-hero,
+.dashboard-app .admin-reports-hero,
+.dashboard-app .admin-commissions-hero,
+.dashboard-app .admin-personnel-hero,
+.dashboard-app .admin-job-approval-hero,
+.dashboard-app .admin-dispute-hero,
+.dashboard-app .admin-config-hero,
+.dashboard-app .admin-cms-hero,
+.dashboard-app .admin-badges-hero,
+.dashboard-app .admin-shop-hero,
+.dashboard-app .admin-subscriptions-hero {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--dashboard-card-border);
+  border-radius: var(--radius-card);
+  background: var(--color-card-warm);
+  box-shadow: var(--shadow-card);
+}
+
+.dashboard-app .client-dashboard-welcome-glow,
+.dashboard-app .admin-ops-hero-glow,
+.dashboard-app .pilot-dashboard-hero-glow,
+.dashboard-app .admin-config-hero-glow,
+.dashboard-app .admin-perms-hero-glow,
+.dashboard-app .admin-reports-hero-glow,
+.dashboard-app .admin-commissions-hero-glow,
+.dashboard-app .admin-personnel-hero-glow,
+.dashboard-app .admin-job-approval-hero-glow,
+.dashboard-app .admin-dispute-hero-glow {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 55% 95% at 92% 50%,
+    rgba(216, 179, 57, 0.14),
+    transparent 68%
+  );
+}
+
+/* ——— Shared typography (home/marketing alignment) ——— */
+.dashboard-app .client-dashboard-pill,
+.dashboard-app .pilot-dashboard-badge--gold,
+.dashboard-app .admin-ops-eyebrow,
+.dashboard-app .pilot-dashboard-eyebrow,
+.dashboard-app .admin-ops-eyebrow,
+.dashboard-app .admin-config-hero .admin-ops-eyebrow,
+.dashboard-app .admin-perms-hero .admin-ops-eyebrow,
+.dashboard-app .admin-reports-hero .admin-ops-eyebrow,
+.dashboard-app .admin-commissions-hero .admin-ops-eyebrow,
+.dashboard-app .admin-personnel-hero .admin-ops-eyebrow,
+.dashboard-app .admin-job-approval-hero .admin-ops-eyebrow,
+.dashboard-app .admin-dispute-hero .admin-ops-eyebrow {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-gold);
+}
+
+.dashboard-app .client-dashboard-welcome-title,
+.dashboard-app .admin-ops-hero-title,
+.dashboard-app .pilot-dashboard-hero-title,
+.dashboard-app .admin-config-hero-title,
+.dashboard-app .admin-perms-hero-title,
+.dashboard-app .admin-reports-hero-title,
+.dashboard-app .admin-commissions-hero-title,
+.dashboard-app .admin-personnel-hero-title,
+.dashboard-app .admin-job-approval-hero-title,
+.dashboard-app .admin-dispute-hero-title {
+  color: var(--color-text-heading);
+  font-weight: 800;
+  line-height: 1.12;
+}
+
+.dashboard-app .client-dashboard-welcome-subtitle,
+.dashboard-app .admin-ops-hero-desc,
+.dashboard-app .pilot-dashboard-hero-desc,
+.dashboard-app .admin-config-hero-desc,
+.dashboard-app .admin-perms-hero-desc,
+.dashboard-app .admin-reports-hero-desc,
+.dashboard-app .admin-commissions-hero-desc,
+.dashboard-app .admin-personnel-hero-desc,
+.dashboard-app .admin-job-approval-hero-desc,
+.dashboard-app .admin-dispute-hero-desc {
+  color: var(--color-text-warm);
+  line-height: 1.6;
+}
+
+/* ——— Unified buttons inside dashboards ——— */
+.dashboard-app .admin-ops-btn-primary,
+.dashboard-app .client-dashboard-btn-primary,
+.dashboard-app .pilot-dashboard-btn-primary,
+.dashboard-app .admin-commissions-btn-run,
+.dashboard-app .admin-personnel-btn-export,
+.dashboard-app .admin-reports-btn-export,
+.dashboard-app .admin-config-btn-save,
+.dashboard-app .admin-perms-btn-save {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: var(--radius);
+  border: 1px solid rgba(216, 179, 57, 0.35);
+  background: var(--color-gold);
+  color: var(--color-cta-dark);
+  font-weight: 700;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.dashboard-app .admin-ops-btn-primary:hover,
+.dashboard-app .client-dashboard-btn-primary:hover,
+.dashboard-app .pilot-dashboard-btn-primary:hover,
+.dashboard-app .admin-commissions-btn-run:hover,
+.dashboard-app .admin-personnel-btn-export:hover,
+.dashboard-app .admin-reports-btn-export:hover,
+.dashboard-app .admin-config-btn-save:hover,
+.dashboard-app .admin-perms-btn-save:hover {
+  background: var(--color-gold-soft);
+  color: var(--color-cta-dark);
+}
+
+.dashboard-app .admin-ops-btn-outline,
+.dashboard-app .client-dashboard-btn-outline,
+.dashboard-app .pilot-dashboard-btn-outline,
+.dashboard-app .admin-personnel-btn-outline,
+.dashboard-app .admin-commissions-ledger-btn,
+.dashboard-app .admin-job-approval-btn-review {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--color-border-gold);
+  background: transparent;
+  color: var(--color-gold);
+  font-weight: 600;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.dashboard-app .admin-ops-btn-outline:hover,
+.dashboard-app .client-dashboard-btn-outline:hover,
+.dashboard-app .pilot-dashboard-btn-outline:hover,
+.dashboard-app .admin-personnel-btn-outline:hover,
+.dashboard-app .admin-commissions-ledger-btn:hover,
+.dashboard-app .admin-job-approval-btn-review:hover {
+  border-color: var(--color-gold);
+  background: rgba(216, 179, 57, 0.1);
+  color: var(--color-gold-soft);
+}
+
+/* ——— Unified cards / panels ——— */
+.dashboard-app .client-dashboard-stat-card,
+.dashboard-app .admin-ops-stat-card,
+.dashboard-app .pilot-dashboard-stat-card,
+.dashboard-app .admin-reports-stat-card,
+.dashboard-app .admin-commissions-stat-card,
+.dashboard-app .admin-personnel-stat-card,
+.dashboard-app .admin-dispute-stat-card,
+.dashboard-app .admin-job-approval-stat-card,
+.dashboard-app .admin-config-card,
+.dashboard-app .admin-perms-module-card,
+.dashboard-app .admin-perms-moderator-card,
+.dashboard-app .admin-cms-collection-card,
+.dashboard-app .admin-shop-inventory-row,
+.dashboard-app .admin-badge-card,
+.dashboard-app .premium-card,
+.dashboard-app .dashboard-card {
+  border: 1px solid var(--dashboard-card-border);
+  border-radius: var(--radius-card);
+  background: var(--color-card-warm);
+}
+
+.dashboard-app .client-dashboard-stat-card:hover,
+.dashboard-app .admin-ops-stat-card:hover,
+.dashboard-app .pilot-dashboard-stat-card:hover,
+.dashboard-app .admin-reports-stat-card:hover,
+.dashboard-app .premium-card:hover,
+.dashboard-app .dashboard-card:hover {
+  border-color: rgba(216, 179, 57, 0.22);
+}
+
+/* ——— Sidebar / nav (home header alignment) ——— */
+.dashboard-app .dashboard-sidebar {
+  border-right-color: var(--color-border-muted);
+  background: var(--color-bg);
+}
+
+.dashboard-app .dashboard-topbar {
+  border-bottom-color: var(--color-border-muted);
+  background: var(--color-bg);
+}
+
+.dashboard-app .dashboard-nav-group-label {
+  color: var(--color-text-soft);
+}
+
+.dashboard-app .dashboard-nav-item--active {
+  border-left-color: var(--color-gold);
+  background: rgba(216, 179, 57, 0.08);
+  color: var(--color-text);
+}
+
+.dashboard-app .dashboard-rank-card {
+  border-color: var(--color-border-gold-subtle);
+  background: var(--color-card);
+}
+
+/* ——— Tables & filters ——— */
+.dashboard-app .admin-commissions-table-wrap,
+.dashboard-app .admin-commissions-filters,
+.dashboard-app .admin-personnel-table-wrap,
+.dashboard-app .admin-job-approval-panel,
+.dashboard-app .admin-dispute-queue-panel,
+.dashboard-app .admin-reports-chart-card,
+.dashboard-app .admin-ops-action-panel {
+  border: 1px solid var(--dashboard-card-border);
+  border-radius: var(--radius-card);
+  background: var(--color-card-warm);
+}
+
+.dashboard-app .admin-commissions-filters input,
+.dashboard-app .admin-commissions-filters select,
+.dashboard-app .admin-personnel-filters input,
+.dashboard-app .admin-personnel-filters select,
+.dashboard-app .admin-job-approval-filters input,
+.dashboard-app .admin-job-approval-filters select,
+.dashboard-app .admin-dispute-filters input,
+.dashboard-app .admin-dispute-filters select {
+  border: 1px solid var(--color-border);
+  border-radius: calc(var(--radius) - 2px);
+  background: var(--color-input-bg);
+  color: var(--color-text);
+}
+
+.dashboard-app .admin-commissions-filters input::placeholder,
+.dashboard-app .admin-personnel-filters input::placeholder {
+  color: var(--color-text-soft);
+}
+
+/* ——— Status colors (site-wide) ——— */
+.dashboard-app .admin-ops-stat-sub--success,
+.dashboard-app .admin-reports-stat-sub--success,
+.dashboard-app .admin-commissions-stat-sub--success,
+.dashboard-app .pilot-dashboard-activity-icon--success {
+  color: var(--color-success-bright);
+}
+
+.dashboard-app .admin-commissions-status--settled,
+.dashboard-app .admin-personnel-status--success,
+.dashboard-app .pilot-dashboard-badge--verified {
+  color: var(--color-success-bright);
+  border-color: rgba(34, 197, 94, 0.45);
+}
+
+.dashboard-app .admin-commissions-status--held,
+.dashboard-app .admin-dispute-status--danger,
+.dashboard-app .admin-personnel-status--danger {
+  color: var(--color-danger-soft);
+}
+
+/* ——— Page canvas ——— */
+.dashboard-app .dashboard-page {
+  width: 100%;
+  min-width: 0;
+}
+
+.dashboard-app .dashboard-canvas {
+  width: 100%;
+  min-width: 0;
+}

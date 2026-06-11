@@ -1,0 +1,320 @@
+/**
+ * Remote Air Service — ONE design scheme for the entire site.
+ * Public pages, auth, client/pilot/admin dashboards all use these primitives.
+ * Tokens live in globals.css :root — never hardcode hex in components.
+ */
+
+/* ——— Buttons ——— */
+.ras-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: 2.5rem;
+  padding-inline: 2rem;
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  background: var(--color-gold);
+  color: var(--color-cta-dark);
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.ras-btn-primary:hover {
+  background: var(--color-gold-soft);
+  color: var(--color-cta-dark);
+}
+
+.ras-btn-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: 2.5rem;
+  padding-inline: 2rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--color-border-gold);
+  background: transparent;
+  color: var(--color-gold);
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.ras-btn-outline:hover {
+  border-color: var(--color-gold);
+  background: rgba(216, 179, 57, 0.1);
+  color: var(--color-gold-soft);
+}
+
+.ras-btn-danger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.5rem;
+  padding-inline: 1.5rem;
+  border-radius: var(--radius);
+  border: 1px solid rgba(239, 68, 68, 0.45);
+  background: var(--color-danger-muted);
+  color: var(--color-danger-soft);
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.ras-btn-danger:hover {
+  border-color: rgba(239, 68, 68, 0.65);
+  background: rgba(239, 68, 68, 0.2);
+}
+
+/* ——— Typography ——— */
+.ras-eyebrow-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 9999px;
+  border: 1px solid var(--color-border-gold);
+  background: rgba(216, 179, 57, 0.05);
+  padding: 0.375rem 0.875rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-gold);
+}
+
+.ras-eyebrow-pill-dot {
+  width: 0.375rem;
+  height: 0.375rem;
+  border-radius: 9999px;
+  background: var(--color-gold);
+}
+
+.ras-hero-title {
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--color-text-heading);
+}
+
+.ras-hero-body {
+  line-height: 1.7;
+  color: var(--color-text-warm);
+}
+
+.ras-section-eyebrow {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-gold);
+}
+
+.ras-section-title {
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--color-text-heading);
+}
+
+.ras-body {
+  line-height: 1.6;
+  color: var(--color-text-muted);
+}
+
+.ras-link {
+  color: var(--color-gold);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.ras-link:hover {
+  color: var(--color-gold-soft);
+}
+
+/* ——— Surfaces & borders ——— */
+.ras-card {
+  border: 1px solid var(--color-border-gold-subtle);
+  border-radius: var(--radius-card);
+  background: var(--color-card);
+}
+
+.ras-card-warm {
+  border: 1px solid var(--dashboard-card-border);
+  border-radius: var(--radius-card);
+  background: var(--color-card-warm);
+  box-shadow: var(--shadow-card);
+}
+
+.ras-border-gold-subtle {
+  border-color: var(--color-border-gold-subtle);
+}
+
+.ras-border-muted {
+  border-color: var(--color-border-muted);
+}
+
+.ras-bg-hero {
+  background: var(--color-bg);
+}
+
+.ras-bg-soft {
+  background: var(--color-bg-soft);
+}
+
+.ras-bg-section {
+  background: var(--color-bg-section);
+}
+
+.ras-gold-glow {
+  pointer-events: none;
+  position: absolute;
+  border-radius: 9rem;
+  background: rgba(235, 169, 65, 0.2);
+  filter: blur(200px);
+}
+
+.ras-hero-section {
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid var(--color-border-gold-subtle);
+}
+
+/* ——— Status badges ——— */
+.ras-badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 9999px;
+  padding: 0.125rem 0.5rem;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.ras-badge--gold {
+  border: 1px solid var(--color-border-gold);
+  color: var(--color-gold);
+  background: rgba(216, 179, 57, 0.08);
+}
+
+.ras-badge--success {
+  border: 1px solid rgba(110, 231, 183, 0.35);
+  color: var(--color-success);
+  background: var(--color-success-muted);
+}
+
+.ras-badge--danger {
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: var(--color-danger-soft);
+  background: var(--color-danger-muted);
+}
+
+.ras-badge--muted {
+  border: 1px solid var(--color-border);
+  color: var(--color-text-soft);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+/* ——— Forms (site-wide dark inputs) ——— */
+.ras-input,
+input.ras-input,
+select.ras-input,
+textarea.ras-input,
+.dashboard-app input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]),
+.dashboard-app select,
+.dashboard-app textarea {
+  border: 1px solid var(--color-border);
+  border-radius: calc(var(--radius) - 2px);
+  background: var(--color-input-bg);
+  color: var(--color-text);
+}
+
+.ras-input::placeholder,
+.dashboard-app input::placeholder,
+.dashboard-app textarea::placeholder {
+  color: var(--color-text-soft);
+}
+
+.ras-input:focus,
+.ras-input:focus-visible,
+.dashboard-app input:focus-visible,
+.dashboard-app select:focus-visible,
+.dashboard-app textarea:focus-visible {
+  border-color: var(--color-gold);
+  outline: 2px solid rgba(216, 179, 57, 0.25);
+  outline-offset: 0;
+}
+
+/* Auth / marketing forms outside dashboard shell */
+form:not(.dashboard-app form) input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+form:not(.dashboard-app form) select,
+form:not(.dashboard-app form) textarea {
+  border: 1px solid var(--color-border);
+  border-radius: calc(var(--radius) - 2px);
+  background: var(--color-input-bg);
+  color: var(--color-text);
+}
+
+form:not(.dashboard-app form) input::placeholder,
+form:not(.dashboard-app form) textarea::placeholder {
+  color: var(--color-text-soft);
+}
+
+form:not(.dashboard-app form) input:focus-visible,
+form:not(.dashboard-app form) select:focus-visible,
+form:not(.dashboard-app form) textarea:focus-visible {
+  border-color: var(--color-gold);
+  outline: 2px solid rgba(216, 179, 57, 0.25);
+  outline-offset: 0;
+}
+
+/* ——— Tables (dashboard panels) ——— */
+.ras-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--dashboard-card-border);
+  border-radius: var(--radius-card);
+  background: var(--color-card-warm);
+}
+
+.ras-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+}
+
+.ras-table thead th {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--dashboard-card-border);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-align: left;
+  text-transform: uppercase;
+  color: var(--color-text-soft);
+}
+
+.ras-table tbody td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  color: var(--color-text-muted);
+}
+
+.ras-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.ras-table tbody tr:hover td {
+  background: rgba(216, 179, 57, 0.03);
+}

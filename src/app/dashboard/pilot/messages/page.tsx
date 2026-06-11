@@ -1,7 +1,8 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { MessagesInbox } from "@/components/messaging/MessagesInbox";
-import { PageHeader } from "@/components/layout/PageHeader";
+import { PilotMessagesView } from "@/components/dashboard/pilot/messages/PilotMessagesView";
+import { DashboardPageLayout } from "@/components/dashboard";
+import "@/styles/client-messages.css";
 
 export const metadata = { title: "Messages" };
 
@@ -12,18 +13,8 @@ export default async function PilotMessagesPage() {
   }
 
   return (
-    <>
-      <PageHeader
-        title="Messages"
-        description="Reply to clients who message you about your job applications."
-      />
-      <div className="mt-8">
-        <MessagesInbox
-          role="pilot"
-          listApi="/api/pilot/conversations"
-          threadBase="/dashboard/pilot/messages"
-        />
-      </div>
-    </>
+    <DashboardPageLayout className="client-messages-shell">
+      <PilotMessagesView />
+    </DashboardPageLayout>
   );
 }

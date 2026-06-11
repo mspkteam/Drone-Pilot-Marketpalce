@@ -1,13 +1,12 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { JobPostForm } from "@/components/client/JobPostForm";
-import { PageHeader } from "@/components/layout/PageHeader";
+import { ClientPostProjectWizard } from "@/components/dashboard/client/post-project/ClientPostProjectWizard";
 import {
   getClientProfileByUserId,
   isOnboardingComplete,
 } from "@/lib/client/profile";
 
-export const metadata = { title: "Post Job" };
+export const metadata = { title: "Post a new project" };
 
 export default async function ClientPostJobPage() {
   const session = await auth();
@@ -20,15 +19,5 @@ export default async function ClientPostJobPage() {
     redirect("/dashboard/client/onboarding");
   }
 
-  return (
-    <>
-      <PageHeader
-        title="Post a job"
-        description="Describe your drone mission. Save as draft or submit for admin approval before pilots can bid."
-      />
-      <div className="mt-8 max-w-3xl">
-        <JobPostForm />
-      </div>
-    </>
-  );
+  return <ClientPostProjectWizard />;
 }

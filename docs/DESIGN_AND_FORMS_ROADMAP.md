@@ -4,19 +4,21 @@ Planning notes for UI/UX and registration — **not implemented yet**. Keep M02/
 
 ---
 
-## Figma-driven UI/UX (future)
+## Figma-driven UI/UX (active)
 
-The current site uses an **interim** aviation-inspired layout (black / white / gold) in code (`src/app/globals.css`, shared layout components). This is a **foundation shell**, not the final product design.
+The current site uses an **interim** aviation-inspired layout (black / white / gold) in code (`src/app/globals.css`, shared layout components). This is a **foundation shell** being replaced screen-by-screen from Figma.
 
-**Planned direction:**
+**Active workflow:** [`FIGMA_IMPLEMENTATION_WORKFLOW.md`](FIGMA_IMPLEMENTATION_WORKFLOW.md)  
+**Implementation log:** [`figma-implementation-log.md`](figma-implementation-log.md)
 
-- Final marketing pages, dashboards, and auth screens will be **aligned to Figma** (UI/UX source of truth).
-- Implementation should follow the Figma → code workflow when designs exist:
-  - Use design tokens / variables from Figma where possible (map to Tailwind or CSS variables).
-  - Prefer updating existing layout primitives (`MarketingHeader`, `DashboardShell`, `Button`, etc.) rather than one-off page styles.
-  - Record major visual shifts in `docs/DECISIONS.md`.
+**Direction:**
 
-**Until Figma is ready:** Do not over-invest in pixel-perfect marketing copy or complex UI on placeholder pages. Keep components modular so swaps are straightforward.
+- Marketing pages, dashboards, and auth screens are **aligned to Figma** (UI/UX source of truth).
+- Each screen: Figma URL + written layout summary → pre-implementation review → implement → log.
+- Use design tokens / variables from Figma where possible (map to Tailwind or CSS variables).
+- Prefer updating existing layout primitives (`MarketingHeader`, `DashboardShell`, `Button`, etc.) rather than one-off page styles.
+- Missing functionality becomes a documented module/task, not ad-hoc page code.
+- Record major visual shifts in `docs/DECISIONS.md` when needed.
 
 ---
 

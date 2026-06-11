@@ -1,0 +1,300 @@
+/* Pilot Support & Help Center */
+
+.pilot-support-shell.dashboard-page {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: none;
+}
+
+.pilot-support-page {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-width: 0;
+}
+
+.pilot-support-back {
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  transition: color 0.15s ease;
+}
+
+.pilot-support-back:hover {
+  color: var(--color-gold);
+}
+
+.pilot-support-header {
+  margin-bottom: 2rem;
+  border: 1px solid rgba(244, 241, 234, 0.08);
+  border-radius: 0.625rem;
+  background: var(--color-card-warm);
+  padding: 1.625rem;
+}
+
+.pilot-support-eyebrow {
+  margin: 0;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  color: var(--color-text-soft);
+}
+
+.pilot-support-title {
+  margin: 0.5rem 0 0;
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: 800;
+  line-height: 1.15;
+  color: var(--color-text);
+}
+
+.pilot-support-article-summary {
+  margin: 0.75rem 0 0;
+  max-width: 42rem;
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: var(--color-text-muted);
+}
+
+.pilot-support-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  border: 1px solid rgba(244, 241, 234, 0.08);
+  border-radius: 0.5rem;
+  background: var(--color-card-warm);
+  padding: 2.25rem 1.5rem;
+  text-align: center;
+  color: var(--color-gold);
+}
+
+.pilot-support-hero-title {
+  margin: 1rem 0 1.25rem;
+  font-size: clamp(1.25rem, 3vw, 1.75rem);
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.pilot-support-search-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 35rem;
+}
+
+.pilot-support-search-icon {
+  position: absolute;
+  top: 50%;
+  left: 1rem;
+  display: flex;
+  color: var(--color-text-soft);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.pilot-support-search {
+  width: 100%;
+  height: 3rem;
+  border: 1px solid rgba(244, 241, 234, 0.08);
+  border-radius: 0.375rem;
+  background: var(--color-card-warm-alt);
+  padding: 0 1rem 0 2.75rem;
+  font-size: 0.9375rem;
+  color: var(--color-text);
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.pilot-support-search::placeholder {
+  color: var(--color-text-soft);
+}
+
+.pilot-support-search:focus {
+  outline: none;
+  border-color: rgba(216, 179, 57, 0.55);
+  box-shadow: 0 0 0 3px rgba(216, 179, 57, 0.12);
+}
+
+.pilot-support-layout {
+  display: grid;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+@media (min-width: 1024px) {
+  .pilot-support-layout {
+    grid-template-columns: minmax(0, 1.7fr) minmax(16rem, 1fr);
+  }
+}
+
+.pilot-support-articles-card,
+.pilot-support-contact-card,
+.pilot-support-tickets-card {
+  overflow: hidden;
+  border: 1px solid rgba(244, 241, 234, 0.08);
+  border-radius: 0.5rem;
+  background: var(--color-bg-deeper);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+}
+
+.pilot-support-card-title {
+  margin: 0;
+  padding: 1rem;
+  border-bottom: 1px solid rgba(244, 241, 234, 0.08);
+  font-size: 0.875rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: var(--color-gold);
+}
+
+.pilot-support-articles-list,
+.pilot-support-tickets-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pilot-support-articles-empty,
+.pilot-support-tickets-empty {
+  margin: 0;
+  padding: 2rem 1.125rem;
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--color-text-soft);
+}
+
+.pilot-support-article-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-bottom: 1px solid rgba(244, 241, 234, 0.08);
+  text-decoration: none;
+  transition: background-color 0.15s ease;
+}
+
+.pilot-support-article-row:hover {
+  background: rgba(216, 179, 57, 0.06);
+}
+
+.pilot-support-article-row:last-child {
+  border-bottom: none;
+}
+
+.pilot-support-article-icon {
+  display: flex;
+  flex-shrink: 0;
+  color: var(--color-gold);
+}
+
+.pilot-support-article-title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--color-text);
+}
+
+.pilot-support-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.pilot-support-contact-body {
+  padding: 1rem;
+}
+
+.pilot-support-ticket-btn {
+  display: inline-flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: none;
+  border-radius: 0.375rem;
+  background: var(--color-gold);
+  padding: 0.75rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: var(--color-bg-deeper);
+  transition: background-color 0.15s ease;
+}
+
+.pilot-support-ticket-btn:hover {
+  background: var(--color-gold-soft);
+}
+
+.pilot-support-contact-note {
+  margin: 0.75rem 0 0;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--color-text-soft);
+}
+
+.pilot-support-ticket-row {
+  display: flex;
+  width: 100%;
+  padding: 0.875rem 1.125rem;
+  border: none;
+  border-bottom: 1px solid rgba(244, 241, 234, 0.06);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.pilot-support-ticket-row:hover {
+  background: rgba(216, 179, 57, 0.06);
+}
+
+.pilot-support-ticket-row:last-child {
+  border-bottom: none;
+}
+
+.pilot-support-ticket-row-copy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.pilot-support-ticket-row-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.pilot-support-ticket-row-meta {
+  font-size: 0.6875rem;
+  color: var(--color-text-soft);
+}
+
+.pilot-support-article-body {
+  border: 1px solid rgba(244, 241, 234, 0.08);
+  border-radius: 0.5rem;
+  background: var(--color-card-warm);
+  padding: 1.5rem;
+}
+
+.pilot-support-article-body p {
+  margin: 0 0 1rem;
+  font-size: 0.9375rem;
+  line-height: 1.65;
+  color: var(--color-text-muted);
+}
+
+.pilot-support-article-body p:last-child {
+  margin-bottom: 0;
+}
+
+@media (max-width: 639px) {
+  .pilot-support-hero {
+    padding: 1.5rem 1rem;
+  }
+}

@@ -135,7 +135,7 @@ export function BookingDisputeSection({
   }
 
   return (
-    <div className="rounded-lg border border-border p-6 space-y-4">
+    <div id="dispute" className="rounded-lg border border-border p-6 space-y-4 scroll-mt-6">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h3 className="font-medium">Dispute</h3>
         {dispute ? <DisputeStatusBadge status={dispute.status} /> : null}

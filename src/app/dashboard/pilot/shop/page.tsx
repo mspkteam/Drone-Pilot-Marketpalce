@@ -1,13 +1,14 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { PilotUniformShop } from "@/components/shop/PilotUniformShop";
-import { PageHeader } from "@/components/layout/PageHeader";
+import { DashboardPageLayout } from "@/components/dashboard";
 import {
   getPilotProfileByUserId,
   isOnboardingComplete,
 } from "@/lib/pilot/profile";
+import "@/styles/pilot-shop.css";
 
-export const metadata = { title: "Uniform Shop" };
+export const metadata = { title: "Uniform & Insignia Shop" };
 
 export default async function PilotShopPage() {
   const session = await auth();
@@ -21,14 +22,8 @@ export default async function PilotShopPage() {
   }
 
   return (
-    <>
-      <PageHeader
-        title="Uniform Shop"
-        description="Official apparel and gear — separate from marketplace job payments."
-      />
-      <div className="mt-8">
-        <PilotUniformShop />
-      </div>
-    </>
+    <DashboardPageLayout className="pilot-shop-shell">
+      <PilotUniformShop />
+    </DashboardPageLayout>
   );
 }

@@ -1,12 +1,12 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { ClientProfileEditor } from "@/components/client/ClientProfileEditor";
-import { PageHeader } from "@/components/layout/PageHeader";
+import { ClientProfileCompletionView } from "@/components/dashboard/client/profile/ClientProfileCompletionView";
+import { DashboardPageLayout } from "@/components/dashboard";
 import {
   getClientProfileByUserId,
-  isOnboardingComplete,
   toClientProfileDto,
 } from "@/lib/client/profile";
+import "@/styles/profile-onboarding.css";
 
 export const metadata = { title: "Profile" };
 
@@ -17,20 +17,14 @@ export default async function ClientProfilePage() {
   }
 
   const profile = await getClientProfileByUserId(session.user.id);
-
-  if (!profile || !isOnboardingComplete(profile)) {
-    redirect("/dashboard/client/onboarding");
-  }
+  const profileDto = profile ? toClientProfileDto(profile) : null;
 
   return (
-    <>
-      <PageHeader
-        title="Profile"
-        description="Manage your company and billing contact information."
+    <DashboardPageLayout className="profile-onboarding-shell">
+      <ClientProfileCompletionView
+        profile={profileDto}
+        accountEmail={session.user.email ?? undefined}
       />
-      <div className="mt-8 max-w-3xl">
-        <ClientProfileEditor profile={toClientProfileDto(profile)} />
-      </div>
-    </>
+    </DashboardPageLayout>
   );
 }

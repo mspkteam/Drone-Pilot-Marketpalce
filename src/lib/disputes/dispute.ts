@@ -518,6 +518,60 @@ export async function listDisputesForAdmin(
   return rows.map((r) => toListItem(r as DisputeWithBooking));
 }
 
+export async function listDisputesForClient(
+  clientProfileId: string,
+  statusFilter?: DisputeStatus | "all",
+): Promise<DisputeListItemDto[]> {
+  const where: {
+    booking: { clientProfileId: string };
+    status?: DisputeStatus;
+  } = {
+    booking: { clientProfileId },
+  };
+
+  if (statusFilter && statusFilter !== "all") {
+    where.status = statusFilter;
+  }
+
+  const rows = await prisma.dispute.findMany({
+    where,
+    include: disputeListInclude,
+    orderBy: [{ updatedAt: "desc" }],
+  });
+
+  return rows.map((r) => toListItem(r as DisputeWithBooking));
+}
+
+export async function getDisputeForClient(
+  disputeId: string,
+  clientProfileId: string,
+  userId: string,
+): Promise<
+  | { ok: true; dispute: DisputeDetailDto }
+  | { ok: false; error: string; status: 403 | 404 }
+> {
+  const dispute = await prisma.dispute.findUnique({
+    where: { id: disputeId },
+    include: disputeDetailInclude,
+  });
+
+  if (!dispute) {
+    return { ok: false, error: "Dispute not found.", status: 404 };
+  }
+
+  if (dispute.booking.clientProfile.id !== clientProfileId) {
+    return { ok: false, error: "Not allowed.", status: 403 };
+  }
+
+  return {
+    ok: true,
+    dispute: toDetailDto(dispute as DisputeWithDetail, {
+      userId,
+      role: "client",
+    }),
+  };
+}
+
 export async function getDisputeForAdmin(
   disputeId: string,
   viewer: { userId: string; role: UserRole },

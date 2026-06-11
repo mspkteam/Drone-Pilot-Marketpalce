@@ -1,11 +1,12 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { ConversationThread } from "@/components/messaging/ConversationThread";
-import { PageHeader } from "@/components/layout/PageHeader";
+import { ClientMessagesView } from "@/components/dashboard/client/messages/ClientMessagesView";
+import { DashboardPageLayout } from "@/components/dashboard";
+import "@/styles/client-messages.css";
 
 type PageProps = { params: Promise<{ id: string }> };
 
-export const metadata = { title: "Conversation" };
+export const metadata = { title: "Messages" };
 
 export default async function ClientConversationPage({ params }: PageProps) {
   const session = await auth();
@@ -16,15 +17,8 @@ export default async function ClientConversationPage({ params }: PageProps) {
   const { id } = await params;
 
   return (
-    <>
-      <PageHeader title="Conversation" description="Message thread with your pilot." />
-      <div className="mt-8">
-        <ConversationThread
-          conversationId={id}
-          apiBase="/api/client/conversations"
-          backHref="/dashboard/client/messages"
-        />
-      </div>
-    </>
+    <DashboardPageLayout className="client-messages-shell">
+      <ClientMessagesView initialConversationId={id} />
+    </DashboardPageLayout>
   );
 }

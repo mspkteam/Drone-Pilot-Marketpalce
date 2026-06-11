@@ -1,12 +1,13 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { PilotProfileEditor } from "@/components/pilot/PilotProfileEditor";
-import { PageHeader } from "@/components/layout/PageHeader";
+import { PilotProfileCompletionView } from "@/components/dashboard/pilot/profile/PilotProfileCompletionView";
+import { DashboardPageLayout } from "@/components/dashboard";
 import {
   getPilotProfileByUserId,
-  isOnboardingComplete,
   toPilotProfileDto,
 } from "@/lib/pilot/profile";
+import { getApprovedVerificationTypes } from "@/lib/verification/verification";
+import "@/styles/profile-onboarding.css";
 
 export const metadata = { title: "Profile" };
 
@@ -17,20 +18,20 @@ export default async function PilotProfilePage() {
   }
 
   const profile = await getPilotProfileByUserId(session.user.id);
+  const profileDto = profile ? toPilotProfileDto(profile) : null;
 
-  if (!profile || !isOnboardingComplete(profile)) {
-    redirect("/dashboard/pilot/onboarding");
+  let insuranceVerified = false;
+  if (profile) {
+    const types = await getApprovedVerificationTypes(profile.id);
+    insuranceVerified = types.includes("insurance");
   }
 
   return (
-    <>
-      <PageHeader
-        title="Profile"
-        description="Manage your public pilot profile, services, and license details."
+    <DashboardPageLayout className="profile-onboarding-shell">
+      <PilotProfileCompletionView
+        profile={profileDto}
+        insuranceVerified={insuranceVerified}
       />
-      <div className="mt-8 max-w-3xl">
-        <PilotProfileEditor profile={toPilotProfileDto(profile)} />
-      </div>
-    </>
+    </DashboardPageLayout>
   );
 }

@@ -1,13 +1,35 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Button } from "@/components/ui/Button";
-import { FormField, inputClassName } from "@/components/ui/FormField";
+import {
+  formatShopPrice,
+  imageForVariant,
+  mapProductForDisplay,
+  PILOT_SHOP_MOCK_DISPLAY,
+  type ShopDisplayProduct,
+} from "@/lib/pilot/shop-display-map";
 import { UNIFORM_SHIPPING_FLAT_RATE } from "@/lib/shop/constants";
 import type { UniformProductDto } from "@/types/shop";
 
 type CartLine = { variantId: string; quantity: number };
+
+function CartIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+      <path
+        d="M2 2h1.2l1.1 6.2h7.4l1.4-4.4H4.8"
+        stroke="currentColor"
+        strokeWidth="1.25"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <circle cx="6.2" cy="12.8" r="0.9" fill="currentColor" />
+      <circle cx="11.4" cy="12.8" r="0.9" fill="currentColor" />
+    </svg>
+  );
+}
 
 export function PilotUniformShop() {
   const [products, setProducts] = useState<UniformProductDto[]>([]);
@@ -16,6 +38,7 @@ export function PilotUniformShop() {
   const [error, setError] = useState<string | null>(null);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [previewVariantId, setPreviewVariantId] = useState<string | null>(null);
   const [shippingName, setShippingName] = useState("");
   const [shippingLine1, setShippingLine1] = useState("");
   const [shippingLine2, setShippingLine2] = useState("");
@@ -47,14 +70,24 @@ export function PilotUniformShop() {
     void load();
   }, [load]);
 
+  const displayProducts = useMemo(
+    () =>
+      products
+        .map(mapProductForDisplay)
+        .filter((item): item is ShopDisplayProduct => item !== null),
+    [products],
+  );
+
+  const usingMockCatalog = !loading && displayProducts.length === 0;
+
   const variantIndex = useMemo(() => {
     const map = new Map<
       string,
       UniformProductDto["variants"][number] & { productName: string }
     >();
-    for (const p of products) {
-      for (const v of p.variants) {
-        map.set(v.id, { ...v, productName: p.name });
+    for (const product of products) {
+      for (const variant of product.variants) {
+        map.set(variant.id, { ...variant, productName: product.name });
       }
     }
     return map;
@@ -63,9 +96,9 @@ export function PilotUniformShop() {
   const cartDetails = useMemo(() => {
     return cart
       .map((line) => {
-        const v = variantIndex.get(line.variantId);
-        if (!v) return null;
-        return { ...line, variant: v };
+        const variant = variantIndex.get(line.variantId);
+        if (!variant) return null;
+        return { ...line, variant };
       })
       .filter(Boolean) as Array<{
       variantId: string;
@@ -75,19 +108,29 @@ export function PilotUniformShop() {
   }, [cart, variantIndex]);
 
   const subtotal = cartDetails.reduce(
-    (sum, l) => sum + l.variant.price * l.quantity,
+    (sum, line) => sum + line.variant.price * line.quantity,
     0,
   );
-  const total = subtotal + (cartDetails.length > 0 ? UNIFORM_SHIPPING_FLAT_RATE : 0);
+
+  const cartPreviewSrc = useMemo(() => {
+    if (previewVariantId) {
+      return imageForVariant(previewVariantId, displayProducts);
+    }
+    if (cartDetails[0]) {
+      return imageForVariant(cartDetails[0].variantId, displayProducts);
+    }
+    return displayProducts[0]?.imageSrc ?? PILOT_SHOP_MOCK_DISPLAY[0]!.imageSrc;
+  }, [previewVariantId, cartDetails, displayProducts]);
 
   function addToCart(variantId: string) {
+    setPreviewVariantId(variantId);
     setCart((prev) => {
-      const existing = prev.find((l) => l.variantId === variantId);
+      const existing = prev.find((line) => line.variantId === variantId);
       if (existing) {
-        return prev.map((l) =>
-          l.variantId === variantId
-            ? { ...l, quantity: l.quantity + 1 }
-            : l,
+        return prev.map((line) =>
+          line.variantId === variantId
+            ? { ...line, quantity: line.quantity + 1 }
+            : line,
         );
       }
       return [...prev, { variantId, quantity: 1 }];
@@ -96,11 +139,11 @@ export function PilotUniformShop() {
 
   function updateQty(variantId: string, quantity: number) {
     if (quantity < 1) {
-      setCart((prev) => prev.filter((l) => l.variantId !== variantId));
+      setCart((prev) => prev.filter((line) => line.variantId !== variantId));
       return;
     }
     setCart((prev) =>
-      prev.map((l) => (l.variantId === variantId ? { ...l, quantity } : l)),
+      prev.map((line) => (line.variantId === variantId ? { ...line, quantity } : line)),
     );
   }
 
@@ -138,204 +181,242 @@ export function PilotUniformShop() {
     }
   }
 
-  if (loading) {
-    return <p className="text-sm text-muted-foreground">Loading catalog…</p>;
-  }
-
   return (
-    <div className="grid gap-8 lg:grid-cols-3">
-      <div className="lg:col-span-2 space-y-6">
-        <p className="text-sm text-muted-foreground">
-          Official marketplace apparel and gear. Orders use a separate shop
-          payment flow (not job escrow). Flat ${UNIFORM_SHIPPING_FLAT_RATE}{" "}
-          shipping.
+    <div className="pilot-shop-page">
+      <Link href="/dashboard/pilot" className="pilot-shop-back">
+        ← Back
+      </Link>
+
+      <header className="pilot-shop-header">
+        <p className="pilot-shop-eyebrow">BUSINESS / SHOP</p>
+        <h1 className="pilot-shop-title">Uniform &amp; Insignia Shop</h1>
+      </header>
+
+      {error ? (
+        <p className="pilot-shop-banner" role="alert">
+          {error}
         </p>
-        {error ? (
-          <p className="text-sm text-destructive" role="alert">
-            {error}
-          </p>
-        ) : null}
-        {products.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No products available.</p>
-        ) : (
-          <ul className="space-y-6">
-            {products.map((product) => (
-              <li
-                key={product.id}
-                className="rounded-lg border border-border bg-surface-elevated p-5"
-              >
-                <h3 className="font-semibold">{product.name}</h3>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {product.description}
-                </p>
-                <ul className="mt-4 space-y-2">
-                  {product.variants.map((v) => (
-                    <li
-                      key={v.id}
-                      className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-border px-3 py-2 text-sm"
-                    >
-                      <span>
-                        {v.label} · ${v.price.toFixed(2)}{" "}
-                        <span className="text-muted-foreground">
-                          ({v.stockQuantity} in stock)
-                        </span>
+      ) : null}
+
+      {usingMockCatalog ? (
+        <p className="pilot-shop-note" role="status">
+          Sample catalog shown until shop products are seeded. Add buttons are disabled
+          in preview mode.
+        </p>
+      ) : (
+        <p className="pilot-shop-note">
+          Official marketplace apparel and insignia. Flat ${UNIFORM_SHIPPING_FLAT_RATE}{" "}
+          shipping is added at checkout (separate from job escrow).
+        </p>
+      )}
+
+      {loading ? (
+        <p className="pilot-shop-loading">Loading catalog…</p>
+      ) : (
+        <div className="pilot-shop-layout">
+          <ul className="pilot-shop-grid">
+            {usingMockCatalog
+              ? PILOT_SHOP_MOCK_DISPLAY.map((item) => (
+                  <li key={item.id} className="pilot-shop-card">
+                    <div className="pilot-shop-card-media">
+                      <Image
+                        src={item.imageSrc}
+                        alt=""
+                        width={220}
+                        height={180}
+                        className="pilot-shop-card-image"
+                      />
+                    </div>
+                    <span className="pilot-shop-card-badge">{item.category}</span>
+                    <h2 className="pilot-shop-card-name">{item.name}</h2>
+                    <div className="pilot-shop-card-footer">
+                      <span className="pilot-shop-card-price">
+                        {formatShopPrice(item.displayPrice)}
                       </span>
-                      <Button
+                      <button type="button" className="pilot-shop-add-btn" disabled>
+                        + ADD
+                      </button>
+                    </div>
+                  </li>
+                ))
+              : displayProducts.map((item) => (
+                  <li key={item.productId} className="pilot-shop-card">
+                    <div className="pilot-shop-card-media">
+                      <Image
+                        src={item.imageSrc}
+                        alt=""
+                        width={220}
+                        height={180}
+                        className="pilot-shop-card-image"
+                      />
+                    </div>
+                    <span className="pilot-shop-card-badge">{item.category}</span>
+                    <h2 className="pilot-shop-card-name">{item.name}</h2>
+                    {item.variantCount > 1 ? (
+                      <p className="pilot-shop-card-variant">{item.variant.label}</p>
+                    ) : null}
+                    <div className="pilot-shop-card-footer">
+                      <span className="pilot-shop-card-price">
+                        {formatShopPrice(item.displayPrice)}
+                      </span>
+                      <button
                         type="button"
-                        size="sm"
-                        disabled={v.stockQuantity < 1}
-                        onClick={() => addToCart(v.id)}
+                        className="pilot-shop-add-btn"
+                        disabled={item.variant.stockQuantity < 1}
+                        onClick={() => addToCart(item.variant.id)}
                       >
-                        Add
-                      </Button>
+                        + ADD
+                      </button>
+                    </div>
+                  </li>
+                ))}
+          </ul>
+
+          <aside className="pilot-shop-cart" aria-label="Shopping cart">
+            <div className="pilot-shop-cart-media">
+              <Image
+                src={cartPreviewSrc}
+                alt=""
+                width={220}
+                height={180}
+                className="pilot-shop-cart-image"
+              />
+            </div>
+            <h2 className="pilot-shop-cart-head">CART</h2>
+            <Link href="/dashboard/pilot/shop/orders" className="pilot-shop-orders-link">
+              My orders →
+            </Link>
+
+            {cartDetails.length === 0 ? (
+              <p className="pilot-shop-cart-empty">Cart is empty.</p>
+            ) : (
+              <>
+                <ul className="pilot-shop-cart-items">
+                  {cartDetails.map((line) => (
+                    <li key={line.variantId} className="pilot-shop-cart-item">
+                      <span className="pilot-shop-cart-item-name">
+                        {line.variant.productName}
+                      </span>
+                      <div className="pilot-shop-cart-item-meta">
+                        <input
+                          type="number"
+                          min={1}
+                          max={line.variant.stockQuantity}
+                          value={line.quantity}
+                          onChange={(e) =>
+                            updateQty(line.variantId, parseInt(e.target.value, 10) || 1)
+                          }
+                          className="pilot-shop-cart-qty"
+                          aria-label={`Quantity for ${line.variant.productName}`}
+                        />
+                        <span className="pilot-shop-cart-item-price">
+                          {formatShopPrice(line.variant.price * line.quantity)}
+                        </span>
+                      </div>
                     </li>
                   ))}
                 </ul>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
 
-      <aside className="rounded-lg border border-border bg-surface-elevated p-5 h-fit lg:sticky lg:top-4">
-        <div className="flex items-center justify-between">
-          <h2 className="font-semibold">Cart</h2>
-          <Link
-            href="/dashboard/pilot/shop/orders"
-            className="text-sm text-gold-dark hover:underline"
-          >
-            My orders
-          </Link>
-        </div>
-        {cartDetails.length === 0 ? (
-          <p className="mt-4 text-sm text-muted-foreground">Cart is empty.</p>
-        ) : (
-          <>
-            <ul className="mt-4 space-y-2 text-sm">
-              {cartDetails.map((line) => (
-                <li key={line.variantId} className="flex justify-between gap-2">
-                  <span>
-                    {line.variant.productName} ({line.variant.label}) ×{" "}
-                    <input
-                      type="number"
-                      min={1}
-                      max={line.variant.stockQuantity}
-                      value={line.quantity}
-                      onChange={(e) =>
-                        updateQty(line.variantId, parseInt(e.target.value, 10) || 1)
-                      }
-                      className="w-12 rounded border border-border px-1 text-center"
-                    />
+                <div className="pilot-shop-cart-subtotal">
+                  <span className="pilot-shop-cart-subtotal-label">SUBTOTAL</span>
+                  <span className="pilot-shop-cart-subtotal-value">
+                    {formatShopPrice(subtotal)}
                   </span>
-                  <span>${(line.variant.price * line.quantity).toFixed(2)}</span>
-                </li>
-              ))}
-            </ul>
-            <dl className="mt-4 space-y-1 border-t border-border pt-3 text-sm">
-              <div className="flex justify-between">
-                <dt className="text-muted-foreground">Subtotal</dt>
-                <dd>${subtotal.toFixed(2)}</dd>
-              </div>
-              <div className="flex justify-between">
-                <dt className="text-muted-foreground">Shipping</dt>
-                <dd>${UNIFORM_SHIPPING_FLAT_RATE.toFixed(2)}</dd>
-              </div>
-              <div className="flex justify-between font-medium">
-                <dt>Total</dt>
-                <dd>${total.toFixed(2)}</dd>
-              </div>
-            </dl>
-            <Button
-              type="button"
-              className="mt-4 w-full"
-              onClick={() => setCheckoutOpen(true)}
-            >
-              Checkout
-            </Button>
-          </>
-        )}
+                </div>
 
-        {checkoutOpen ? (
-          <form
-            onSubmit={(e) => void placeOrder(e)}
-            className="mt-6 space-y-3 border-t border-border pt-4"
-          >
-            <p className="text-sm font-medium">Shipping address</p>
-            <FormField label="Full name" htmlFor="ship-name">
-              <input
-                id="ship-name"
-                className={inputClassName}
-                value={shippingName}
-                onChange={(e) => setShippingName(e.target.value)}
-                required
-              />
-            </FormField>
-            <FormField label="Address line 1" htmlFor="ship-line1">
-              <input
-                id="ship-line1"
-                className={inputClassName}
-                value={shippingLine1}
-                onChange={(e) => setShippingLine1(e.target.value)}
-                required
-              />
-            </FormField>
-            <FormField label="Address line 2" htmlFor="ship-line2">
-              <input
-                id="ship-line2"
-                className={inputClassName}
-                value={shippingLine2}
-                onChange={(e) => setShippingLine2(e.target.value)}
-              />
-            </FormField>
-            <FormField label="City" htmlFor="ship-city">
-              <input
-                id="ship-city"
-                className={inputClassName}
-                value={shippingCity}
-                onChange={(e) => setShippingCity(e.target.value)}
-                required
-              />
-            </FormField>
-            <FormField label="State / region" htmlFor="ship-region">
-              <input
-                id="ship-region"
-                className={inputClassName}
-                value={shippingRegion}
-                onChange={(e) => setShippingRegion(e.target.value)}
-              />
-            </FormField>
-            <FormField label="Postal code" htmlFor="ship-postal">
-              <input
-                id="ship-postal"
-                className={inputClassName}
-                value={shippingPostal}
-                onChange={(e) => setShippingPostal(e.target.value)}
-                required
-              />
-            </FormField>
-            <FormField label="Phone" htmlFor="ship-phone">
-              <input
-                id="ship-phone"
-                className={inputClassName}
-                value={shippingPhone}
-                onChange={(e) => setShippingPhone(e.target.value)}
-              />
-            </FormField>
-            <div className="flex gap-2 pt-2">
-              <Button type="submit" disabled={submitting}>
-                {submitting ? "Placing…" : "Place order"}
-              </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={() => setCheckoutOpen(false)}
-              >
-                Cancel
-              </Button>
-            </div>
-          </form>
-        ) : null}
-      </aside>
+                <div className="pilot-shop-cart-actions">
+                  <button
+                    type="button"
+                    className="pilot-shop-checkout-btn"
+                    onClick={() => setCheckoutOpen(true)}
+                  >
+                    <CartIcon />
+                    Checkout
+                  </button>
+                </div>
+              </>
+            )}
+
+            {checkoutOpen ? (
+              <form onSubmit={(e) => void placeOrder(e)} className="pilot-shop-checkout-form">
+                <p className="pilot-shop-checkout-form-title">Shipping address</p>
+                <div className="pilot-shop-field">
+                  <label htmlFor="ship-name">Full name</label>
+                  <input
+                    id="ship-name"
+                    value={shippingName}
+                    onChange={(e) => setShippingName(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="pilot-shop-field">
+                  <label htmlFor="ship-line1">Address line 1</label>
+                  <input
+                    id="ship-line1"
+                    value={shippingLine1}
+                    onChange={(e) => setShippingLine1(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="pilot-shop-field">
+                  <label htmlFor="ship-line2">Address line 2</label>
+                  <input
+                    id="ship-line2"
+                    value={shippingLine2}
+                    onChange={(e) => setShippingLine2(e.target.value)}
+                  />
+                </div>
+                <div className="pilot-shop-field">
+                  <label htmlFor="ship-city">City</label>
+                  <input
+                    id="ship-city"
+                    value={shippingCity}
+                    onChange={(e) => setShippingCity(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="pilot-shop-field">
+                  <label htmlFor="ship-region">State / region</label>
+                  <input
+                    id="ship-region"
+                    value={shippingRegion}
+                    onChange={(e) => setShippingRegion(e.target.value)}
+                  />
+                </div>
+                <div className="pilot-shop-field">
+                  <label htmlFor="ship-postal">Postal code</label>
+                  <input
+                    id="ship-postal"
+                    value={shippingPostal}
+                    onChange={(e) => setShippingPostal(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="pilot-shop-field">
+                  <label htmlFor="ship-phone">Phone</label>
+                  <input
+                    id="ship-phone"
+                    value={shippingPhone}
+                    onChange={(e) => setShippingPhone(e.target.value)}
+                  />
+                </div>
+                <div className="pilot-shop-form-actions">
+                  <button type="submit" className="pilot-shop-place-btn" disabled={submitting}>
+                    {submitting ? "Placing…" : "Place order"}
+                  </button>
+                  <button
+                    type="button"
+                    className="pilot-shop-cancel-btn"
+                    onClick={() => setCheckoutOpen(false)}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            ) : null}
+          </aside>
+        </div>
+      )}
     </div>
   );
 }

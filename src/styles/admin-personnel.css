@@ -1,0 +1,517 @@
+/* Admin / Moderator Fleet & Personnel */
+
+.admin-personnel-shell.dashboard-page {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: none;
+  gap: 0;
+}
+
+.admin-personnel-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+  min-width: 0;
+}
+
+@media (min-width: 768px) {
+  .admin-personnel-page {
+    gap: 1.75rem;
+  }
+}
+
+/* Hero */
+.admin-personnel-hero {
+  position: relative;
+  overflow: hidden;
+  min-height: 9.375rem;
+  border: 1px solid rgba(244, 241, 234, 0.08);
+  border-radius: 0.5rem;
+  background: var(--color-card-warm);
+  padding: 1.75rem;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+}
+
+.admin-personnel-hero-inner {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+@media (min-width: 900px) {
+  .admin-personnel-hero-inner {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+  }
+}
+
+.admin-personnel-hero-copy {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.admin-personnel-hero-title {
+  margin: 0.625rem 0 0;
+  font-size: clamp(1.875rem, 2.8vw, 2.5rem);
+  font-weight: 800;
+  line-height: 1.12;
+  color: var(--color-text);
+}
+
+.admin-personnel-hero-desc {
+  margin: 0.75rem 0 0;
+  max-width: 40rem;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--color-text-muted);
+}
+
+.admin-personnel-hero-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  flex-shrink: 0;
+  width: 100%;
+}
+
+@media (min-width: 480px) {
+  .admin-personnel-hero-actions {
+    flex-direction: row;
+    width: auto;
+  }
+}
+
+@media (max-width: 899px) {
+  .admin-personnel-hero-actions {
+    width: 100%;
+  }
+}
+
+.admin-personnel-btn-export,
+.admin-personnel-btn-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  min-width: 10.625rem;
+  border-radius: 0.375rem;
+  padding: 0 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.admin-personnel-btn-export {
+  border: 1px solid rgba(216, 179, 57, 0.35);
+  background: var(--color-gold);
+  color: var(--color-cta-dark);
+}
+
+.admin-personnel-btn-export:hover {
+  background: var(--color-gold-soft);
+}
+
+.admin-personnel-btn-outline {
+  border: 1px solid rgba(244, 241, 234, 0.18);
+  background: var(--color-panel);
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.admin-personnel-btn-outline:hover {
+  border-color: rgba(216, 179, 57, 0.35);
+  background: rgba(216, 179, 57, 0.06);
+}
+
+/* Stats */
+.admin-personnel-stats-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 640px) {
+  .admin-personnel-stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .admin-personnel-stats-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.admin-personnel-stat-card {
+  position: relative;
+  display: flex;
+  min-height: 8.4375rem;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+  border: 1px solid rgba(244, 241, 234, 0.08);
+  border-radius: 0.5rem;
+  background: var(--color-card-warm-alt);
+  padding: 1.375rem 1.5rem 1.375rem 1.75rem;
+}
+
+.admin-personnel-stat-accent {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 3px;
+  background: linear-gradient(180deg, var(--color-gold-soft), var(--color-gold));
+}
+
+.admin-personnel-stat-label {
+  margin: 0;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--color-text-soft);
+}
+
+.admin-personnel-stat-value {
+  margin: 0.5rem 0 0;
+  font-size: 1.875rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--color-gold);
+}
+
+.admin-personnel-stat-sub {
+  margin: 0.5rem 0 0;
+  font-size: 0.75rem;
+  color: var(--color-text-soft);
+}
+
+.admin-personnel-stat-sub--success {
+  color: var(--color-success-bright);
+}
+
+/* Directory card */
+.admin-personnel-directory {
+  overflow: hidden;
+  border: 1px solid rgba(244, 241, 234, 0.08);
+  border-radius: 0.5rem;
+  background: var(--color-card-warm);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+}
+
+.admin-personnel-directory-head {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  border-bottom: 1px solid rgba(244, 241, 234, 0.08);
+  padding: 1.75rem 1.75rem 1.375rem;
+}
+
+@media (min-width: 768px) {
+  .admin-personnel-directory-head {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+}
+
+.admin-personnel-directory-title {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--color-text);
+}
+
+.admin-personnel-directory-sub {
+  margin: 0.375rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--color-text-soft);
+}
+
+.admin-personnel-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.625rem;
+}
+
+.admin-personnel-select {
+  appearance: none;
+  min-height: 2.625rem;
+  border: 1px solid rgba(244, 241, 234, 0.1);
+  border-radius: 0.375rem;
+  background: #2a2a28 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M3 4.5L6 7.5L9 4.5' stroke='%238A847A' stroke-width='1.25' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 0.75rem center;
+  padding: 0 2rem 0 0.875rem;
+  font-size: 0.8125rem;
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.admin-personnel-select--filter {
+  min-width: 8.125rem;
+}
+
+.admin-personnel-select:focus {
+  outline: none;
+  border-color: rgba(216, 179, 57, 0.45);
+  box-shadow: 0 0 0 2px rgba(216, 179, 57, 0.12);
+}
+
+/* Table */
+.admin-personnel-table-wrap {
+  overflow-x: auto;
+}
+
+.admin-personnel-table {
+  width: 100%;
+  min-width: 52rem;
+  border-collapse: collapse;
+}
+
+.admin-personnel-table thead th {
+  padding: 1rem 1.75rem;
+  border-bottom: 1px solid rgba(244, 241, 234, 0.08);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-align: left;
+  color: var(--color-text-soft);
+  white-space: nowrap;
+}
+
+.admin-personnel-table tbody td {
+  padding: 1.25rem 1.75rem;
+  border-bottom: 1px solid rgba(244, 241, 234, 0.04);
+  vertical-align: middle;
+}
+
+.admin-personnel-table tbody tr:hover {
+  background: rgba(216, 179, 57, 0.04);
+}
+
+.admin-personnel-name {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.admin-personnel-id {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--color-text-soft);
+}
+
+.admin-personnel-role,
+.admin-personnel-region,
+.admin-personnel-joined {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.admin-personnel-status {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 0.375rem;
+  padding: 0.3125rem 0.625rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.admin-personnel-status--success {
+  border: 1px solid rgba(34, 197, 94, 0.35);
+  background: rgba(34, 197, 94, 0.1);
+  color: var(--color-success-bright);
+}
+
+.admin-personnel-status--pending {
+  border: 1px solid rgba(216, 179, 57, 0.35);
+  background: rgba(216, 179, 57, 0.1);
+  color: var(--color-gold);
+}
+
+.admin-personnel-status--danger {
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--color-danger);
+}
+
+.admin-personnel-actions {
+  display: flex;
+  gap: 0.75rem;
+  white-space: nowrap;
+}
+
+.admin-personnel-action {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--color-gold);
+  text-decoration: none;
+}
+
+.admin-personnel-action:hover {
+  color: var(--color-gold-soft);
+}
+
+.admin-personnel-action--disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.admin-personnel-empty {
+  padding: 2rem 1.75rem !important;
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--color-text-soft);
+}
+
+/* Footer */
+.admin-personnel-directory-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  border-top: 1px solid rgba(244, 241, 234, 0.06);
+  padding: 1.125rem 1.75rem;
+}
+
+@media (min-width: 768px) {
+  .admin-personnel-directory-footer {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.admin-personnel-footer-count {
+  margin: 0;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--color-text-soft);
+}
+
+.admin-personnel-pagination {
+  display: flex;
+  gap: 0.375rem;
+}
+
+.admin-personnel-page-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2rem;
+  height: 2rem;
+  border: 1px solid rgba(244, 241, 234, 0.12);
+  border-radius: 0.25rem;
+  background: var(--color-panel);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.admin-personnel-page-btn:hover:not(:disabled) {
+  border-color: rgba(216, 179, 57, 0.35);
+}
+
+.admin-personnel-page-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.admin-personnel-page-btn--active {
+  border-color: rgba(216, 179, 57, 0.35);
+  background: var(--color-gold);
+  color: var(--color-cta-dark);
+}
+
+/* Modal */
+.admin-personnel-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: rgba(0, 0, 0, 0.72);
+}
+
+.admin-personnel-modal {
+  width: 100%;
+  max-width: 28rem;
+  border: 1px solid rgba(244, 241, 234, 0.1);
+  border-radius: 0.5rem;
+  background: var(--color-card-warm);
+  padding: 1.5rem;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.45);
+}
+
+.admin-personnel-modal-title {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.admin-personnel-modal-copy {
+  margin: 0.75rem 0 0;
+  font-size: 0.875rem;
+  line-height: 1.55;
+  color: var(--color-text-muted);
+}
+
+.admin-personnel-invite-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.admin-personnel-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.admin-personnel-field-label {
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--color-text-soft);
+}
+
+.admin-personnel-input {
+  min-height: 2.625rem;
+  border: 1px solid rgba(244, 241, 234, 0.12);
+  border-radius: 0.375rem;
+  background: var(--color-bg-deeper);
+  padding: 0 0.875rem;
+  font-size: 0.875rem;
+  color: var(--color-text);
+}
+
+.admin-personnel-input:focus {
+  outline: none;
+  border-color: rgba(216, 179, 57, 0.45);
+}
+
+.admin-personnel-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.625rem;
+  margin-top: 0.5rem;
+}

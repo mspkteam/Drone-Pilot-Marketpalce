@@ -1,8 +1,10 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
-import { AdminSupportPanel } from "@/components/admin/AdminSupportPanel";
-import { PageHeader } from "@/components/layout/PageHeader";
+import { AdminSupportChat } from "@/components/dashboard/admin/support/AdminSupportChat";
+import { DashboardPageLayout } from "@/components/dashboard";
 import { isAdminRole, type UserRole } from "@/types/roles";
+import "@/styles/admin-dashboard.css";
+import "@/styles/admin-support-chat.css";
 
 export const metadata = { title: "Support Chat" };
 
@@ -16,18 +18,8 @@ export default async function AdminSupportPage() {
   const readOnly = role === "moderator";
 
   return (
-    <>
-      <PageHeader
-        title="Support Chat"
-        description={
-          readOnly
-            ? "View platform support conversations (read-only)."
-            : "Manage and reply to platform support conversations."
-        }
-      />
-      <div className="mt-8 w-full">
-        <AdminSupportPanel readOnly={readOnly} />
-      </div>
-    </>
+    <DashboardPageLayout className="admin-support-shell">
+      <AdminSupportChat readOnly={readOnly} />
+    </DashboardPageLayout>
   );
 }

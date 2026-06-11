@@ -1,8 +1,14 @@
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { AdminDisputeDetailPanel } from "@/components/admin/AdminDisputeDetailPanel";
-import { PageHeader } from "@/components/layout/PageHeader";
+import { AdminDisputeDetailView } from "@/components/dashboard/admin/disputes/AdminDisputeDetailView";
+import { DashboardPageLayout } from "@/components/dashboard";
+import {
+  getConversationIdForBooking,
+} from "@/lib/admin/dispute-center";
+import { getDisputeForAdmin } from "@/lib/disputes/dispute";
 import { isAdminRole, type UserRole } from "@/types/roles";
+import "@/styles/admin-dashboard.css";
+import "@/styles/admin-disputes.css";
 
 export const metadata = { title: "Dispute details" };
 
@@ -16,16 +22,27 @@ export default async function AdminDisputeDetailPage({ params }: PageProps) {
   }
 
   const { id } = await params;
+  const result = await getDisputeForAdmin(id, {
+    userId: session.user.id,
+    role,
+  });
+
+  if (!result.ok) {
+    if (result.status === 404) notFound();
+    redirect("/dashboard/admin/disputes");
+  }
+
+  const conversationId = await getConversationIdForBooking(
+    result.dispute.bookingId,
+  );
 
   return (
-    <>
-      <PageHeader
-        title="Dispute"
-        description="Review timeline, moderate, and resolve."
+    <DashboardPageLayout className="admin-dispute-shell">
+      <AdminDisputeDetailView
+        initialDispute={result.dispute}
+        conversationId={conversationId}
+        viewerRole={role}
       />
-      <div className="mt-8">
-        <AdminDisputeDetailPanel disputeId={id} viewerRole={role} />
-      </div>
-    </>
+    </DashboardPageLayout>
   );
 }

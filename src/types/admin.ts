@@ -114,19 +114,56 @@ export type AdminSubscriptionRowDto = {
   instructorEligible: boolean;
 };
 
+export type AdminPlanDisplayFeatureDto = {
+  label: string;
+  included: boolean;
+  sortOrder: number;
+};
+
 export type AdminPlanDto = {
   id: string;
   code: string;
+  pricingCode: string | null;
   name: string;
   slug: string;
+  description: string;
   priceYearly: number;
   priceMonthly: number;
   jobVisibilityDelayHours: number;
+  canViewJobs: boolean;
   canApply: boolean;
   instructorEligible: boolean;
   currency: string;
   isActive: boolean;
+  isRecommended: boolean;
   subscriberCount: number;
+  displayFeatures: AdminPlanDisplayFeatureDto[];
+  rankKey: "a1" | "a2" | "a3" | "a4" | "a5" | "a6" | null;
+};
+
+export type AdminPlanUpdateInput = {
+  name?: string;
+  description?: string;
+  priceMonthly?: number;
+  jobVisibilityDelayHours?: number;
+  canViewJobs?: boolean;
+  canApply?: boolean;
+  instructorEligible?: boolean;
+  isActive?: boolean;
+  isRecommended?: boolean;
+  displayFeatures?: AdminPlanDisplayFeatureDto[];
+};
+
+export type AdminSubscriptionStatsDto = {
+  activeSubscribers: number;
+  activeSubscribersSubtext: string;
+  monthlyRecurring: string;
+  monthlyRecurringSubtext: string;
+  avgTier: string;
+  avgTierSubtext: string;
+  churnRate: string;
+  churnRateSubtext: string;
+  usingMockChurn: boolean;
 };
 
 export type { BookingListItemDto };

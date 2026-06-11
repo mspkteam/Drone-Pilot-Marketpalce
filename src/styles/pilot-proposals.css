@@ -1,0 +1,258 @@
+/* Pilot My Proposals — operations table */
+
+.pilot-proposals-shell.dashboard-page {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: none;
+  gap: 0;
+}
+
+.pilot-proposals-page {
+  width: 100%;
+  min-width: 0;
+}
+
+.pilot-proposals-header {
+  margin-bottom: 1.625rem;
+  border: 1px solid rgba(244, 241, 234, 0.08);
+  border-radius: 0.625rem;
+  background: var(--color-card-warm);
+  padding: 1.625rem;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+}
+
+.pilot-proposals-eyebrow {
+  margin: 0;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--color-text-soft);
+}
+
+.pilot-proposals-title {
+  margin: 0.5rem 0 0;
+  font-size: clamp(2rem, 3vw, 2.625rem);
+  font-weight: 800;
+  line-height: 1.1;
+  color: var(--color-text);
+}
+
+.pilot-proposals-banner {
+  margin: 0 0 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(216, 179, 57, 0.28);
+  background: rgba(216, 179, 57, 0.08);
+  padding: 0.75rem 1rem;
+  font-size: 0.8125rem;
+  color: var(--color-gold);
+}
+
+.pilot-proposals-banner--error {
+  border-color: rgba(239, 68, 68, 0.35);
+  background: rgba(239, 68, 68, 0.08);
+  color: var(--color-danger);
+}
+
+.pilot-proposals-muted {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.pilot-proposals-tabs-wrap {
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(244, 241, 234, 0.08);
+}
+
+.pilot-proposals-tabs {
+  display: flex;
+  gap: 1.5rem;
+  overflow-x: auto;
+  padding-bottom: 0;
+  scrollbar-width: thin;
+}
+
+.pilot-proposals-tab {
+  flex-shrink: 0;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  padding: 0 0 0.875rem;
+  font-size: 0.875rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.pilot-proposals-tab:hover {
+  color: var(--color-text);
+}
+
+.pilot-proposals-tab--active {
+  border-bottom-color: var(--color-gold);
+  color: var(--color-gold);
+}
+
+.pilot-proposals-table-wrap {
+  overflow-x: auto;
+  border: 1px solid rgba(244, 241, 234, 0.08);
+  border-radius: 0.75rem;
+  background: var(--color-card-warm);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+}
+
+.pilot-proposals-table {
+  width: 100%;
+  min-width: 52rem;
+  border-collapse: collapse;
+}
+
+.pilot-proposals-table thead th {
+  height: 2.875rem;
+  padding: 0 1rem;
+  background: var(--color-card);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-align: left;
+  color: var(--color-text-soft);
+  white-space: nowrap;
+}
+
+.pilot-proposals-table tbody td {
+  height: 3.375rem;
+  padding: 0 1rem;
+  border-top: 1px solid rgba(244, 241, 234, 0.06);
+  background: var(--color-card);
+  vertical-align: middle;
+}
+
+.pilot-proposals-cell-id {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-gold);
+  white-space: nowrap;
+}
+
+.pilot-proposals-cell-mission {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text);
+  min-width: 12rem;
+}
+
+.pilot-proposals-cell-client,
+.pilot-proposals-cell-sent {
+  font-size: 0.8125rem;
+  color: var(--color-text-soft);
+  white-space: nowrap;
+}
+
+.pilot-proposals-cell-bid {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.875rem;
+  color: var(--color-text);
+  white-space: nowrap;
+}
+
+.pilot-proposals-status {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.25rem 0.625rem;
+  font-size: 0.625rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.pilot-proposals-status--shortlisted {
+  border: 1px solid rgba(216, 179, 57, 0.45);
+  background: rgba(216, 179, 57, 0.1);
+  color: var(--color-gold);
+}
+
+.pilot-proposals-status--pending {
+  border: 1px solid rgba(96, 165, 250, 0.2);
+  background: rgba(96, 165, 250, 0.08);
+  color: var(--color-text-muted);
+}
+
+.pilot-proposals-status--accepted {
+  border: 1px solid rgba(34, 197, 94, 0.45);
+  background: rgba(34, 197, 94, 0.1);
+  color: var(--color-success-bright);
+}
+
+.pilot-proposals-status--rejected {
+  border: 1px solid rgba(239, 68, 68, 0.45);
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--color-danger);
+}
+
+.pilot-proposals-status--withdrawn {
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  background: rgba(148, 163, 184, 0.08);
+  color: var(--color-text-warm);
+}
+
+.pilot-proposals-cell-action {
+  text-align: right;
+}
+
+.pilot-proposals-view-link {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--color-gold);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.pilot-proposals-view-link:hover {
+  color: var(--color-gold-soft);
+}
+
+.pilot-proposals-empty {
+  border: 1px solid rgba(244, 241, 234, 0.08);
+  border-radius: 0.75rem;
+  background: var(--color-card-warm);
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+}
+
+.pilot-proposals-empty-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.pilot-proposals-empty-link {
+  display: inline-block;
+  margin-top: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-gold);
+  text-decoration: none;
+}
+
+.pilot-proposals-empty-link:hover {
+  text-decoration: underline;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

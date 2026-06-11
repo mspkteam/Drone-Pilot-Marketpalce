@@ -42,6 +42,7 @@ export type PilotOpenJobDto = {
   canApply: boolean;
   hasApplied: boolean;
   applicationId: string | null;
+  clientDisplayName: string;
 };
 
 export type PilotLockedJobDto = {
@@ -52,6 +53,10 @@ export type PilotLockedJobDto = {
   status: string;
   visibleAt: string;
   jobVisibilityDelayHours: number;
+  budgetMin: number | null;
+  budgetMax: number | null;
+  currency: string;
+  requirements: string | null;
 };
 
 export type PilotJobsListResponse = {
@@ -73,6 +78,7 @@ export type PilotApplicationListItemDto = JobApplicationDto & {
     title: string;
     locationLabel: string;
     status: string;
+    clientDisplayName: string;
   };
 };
 

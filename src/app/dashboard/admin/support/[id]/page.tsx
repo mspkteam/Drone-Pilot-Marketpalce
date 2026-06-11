@@ -1,14 +1,16 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
-import { AdminSupportThread } from "@/components/admin/AdminSupportThread";
-import { PageHeader } from "@/components/layout/PageHeader";
+import { AdminSupportChat } from "@/components/dashboard/admin/support/AdminSupportChat";
+import { DashboardPageLayout } from "@/components/dashboard";
 import { isAdminRole, type UserRole } from "@/types/roles";
-
-export const metadata = { title: "Support thread" };
+import "@/styles/admin-dashboard.css";
+import "@/styles/admin-support-chat.css";
 
 type PageProps = {
   params: Promise<{ id: string }>;
 };
+
+export const metadata = { title: "Support thread" };
 
 export default async function AdminSupportThreadPage({ params }: PageProps) {
   const session = await auth();
@@ -21,18 +23,8 @@ export default async function AdminSupportThreadPage({ params }: PageProps) {
   const readOnly = role === "moderator";
 
   return (
-    <>
-      <PageHeader
-        title="Support conversation"
-        description={
-          readOnly
-            ? "Read-only moderator view."
-            : "Reply and update status for this support request."
-        }
-      />
-      <div className="mt-8 w-full">
-        <AdminSupportThread chatId={id} readOnly={readOnly} />
-      </div>
-    </>
+    <DashboardPageLayout className="admin-support-shell">
+      <AdminSupportChat readOnly={readOnly} initialChatId={id} />
+    </DashboardPageLayout>
   );
 }

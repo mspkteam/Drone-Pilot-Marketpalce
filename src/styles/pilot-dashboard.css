@@ -1,0 +1,748 @@
+/* Pilot Dashboard overview — aviation mission-control layout */
+
+.pilot-dashboard-shell.dashboard-page {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: none;
+  gap: 0;
+}
+
+.pilot-dashboard-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+  min-width: 0;
+}
+
+@media (min-width: 768px) {
+  .pilot-dashboard-page {
+    gap: 1.75rem;
+  }
+}
+
+/* Corner bracket accents */
+.pilot-dashboard-bracket-card {
+  position: relative;
+}
+
+.pilot-dashboard-bracket-card::before,
+.pilot-dashboard-bracket-card::after {
+  content: "";
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.pilot-dashboard-bracket-card::before {
+  top: 10px;
+  left: 10px;
+  border-top: 1px solid rgba(244, 241, 234, 0.22);
+  border-left: 1px solid rgba(244, 241, 234, 0.22);
+}
+
+.pilot-dashboard-bracket-card::after {
+  right: 10px;
+  bottom: 10px;
+  border-right: 1px solid rgba(244, 241, 234, 0.22);
+  border-bottom: 1px solid rgba(244, 241, 234, 0.22);
+}
+
+/* Hero */
+.pilot-dashboard-hero {
+  overflow: hidden;
+  border: 1px solid rgba(244, 241, 234, 0.08);
+  border-radius: 0.625rem;
+  background: var(--color-card-warm);
+  padding: 1.75rem;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+}
+
+.pilot-dashboard-hero-glow {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 50% 90% at 92% 50%,
+    rgba(216, 179, 57, 0.14),
+    transparent 68%
+  );
+}
+
+.pilot-dashboard-hero-inner {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+@media (min-width: 900px) {
+  .pilot-dashboard-hero-inner {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 2rem;
+  }
+}
+
+.pilot-dashboard-hero-copy {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.pilot-dashboard-eyebrow {
+  margin: 0;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--color-text-soft);
+}
+
+.pilot-dashboard-hero-title {
+  margin: 0.625rem 0 0;
+  font-size: clamp(1.625rem, 2.4vw, 2.125rem);
+  font-weight: 800;
+  line-height: 1.15;
+  color: var(--color-text);
+}
+
+.pilot-dashboard-hero-desc {
+  margin: 0.75rem 0 0;
+  max-width: 36rem;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--color-text-muted);
+}
+
+.pilot-dashboard-gold {
+  color: var(--color-gold);
+  font-weight: 600;
+}
+
+.pilot-dashboard-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1.125rem;
+}
+
+.pilot-dashboard-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 1.625rem;
+  border-radius: 999px;
+  padding: 0 0.75rem;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.pilot-dashboard-badge--gold {
+  border: 1px solid rgba(216, 179, 57, 0.45);
+  background: rgba(216, 179, 57, 0.08);
+  color: var(--color-gold);
+}
+
+.pilot-dashboard-badge--verified {
+  border: 1px solid rgba(34, 197, 94, 0.45);
+  background: rgba(34, 197, 94, 0.1);
+  color: var(--color-success-bright);
+}
+
+.pilot-dashboard-hero-actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.625rem;
+  flex-shrink: 0;
+  width: 100%;
+  max-width: 16.5rem;
+}
+
+@media (min-width: 480px) {
+  .pilot-dashboard-hero-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 899px) {
+  .pilot-dashboard-hero-actions {
+    max-width: none;
+  }
+}
+
+.pilot-dashboard-btn-primary,
+.pilot-dashboard-btn-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.5rem;
+  border-radius: 0.5rem;
+  padding: 0 0.875rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.pilot-dashboard-btn-primary {
+  border: 1px solid rgba(216, 179, 57, 0.35);
+  background: var(--color-gold);
+  color: var(--color-cta-dark);
+}
+
+.pilot-dashboard-btn-primary:hover {
+  background: var(--color-gold-soft);
+}
+
+.pilot-dashboard-btn-outline {
+  border: 1px solid rgba(244, 241, 234, 0.12);
+  background: var(--color-bg-soft);
+  color: var(--color-gold);
+}
+
+.pilot-dashboard-btn-outline:hover {
+  border-color: rgba(216, 179, 57, 0.35);
+  background: rgba(216, 179, 57, 0.06);
+}
+
+/* Stats */
+.pilot-dashboard-stats-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 640px) {
+  .pilot-dashboard-stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .pilot-dashboard-stats-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.pilot-dashboard-stat-card {
+  display: flex;
+  min-height: 6.875rem;
+  flex-direction: column;
+  justify-content: center;
+  border: 1px solid rgba(244, 241, 234, 0.08);
+  border-radius: 0.625rem;
+  background: var(--color-card-warm);
+  padding: 1.25rem;
+}
+
+.pilot-dashboard-stat-label {
+  margin: 0;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--color-text-soft);
+}
+
+.pilot-dashboard-stat-value {
+  margin: 0.5rem 0 0;
+  font-size: 1.75rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--color-gold);
+}
+
+.pilot-dashboard-stat-sub {
+  margin: 0.5rem 0 0;
+  font-size: 0.75rem;
+  color: var(--color-text-soft);
+}
+
+/* Main grid */
+.pilot-dashboard-main-grid {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 1100px) {
+  .pilot-dashboard-main-grid {
+    grid-template-columns: minmax(0, 1.85fr) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
+.pilot-dashboard-main-left,
+.pilot-dashboard-main-right {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  min-width: 0;
+}
+
+/* Panels */
+.pilot-dashboard-panel {
+  border: 1px solid rgba(244, 241, 234, 0.08);
+  border-radius: 0.625rem;
+  background: var(--color-card-warm);
+  padding: 1.25rem 1.375rem;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+}
+
+.pilot-dashboard-panel--warm {
+  background: var(--color-card-warm-alt);
+}
+
+.pilot-dashboard-panel-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.pilot-dashboard-panel-title {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: var(--color-gold);
+}
+
+.pilot-dashboard-panel-title--solo {
+  margin-bottom: 1rem;
+}
+
+.pilot-dashboard-panel-title--reviews {
+  color: var(--color-text);
+  font-size: 0.9375rem;
+  letter-spacing: 0.04em;
+}
+
+.pilot-dashboard-panel-title--gold {
+  color: var(--color-gold);
+}
+
+.pilot-dashboard-panel-link {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--color-text-soft);
+  text-decoration: none;
+}
+
+.pilot-dashboard-panel-link:hover {
+  color: var(--color-gold);
+}
+
+.pilot-dashboard-panel-note {
+  margin: -0.25rem 0 0.875rem;
+  font-size: 0.6875rem;
+  line-height: 1.45;
+  color: var(--color-text-soft);
+}
+
+.pilot-dashboard-muted {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+/* Recommended jobs */
+.pilot-dashboard-jobs-grid {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 768px) {
+  .pilot-dashboard-jobs-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.pilot-dashboard-job-card {
+  border: 1px solid rgba(244, 241, 234, 0.08);
+  border-radius: 0.5rem;
+  background: var(--color-bg-soft);
+  padding: 1rem;
+}
+
+.pilot-dashboard-job-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.pilot-dashboard-job-category {
+  display: inline-flex;
+  border-radius: 999px;
+  border: 1px solid rgba(244, 241, 234, 0.12);
+  padding: 0.125rem 0.5rem;
+  font-size: 0.5625rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+}
+
+.pilot-dashboard-job-price {
+  font-size: 0.875rem;
+  font-weight: 800;
+  color: var(--color-gold);
+}
+
+.pilot-dashboard-job-title {
+  margin: 0.625rem 0 0;
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--color-text);
+}
+
+.pilot-dashboard-job-location,
+.pilot-dashboard-job-time {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  margin: 0.375rem 0 0;
+  font-size: 0.6875rem;
+  color: var(--color-text-soft);
+}
+
+.pilot-dashboard-job-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(244, 241, 234, 0.08);
+}
+
+.pilot-dashboard-job-action {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--color-gold);
+  text-decoration: none;
+}
+
+.pilot-dashboard-job-action:hover {
+  text-decoration: underline;
+}
+
+/* Locked jobs */
+.pilot-dashboard-locked-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.pilot-dashboard-locked-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  border: 1px solid rgba(244, 241, 234, 0.08);
+  border-radius: 0.5rem;
+  background: var(--color-bg-soft);
+  padding: 0.875rem 1rem;
+}
+
+.pilot-dashboard-locked-title {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.pilot-dashboard-locked-req {
+  margin: 0.25rem 0 0;
+  font-size: 0.5625rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--color-text-soft);
+}
+
+.pilot-dashboard-locked-timer {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+}
+
+.pilot-dashboard-countdown-value {
+  font-size: 1rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-gold);
+}
+
+.pilot-dashboard-locked-label {
+  margin-top: 0.125rem;
+  font-size: 0.5625rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--color-text-soft);
+}
+
+/* Profile strength */
+.pilot-dashboard-strength-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+@media (min-width: 560px) {
+  .pilot-dashboard-strength-body {
+    flex-direction: row;
+    align-items: center;
+    gap: 1.5rem;
+  }
+}
+
+.pilot-dashboard-strength-ring-wrap {
+  flex-shrink: 0;
+}
+
+.pilot-dashboard-strength-ring {
+  display: flex;
+  width: 6.5rem;
+  height: 6.5rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+}
+
+.pilot-dashboard-strength-ring-inner {
+  display: flex;
+  width: 5.25rem;
+  height: 5.25rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--color-card-warm);
+}
+
+.pilot-dashboard-strength-pct {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--color-gold);
+}
+
+.pilot-dashboard-strength-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.pilot-dashboard-strength-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(244, 241, 234, 0.06);
+}
+
+.pilot-dashboard-strength-row:last-child {
+  border-bottom: 0;
+}
+
+.pilot-dashboard-strength-label {
+  font-size: 0.8125rem;
+  color: var(--color-text);
+}
+
+.pilot-dashboard-strength-pill {
+  flex-shrink: 0;
+  border-radius: 999px;
+  padding: 0.125rem 0.5rem;
+  font-size: 0.5625rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+
+.pilot-dashboard-strength-pill--done {
+  background: rgba(34, 197, 94, 0.12);
+  color: var(--color-success-bright);
+}
+
+.pilot-dashboard-strength-pill--partial {
+  background: rgba(216, 179, 57, 0.12);
+  color: var(--color-gold);
+}
+
+.pilot-dashboard-strength-pill--missing {
+  background: rgba(239, 68, 68, 0.12);
+  color: var(--color-danger);
+}
+
+/* Reviews */
+.pilot-dashboard-rating-summary {
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(244, 241, 234, 0.08);
+}
+
+.pilot-dashboard-rating-value {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--color-text);
+}
+
+.pilot-dashboard-stars {
+  display: inline-flex;
+  gap: 0.125rem;
+  margin-top: 0.25rem;
+}
+
+.pilot-dashboard-star {
+  font-size: 0.875rem;
+  color: rgba(244, 241, 234, 0.2);
+}
+
+.pilot-dashboard-star--on {
+  color: var(--color-gold);
+}
+
+.pilot-dashboard-rating-bar {
+  margin-top: 0.625rem;
+  height: 0.375rem;
+  border-radius: 999px;
+  background: rgba(244, 241, 234, 0.08);
+  overflow: hidden;
+}
+
+.pilot-dashboard-rating-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--color-gold), var(--color-gold-soft));
+}
+
+.pilot-dashboard-rating-meta {
+  margin: 0.5rem 0 0;
+  font-size: 0.5625rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--color-text-soft);
+}
+
+.pilot-dashboard-review-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.pilot-dashboard-review-card {
+  border: 1px solid rgba(244, 241, 234, 0.08);
+  border-radius: 0.5rem;
+  background: rgba(0, 0, 0, 0.22);
+  padding: 0.875rem;
+}
+
+.pilot-dashboard-review-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.375rem;
+}
+
+.pilot-dashboard-review-title {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.pilot-dashboard-review-date {
+  font-size: 0.5625rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--color-text-soft);
+}
+
+.pilot-dashboard-review-text {
+  margin: 0.5rem 0 0;
+  font-size: 0.625rem;
+  line-height: 1.55;
+  letter-spacing: 0.02em;
+  color: var(--color-text-muted);
+}
+
+/* Activity feed */
+.pilot-dashboard-activity-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.pilot-dashboard-activity-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.pilot-dashboard-activity-icon {
+  display: inline-flex;
+  width: 1.5rem;
+  height: 1.5rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.25rem;
+  font-size: 0.625rem;
+  font-weight: 800;
+}
+
+.pilot-dashboard-activity-icon--success {
+  background: rgba(34, 197, 94, 0.12);
+  color: var(--color-success-bright);
+}
+
+.pilot-dashboard-activity-icon--gold {
+  background: rgba(216, 179, 57, 0.12);
+  color: var(--color-gold);
+}
+
+.pilot-dashboard-activity-icon--warning {
+  background: rgba(216, 179, 57, 0.12);
+  color: var(--color-gold);
+}
+
+.pilot-dashboard-activity-icon--muted {
+  background: rgba(244, 241, 234, 0.06);
+  color: var(--color-text-soft);
+}
+
+.pilot-dashboard-activity-text {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--color-text);
+}
+
+.pilot-dashboard-activity-time {
+  margin: 0.25rem 0 0;
+  font-size: 0.5625rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--color-text-soft);
+}

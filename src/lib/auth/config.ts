@@ -12,6 +12,11 @@ export const PUBLIC_PATHS = [
   "/how-it-works",
   "/about",
   "/contact",
+  "/terms",
+  "/privacy",
+  "/cookies",
+  "/resources",
+  "/safety",
   "/login",
   "/register",
   "/waitlist",
@@ -33,10 +38,7 @@ export const ROLE_DASHBOARD_PATH: Record<
 
 /** Minimum role for admin sub-routes (M02+) */
 export const ADMIN_ROUTE_MIN_ROLE: Record<string, UserRole> = {
-  "/dashboard/admin/settings": "super_admin",
-  "/dashboard/admin/subscriptions": "super_admin",
-  "/dashboard/admin/achievements": "super_admin",
-  "/dashboard/admin/users": "super_admin",
+  "/dashboard/admin/permissions": "super_admin",
 };
 
 export function getDashboardHomeForRole(role: UserRole): string {

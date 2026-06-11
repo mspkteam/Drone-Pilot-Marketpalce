@@ -8,9 +8,7 @@ type PaymentBreakdownProps = {
 
 export function PaymentBreakdown({ payment, viewerRole }: PaymentBreakdownProps) {
   const commission = payment.commission;
-  const ratePercent = commission
-    ? Math.round(commission.rate * 100)
-    : Math.round(DEFAULT_COMMISSION_RATE * 100);
+  const ratePercent = Math.round(DEFAULT_COMMISSION_RATE * 100);
 
   return (
     <div className="rounded-lg border border-border bg-surface-elevated p-6 space-y-4">

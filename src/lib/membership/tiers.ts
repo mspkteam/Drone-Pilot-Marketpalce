@@ -1,10 +1,19 @@
+import { PRICING_PLANS } from "@/lib/marketing/pricing-content";
+import { TIER_CODE_TO_PRICING_PLAN_CODE } from "@/lib/membership/pricing-tier-codes";
+
+function priceYearlyForTier(tierCode: string): number {
+  const pricingCode = TIER_CODE_TO_PRICING_PLAN_CODE[tierCode];
+  const plan = PRICING_PLANS.find((entry) => entry.code === pricingCode);
+  return (plan?.priceMonthly ?? 0) * 12;
+}
+
 /** Canonical A-1 … A-6 pilot membership tier definitions (seed + tests). */
 export const MEMBERSHIP_TIER_DEFINITIONS = [
   {
     code: "A1_STUDENT",
     slug: "a1-student",
     name: "A-1 Student",
-    priceYearly: 99.99,
+    priceYearly: priceYearlyForTier("A1_STUDENT"),
     jobVisibilityDelayHours: 48,
     canViewJobs: true,
     canApply: false,
@@ -20,7 +29,7 @@ export const MEMBERSHIP_TIER_DEFINITIONS = [
     code: "A2_JUNIOR_FLIGHT_OFFICER",
     slug: "a2-junior-flight-officer",
     name: "A-2 Junior Flight Officer",
-    priceYearly: 149.98,
+    priceYearly: priceYearlyForTier("A2_JUNIOR_FLIGHT_OFFICER"),
     jobVisibilityDelayHours: 36,
     canViewJobs: true,
     canApply: true,
@@ -36,7 +45,7 @@ export const MEMBERSHIP_TIER_DEFINITIONS = [
     code: "A3_FLIGHT_OFFICER",
     slug: "a3-flight-officer",
     name: "A-3 Flight Officer",
-    priceYearly: 169.98,
+    priceYearly: priceYearlyForTier("A3_FLIGHT_OFFICER"),
     jobVisibilityDelayHours: 24,
     canViewJobs: true,
     canApply: true,
@@ -67,7 +76,7 @@ export const MEMBERSHIP_TIER_DEFINITIONS = [
     code: "A5_FIRST_OFFICER",
     slug: "a5-first-officer",
     name: "A-5 First Officer",
-    priceYearly: 209.98,
+    priceYearly: priceYearlyForTier("A5_FIRST_OFFICER"),
     jobVisibilityDelayHours: 6,
     canViewJobs: true,
     canApply: true,
@@ -83,7 +92,7 @@ export const MEMBERSHIP_TIER_DEFINITIONS = [
     code: "A6_CAPTAIN",
     slug: "a6-captain",
     name: "A-6 Captain",
-    priceYearly: 229.98,
+    priceYearly: priceYearlyForTier("A6_CAPTAIN"),
     jobVisibilityDelayHours: 0,
     canViewJobs: true,
     canApply: true,

@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { listUsersForAdmin } from "@/lib/admin/users";
-import { requireSuperAdminSession } from "@/lib/auth/require-super-admin";
+import { requireAdminSession } from "@/lib/auth/require-admin";
 
 export async function GET() {
-  const authResult = await requireSuperAdminSession();
+  const authResult = await requireAdminSession();
   if (!authResult.ok) {
     return NextResponse.json(
       { error: authResult.error },

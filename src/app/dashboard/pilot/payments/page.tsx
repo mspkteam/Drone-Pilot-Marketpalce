@@ -1,13 +1,13 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { PageHeader } from "@/components/layout/PageHeader";
-import { PaymentsList } from "@/components/payments/PaymentsList";
+import { PilotPaymentsView } from "@/components/dashboard/pilot/payments/PilotPaymentsView";
+import { DashboardPageLayout } from "@/components/dashboard";
 import { DEFAULT_COMMISSION_RATE } from "@/lib/commission/constants";
 import {
   getPilotProfileByUserId,
   isOnboardingComplete,
 } from "@/lib/pilot/profile";
+import "@/styles/pilot-payments.css";
 
 export const metadata = { title: "Payments" };
 
@@ -22,30 +22,11 @@ export default async function PilotPaymentsPage() {
     redirect("/dashboard/pilot/onboarding");
   }
 
-  const ratePercent = Math.round(DEFAULT_COMMISSION_RATE * 100);
+  const commissionRatePercent = Math.round(DEFAULT_COMMISSION_RATE * 100);
 
   return (
-    <>
-      <PageHeader
-        title="Payments"
-        description={`Earnings from completed jobs (${ratePercent}% platform fee deducted).`}
-      >
-        <Link
-          href="/dashboard/pilot/bookings"
-          className="text-sm text-muted-foreground hover:text-foreground"
-        >
-          My jobs →
-        </Link>
-      </PageHeader>
-
-      <div className="mt-8 max-w-3xl">
-        <PaymentsList
-          apiPath="/api/pilot/payments"
-          bookingsBase="/dashboard/pilot/bookings"
-          viewerRole="pilot"
-          emptyMessage="No payouts yet. Complete a booking to see your earnings."
-        />
-      </div>
-    </>
+    <DashboardPageLayout className="pilot-payments-shell">
+      <PilotPaymentsView commissionRatePercent={commissionRatePercent} />
+    </DashboardPageLayout>
   );
 }

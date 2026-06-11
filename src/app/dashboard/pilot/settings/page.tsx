@@ -1,13 +1,14 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { AccountSettingsPanel } from "@/components/settings/AccountSettingsPanel";
-import { PageHeader } from "@/components/layout/PageHeader";
+import { PilotAccountSettings } from "@/components/dashboard/pilot/settings/PilotAccountSettings";
+import { DashboardPageLayout } from "@/components/dashboard";
 import {
   getPilotProfileByUserId,
   isOnboardingComplete,
 } from "@/lib/pilot/profile";
+import "@/styles/pilot-settings.css";
 
-export const metadata = { title: "Settings" };
+export const metadata = { title: "Pilot Settings" };
 
 export default async function PilotSettingsPage() {
   const session = await auth();
@@ -21,17 +22,8 @@ export default async function PilotSettingsPage() {
   }
 
   return (
-    <>
-      <PageHeader
-        title="Settings"
-        description="Account, password, public profile visibility, and notifications."
-      />
-      <div className="mt-8">
-        <AccountSettingsPanel
-          role="pilot"
-          profileHref="/dashboard/pilot/profile"
-        />
-      </div>
-    </>
+    <DashboardPageLayout className="pilot-settings-shell">
+      <PilotAccountSettings />
+    </DashboardPageLayout>
   );
 }

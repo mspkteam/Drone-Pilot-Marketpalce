@@ -1,0 +1,542 @@
+/* Admin Pilot Commissions — commission ledger */
+
+.admin-commissions-shell.dashboard-page {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: none;
+  gap: 0;
+}
+
+.admin-commissions-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+  min-width: 0;
+}
+
+@media (min-width: 768px) {
+  .admin-commissions-page {
+    gap: 1.75rem;
+  }
+}
+
+/* Hero */
+.admin-commissions-hero {
+  position: relative;
+  overflow: hidden;
+  min-height: 9.375rem;
+  border: 1px solid rgba(244, 241, 234, 0.08);
+  border-radius: 0.5rem;
+  background: var(--color-card-warm);
+  padding: 1.75rem;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+}
+
+.admin-commissions-hero-inner {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+@media (min-width: 900px) {
+  .admin-commissions-hero-inner {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+  }
+}
+
+.admin-commissions-hero-copy {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.admin-commissions-hero-title {
+  margin: 0.625rem 0 0;
+  font-size: clamp(1.875rem, 2.8vw, 2.625rem);
+  font-weight: 800;
+  line-height: 1.12;
+  color: var(--color-text);
+}
+
+.admin-commissions-hero-desc {
+  margin: 0.75rem 0 0;
+  max-width: 42rem;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--color-text-muted);
+}
+
+.admin-commissions-btn-run {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  min-width: 10.625rem;
+  flex-shrink: 0;
+  border: 1px solid rgba(216, 179, 57, 0.35);
+  border-radius: 0.375rem;
+  background: var(--color-gold);
+  padding: 0 1.5rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--color-cta-dark);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.admin-commissions-btn-run:hover {
+  background: var(--color-gold-soft);
+}
+
+@media (max-width: 899px) {
+  .admin-commissions-btn-run {
+    width: 100%;
+  }
+}
+
+/* Stats */
+.admin-commissions-stats-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 640px) {
+  .admin-commissions-stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .admin-commissions-stats-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.admin-commissions-stat-card {
+  position: relative;
+  overflow: hidden;
+  min-height: 6.25rem;
+  border: 1px solid rgba(244, 241, 234, 0.08);
+  border-radius: 0.5rem;
+  background: var(--color-card-warm-alt);
+  padding: 1.25rem 1.375rem 1.25rem 1.5rem;
+}
+
+.admin-commissions-stat-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 3px;
+  background: var(--color-gold);
+}
+
+.admin-commissions-stat-card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 3.5rem;
+  height: 3.5rem;
+  background: linear-gradient(
+    135deg,
+    rgba(216, 179, 57, 0.1),
+    transparent 55%
+  );
+  pointer-events: none;
+}
+
+.admin-commissions-stat-label {
+  margin: 0;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--color-text-soft);
+}
+
+.admin-commissions-stat-value {
+  margin: 0.5rem 0 0;
+  font-size: 1.75rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--color-gold);
+}
+
+.admin-commissions-stat-sub {
+  margin: 0.5rem 0 0;
+  font-size: 0.75rem;
+  color: var(--color-text-soft);
+}
+
+.admin-commissions-stat-sub--success {
+  color: var(--color-success-bright);
+}
+
+/* Ledger panel */
+.admin-commissions-ledger {
+  overflow: hidden;
+  border: 1px solid rgba(244, 241, 234, 0.08);
+  border-radius: 0.5rem;
+  background: var(--color-card-warm);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+}
+
+.admin-commissions-ledger-head {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.5rem 1.75rem;
+  border-bottom: 1px solid rgba(244, 241, 234, 0.08);
+}
+
+@media (min-width: 768px) {
+  .admin-commissions-ledger-head {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.admin-commissions-ledger-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--color-text);
+}
+
+.admin-commissions-ledger-sub {
+  margin: 0.375rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--color-text-soft);
+}
+
+.admin-commissions-ledger-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.admin-commissions-ledger-btn {
+  min-height: 2.25rem;
+  padding: 0 1rem;
+  border: 1px solid rgba(244, 241, 234, 0.12);
+  border-radius: 0.375rem;
+  background: var(--color-panel);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--color-text);
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.admin-commissions-ledger-btn:hover {
+  border-color: rgba(216, 179, 57, 0.28);
+}
+
+.admin-commissions-ledger-btn--active {
+  border-color: rgba(216, 179, 57, 0.4);
+  color: var(--color-gold-soft);
+}
+
+/* Filters */
+.admin-commissions-filters {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1rem 1.75rem;
+  border-bottom: 1px solid rgba(244, 241, 234, 0.08);
+  background: var(--color-panel);
+}
+
+@media (min-width: 768px) {
+  .admin-commissions-filters {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.admin-commissions-filter-field label {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--color-text-soft);
+}
+
+.admin-commissions-filter-field input,
+.admin-commissions-filter-field select {
+  width: 100%;
+  min-height: 2.25rem;
+  padding: 0.375rem 0.625rem;
+  border: 1px solid rgba(244, 241, 234, 0.1);
+  border-radius: 0.375rem;
+  background: var(--color-card-warm);
+  color: var(--color-text);
+  font-size: 0.8125rem;
+}
+
+/* Table */
+.admin-commissions-table-wrap {
+  overflow-x: auto;
+}
+
+.admin-commissions-table {
+  width: 100%;
+  min-width: 52rem;
+  border-collapse: collapse;
+}
+
+.admin-commissions-table th {
+  padding: 0.875rem 1.75rem;
+  border-bottom: 1px solid rgba(244, 241, 234, 0.08);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-align: left;
+  color: var(--color-text-soft);
+  white-space: nowrap;
+}
+
+.admin-commissions-table td {
+  padding: 1.125rem 1.75rem;
+  border-bottom: 1px solid rgba(244, 241, 234, 0.04);
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  vertical-align: middle;
+}
+
+.admin-commissions-table tbody tr:hover {
+  background: rgba(216, 179, 57, 0.04);
+}
+
+.admin-commissions-cell-mission {
+  font-family: ui-monospace, monospace;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--color-gold);
+}
+
+.admin-commissions-cell-name {
+  color: var(--color-text);
+}
+
+.admin-commissions-cell-gross,
+.admin-commissions-cell-rate {
+  color: var(--color-text);
+}
+
+.admin-commissions-cell-commission {
+  font-weight: 700;
+  color: var(--color-gold);
+}
+
+.admin-commissions-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3125rem 0.625rem;
+  border-radius: 0.375rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.admin-commissions-status--settled {
+  border: 1px solid rgba(34, 197, 94, 0.35);
+  background: rgba(34, 197, 94, 0.1);
+  color: var(--color-success-bright);
+}
+
+.admin-commissions-status--pending {
+  border: 1px solid rgba(216, 179, 57, 0.35);
+  background: rgba(216, 179, 57, 0.1);
+  color: var(--color-gold-soft);
+}
+
+.admin-commissions-status--held {
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--color-danger);
+}
+
+/* Mobile cards */
+.admin-commissions-mobile-list {
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 900px) {
+  .admin-commissions-mobile-list {
+    display: none;
+  }
+}
+
+.admin-commissions-mobile-row {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid rgba(244, 241, 234, 0.04);
+}
+
+.admin-commissions-mobile-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.admin-commissions-mobile-grid {
+  display: grid;
+  gap: 0.375rem;
+  margin-top: 0.75rem;
+  font-size: 0.8125rem;
+}
+
+@media (min-width: 900px) {
+  .admin-commissions-table-wrap {
+    display: block;
+  }
+}
+
+@media (max-width: 899px) {
+  .admin-commissions-table-wrap {
+    display: none;
+  }
+}
+
+/* Footer */
+.admin-commissions-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem 1.75rem;
+  border-top: 1px solid rgba(244, 241, 234, 0.08);
+}
+
+@media (min-width: 768px) {
+  .admin-commissions-footer {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.admin-commissions-footer-meta {
+  margin: 0;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--color-text-soft);
+}
+
+.admin-commissions-pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.admin-commissions-page-btn {
+  min-width: 2rem;
+  min-height: 2rem;
+  padding: 0 0.5rem;
+  border: 1px solid rgba(244, 241, 234, 0.1);
+  border-radius: 0.375rem;
+  background: var(--color-panel);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--color-text-soft);
+  cursor: pointer;
+}
+
+.admin-commissions-page-btn--active {
+  border-color: rgba(216, 179, 57, 0.4);
+  color: var(--color-gold);
+}
+
+.admin-commissions-page-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Modal */
+.admin-commissions-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.72);
+}
+
+.admin-commissions-modal {
+  width: 100%;
+  max-width: 28rem;
+  border: 1px solid rgba(244, 241, 234, 0.1);
+  border-radius: 0.5rem;
+  background: var(--color-card-warm);
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.5);
+}
+
+.admin-commissions-modal-head {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid rgba(244, 241, 234, 0.08);
+}
+
+.admin-commissions-modal-title {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.admin-commissions-modal-body {
+  padding: 1.25rem 1.5rem;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--color-text-muted);
+}
+
+.admin-commissions-modal-foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding: 1rem 1.5rem 1.25rem;
+  border-top: 1px solid rgba(244, 241, 234, 0.08);
+}
+
+.admin-commissions-banner {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  border-radius: 0.375rem;
+  font-size: 0.8125rem;
+}
+
+.admin-commissions-banner--error {
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--color-danger);
+}
+
+.admin-commissions-banner--info {
+  border: 1px solid rgba(216, 179, 57, 0.25);
+  background: rgba(216, 179, 57, 0.08);
+  color: var(--color-gold-soft);
+}
+
+.admin-commissions-loading {
+  margin: 0;
+  padding: 1.5rem 1.75rem;
+  font-size: 0.875rem;
+  color: var(--color-text-soft);
+}

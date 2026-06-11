@@ -1,17 +1,1 @@
-export const pilotNav = [
-  { label: "Dashboard", href: "/dashboard/pilot" },
-  { label: "Onboarding", href: "/dashboard/pilot/onboarding" },
-  { label: "Profile", href: "/dashboard/pilot/profile" },
-  { label: "Find Jobs", href: "/dashboard/pilot/jobs" },
-  { label: "My Applications", href: "/dashboard/pilot/applications" },
-  { label: "My Jobs", href: "/dashboard/pilot/bookings" },
-  { label: "Messages", href: "/dashboard/pilot/messages" },
-  { label: "Reviews", href: "/dashboard/pilot/reviews" },
-  { label: "Payments", href: "/dashboard/pilot/payments" },
-  { label: "Subscription", href: "/dashboard/pilot/subscription" },
-  { label: "Verifications", href: "/dashboard/pilot/verifications" },
-  { label: "Certificates", href: "/dashboard/pilot/certificates" },
-  { label: "Digital Wings", href: "/dashboard/pilot/achievements" },
-  { label: "Uniform Shop", href: "/dashboard/pilot/shop" },
-  { label: "Settings", href: "/dashboard/pilot/settings" },
-] as const;
+export { pilotNav, pilotNavGroups } from "@/lib/navigation/dashboard-pilot";

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { listPaymentsForAdmin } from "@/lib/admin/payments";
+import { getAdminCommissionsData } from "@/lib/admin/commission-ledger";
 import { requireAdminSession } from "@/lib/auth/require-admin";
 
 export async function GET() {
@@ -11,6 +11,6 @@ export async function GET() {
     );
   }
 
-  const payments = await listPaymentsForAdmin();
-  return NextResponse.json({ payments });
+  const data = await getAdminCommissionsData();
+  return NextResponse.json(data);
 }

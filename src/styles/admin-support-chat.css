@@ -1,0 +1,960 @@
+/* Admin / Moderator Support Chat */
+
+.admin-support-shell.dashboard-page {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: none;
+  gap: 0;
+  min-height: 0;
+}
+
+.admin-support-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+  min-width: 0;
+}
+
+@media (min-width: 768px) {
+  .admin-support-page {
+    gap: 1.75rem;
+  }
+}
+
+/* Hero */
+.admin-support-hero {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem 1.5rem;
+  min-height: 9.375rem;
+  border: 1px solid rgba(244, 241, 234, 0.08);
+  border-radius: 0.5rem;
+  background: var(--color-card-warm);
+  padding: 1.75rem;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+}
+
+.admin-support-hero-copy {
+  position: relative;
+  z-index: 2;
+  flex: 1 1 16rem;
+  min-width: 0;
+}
+
+.admin-support-hero-title {
+  margin: 0.625rem 0 0;
+  font-size: clamp(1.875rem, 2.8vw, 2.5rem);
+  font-weight: 800;
+  line-height: 1.12;
+  color: var(--color-text);
+}
+
+.admin-support-hero-desc {
+  margin: 0.75rem 0 0;
+  max-width: 42rem;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--color-text-muted);
+}
+
+.admin-support-hero-note {
+  margin: 0.5rem 0 0;
+  max-width: 42rem;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--color-text-soft);
+}
+
+.admin-support-hero-actions {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: flex-start;
+  flex-shrink: 0;
+}
+
+.admin-support-shell .admin-support-refresh-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.625rem;
+  margin: 0;
+  border: 1px solid rgba(216, 179, 57, 0.35);
+  border-radius: 0.375rem;
+  background: rgba(216, 179, 57, 0.08);
+  padding: 0 1.125rem;
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-gold);
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.admin-support-shell .admin-support-refresh-btn:hover:not(:disabled) {
+  border-color: var(--color-gold);
+  background: rgba(216, 179, 57, 0.14);
+}
+
+.admin-support-shell .admin-support-refresh-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* Inbox layout */
+.admin-support-inbox {
+  display: grid;
+  grid-template-columns: minmax(18.75rem, 22rem) minmax(0, 1fr);
+  gap: 1rem;
+  width: 100%;
+  min-width: 0;
+  height: calc(100vh - 14rem);
+  min-height: 32rem;
+}
+
+.admin-support-list-panel,
+.admin-support-thread-panel {
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid rgba(244, 241, 234, 0.08);
+  border-radius: 0.5rem;
+  background: var(--color-card-warm);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+}
+
+.admin-support-list-head {
+  padding: 1rem 1.125rem;
+  border-bottom: 1px solid rgba(244, 241, 234, 0.06);
+  background: var(--color-card-warm-alt);
+}
+
+.admin-support-list-title {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text);
+}
+
+.admin-support-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  padding: 0.875rem 1.125rem;
+  border-bottom: 1px solid rgba(244, 241, 234, 0.06);
+}
+
+.admin-support-shell .admin-support-search {
+  box-sizing: border-box;
+  width: 100%;
+  height: 2.5rem;
+  margin: 0;
+  border: 1px solid rgba(244, 241, 234, 0.1);
+  border-radius: 0.375rem;
+  background: var(--color-bg-deeper);
+  padding: 0 0.75rem;
+  font-family: inherit;
+  font-size: 0.8125rem;
+  color: var(--color-text);
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.admin-support-shell .admin-support-search::placeholder {
+  color: var(--color-text-soft);
+}
+
+.admin-support-shell .admin-support-search:focus {
+  border-color: var(--color-gold);
+  box-shadow: 0 0 0 3px rgba(216, 179, 57, 0.14);
+}
+
+.admin-support-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.admin-support-shell .admin-support-select {
+  flex: 1 1 6.5rem;
+  min-width: 0;
+  height: 2.25rem;
+  margin: 0;
+  border: 1px solid rgba(244, 241, 234, 0.1);
+  border-radius: 0.375rem;
+  background: var(--color-bg-deeper);
+  padding: 0 1.75rem 0 0.625rem;
+  font-family: inherit;
+  font-size: 0.75rem;
+  color: var(--color-text);
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M3 4.5L6 7.5L9 4.5' stroke='%238A847A' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+  cursor: pointer;
+}
+
+.admin-support-shell .admin-support-select:focus {
+  border-color: var(--color-gold);
+}
+
+.admin-support-status-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  padding: 0 1.125rem 0.875rem;
+  border-bottom: 1px solid rgba(244, 241, 234, 0.06);
+}
+
+.admin-support-shell .admin-support-status-pill {
+  height: 1.875rem;
+  margin: 0;
+  border: 1px solid rgba(244, 241, 234, 0.08);
+  border-radius: 9999px;
+  background: var(--color-panel);
+  padding: 0 0.75rem;
+  font-family: inherit;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--color-text-soft);
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.admin-support-shell .admin-support-status-pill:hover {
+  border-color: rgba(216, 179, 57, 0.25);
+  color: var(--color-gold);
+}
+
+.admin-support-shell .admin-support-status-pill--active {
+  border-color: rgba(216, 179, 57, 0.45);
+  background: rgba(216, 179, 57, 0.1);
+  color: var(--color-gold);
+}
+
+.admin-support-shell .admin-support-clear-btn {
+  height: 2.25rem;
+  margin: 0;
+  border: 1px solid rgba(244, 241, 234, 0.08);
+  border-radius: 0.375rem;
+  background: transparent;
+  padding: 0 0.75rem;
+  font-family: inherit;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--color-text-soft);
+  cursor: pointer;
+}
+
+.admin-support-shell .admin-support-clear-btn:hover {
+  border-color: rgba(216, 179, 57, 0.25);
+  color: var(--color-gold);
+}
+
+.admin-support-list-scroll {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.admin-support-list-error {
+  margin: 0;
+  padding: 0.75rem 1.125rem;
+  font-size: 0.8125rem;
+  color: var(--color-danger);
+}
+
+.admin-support-list-status {
+  padding: 1.125rem;
+  font-size: 0.875rem;
+  color: var(--color-text-soft);
+}
+
+.admin-support-shell .admin-support-list-item {
+  display: block;
+  width: 100%;
+  margin: 0;
+  border: none;
+  border-left: 3px solid transparent;
+  border-bottom: 1px solid rgba(244, 241, 234, 0.06);
+  background: transparent;
+  padding: 1rem 1.125rem;
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+  text-decoration: none;
+  color: inherit;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.admin-support-shell .admin-support-list-item:hover {
+  background: rgba(244, 241, 234, 0.04);
+}
+
+.admin-support-shell .admin-support-list-item--active {
+  border-left-color: var(--color-gold);
+  background: var(--color-card-warm-alt);
+}
+
+.admin-support-list-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.admin-support-list-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.admin-support-list-time {
+  flex-shrink: 0;
+  font-size: 0.6875rem;
+  color: var(--color-text-soft);
+}
+
+.admin-support-list-meta {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  color: var(--color-text-soft);
+}
+
+.admin-support-list-ticket {
+  display: block;
+  margin-top: 0.25rem;
+  font-family: ui-monospace, monospace;
+  font-size: 0.625rem;
+  color: var(--color-text-soft);
+}
+
+.admin-support-list-preview {
+  display: block;
+  margin-top: 0.375rem;
+  font-size: 0.75rem;
+  line-height: 1.45;
+  color: var(--color-text-muted);
+}
+
+.admin-support-list-preview--attachment {
+  color: var(--color-gold);
+}
+
+.admin-support-list-preview-label {
+  color: var(--color-text);
+  opacity: 0.75;
+}
+
+.admin-support-list-status-badge {
+  display: inline-flex;
+  margin-top: 0.5rem;
+  border: 1px solid rgba(244, 241, 234, 0.12);
+  border-radius: 9999px;
+  background: var(--color-panel);
+  padding: 0.125rem 0.5rem;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.admin-support-list-status-badge--open {
+  border-color: rgba(216, 179, 57, 0.35);
+  color: var(--color-gold);
+}
+
+.admin-support-list-status-badge--pending {
+  border-color: rgba(216, 179, 57, 0.25);
+  color: var(--color-gold-soft);
+}
+
+.admin-support-list-status-badge--resolved {
+  border-color: rgba(34, 197, 94, 0.35);
+  color: var(--color-success-bright);
+}
+
+.admin-support-list-status-badge--closed {
+  color: var(--color-text-soft);
+}
+
+.admin-support-unread-dot {
+  display: inline-block;
+  height: 0.5rem;
+  width: 0.5rem;
+  margin-left: 0.375rem;
+  border-radius: 50%;
+  background: var(--color-gold);
+  vertical-align: middle;
+}
+
+/* Thread panel */
+.admin-support-thread-panel-inner {
+  display: flex;
+  min-height: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+}
+
+.admin-support-shell .admin-support-back-btn {
+  display: none;
+  margin: 0 0 0.5rem;
+  border: none;
+  background: transparent;
+  padding: 0;
+  font-family: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-gold);
+  cursor: pointer;
+}
+
+.admin-support-ticket-card {
+  margin: 1rem 1.25rem 0;
+  border: 1px solid rgba(244, 241, 234, 0.08);
+  border-radius: 0.5rem;
+  background: var(--color-card-warm-alt);
+  padding: 1rem 1.125rem;
+}
+
+.admin-support-ticket-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.admin-support-ticket-id {
+  margin: 0;
+  font-family: ui-monospace, monospace;
+  font-size: 0.6875rem;
+  color: var(--color-text-soft);
+}
+
+.admin-support-ticket-name {
+  margin: 0.375rem 0 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.admin-support-ticket-email {
+  margin: 0.25rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+}
+
+.admin-support-ticket-role {
+  margin: 0.375rem 0 0;
+  font-size: 0.75rem;
+  color: var(--color-text-soft);
+}
+
+.admin-support-ticket-role strong {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.admin-support-status-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 1.75rem;
+  border-radius: 9999px;
+  padding: 0 0.75rem;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.admin-support-status-badge--open {
+  border: 1px solid rgba(216, 179, 57, 0.35);
+  background: rgba(216, 179, 57, 0.1);
+  color: var(--color-gold);
+}
+
+.admin-support-status-badge--pending {
+  border: 1px solid rgba(233, 191, 74, 0.3);
+  background: rgba(233, 191, 74, 0.08);
+  color: var(--color-gold-soft);
+}
+
+.admin-support-status-badge--resolved {
+  border: 1px solid rgba(34, 197, 94, 0.35);
+  background: rgba(34, 197, 94, 0.08);
+  color: var(--color-success-bright);
+}
+
+.admin-support-status-badge--closed {
+  border: 1px solid rgba(244, 241, 234, 0.12);
+  background: var(--color-panel);
+  color: var(--color-text-soft);
+}
+
+.admin-support-initial-message {
+  margin-top: 1rem;
+  border: 1px solid rgba(244, 241, 234, 0.06);
+  border-radius: 0.375rem;
+  background: var(--color-panel);
+  padding: 0.875rem;
+}
+
+.admin-support-initial-label {
+  margin: 0;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-soft);
+}
+
+.admin-support-initial-body {
+  margin: 0.5rem 0 0;
+  font-size: 0.875rem;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  color: var(--color-text);
+}
+
+.admin-support-ticket-dates {
+  margin: 0.75rem 0 0;
+  font-size: 0.6875rem;
+  color: var(--color-text-soft);
+}
+
+.admin-support-status-controls {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(244, 241, 234, 0.06);
+}
+
+.admin-support-status-controls-label {
+  margin: 0 0 0.625rem;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-soft);
+}
+
+.admin-support-status-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.admin-support-shell .admin-support-action-btn {
+  height: 2rem;
+  margin: 0;
+  border-radius: 0.375rem;
+  padding: 0 0.75rem;
+  font-family: inherit;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.admin-support-shell .admin-support-action-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.admin-support-shell .admin-support-action-btn--outline {
+  border: 1px solid rgba(244, 241, 234, 0.12);
+  background: var(--color-panel);
+  color: var(--color-text);
+}
+
+.admin-support-shell .admin-support-action-btn--outline:hover:not(:disabled) {
+  border-color: rgba(216, 179, 57, 0.35);
+  color: var(--color-gold);
+}
+
+.admin-support-shell .admin-support-action-btn--gold {
+  border: 1px solid rgba(216, 179, 57, 0.45);
+  background: var(--color-gold);
+  color: var(--color-bg-deeper);
+}
+
+.admin-support-shell .admin-support-action-btn--gold:hover:not(:disabled) {
+  background: var(--color-gold-soft);
+}
+
+.admin-support-shell .admin-support-action-btn--muted {
+  border: 1px solid rgba(244, 241, 234, 0.1);
+  background: var(--color-panel);
+  color: var(--color-text-muted);
+}
+
+.admin-support-moderator-note {
+  margin: 1rem 1.25rem 0;
+  border: 1px solid rgba(244, 241, 234, 0.08);
+  border-radius: 0.375rem;
+  background: rgba(216, 179, 57, 0.06);
+  padding: 0.75rem 1rem;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+.admin-support-alert {
+  margin: 0.75rem 1.25rem 0;
+  border-radius: 0.375rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+.admin-support-alert--error {
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  background: rgba(127, 29, 29, 0.18);
+  color: var(--color-danger-soft);
+}
+
+.admin-support-alert--info {
+  border: 1px solid rgba(216, 179, 57, 0.25);
+  background: rgba(216, 179, 57, 0.08);
+  color: var(--color-gold);
+}
+
+.admin-support-messages {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  min-height: 0;
+  margin: 1rem 1.25rem;
+  border: 1px solid rgba(244, 241, 234, 0.06);
+  border-radius: 0.5rem;
+  background: var(--color-panel);
+  padding: 1rem;
+}
+
+.admin-support-messages-status {
+  font-size: 0.875rem;
+  color: var(--color-text-soft);
+}
+
+.admin-support-messages-error {
+  font-size: 0.875rem;
+  color: var(--color-danger);
+}
+
+.admin-support-shell .admin-support-bubble {
+  max-width: min(88%, 30rem);
+  margin-bottom: 0.875rem;
+  border: 1px solid rgba(244, 241, 234, 0.08);
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--color-text);
+}
+
+.admin-support-shell .admin-support-bubble--requester {
+  margin-right: auto;
+  background: var(--color-card-warm-alt);
+}
+
+.admin-support-shell .admin-support-bubble--support {
+  margin-left: auto;
+  background: rgba(216, 179, 57, 0.12);
+  border-color: rgba(216, 179, 57, 0.2);
+}
+
+.admin-support-shell .admin-support-bubble--system {
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 100%;
+  border-color: rgba(216, 179, 57, 0.25);
+  background: rgba(216, 179, 57, 0.08);
+  color: var(--color-gold);
+}
+
+.admin-support-bubble-sender {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.375rem;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-soft);
+}
+
+.admin-support-bubble-body {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.admin-support-bubble-attachment {
+  display: block;
+  margin-top: 0.5rem;
+  overflow: hidden;
+  border-radius: 0.375rem;
+  border: 1px solid rgba(244, 241, 234, 0.08);
+}
+
+.admin-support-bubble-attachment img {
+  display: block;
+  max-height: 9rem;
+  width: 100%;
+  object-fit: cover;
+}
+
+.admin-support-bubble-file-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  border: 1px solid rgba(216, 179, 57, 0.25);
+  border-radius: 0.375rem;
+  background: var(--color-panel);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-gold);
+  text-decoration: none;
+}
+
+.admin-support-reply-form {
+  flex-shrink: 0;
+  margin: 0 1.25rem 1.25rem;
+  border: 1px solid rgba(244, 241, 234, 0.08);
+  border-radius: 0.5rem;
+  background: var(--color-card-warm-alt);
+  padding: 1rem;
+}
+
+.admin-support-reply-label {
+  display: block;
+  margin: 0 0 0.5rem;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-soft);
+}
+
+.admin-support-shell .admin-support-textarea {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 6.25rem;
+  margin: 0;
+  border: 1px solid rgba(244, 241, 234, 0.1);
+  border-radius: 0.375rem;
+  background: var(--color-bg-deeper);
+  padding: 0.75rem;
+  font-family: inherit;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--color-text);
+  resize: vertical;
+  outline: none;
+}
+
+.admin-support-shell .admin-support-textarea::placeholder {
+  color: var(--color-text-soft);
+}
+
+.admin-support-shell .admin-support-textarea:focus {
+  border-color: var(--color-gold);
+  box-shadow: 0 0 0 3px rgba(216, 179, 57, 0.14);
+}
+
+.admin-support-reply-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.admin-support-shell .admin-support-send-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 7.5rem;
+  height: 2.625rem;
+  margin: 0;
+  border: none;
+  border-radius: 0.375rem;
+  background: var(--color-gold);
+  padding: 0 1.25rem;
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-bg-deeper);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.admin-support-shell .admin-support-send-btn:hover:not(:disabled) {
+  background: var(--color-gold-soft);
+}
+
+.admin-support-shell .admin-support-send-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.admin-support-shell .admin-support-attach-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  height: 2.25rem;
+  margin: 0;
+  border: 1px solid rgba(216, 179, 57, 0.35);
+  border-radius: 0.375rem;
+  background: rgba(216, 179, 57, 0.08);
+  padding: 0 0.75rem;
+  font-family: inherit;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--color-gold);
+  cursor: pointer;
+}
+
+.admin-support-shell .admin-support-attach-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.admin-support-attach-meta {
+  margin: 0.375rem 0 0;
+  font-size: 0.625rem;
+  color: var(--color-text-soft);
+}
+
+.admin-support-attach-preview {
+  margin-top: 0.625rem;
+  border: 1px solid rgba(244, 241, 234, 0.08);
+  border-radius: 0.375rem;
+  background: var(--color-panel);
+  padding: 0.75rem;
+}
+
+.admin-support-attach-preview-name {
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.admin-support-attach-preview-size {
+  margin: 0.125rem 0 0;
+  font-size: 0.625rem;
+  color: var(--color-text-soft);
+}
+
+.admin-support-shell .admin-support-attach-remove {
+  margin-top: 0.5rem;
+  border: none;
+  background: transparent;
+  padding: 0;
+  font-family: inherit;
+  font-size: 0.625rem;
+  font-weight: 600;
+  color: var(--color-text-soft);
+  cursor: pointer;
+}
+
+.admin-support-shell .admin-support-attach-remove:hover {
+  color: var(--color-gold);
+}
+
+.admin-support-closed-note {
+  flex-shrink: 0;
+  margin: 0 1.25rem 1.25rem;
+  border: 1px solid rgba(244, 241, 234, 0.08);
+  border-radius: 0.375rem;
+  background: var(--color-panel);
+  padding: 0.875rem 1rem;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+@media (max-width: 960px) {
+  .admin-support-inbox {
+    grid-template-columns: minmax(0, 1fr);
+    height: calc(100vh - 12rem);
+    min-height: 28rem;
+  }
+
+  .admin-support-shell .admin-support-back-btn {
+    display: inline-flex;
+  }
+
+  .admin-support-inbox:not(.admin-support-inbox--thread-open)
+    .admin-support-thread-panel {
+    display: none;
+  }
+
+  .admin-support-inbox--thread-open .admin-support-list-panel {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .admin-support-hero {
+    padding: 1.25rem;
+  }
+
+  .admin-support-filter-row {
+    flex-direction: column;
+  }
+
+  .admin-support-shell .admin-support-select,
+  .admin-support-shell .admin-support-clear-btn {
+    width: 100%;
+  }
+
+  .admin-support-shell .admin-support-send-btn {
+    width: 100%;
+  }
+}

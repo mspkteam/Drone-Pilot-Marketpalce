@@ -1,27 +1,9 @@
 import { redirect } from "next/navigation";
-import { auth } from "@/auth";
-import { AdminReviewsPanel } from "@/components/admin/AdminReviewsPanel";
-import { PageHeader } from "@/components/layout/PageHeader";
-import { isAdminRole, type UserRole } from "@/types/roles";
 
-export const metadata = { title: "Reviews" };
-
-export default async function AdminReviewsPage() {
-  const session = await auth();
-  const role = session?.user?.role as UserRole | undefined;
-  if (!session?.user?.id || !role || !isAdminRole(role)) {
-    redirect("/login");
-  }
-
-  return (
-    <>
-      <PageHeader
-        title="Reviews"
-        description="Moderate post-booking reviews — publish, hide, or flag."
-      />
-      <div className="mt-8 w-full">
-        <AdminReviewsPanel />
-      </div>
-    </>
-  );
+/**
+ * Admin review moderation removed — reviews publish directly from client/pilot flows.
+ * @see src/lib/reviews/review.ts createReview (status: published)
+ */
+export default function AdminReviewsPage() {
+  redirect("/dashboard/admin");
 }

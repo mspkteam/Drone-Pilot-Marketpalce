@@ -42,7 +42,7 @@ export function PilotBidForm({ jobId, currency }: PilotBidFormProps) {
         return;
       }
 
-      router.push("/dashboard/pilot/applications?submitted=1");
+      router.push("/dashboard/pilot/proposals?submitted=1");
       router.refresh();
     } catch {
       setError("Failed to submit application.");

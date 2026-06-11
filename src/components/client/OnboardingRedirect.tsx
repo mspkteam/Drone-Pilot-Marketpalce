@@ -4,8 +4,8 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 const ALLOWED_WITHOUT_ONBOARDING = [
+  "/dashboard/client/profile",
   "/dashboard/client/onboarding",
-  "/dashboard/client/settings",
 ];
 
 type OnboardingRedirectProps = {
@@ -24,7 +24,7 @@ export function OnboardingRedirect({ needsOnboarding }: OnboardingRedirectProps)
     );
 
     if (!allowed) {
-      router.replace("/dashboard/client/onboarding");
+      router.replace("/dashboard/client/profile");
     }
   }, [needsOnboarding, pathname, router]);
 

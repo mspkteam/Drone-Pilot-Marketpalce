@@ -2,7 +2,10 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { DEFAULT_COMMISSION_RATE } from "@/lib/commission/constants";
 import type { PaymentListItemDto } from "@/types/payment";
+
+const PLATFORM_FEE_PERCENT = Math.round(DEFAULT_COMMISSION_RATE * 100);
 
 type PaymentsListProps = {
   apiPath: "/api/client/payments" | "/api/pilot/payments";
@@ -76,7 +79,7 @@ export function PaymentsList({
                         {" "}
                         · Fee {payment.currency}{" "}
                         {payment.commission.amount.toLocaleString()} (
-                        {Math.round(payment.commission.rate * 100)}%)
+                        {PLATFORM_FEE_PERCENT}%)
                       </>
                     ) : null}
                   </>

@@ -5,7 +5,16 @@ import { useCallback, useEffect, useState } from "react";
 import type { NotificationDto } from "@/types/notification";
 import { cn } from "@/lib/utils";
 
-export function NotificationBell() {
+type NotificationBellProps = {
+  /** Dashboard topbar uses a small gold dot per Figma 361:911. */
+  indicator?: "count" | "dot";
+  className?: string;
+};
+
+export function NotificationBell({
+  indicator = "count",
+  className,
+}: NotificationBellProps = {}) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [notifications, setNotifications] = useState<NotificationDto[]>([]);
@@ -53,10 +62,13 @@ export function NotificationBell() {
   }
 
   return (
-    <div className="relative">
+    <div className={cn("relative", className)}>
       <button
         type="button"
-        className="relative inline-flex h-10 w-10 items-center justify-center rounded-md border border-border hover:bg-surface"
+        className={cn(
+          "relative inline-flex h-10 w-10 items-center justify-center rounded-md border border-border hover:bg-surface",
+          indicator === "dot" && "dashboard-topbar-bell",
+        )}
         aria-label={`Notifications${unreadCount > 0 ? `, ${unreadCount} unread` : ""}`}
         onClick={() => {
           setOpen((o) => !o);
@@ -78,9 +90,13 @@ export function NotificationBell() {
           />
         </svg>
         {unreadCount > 0 ? (
-          <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-gold px-1 text-[10px] font-bold text-black">
-            {unreadCount > 9 ? "9+" : unreadCount}
-          </span>
+          indicator === "dot" ? (
+            <span className="dashboard-topbar-notify-dot" aria-hidden />
+          ) : (
+            <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-gold px-1 text-[10px] font-bold text-black">
+              {unreadCount > 9 ? "9+" : unreadCount}
+            </span>
+          )
         ) : null}
       </button>
 

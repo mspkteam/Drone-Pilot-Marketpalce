@@ -5,7 +5,8 @@ import {
   getClientProfileByUserId,
   isOnboardingComplete,
 } from "@/lib/client/profile";
-import { clientNav } from "@/lib/navigation/client";
+import { buildDashboardUser } from "@/lib/dashboard/shell-user";
+import { clientNavGroups } from "@/lib/navigation/dashboard-client";
 
 export default async function ClientDashboardLayout({
   children,
@@ -14,14 +15,28 @@ export default async function ClientDashboardLayout({
 }) {
   const session = await auth();
   let needsOnboarding = false;
+  let user = buildDashboardUser(session?.user ?? {}, {
+    displayName: "John Doe",
+    roleSubtitle: "Client account",
+  });
 
   if (session?.user?.id && session.user.role === "client") {
     const profile = await getClientProfileByUserId(session.user.id);
     needsOnboarding = !isOnboardingComplete(profile);
+
+    // Screenshot/mock shell — John Doe / JD until client profile shell wiring (M50).
+    user = buildDashboardUser(session.user, {
+      displayName: "John Doe",
+      roleSubtitle: "Client account",
+    });
   }
 
   return (
-    <DashboardShell roleLabel="Client Dashboard" navItems={clientNav}>
+    <DashboardShell
+      homeHref="/dashboard/client"
+      navGroups={clientNavGroups}
+      user={user}
+    >
       <OnboardingRedirect needsOnboarding={needsOnboarding} />
       {children}
     </DashboardShell>

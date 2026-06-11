@@ -15,8 +15,8 @@ Replace placeholder marketing shells with real Phase 1 copy, layouts, and CTAs. 
 
 | Route | Content |
 |-------|---------|
-| `/` | Hero + how-it-works summary + CTA (enhanced links) |
-| `/for-clients` | Benefits, client workflow, CTA |
+| `/` | **Figma Homepage implemented** — dual hero, trust strip, audience cards, SOP, rank progression, capabilities, waitlist (see `figma-implementation-log.md`) |
+| `/for-clients` | **Figma implemented** — hero, who it's for, 5-step flow, benefits, safety CTA, waitlist |
 | `/for-pilots` | Benefits, pilot journey, CTA |
 | `/how-it-works` | Dual client/pilot step flows + trust |
 | `/pricing` | Client pay-per-mission + live pilot plans from DB |
@@ -38,4 +38,4 @@ Replace placeholder marketing shells with real Phase 1 copy, layouts, and CTAs. 
 
 - Waitlist backend (M18)
 - SEO sitemap / analytics (M19)
-- Figma-final visual polish (ADR-009)
+- Remaining marketing routes (Figma frames TBD) — homepage done per ADR-009

@@ -1,8 +1,10 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { AdminConversationThread } from "@/components/admin/AdminConversationThread";
-import { PageHeader } from "@/components/layout/PageHeader";
+import { AdminMessagesTracking } from "@/components/dashboard/admin/messages/AdminMessagesTracking";
+import { DashboardPageLayout } from "@/components/dashboard";
 import { isAdminRole, type UserRole } from "@/types/roles";
+import "@/styles/admin-dashboard.css";
+import "@/styles/admin-messages.css";
 
 type PageProps = { params: Promise<{ id: string }> };
 
@@ -18,11 +20,8 @@ export default async function AdminConversationPage({ params }: PageProps) {
   const { id } = await params;
 
   return (
-    <>
-      <PageHeader title="Conversation" description="Admin read-only transcript." />
-      <div className="mt-8">
-        <AdminConversationThread conversationId={id} />
-      </div>
-    </>
+    <DashboardPageLayout className="admin-messages-shell">
+      <AdminMessagesTracking initialConversationId={id} />
+    </DashboardPageLayout>
   );
 }

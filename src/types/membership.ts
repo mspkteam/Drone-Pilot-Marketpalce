@@ -15,6 +15,9 @@ export type MembershipTierDto = {
   sortOrder: number;
   features: string[];
   isActive: boolean;
+  description?: string;
+  isRecommended?: boolean;
+  displayFeatures?: { label: string; included: boolean }[];
 };
 
 export type PilotMembershipSummaryDto = {

@@ -1,8 +1,11 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { AdminDisputesPanel } from "@/components/admin/AdminDisputesPanel";
-import { PageHeader } from "@/components/layout/PageHeader";
+import { AdminDisputeCenter } from "@/components/dashboard/admin/disputes/AdminDisputeCenter";
+import { DashboardPageLayout } from "@/components/dashboard";
+import { getDisputeCenterData } from "@/lib/admin/dispute-center";
 import { isAdminRole, type UserRole } from "@/types/roles";
+import "@/styles/admin-dashboard.css";
+import "@/styles/admin-disputes.css";
 
 export const metadata = { title: "Disputes" };
 
@@ -13,15 +16,11 @@ export default async function AdminDisputesPage() {
     redirect("/login");
   }
 
+  const initialData = await getDisputeCenterData();
+
   return (
-    <>
-      <PageHeader
-        title="Disputes"
-        description="Review booking disputes, collect evidence from both parties, and resolve payouts."
-      />
-      <div className="mt-8 w-full">
-        <AdminDisputesPanel />
-      </div>
-    </>
+    <DashboardPageLayout className="admin-dispute-shell">
+      <AdminDisputeCenter initialData={initialData} viewerRole={role} />
+    </DashboardPageLayout>
   );
 }

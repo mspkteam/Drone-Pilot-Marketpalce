@@ -1,5 +1,9 @@
 "use client";
 
+/**
+ * @deprecated Replaced by `AdminFleetPersonnel` on `/dashboard/admin/users`.
+ * Retained for reference; not used by the dashboard page.
+ */
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import type { AdminUserDto } from "@/types/admin";
@@ -48,9 +52,7 @@ export function AdminUsersPanel() {
       {loading ? (
         <p className="text-sm text-muted-foreground">Loading users…</p>
       ) : users.length === 0 ? (
-        <p className="empty-state">
-          No users found.
-        </p>
+        <p className="empty-state">No users found.</p>
       ) : (
         <div className="data-table-wrap">
           <table className="data-table min-w-[640px]">

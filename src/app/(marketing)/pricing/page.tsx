@@ -1,27 +1,29 @@
-import { MarketingPage } from "@/components/layout/MarketingPage";
-import { PricingPlans } from "@/components/marketing/PricingPlans";
-import { MarketingCta } from "@/components/marketing/MarketingCta";
+import { PricingComparison } from "@/components/marketing/pricing/PricingComparison";
+import { PricingCta } from "@/components/marketing/pricing/PricingCta";
+import { PricingFaq } from "@/components/marketing/pricing/PricingFaq";
+import { PricingHero } from "@/components/marketing/pricing/PricingHero";
+import { PricingPlanCards } from "@/components/marketing/pricing/PricingPlanCards";
+import { getPricingPilotContext } from "@/lib/marketing/pricing-pilot-context";
 
 export const metadata = {
-  title: "Pricing",
-  description: "Pilot subscription plans and client commission overview.",
+  title: "Pricing — Pilot Membership Plans",
+  description:
+    "Compare A-1 through A-6 pilot membership tiers, monthly pricing, benefits, and plan features on Remote Air Service.",
 };
 
-export default function PricingPage() {
+export default async function PricingPage() {
+  const { currentPlanCode, isPilot } = await getPricingPilotContext();
+
   return (
-    <MarketingPage
-      title="Pricing"
-      description="Transparent pilot subscriptions and a 10% platform commission on completed bookings."
-    >
-      <div className="space-y-12">
-        <PricingPlans />
-        <MarketingCta
-          title="Questions about enterprise or volume?"
-          description="Contact us for custom arrangements — we're expanding region by region."
-          primaryHref="/contact"
-          primaryLabel="Contact us"
-        />
-      </div>
-    </MarketingPage>
+    <>
+      <PricingHero />
+      <PricingPlanCards
+        currentPlanCode={currentPlanCode}
+        isPilot={isPilot}
+      />
+      <PricingComparison />
+      <PricingFaq />
+      <PricingCta />
+    </>
   );
 }

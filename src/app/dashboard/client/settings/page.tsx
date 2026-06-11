@@ -1,9 +1,14 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { AccountSettingsPanel } from "@/components/settings/AccountSettingsPanel";
-import { PageHeader } from "@/components/layout/PageHeader";
+import { ClientAccountSettings } from "@/components/dashboard/client/settings/ClientAccountSettings";
+import { DashboardPageLayout } from "@/components/dashboard";
+import {
+  getClientProfileByUserId,
+  isOnboardingComplete,
+} from "@/lib/client/profile";
+import "@/styles/client-settings.css";
 
-export const metadata = { title: "Settings" };
+export const metadata = { title: "Account settings" };
 
 export default async function ClientSettingsPage() {
   const session = await auth();
@@ -11,18 +16,14 @@ export default async function ClientSettingsPage() {
     redirect("/login");
   }
 
+  const profile = await getClientProfileByUserId(session.user.id);
+  if (!isOnboardingComplete(profile)) {
+    redirect("/dashboard/client/onboarding");
+  }
+
   return (
-    <>
-      <PageHeader
-        title="Settings"
-        description="Account, password, and notification preferences."
-      />
-      <div className="mt-8">
-        <AccountSettingsPanel
-          role="client"
-          profileHref="/dashboard/client/profile"
-        />
-      </div>
-    </>
+    <DashboardPageLayout className="client-settings-shell">
+      <ClientAccountSettings />
+    </DashboardPageLayout>
   );
 }

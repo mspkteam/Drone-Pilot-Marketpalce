@@ -1,4 +1,9 @@
 import type { Job, SubscriptionPlan } from "@/generated/prisma/client";
+import {
+  getPricingCodeForTierCode,
+  parsePlanFeaturesMeta,
+  planMetaToBulletFeatures,
+} from "@/lib/admin/plan-features";
 import { prisma } from "@/lib/db";
 import { getCurrentPilotSubscription } from "@/lib/subscriptions/subscription";
 import type { MembershipTierDto, PilotMembershipSummaryDto } from "@/types/membership";
@@ -23,6 +28,9 @@ export function toMembershipTierDto(plan: SubscriptionPlan): MembershipTierDto {
   if (!plan.code) {
     throw new Error(`Subscription plan ${plan.id} is missing tier code.`);
   }
+  const pricingCode = getPricingCodeForTierCode(plan.code);
+  const meta = parsePlanFeaturesMeta(plan.features, pricingCode);
+
   return {
     id: plan.id,
     code: plan.code,
@@ -36,15 +44,29 @@ export function toMembershipTierDto(plan: SubscriptionPlan): MembershipTierDto {
     canApply: plan.canApply,
     instructorEligible: plan.instructorEligible,
     sortOrder: plan.sortOrder,
-    features: parseTierFeatures(plan.features),
+    features: planMetaToBulletFeatures(meta),
     isActive: plan.isActive,
+    description: meta.description,
+    isRecommended: meta.isRecommended,
+    displayFeatures: meta.displayFeatures.map(({ label, included }) => ({
+      label,
+      included,
+    })),
   };
 }
 
 function parseTierFeatures(features: string): string[] {
   try {
     const parsed = JSON.parse(features);
-    return Array.isArray(parsed) ? parsed.map(String) : [];
+    if (Array.isArray(parsed)) {
+      return parsed.map(String);
+    }
+    if (parsed && typeof parsed === "object" && (parsed as { v?: number }).v === 2) {
+      const pricingCode = null;
+      const meta = parsePlanFeaturesMeta(features, pricingCode);
+      return planMetaToBulletFeatures(meta);
+    }
+    return [];
   } catch {
     return [];
   }
@@ -191,6 +213,9 @@ export async function getVisibleJobsForPilot(
     where: { status: { in: ["open", "in_bidding"] } },
     orderBy: { approvedAt: "desc" },
     include: {
+      clientProfile: {
+        select: { companyName: true, contactName: true },
+      },
       applications: {
         where: { pilotProfileId },
         select: { id: true },

@@ -1,11 +1,12 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { AdminSubscriptionsPanel } from "@/components/admin/AdminSubscriptionsPanel";
-import { PageHeader } from "@/components/layout/PageHeader";
-import { roleMeetsRequirement } from "@/lib/auth/permissions";
+import { AdminTierPlansPortal } from "@/components/admin/subscriptions/AdminTierPlansPortal";
+import { DashboardPageLayout } from "@/components/dashboard";
 import { isAdminRole, type UserRole } from "@/types/roles";
+import "@/styles/admin-dashboard.css";
+import "@/styles/admin-subscriptions.css";
 
-export const metadata = { title: "Subscriptions" };
+export const metadata = { title: "Pilot Tier Plans" };
 
 export default async function AdminSubscriptionsPage() {
   const session = await auth();
@@ -13,19 +14,9 @@ export default async function AdminSubscriptionsPage() {
   if (!session?.user?.id || !role || !isAdminRole(role)) {
     redirect("/login");
   }
-  if (!roleMeetsRequirement(role, "super_admin")) {
-    redirect("/dashboard/admin");
-  }
-
   return (
-    <>
-      <PageHeader
-        title="Subscriptions"
-        description="View subscription plans and pilot enrollments (Super Admin)."
-      />
-      <div className="mt-8 w-full">
-        <AdminSubscriptionsPanel />
-      </div>
-    </>
+    <DashboardPageLayout className="admin-subscriptions-shell">
+      <AdminTierPlansPortal />
+    </DashboardPageLayout>
   );
 }

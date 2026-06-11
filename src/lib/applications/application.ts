@@ -31,8 +31,18 @@ export function toApplicationDto(app: JobApplication): JobApplicationDto {
   };
 }
 
+function clientDisplayName(
+  profile: { companyName: string | null; contactName: string } | undefined,
+): string {
+  if (!profile) return "Client";
+  return profile.companyName?.trim() || profile.contactName?.trim() || "Client";
+}
+
 function mapJobToOpenDto(
-  job: Job & { applications: { id: string }[] },
+  job: Job & {
+    applications: { id: string }[];
+    clientProfile?: { companyName: string | null; contactName: string };
+  },
   visibleAt: Date,
   canApply: boolean,
 ): PilotOpenJobDto {
@@ -57,6 +67,7 @@ function mapJobToOpenDto(
     canApply,
     hasApplied: job.applications.length > 0,
     applicationId: job.applications[0]?.id ?? null,
+    clientDisplayName: clientDisplayName(job.clientProfile),
   };
 }
 
@@ -73,6 +84,10 @@ function mapLockedJob(
     status: job.status,
     visibleAt: visibleAt.toISOString(),
     jobVisibilityDelayHours: delayHours,
+    budgetMin: job.budgetMin,
+    budgetMax: job.budgetMax,
+    currency: job.currency,
+    requirements: job.requirements,
   };
 }
 
@@ -131,6 +146,9 @@ export async function getOpenJobForPilot(
   const job = await prisma.job.findFirst({
     where: { id: jobId, status: { in: ["open", "in_bidding"] } },
     include: {
+      clientProfile: {
+        select: { companyName: true, contactName: true },
+      },
       applications: {
         where: { pilotProfileId },
       },
@@ -253,6 +271,13 @@ export async function createJobApplication(
   return { ok: true, application: toApplicationDto(application) };
 }
 
+function jobClientDisplayName(profile: {
+  companyName: string | null;
+  contactName: string;
+}): string {
+  return profile.companyName?.trim() || profile.contactName?.trim() || "Client";
+}
+
 export async function listApplicationsForPilot(pilotProfileId: string) {
   const apps = await prisma.jobApplication.findMany({
     where: { pilotProfileId },
@@ -263,6 +288,9 @@ export async function listApplicationsForPilot(pilotProfileId: string) {
           title: true,
           locationLabel: true,
           status: true,
+          clientProfile: {
+            select: { companyName: true, contactName: true },
+          },
         },
       },
     },
@@ -272,7 +300,13 @@ export async function listApplicationsForPilot(pilotProfileId: string) {
   return apps.map(
     (app): PilotApplicationListItemDto => ({
       ...toApplicationDto(app),
-      job: app.job,
+      job: {
+        id: app.job.id,
+        title: app.job.title,
+        locationLabel: app.job.locationLabel,
+        status: app.job.status,
+        clientDisplayName: jobClientDisplayName(app.job.clientProfile),
+      },
     }),
   );
 }

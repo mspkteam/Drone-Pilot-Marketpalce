@@ -4,8 +4,9 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 const ALLOWED_WITHOUT_ONBOARDING = [
+  "/dashboard/pilot/profile",
   "/dashboard/pilot/onboarding",
-  "/dashboard/pilot/settings",
+  "/dashboard/pilot/verifications",
 ];
 
 type OnboardingRedirectProps = {
@@ -24,7 +25,7 @@ export function OnboardingRedirect({ needsOnboarding }: OnboardingRedirectProps)
     );
 
     if (!allowed) {
-      router.replace("/dashboard/pilot/onboarding");
+      router.replace("/dashboard/pilot/profile");
     }
   }, [needsOnboarding, pathname, router]);
 

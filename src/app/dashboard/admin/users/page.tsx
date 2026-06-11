@@ -1,11 +1,14 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { AdminUsersPanel } from "@/components/admin/AdminUsersPanel";
-import { PageHeader } from "@/components/layout/PageHeader";
-import { roleMeetsRequirement } from "@/lib/auth/permissions";
+import { AdminFleetPersonnel } from "@/components/dashboard/admin/personnel/AdminFleetPersonnel";
+import { DashboardPageLayout } from "@/components/dashboard";
+import { getPersonnelDirectoryData } from "@/lib/admin/personnel-directory";
+import { canPerform, getModeratorPermissions } from "@/lib/auth/moderator-permissions";
 import { isAdminRole, type UserRole } from "@/types/roles";
+import "@/styles/admin-dashboard.css";
+import "@/styles/admin-personnel.css";
 
-export const metadata = { title: "Users" };
+export const metadata = { title: "Fleet & Personnel" };
 
 export default async function AdminUsersPage() {
   const session = await auth();
@@ -13,19 +16,15 @@ export default async function AdminUsersPage() {
   if (!session?.user?.id || !role || !isAdminRole(role)) {
     redirect("/login");
   }
-  if (!roleMeetsRequirement(role, "super_admin")) {
-    redirect("/dashboard/admin");
-  }
+
+  const permissionConfig =
+    role === "moderator" ? getModeratorPermissions(session.user.id) : null;
+  const canEditUsers = canPerform(role, session.user.id, "users", "edit", permissionConfig);
+  const data = await getPersonnelDirectoryData({ isSuperAdmin: canEditUsers });
 
   return (
-    <>
-      <PageHeader
-        title="Users"
-        description="Manage all platform user accounts (Super Admin)."
-      />
-      <div className="mt-8 w-full">
-        <AdminUsersPanel />
-      </div>
-    </>
+    <DashboardPageLayout className="admin-personnel-shell">
+      <AdminFleetPersonnel data={data} />
+    </DashboardPageLayout>
   );
 }

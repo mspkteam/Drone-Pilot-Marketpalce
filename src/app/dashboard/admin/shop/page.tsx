@@ -1,10 +1,13 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { AdminUniformShopPanel } from "@/components/admin/AdminUniformShopPanel";
-import { PageHeader } from "@/components/layout/PageHeader";
+import { AdminUniformShopPortal } from "@/components/admin/shop/AdminUniformShopPortal";
+import { DashboardPageLayout } from "@/components/dashboard";
+import { canPerform, getModeratorPermissions } from "@/lib/auth/moderator-permissions";
 import { isAdminRole, type UserRole } from "@/types/roles";
+import "@/styles/admin-dashboard.css";
+import "@/styles/admin-shop.css";
 
-export const metadata = { title: "Uniform Shop" };
+export const metadata = { title: "Products & Orders" };
 
 export default async function AdminShopPage() {
   const session = await auth();
@@ -13,15 +16,15 @@ export default async function AdminShopPage() {
     redirect("/login");
   }
 
+  const permissionConfig =
+    role === "moderator" ? getModeratorPermissions(session.user.id) : null;
+  const canManageProducts =
+    canPerform(role, session.user.id, "shop", "create", permissionConfig) ||
+    canPerform(role, session.user.id, "shop", "manageInventory", permissionConfig);
+
   return (
-    <>
-      <PageHeader
-        title="Uniform Shop"
-        description="Fulfill pilot apparel orders and manage catalog (Super Admin)."
-      />
-      <div className="mt-8 w-full">
-        <AdminUniformShopPanel isSuperAdmin={role === "super_admin"} />
-      </div>
-    </>
+    <DashboardPageLayout className="admin-shop-shell">
+      <AdminUniformShopPortal canManageProducts={canManageProducts} />
+    </DashboardPageLayout>
   );
 }

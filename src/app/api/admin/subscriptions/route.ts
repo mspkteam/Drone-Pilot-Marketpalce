@@ -3,6 +3,7 @@ import {
   listPilotSubscriptionsForAdmin,
   listPlansForAdmin,
 } from "@/lib/admin/subscriptions";
+import { getSubscriptionStatsForAdmin } from "@/lib/admin/subscription-stats";
 import { requireSuperAdminSession } from "@/lib/auth/require-super-admin";
 
 export async function GET() {
@@ -14,10 +15,11 @@ export async function GET() {
     );
   }
 
-  const [plans, subscriptions] = await Promise.all([
+  const [plans, subscriptions, stats] = await Promise.all([
     listPlansForAdmin(),
     listPilotSubscriptionsForAdmin(),
+    getSubscriptionStatsForAdmin(),
   ]);
 
-  return NextResponse.json({ plans, subscriptions });
+  return NextResponse.json({ plans, subscriptions, stats });
 }

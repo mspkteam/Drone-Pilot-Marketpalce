@@ -1,0 +1,660 @@
+/* Admin Badges & Wings — achievement management */
+
+.admin-badges-shell.dashboard-page {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: none;
+  gap: 0;
+}
+
+.admin-badges-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+  min-width: 0;
+}
+
+@media (min-width: 768px) {
+  .admin-badges-page {
+    gap: 1.75rem;
+  }
+}
+
+.admin-badges-loading {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--color-text-soft);
+}
+
+/* Hero */
+.admin-badges-hero {
+  position: relative;
+  overflow: hidden;
+  min-height: 9.375rem;
+  border: 1px solid rgba(244, 241, 234, 0.08);
+  border-radius: 0.5rem;
+  background: var(--color-card-warm);
+  padding: 1.75rem;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+}
+
+.admin-badges-hero-inner {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+@media (min-width: 900px) {
+  .admin-badges-hero-inner {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+  }
+}
+
+.admin-badges-hero-copy {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.admin-badges-hero-title {
+  margin: 0.625rem 0 0;
+  font-size: clamp(1.875rem, 2.8vw, 2.625rem);
+  font-weight: 800;
+  line-height: 1.12;
+  color: var(--color-text);
+}
+
+.admin-badges-hero-desc {
+  margin: 0.75rem 0 0;
+  max-width: 42rem;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--color-text-muted);
+}
+
+.admin-badges-btn-gold {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  min-width: 10.625rem;
+  flex-shrink: 0;
+  border: 1px solid rgba(216, 179, 57, 0.35);
+  border-radius: 0.375rem;
+  background: var(--color-gold);
+  padding: 0 1.5rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--color-cta-dark);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.admin-badges-btn-gold:hover {
+  background: var(--color-gold-soft);
+}
+
+@media (max-width: 899px) {
+  .admin-badges-btn-gold {
+    width: 100%;
+  }
+}
+
+/* Banners */
+.admin-badges-banner {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  border-radius: 0.375rem;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+.admin-badges-banner--error {
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  background: rgba(239, 68, 68, 0.08);
+  color: var(--color-danger-soft);
+}
+
+.admin-badges-banner--success {
+  border: 1px solid rgba(34, 197, 94, 0.35);
+  background: rgba(34, 197, 94, 0.08);
+  color: var(--color-success);
+}
+
+.admin-badges-banner--info {
+  border: 1px solid rgba(216, 179, 57, 0.25);
+  background: rgba(216, 179, 57, 0.06);
+  color: var(--color-gold);
+}
+
+/* Stats */
+.admin-badges-stats-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 640px) {
+  .admin-badges-stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .admin-badges-stats-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.admin-badges-stat-card {
+  position: relative;
+  overflow: hidden;
+  min-height: 6.25rem;
+  border: 1px solid rgba(216, 179, 57, 0.22);
+  border-radius: 0.5rem;
+  background: var(--color-card-warm-alt);
+  padding: 1.25rem 1.375rem;
+}
+
+.admin-badges-stat-label {
+  margin: 0;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--color-text-soft);
+}
+
+.admin-badges-stat-value {
+  margin: 0.5rem 0 0;
+  font-size: 1.75rem;
+  font-weight: 800;
+  line-height: 1.1;
+  color: var(--color-text);
+}
+
+.admin-badges-stat-value--sm {
+  font-size: 1.25rem;
+}
+
+.admin-badges-stat-sub {
+  margin: 0.5rem 0 0;
+  font-size: 0.75rem;
+  color: var(--color-text-soft);
+}
+
+.admin-badges-stat-sub--success {
+  color: var(--color-success-bright);
+}
+
+/* Filters */
+.admin-badges-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.admin-badges-search,
+.admin-badges-filter {
+  min-height: 2.5rem;
+  padding: 0.375rem 0.75rem;
+  border: 1px solid rgba(244, 241, 234, 0.1);
+  border-radius: 0.375rem;
+  background: var(--color-panel);
+  color: var(--color-text);
+  font-size: 0.8125rem;
+}
+
+.admin-badges-search {
+  flex: 1 1 12rem;
+  min-width: 0;
+}
+
+.admin-badges-filter {
+  flex: 0 1 auto;
+}
+
+/* Badge grid */
+.admin-badges-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 640px) {
+  .admin-badges-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .admin-badges-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.admin-badges-empty {
+  margin: 0;
+  grid-column: 1 / -1;
+  font-size: 0.875rem;
+  color: var(--color-text-soft);
+}
+
+/* Badge card */
+.admin-badges-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 18.125rem;
+  border: 1px solid rgba(244, 241, 234, 0.08);
+  border-top-width: 3px;
+  border-radius: 0.5rem;
+  background: var(--color-card-warm);
+  padding: 1.625rem;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.admin-badges-card:hover {
+  border-color: rgba(216, 179, 57, 0.28);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+.admin-badges-card--legendary {
+  border-top-color: var(--color-gold);
+}
+
+.admin-badges-card--rare {
+  border-top-color: var(--color-success-bright);
+}
+
+.admin-badges-card--epic {
+  border-top-color: var(--color-danger-soft);
+}
+
+.admin-badges-card--common {
+  border-top-color: var(--color-text-muted);
+}
+
+.admin-badges-card-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text);
+}
+
+.admin-badges-card-criteria {
+  margin: 0.25rem 0 0;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--color-text-muted);
+}
+
+.admin-badges-card-divider {
+  margin: 1rem 0;
+  height: 1px;
+  background: rgba(244, 241, 234, 0.06);
+}
+
+.admin-badges-icon-block {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 4rem;
+  height: 4rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.admin-badges-icon-block--legendary {
+  background: rgba(216, 179, 57, 0.14);
+  color: var(--color-gold-soft);
+}
+
+.admin-badges-icon-block--rare {
+  background: rgba(34, 197, 94, 0.12);
+  color: var(--color-success-bright);
+}
+
+.admin-badges-icon-block--epic {
+  background: rgba(245, 163, 163, 0.12);
+  color: var(--color-danger-soft);
+}
+
+.admin-badges-icon-block--common {
+  background: rgba(168, 162, 154, 0.12);
+  color: var(--color-text-muted);
+}
+
+.admin-badges-icon-glyph {
+  font-size: 1.75rem;
+  line-height: 1;
+}
+
+.admin-badges-card-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  margin-top: auto;
+}
+
+.admin-badges-meta-label {
+  margin: 0;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--color-text-soft);
+}
+
+.admin-badges-rarity-value {
+  margin: 0.125rem 0 0;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.admin-badges-rarity-value--legendary {
+  color: var(--color-gold-soft);
+}
+
+.admin-badges-rarity-value--rare {
+  color: var(--color-success-bright);
+}
+
+.admin-badges-rarity-value--epic {
+  color: var(--color-danger-soft);
+}
+
+.admin-badges-rarity-value--common {
+  color: var(--color-text-muted);
+}
+
+.admin-badges-earned {
+  margin: 0.25rem 0 0;
+  font-size: 0.75rem;
+  color: var(--color-text-soft);
+}
+
+.admin-badges-card-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.admin-badges-btn-edit,
+.admin-badges-btn-assign {
+  flex: 1 1 45%;
+  min-height: 2.5rem;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.admin-badges-btn-edit {
+  border: 1px solid rgba(216, 179, 57, 0.35);
+  background: transparent;
+  color: var(--color-gold-soft);
+}
+
+.admin-badges-btn-edit:hover {
+  background: rgba(216, 179, 57, 0.08);
+}
+
+.admin-badges-btn-assign {
+  border: 1px solid rgba(244, 241, 234, 0.08);
+  background: var(--color-panel);
+  color: var(--color-text-muted);
+}
+
+.admin-badges-btn-assign:hover:not(:disabled) {
+  border-color: rgba(244, 241, 234, 0.16);
+  color: var(--color-text);
+}
+
+.admin-badges-btn-assign:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+@media (max-width: 480px) {
+  .admin-badges-card-actions {
+    flex-direction: column;
+  }
+}
+
+/* Recent awards */
+.admin-badges-recent {
+  border: 1px solid rgba(244, 241, 234, 0.08);
+  border-radius: 0.5rem;
+  background: var(--color-card-warm);
+  padding: 1.25rem 1.5rem;
+}
+
+.admin-badges-recent-title {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--color-text-soft);
+}
+
+.admin-badges-recent-list {
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.admin-badges-recent-item {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border: 1px solid rgba(244, 241, 234, 0.06);
+  border-radius: 0.375rem;
+  background: var(--color-panel);
+}
+
+.admin-badges-recent-wing {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.admin-badges-recent-pilot {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+}
+
+.admin-badges-recent-date {
+  margin-left: auto;
+  font-size: 0.75rem;
+  color: var(--color-text-soft);
+}
+
+/* Modal */
+.admin-badges-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.72);
+}
+
+.admin-badges-modal {
+  width: 100%;
+  max-width: 34rem;
+  max-height: min(90vh, 44rem);
+  overflow: auto;
+  border: 1px solid rgba(244, 241, 234, 0.1);
+  border-radius: 0.5rem;
+  background: var(--color-card-warm);
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.5);
+}
+
+@media (max-width: 640px) {
+  .admin-badges-modal-backdrop {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .admin-badges-modal {
+    max-width: none;
+    max-height: 92vh;
+    border-radius: 0.5rem 0.5rem 0 0;
+  }
+}
+
+.admin-badges-modal-head {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid rgba(244, 241, 234, 0.08);
+}
+
+.admin-badges-modal-title {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.admin-badges-modal-subtitle {
+  margin: 0.5rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+}
+
+.admin-badges-modal-subtitle strong {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.admin-badges-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  padding: 1.25rem 1.5rem;
+}
+
+.admin-badges-field label {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--color-text-soft);
+}
+
+.admin-badges-field input,
+.admin-badges-field select,
+.admin-badges-field textarea {
+  width: 100%;
+  min-height: 2.375rem;
+  padding: 0.375rem 0.625rem;
+  border: 1px solid rgba(244, 241, 234, 0.1);
+  border-radius: 0.375rem;
+  background: var(--color-panel);
+  color: var(--color-text);
+  font-size: 0.8125rem;
+}
+
+.admin-badges-field textarea {
+  min-height: 5.5rem;
+  resize: vertical;
+}
+
+.admin-badges-field-row {
+  display: grid;
+  gap: 0.875rem;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 520px) {
+  .admin-badges-field-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.admin-badges-checks {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.admin-badges-check {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+}
+
+.admin-badges-check input {
+  accent-color: var(--color-gold);
+}
+
+.admin-badges-hint {
+  margin: 0;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--color-text-soft);
+}
+
+.admin-badges-modal-foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem 1.25rem;
+  border-top: 1px solid rgba(244, 241, 234, 0.08);
+}
+
+.admin-badges-btn-cancel,
+.admin-badges-btn-save {
+  min-height: 2.5rem;
+  padding: 0 1.25rem;
+  border-radius: 0.375rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.admin-badges-btn-cancel {
+  border: 1px solid rgba(244, 241, 234, 0.12);
+  background: transparent;
+  color: var(--color-text-muted);
+}
+
+.admin-badges-btn-cancel:hover:not(:disabled) {
+  color: var(--color-text);
+}
+
+.admin-badges-btn-save {
+  border: 1px solid rgba(216, 179, 57, 0.35);
+  background: var(--color-gold);
+  color: var(--color-cta-dark);
+}
+
+.admin-badges-btn-save:hover:not(:disabled) {
+  background: var(--color-gold-soft);
+}
+
+.admin-badges-btn-cancel:disabled,
+.admin-badges-btn-save:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}

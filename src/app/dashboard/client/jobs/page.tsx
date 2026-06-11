@@ -1,14 +1,13 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { ClientJobsList } from "@/components/client/ClientJobsList";
-import { PageHeader } from "@/components/layout/PageHeader";
-import { Button } from "@/components/ui/Button";
+import { ClientMyProjects } from "@/components/dashboard/client/my-projects/ClientMyProjects";
+import { DashboardPageLayout } from "@/components/dashboard";
 import {
   getClientProfileByUserId,
   isOnboardingComplete,
 } from "@/lib/client/profile";
 
-export const metadata = { title: "My Jobs" };
+export const metadata = { title: "My Projects" };
 
 type PageProps = {
   searchParams: Promise<{ submitted?: string }>;
@@ -28,28 +27,8 @@ export default async function ClientJobsPage({ searchParams }: PageProps) {
   const params = await searchParams;
 
   return (
-    <>
-      <PageHeader
-        title="My Jobs"
-        description="Manage posted jobs, approval status, and offers."
-      >
-        <Button href="/dashboard/client/jobs/new" size="sm">
-          Post new job
-        </Button>
-      </PageHeader>
-
-      <div className="mt-8 max-w-3xl space-y-4">
-        {params.submitted === "1" ? (
-          <p
-            className="rounded-lg border border-gold/30 bg-gold/10 px-4 py-3 text-sm text-gold-dark"
-            role="status"
-          >
-            Job submitted for admin approval. Pilots will see it after approval
-            (M07).
-          </p>
-        ) : null}
-        <ClientJobsList />
-      </div>
-    </>
+    <DashboardPageLayout className="client-my-projects-shell">
+      <ClientMyProjects submittedBanner={params.submitted === "1"} />
+    </DashboardPageLayout>
   );
 }

@@ -26,7 +26,7 @@ export default async function PilotBookingDetailPage({ params }: PageProps) {
 
   const profile = await getPilotProfileByUserId(session.user.id);
   if (!profile || !isOnboardingComplete(profile) || profile.status !== "approved") {
-    redirect("/dashboard/pilot/bookings");
+    redirect("/dashboard/pilot/contracts");
   }
 
   const { id } = await params;
@@ -40,10 +40,10 @@ export default async function PilotBookingDetailPage({ params }: PageProps) {
     <>
       <PageHeader title="Booking" description={booking.job.title}>
         <Link
-          href="/dashboard/pilot/bookings"
+          href="/dashboard/pilot/contracts"
           className="text-sm text-muted-foreground hover:text-foreground"
         >
-          ← All bookings
+          ← Active contracts
         </Link>
       </PageHeader>
 

@@ -7,7 +7,7 @@
 
 ## Purpose
 
-Give moderators and super admins operational UIs to oversee users, pilot approvals, jobs (M07), applications, bookings, payments/commission, reviews, and subscription enrollments — with a consolidated dashboard overview.
+Give moderators and super admins operational UIs to oversee users, pilot approvals, jobs (M07), applications, bookings, payments/commission, and subscription enrollments — with a consolidated dashboard overview. Reviews are submitted and published directly by clients and pilots (no admin moderation queue).
 
 ---
 
@@ -21,7 +21,6 @@ Give moderators and super admins operational UIs to oversee users, pilot approva
 | `/dashboard/admin/jobs` | Moderator+ | Job approval queue (M07) |
 | `/dashboard/admin/applications` | Moderator+ | All pilot bids |
 | `/dashboard/admin/bookings` | Moderator+ | Bookings list + admin status updates |
-| `/dashboard/admin/reviews` | Moderator+ | Review moderation (publish / hide / flag) |
 | `/dashboard/admin/payments` | Moderator+ | Payments + commission records |
 | `/dashboard/admin/users` | Super Admin | User audit table |
 | `/dashboard/admin/subscriptions` | Super Admin | Plans + pilot enrollments (read-only) |
@@ -44,8 +43,6 @@ Give moderators and super admins operational UIs to oversee users, pilot approva
 | GET | `/api/admin/bookings?status=` | Moderator+ |
 | PATCH | `/api/admin/bookings/[id]/status` | Moderator+ |
 | GET | `/api/admin/payments` | Moderator+ |
-| GET | `/api/admin/reviews?status=` | Moderator+ |
-| PATCH | `/api/admin/reviews/[id]/status` | Moderator+ |
 | GET | `/api/admin/users` | Super Admin |
 | GET | `/api/admin/subscriptions` | Super Admin |
 

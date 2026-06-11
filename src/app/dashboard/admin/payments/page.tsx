@@ -1,10 +1,12 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { AdminPaymentsPanel } from "@/components/admin/AdminPaymentsPanel";
-import { PageHeader } from "@/components/layout/PageHeader";
+import { AdminCommissionsPortal } from "@/components/admin/commissions/AdminCommissionsPortal";
+import { DashboardPageLayout } from "@/components/dashboard";
 import { isAdminRole, type UserRole } from "@/types/roles";
+import "@/styles/admin-dashboard.css";
+import "@/styles/admin-commissions.css";
 
-export const metadata = { title: "Payments" };
+export const metadata = { title: "Pilot Commissions" };
 
 export default async function AdminPaymentsPage() {
   const session = await auth();
@@ -14,14 +16,8 @@ export default async function AdminPaymentsPage() {
   }
 
   return (
-    <>
-      <PageHeader
-        title="Payments"
-        description="Payments and commission records from completed bookings."
-      />
-      <div className="mt-8 w-full">
-        <AdminPaymentsPanel />
-      </div>
-    </>
+    <DashboardPageLayout className="admin-commissions-shell">
+      <AdminCommissionsPortal />
+    </DashboardPageLayout>
   );
 }

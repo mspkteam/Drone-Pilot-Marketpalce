@@ -1,0 +1,55 @@
+import type { PilotProposalRow } from "@/lib/pilot/proposals-map";
+
+/** Sample proposals when pilot has no applications yet (UI only). */
+export const PILOT_PROPOSALS_MOCK: readonly PilotProposalRow[] = [
+  {
+    id: "mock-proposal-2104",
+    displayId: "#2104",
+    mission: "Coastal Offshore Turbine Assessment",
+    client: "Northwind Energy",
+    bid: "$4,100",
+    sent: "2d ago",
+    status: "SHORTLISTED",
+    viewHref: "/dashboard/pilot/jobs",
+  },
+  {
+    id: "mock-proposal-2099",
+    displayId: "#2099",
+    mission: "Sub-Station Thermal Scan",
+    client: "DTE Energy",
+    bid: "$2,050",
+    sent: "3d ago",
+    status: "PENDING",
+    viewHref: "/dashboard/pilot/jobs",
+  },
+  {
+    id: "mock-proposal-2087",
+    displayId: "#2087",
+    mission: "Precision Crop Analysis",
+    client: "AgriCore Co.",
+    bid: "$920",
+    sent: "5d ago",
+    status: "ACCEPTED",
+    viewHref: "/dashboard/pilot/jobs",
+  },
+  {
+    id: "mock-proposal-2071",
+    displayId: "#2071",
+    mission: "Real Estate Capture",
+    client: "Pinnacle Realty",
+    bid: "$1,350",
+    sent: "1w ago",
+    status: "REJECTED",
+    viewHref: "/dashboard/pilot/jobs",
+  },
+  {
+    id: "mock-proposal-2065",
+    displayId: "#2065",
+    mission: "Bridge Structural Survey",
+    client: "DoT Region 4",
+    bid: "$2,800",
+    sent: "2w ago",
+    status: "WITHDRAWN",
+    viewHref: "/dashboard/pilot/jobs",
+  },
+] as const;

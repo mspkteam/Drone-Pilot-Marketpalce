@@ -16,6 +16,10 @@ import {
   SUPPORT_INACTIVITY_CLOSE_MS,
   SUPPORT_RESOLVED_USER_MESSAGE,
 } from "@/lib/support/constants";
+import {
+  SUPPORT_OPEN_EVENT,
+  type SupportOpenDetail,
+} from "@/lib/support/open-support-widget";
 import { cn } from "@/lib/utils";
 import type { SupportChatMessageDto } from "@/types/support";
 import type { SupportChatThreadDto } from "@/types/support";
@@ -375,18 +379,23 @@ function SupportChatWidgetInner({
     setError(null);
   }
 
-  async function openWidget() {
+  async function openWidget(targetChatId?: string | null) {
     setError(null);
-    if (view !== "closed") {
+    if (view !== "closed" && !targetChatId) {
       setView("closed");
       stopTypingPulse();
       return;
     }
     setHasUnread(false);
-    const nextView = chatId ? "chat" : "form";
+    const activeChatId = targetChatId ?? chatId;
+    const nextView = activeChatId ? "chat" : "form";
     setView(nextView);
-    if (chatId && nextView === "chat") {
-      const chat = await loadThread(chatId, guestToken);
+    if (activeChatId && nextView === "chat") {
+      if (targetChatId) {
+        setChatId(targetChatId);
+        localStorage.setItem(STORAGE_CHAT_ID, targetChatId);
+      }
+      const chat = await loadThread(activeChatId, guestToken);
       if (!chat) {
         clearStoredChat();
         setView("form");
@@ -397,6 +406,29 @@ function SupportChatWidgetInner({
       }
     }
   }
+
+  useEffect(() => {
+    function handleSupportOpen(event: Event) {
+      const detail = (event as CustomEvent<SupportOpenDetail>).detail;
+      setError(null);
+      setHasUnread(false);
+
+      if (detail?.action === "new") {
+        startNewChat();
+        return;
+      }
+
+      if (detail?.chatId) {
+        void openWidget(detail.chatId);
+        return;
+      }
+
+      void openWidget();
+    }
+
+    window.addEventListener(SUPPORT_OPEN_EVENT, handleSupportOpen);
+    return () => window.removeEventListener(SUPPORT_OPEN_EVENT, handleSupportOpen);
+  }, []);
 
   const chatStatus = thread?.status;
   const isChatClosed = chatStatus === "closed";

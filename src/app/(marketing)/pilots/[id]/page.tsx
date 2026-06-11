@@ -27,11 +27,11 @@ export default async function PublicPilotProfilePage({ params }: PageProps) {
   }
 
   return (
-    <section className="marketing-section">
+    <section className="figma-pilot-public-section figma-marketing-section pt-8 sm:pt-10">
       <PublicPageContainer>
         <Link
           href="/pilots"
-          className="mb-6 inline-flex text-sm font-medium text-gold-light transition-colors hover:text-gold"
+          className="mb-8 inline-flex text-sm font-medium text-gold-light transition-colors hover:text-gold"
         >
           ← Back to all pilots
         </Link>

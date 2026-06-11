@@ -1,0 +1,390 @@
+/* Client Find Pilots — scoped dashboard page styles (imported by find-pilots page) */
+
+.client-find-pilots-shell.dashboard-page {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: none;
+  gap: 0;
+}
+
+.client-find-pilots-page {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-width: 0;
+  color: var(--color-text);
+}
+
+.client-find-pilots-header {
+  margin-bottom: 1.625rem;
+}
+
+.client-find-pilots-title {
+  margin: 0;
+  font-size: clamp(1.625rem, 2.2vw, 2.125rem);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  color: var(--color-text);
+}
+
+.client-find-pilots-subtitle {
+  margin: 0.5rem 0 0;
+  max-width: 40rem;
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: var(--color-text-muted);
+}
+
+.client-find-pilots-toolbar {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+@media (min-width: 701px) {
+  .client-find-pilots-toolbar {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.75rem;
+  }
+}
+
+.client-find-pilots-search-wrap {
+  display: block;
+  width: 100%;
+  max-width: 28.125rem;
+  flex-shrink: 0;
+}
+
+.client-find-pilots-shell .client-find-pilots-search {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  height: 2.75rem;
+  margin: 0;
+  border: 1px solid rgba(216, 179, 57, 0.35);
+  border-radius: 0.75rem;
+  background: var(--color-text);
+  padding: 0 0.875rem;
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.25;
+  color: var(--color-card-warm);
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.client-find-pilots-shell .client-find-pilots-search::placeholder {
+  color: var(--color-text-soft);
+}
+
+.client-find-pilots-shell .client-find-pilots-search:focus {
+  border-color: var(--color-gold);
+  box-shadow: 0 0 0 3px rgba(216, 179, 57, 0.14);
+}
+
+.client-find-pilots-filters {
+  display: flex;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+@media (max-width: 700px) {
+  .client-find-pilots-filters {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 0.125rem;
+  }
+
+  .client-find-pilots-filters::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.client-find-pilots-shell .client-find-pilots-chip {
+  box-sizing: border-box;
+  flex-shrink: 0;
+  margin: 0;
+  border: 1px solid rgba(244, 241, 234, 0.08);
+  border-radius: 9999px;
+  background: var(--color-panel);
+  padding: 0.6875rem 1rem;
+  font-family: inherit;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.client-find-pilots-shell .client-find-pilots-chip:hover {
+  border-color: rgba(216, 179, 57, 0.45);
+  color: var(--color-text);
+}
+
+.client-find-pilots-shell .client-find-pilots-chip--active {
+  border-color: var(--color-gold);
+  background: rgba(216, 179, 57, 0.12);
+  color: var(--color-gold);
+}
+
+.client-find-pilots-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.0625rem;
+  width: 100%;
+  margin-top: 1.5rem;
+  min-width: 0;
+}
+
+@media (min-width: 701px) and (max-width: 1100px) {
+  .client-find-pilots-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1101px) {
+  .client-find-pilots-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.client-find-pilots-card {
+  box-sizing: border-box;
+  display: flex;
+  min-height: 13.75rem;
+  min-width: 0;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  border: 1px solid rgba(244, 241, 234, 0.08);
+  border-radius: 0.75rem;
+  background: var(--color-card-warm);
+  padding: 1.375rem;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+  transition:
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.client-find-pilots-card:hover {
+  border-color: rgba(216, 179, 57, 0.28);
+  transform: translateY(-2px);
+}
+
+.client-find-pilots-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.client-find-pilots-identity {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.client-find-pilots-avatar {
+  display: flex;
+  height: 3rem;
+  width: 3rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--color-gold-soft);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-bg-deeper);
+}
+
+.client-find-pilots-nameblock {
+  min-width: 0;
+}
+
+.client-find-pilots-name {
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--color-text);
+}
+
+.client-find-pilots-location {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3125rem;
+  margin: 0.1875rem 0 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.8125rem;
+  line-height: 1.3;
+  color: var(--color-text-soft);
+}
+
+.client-find-pilots-verified-wrap {
+  flex-shrink: 0;
+  margin-top: 0.125rem;
+  color: var(--color-gold);
+}
+
+.client-find-pilots-stats {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.125rem;
+  font-size: 0.8125rem;
+  line-height: 1.2;
+  color: var(--color-text-muted);
+}
+
+.client-find-pilots-stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3125rem;
+}
+
+.client-find-pilots-stat--rating {
+  color: var(--color-text);
+}
+
+.client-find-pilots-star {
+  color: var(--color-gold);
+}
+
+.client-find-pilots-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.client-find-pilots-tag {
+  display: inline-flex;
+  max-width: 100%;
+  border: 1px solid rgba(244, 241, 234, 0.06);
+  border-radius: 9999px;
+  background: rgba(244, 241, 234, 0.05);
+  padding: 0.375rem 0.625rem;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--color-text-soft);
+  white-space: nowrap;
+}
+
+.client-find-pilots-divider {
+  height: 1px;
+  margin: 1.0625rem 0;
+  background: rgba(244, 241, 234, 0.07);
+}
+
+.client-find-pilots-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: auto;
+}
+
+.client-find-pilots-price {
+  margin: 0;
+  min-width: 0;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--color-text);
+}
+
+.client-find-pilots-shell .client-find-pilots-profile-btn {
+  box-sizing: border-box;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  border: none;
+  border-radius: 0.625rem;
+  background: var(--color-gold);
+  padding: 0.625rem 1rem;
+  font-family: inherit;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--color-bg-deeper);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.client-find-pilots-shell .client-find-pilots-profile-btn:hover {
+  background: var(--color-gold-soft);
+  color: var(--color-bg-deeper);
+}
+
+.client-find-pilots-empty {
+  margin-top: 1.5rem;
+  border: 1px solid rgba(244, 241, 234, 0.08);
+  border-radius: 0.75rem;
+  background: var(--color-card-warm);
+  padding: 1.75rem 1.5rem;
+  text-align: center;
+}
+
+.client-find-pilots-empty-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.client-find-pilots-empty-text {
+  margin: 0.5rem 0 0;
+  font-size: 0.875rem;
+  color: var(--color-text-soft);
+}
+
+@media (max-width: 500px) {
+  .client-find-pilots-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .client-find-pilots-shell .client-find-pilots-profile-btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 700px) {
+  .client-find-pilots-search-wrap {
+    max-width: none;
+    width: 100%;
+  }
+}

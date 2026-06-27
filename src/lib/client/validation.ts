@@ -1,10 +1,13 @@
 import type { ClientBillingAddress } from "@/types/client";
+import type { ClientProfilePreferences } from "@/lib/client/preferences";
+import { normalizeClientProfilePreferencesInput } from "@/lib/client/preferences";
 
 export type ClientProfileInput = {
   companyName?: string | null;
   contactName?: string;
   phone?: string | null;
   billingAddress?: ClientBillingAddress | null;
+  preferences?: Partial<ClientProfilePreferences> | null;
   completeOnboarding?: boolean;
 };
 
@@ -38,6 +41,10 @@ export function validateClientProfileInput(
   }
 
   const billing = normalizeBillingAddress(input.billingAddress);
+  const preferences =
+    input.preferences === undefined
+      ? undefined
+      : normalizeClientProfilePreferencesInput(input.preferences ?? {});
 
   return {
     ok: true,
@@ -46,6 +53,7 @@ export function validateClientProfileInput(
       contactName,
       phone,
       billingAddress: billing,
+      preferences,
       completeOnboarding: input.completeOnboarding,
     },
   };

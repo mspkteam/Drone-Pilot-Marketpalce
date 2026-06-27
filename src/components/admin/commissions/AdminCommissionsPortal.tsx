@@ -7,6 +7,7 @@ import {
   downloadCommissionLedgerCsv,
   formatCommissionMoney,
 } from "@/lib/admin/commission-ledger-client";
+import { DEFAULT_COMMISSION_RATE } from "@/lib/commission/constants";
 import type {
   AdminCommissionLedgerRowDto,
   AdminCommissionStatsDto,
@@ -14,6 +15,7 @@ import type {
 } from "@/types/admin-commissions";
 
 const PAGE_SIZE = 5;
+const COMMISSION_PCT = Math.round(DEFAULT_COMMISSION_RATE * 100);
 const ALL_STATUSES: Array<CommissionLedgerStatus | "ALL"> = [
   "ALL",
   "SETTLED",
@@ -165,7 +167,7 @@ export function AdminCommissionsPortal() {
             <p className="admin-ops-eyebrow">COMMISSION LEDGER</p>
             <h1 className="admin-commissions-hero-title">Pilot Commissions</h1>
             <p className="admin-commissions-hero-desc">
-              Live tracking of every 10% commission earned by the platform, broken
+              Live tracking of every {COMMISSION_PCT}% commission earned by the platform, broken
               down per mission.
             </p>
           </div>
@@ -215,7 +217,7 @@ export function AdminCommissionsPortal() {
           </article>
           <article className="admin-commissions-stat-card">
             <p className="admin-commissions-stat-label">COMMISSION RATE</p>
-            <p className="admin-commissions-stat-value">10%</p>
+            <p className="admin-commissions-stat-value">{COMMISSION_PCT}%</p>
             <p className="admin-commissions-stat-sub">{stats.commissionRateSubtext}</p>
           </article>
           <article className="admin-commissions-stat-card">
@@ -248,7 +250,7 @@ export function AdminCommissionsPortal() {
           <div>
             <h2 className="admin-commissions-ledger-title">TRANSACTION LEDGER</h2>
             <p className="admin-commissions-ledger-sub">
-              Fixed 10% platform commission on completed missions
+              Fixed {COMMISSION_PCT}% platform commission on completed missions
             </p>
           </div>
           <div className="admin-commissions-ledger-actions">
@@ -350,7 +352,7 @@ export function AdminCommissionsPortal() {
                       <td className="admin-commissions-cell-gross">
                         {formatCommissionMoney(row.amountGross, row.currency)}
                       </td>
-                      <td className="admin-commissions-cell-rate">10%</td>
+                      <td className="admin-commissions-cell-rate">{COMMISSION_PCT}%</td>
                       <td className="admin-commissions-cell-commission">
                         {formatCommissionMoney(row.commissionAmount, row.currency)}
                       </td>
@@ -382,7 +384,7 @@ export function AdminCommissionsPortal() {
                       {formatCommissionMoney(row.amountGross, row.currency)}
                     </div>
                     <div>
-                      <strong>Rate:</strong> 10% ·{" "}
+                      <strong>Rate:</strong> {COMMISSION_PCT}% ·{" "}
                       <strong>Commission:</strong>{" "}
                       {formatCommissionMoney(row.commissionAmount, row.currency)}
                     </div>

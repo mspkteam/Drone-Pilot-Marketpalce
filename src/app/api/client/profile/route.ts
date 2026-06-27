@@ -2,7 +2,9 @@ import { NextResponse } from "next/server";
 import { requireClientSession } from "@/lib/auth/require-client";
 import {
   getClientProfileByUserId,
+  mergeClientProfilePreferences,
   serializeBillingAddress,
+  serializeClientProfilePreferences,
   toClientProfileDto,
 } from "@/lib/client/profile";
 import { validateClientProfileInput } from "@/lib/client/validation";
@@ -63,6 +65,10 @@ export async function POST(request: Request) {
         contactName: data.contactName!,
         phone: data.phone,
         billingAddress: serializeBillingAddress(data.billingAddress),
+        preferencesJson:
+          data.preferences !== undefined
+            ? serializeClientProfilePreferences(data.preferences)
+            : null,
         onboardingCompletedAt: completing ? now : null,
         status: completing ? "active" : "draft",
       },
@@ -112,6 +118,14 @@ export async function PATCH(request: Request) {
     const completing =
       !!data.completeOnboarding && !existing.onboardingCompletedAt;
 
+    const mergedPreferences =
+      data.preferences !== undefined
+        ? mergeClientProfilePreferences(
+            existing.preferencesJson,
+            data.preferences,
+          )
+        : undefined;
+
     const profile = await prisma.clientProfile.update({
       where: { userId: authResult.userId },
       data: {
@@ -124,6 +138,9 @@ export async function PATCH(request: Request) {
         ...(data.phone !== undefined && { phone: data.phone }),
         ...(data.billingAddress !== undefined && {
           billingAddress: serializeBillingAddress(data.billingAddress),
+        }),
+        ...(mergedPreferences !== undefined && {
+          preferencesJson: serializeClientProfilePreferences(mergedPreferences),
         }),
         ...(completing && {
           onboardingCompletedAt: now,

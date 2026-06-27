@@ -7,6 +7,7 @@ import {
   getClientProfileByUserId,
   isOnboardingComplete,
 } from "@/lib/client/profile";
+import { listClientFindPilots } from "@/lib/client/find-pilots-server";
 
 export const metadata = { title: "Find Pilots" };
 
@@ -17,13 +18,15 @@ export default async function ClientFindPilotsPage() {
   }
 
   const profile = await getClientProfileByUserId(session.user.id);
-  if (!isOnboardingComplete(profile)) {
+  if (!profile || !isOnboardingComplete(profile)) {
     redirect("/dashboard/client/onboarding");
   }
 
+  const pilots = await listClientFindPilots();
+
   return (
     <DashboardPageLayout className="client-find-pilots-shell">
-      <ClientFindPilots />
+      <ClientFindPilots pilots={pilots} />
     </DashboardPageLayout>
   );
 }

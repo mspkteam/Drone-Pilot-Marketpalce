@@ -3,25 +3,28 @@ import { ClientDashboardRecentActivity } from "@/components/dashboard/client/Cli
 import { ClientDashboardRecentProjects } from "@/components/dashboard/client/ClientDashboardRecentProjects";
 import { ClientDashboardStats } from "@/components/dashboard/client/ClientDashboardStats";
 import { ClientDashboardWelcome } from "@/components/dashboard/client/ClientDashboardWelcome";
+import type { ClientDashboardOverviewData } from "@/lib/client/dashboard-overview";
 
-type ClientDashboardOverviewProps = {
-  clientName: string;
-};
+type ClientDashboardOverviewProps = ClientDashboardOverviewData;
 
 export function ClientDashboardOverview({
   clientName,
+  stats,
+  recentProjects,
+  recentActivity,
+  recommendedPilots,
 }: ClientDashboardOverviewProps) {
   return (
     <div className="client-dashboard-page">
       <ClientDashboardWelcome clientName={clientName} />
-      <ClientDashboardStats />
+      <ClientDashboardStats stats={stats} />
 
       <div className="client-dashboard-middle-grid">
-        <ClientDashboardRecentProjects />
-        <ClientDashboardRecentActivity />
+        <ClientDashboardRecentProjects projects={recentProjects} />
+        <ClientDashboardRecentActivity activity={recentActivity} />
       </div>
 
-      <ClientDashboardRecommendedPilots />
+      <ClientDashboardRecommendedPilots pilots={recommendedPilots} />
     </div>
   );
 }

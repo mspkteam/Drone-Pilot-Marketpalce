@@ -3,6 +3,7 @@ import { ModeratorRouteGuard } from "@/components/admin/ModeratorRouteGuard";
 import { DashboardShell } from "@/components/layout/DashboardShell";
 import { ModeratorPermissionsProvider } from "@/contexts/ModeratorPermissionsContext";
 import { buildDashboardUser } from "@/lib/dashboard/shell-user";
+import { getMilestoneShellProps } from "@/lib/milestone-shell-props";
 import {
   filterAdminNavForPermissions,
   getModeratorPermissions,
@@ -38,13 +39,20 @@ export default async function AdminDashboardLayout({
           : "Admin account",
   });
 
+  const milestone = getMilestoneShellProps(role);
+
   return (
     <ModeratorPermissionsProvider
       role={role}
       userId={userId}
       config={permissionConfig}
     >
-      <DashboardShell homeHref="/dashboard/admin" navGroups={navGroups} user={user}>
+      <DashboardShell
+        homeHref="/dashboard/admin"
+        navGroups={navGroups}
+        user={user}
+        {...milestone}
+      >
         <ModeratorRouteGuard role={role} userId={userId} config={permissionConfig}>
           {children}
         </ModeratorRouteGuard>

@@ -3137,10 +3137,78 @@ Reference pages unchanged except header/footer token cleanup.
 - Some marketing components still use inline Figma hex
 - Per-page dashboard CSS modules retain unique layout classes (colors tokenized)
 
-### Pending (BUILD_CONTROL M291+)
-
-- Remaining inline hex cleanup, dashboard `ras-*` adoption, sub-route visual QA
-
 ### Production build
 
 Passes (`npx next build`, 2026-06-02).
+
+---
+
+## Source Document Alignment — Media Kit, Membership Upgrades, Paragraph 5 Clarifications (2026-06-02)
+
+| Field | Value |
+|-------|--------|
+| **Scope** | Business rules documentation — no marketplace wiring in this pass |
+| **Status** | Implemented (docs + agent module + commission constant) |
+
+### Documents reviewed
+
+1. `Remote Air Service Media Kit V.1 Highlighted.pdf` — brand, grades, uniform, proposal→contract, disputes, shop, wings  
+2. `Pilot Membership and Upgrades.pdf` — $99.99/yr membership, one-time Fast Forward, upgrade difference  
+3. `Paragraph 5 Clarifications.pdf` — 15% commission, lapse/reactivation, instructor, Captain's Club, governance  
+
+### Business rules updated
+
+| Rule | Previous | New (source of truth) |
+|------|----------|----------------------|
+| Platform commission | 10% Phase 1 | **15% default** (not tier-based) |
+| Membership | Per-tier monthly/yearly marketing prices | **$99.99/year** + one-time Fast Forward upgrades |
+| Upgrade billing | Full price each tier jump | **Difference only** on later upgrades |
+| Instructor | Partial in tiers | **$199.99/year** add-on, min A-4 |
+| A-1 proposals | Backend blocked | Confirmed — cannot apply |
+| Visibility delays | Backend 48→0h aligned | Confirmed; marketing/Figma may still conflict |
+| Chat initiation | Not enforced | **Client only** (M306) |
+| Proposal revision | Not implemented | **+20% max** (M305) |
+| Captain's Club | Not built | **Public A-6 list** required (M317) |
+| Remote Rescue | N/A | **Future 2027 — do not build** |
+
+### Conflicts resolved or pending
+
+| Conflict | Resolution |
+|----------|------------|
+| 10% vs 15% commission | **Resolved in docs + `DEFAULT_COMMISSION_RATE`**. Per-pilot override deferred (M309). |
+| Monthly tier pricing vs $99.99/yr | **Documented** — code/UI update in M297–M299; Figma realign M320. **Pending client Fast Forward fee table.** |
+| Generic marketplace vs RAS reputation | **Documented** in IMPLEMENTATION_CONTEXT — not a Fiverr clone. |
+| Disputes as simple UI vs mediation | **Documented** — Squadron Vote M318 post-MVP. |
+| Static badges vs rule-driven wings | **Documented** — M314. |
+
+### Development plan impact
+
+- New BUILD_CONTROL modules **M295–M320**
+- [`FUNCTIONALITY_WIRING_PLAN.md`](FUNCTIONALITY_WIRING_PLAN.md) phases 1–10 updated
+- Cursor rule [`.cursor/rules/business-rules-ras.mdc`](../.cursor/rules/business-rules-ras.mdc) for agent context
+- [`NEW_FEATURES_COMPARISON.md`](NEW_FEATURES_COMPARISON.md) + [`IMPLEMENTATION_CONTEXT_FOR_NEW_FEATURES.md`](IMPLEMENTATION_CONTEXT_FOR_NEW_FEATURES.md) created
+
+### Routes / modules affected (future work)
+
+| Area | Impact |
+|------|--------|
+| `/dashboard/client/quotes` | Wire bids; client-initiated chat; +20% revision |
+| `/dashboard/pilot/subscription` | Split membership vs Fast Forward (not monthly tiers) |
+| `/pricing` + Figma | Re-align to $99.99/yr model (M320) |
+| `/dashboard/admin/payments` | 15% commission copy; override UI later |
+| Captain's Club | New public route (M317) |
+| Membership / lapse | New backend modules M300–M302 |
+| Disputes | Keep separate from messages/support; M318 later |
+
+### Remaining client clarifications
+
+1. Fast Forward one-time fee amounts per grade  
+2. Interaction between paid Fast Forward and automatic time-based promotion  
+3. Commission buyout formula confirmation (post-launch)  
+4. Definition of "30 approved days" for ID card  
+5. Final certificate template assets  
+6. Figma screen priority after membership model change  
+
+### Production build
+
+Passes after documentation + commission constant update (2026-06-02).

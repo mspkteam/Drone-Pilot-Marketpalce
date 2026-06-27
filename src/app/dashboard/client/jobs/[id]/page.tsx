@@ -2,22 +2,26 @@ import Link from "next/link";
 import { redirect, notFound } from "next/navigation";
 import { auth } from "@/auth";
 import { JobEditForm } from "@/components/client/JobEditForm";
-import { PageHeader } from "@/components/layout/PageHeader";
+import { ClientJobOverview } from "@/components/dashboard/client/jobs/ClientJobOverview";
+import { DashboardPageLayout } from "@/components/dashboard";
 import {
   getClientProfileByUserId,
   isOnboardingComplete,
 } from "@/lib/client/profile";
-import { getBookingByJobId } from "@/lib/bookings/booking";
-import { jobAcceptsApplications } from "@/lib/bookings/status";
-import { getJobForClient, toJobDto } from "@/lib/jobs/job";
+import { canClientEditJob } from "@/lib/jobs/status";
+import { getClientJobDetail, toJobDto } from "@/lib/jobs/job";
 
-export const metadata = { title: "Job details" };
+export const metadata = { title: "Project details" };
 
 type PageProps = {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ edit?: string }>;
 };
 
-export default async function ClientJobDetailPage({ params }: PageProps) {
+export default async function ClientJobDetailPage({
+  params,
+  searchParams,
+}: PageProps) {
   const session = await auth();
   if (!session?.user?.id || session.user.role !== "client") {
     redirect("/login");
@@ -29,48 +33,51 @@ export default async function ClientJobDetailPage({ params }: PageProps) {
   }
 
   const { id } = await params;
-  const job = await getJobForClient(id, profile.id);
-  if (!job) {
+  const query = await searchParams;
+  const jobRecord = await getClientJobDetail(id, profile.id);
+  if (!jobRecord) {
     notFound();
   }
 
-  const booking = await getBookingByJobId(job.id);
-  const showOffersLink =
-    jobAcceptsApplications(job.status) || job.status === "assigned";
+  const job = toJobDto(jobRecord);
+  const showEditForm = query.edit === "1" && canClientEditJob(job.status);
+  const bidCount = jobRecord._count.applications;
+  const bookingId = jobRecord.booking?.id ?? null;
 
   return (
-    <>
-      <PageHeader title={job.title} description="View or edit your job posting.">
-        <Link
-          href="/dashboard/client/jobs"
-          className="text-sm text-muted-foreground hover:text-foreground"
-        >
-          ← Back to jobs
-        </Link>
-      </PageHeader>
-      <div className="mt-8 max-w-3xl space-y-4">
-        {booking ? (
-          <p className="rounded-lg border border-gold/30 bg-gold/10 px-4 py-3 text-sm text-gold-dark">
-            Pilot assigned.{" "}
-            <Link
-              href={`/dashboard/client/bookings/${booking.id}`}
-              className="font-medium underline"
-            >
-              View booking →
-            </Link>
+    <DashboardPageLayout className="client-job-detail-shell">
+      <div className="client-job-detail-page">
+        <header className="client-job-detail-header">
+          <Link href="/dashboard/client/jobs" className="client-job-detail-back">
+            ← Back to My Projects
+          </Link>
+          <h1 className="client-job-detail-title">{job.title}</h1>
+          <p className="client-job-detail-subtitle">
+            {showEditForm
+              ? "Update your draft before submitting for approval."
+              : "Review project status, requirements, and pilot quotes."}
           </p>
-        ) : showOffersLink ? (
-          <p className="rounded-lg border border-border bg-surface-elevated px-4 py-3 text-sm">
+        </header>
+
+        {!showEditForm ? (
+          <ClientJobOverview
+            job={job}
+            bidCount={bidCount}
+            bookingId={bookingId}
+            showEditLink
+          />
+        ) : (
+          <div className="client-job-detail-edit">
             <Link
-              href={`/dashboard/client/jobs/${job.id}/offers`}
-              className="font-medium text-gold-dark hover:text-gold"
+              href={`/dashboard/client/jobs/${job.id}`}
+              className="client-job-detail-back"
             >
-              Review pilot offers →
+              ← Back to overview
             </Link>
-          </p>
-        ) : null}
-        <JobEditForm job={toJobDto(job)} />
+            <JobEditForm job={job} />
+          </div>
+        )}
       </div>
-    </>
+    </DashboardPageLayout>
   );
 }

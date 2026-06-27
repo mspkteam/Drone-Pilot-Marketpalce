@@ -2,9 +2,9 @@
 
 **Status:** UI/design phase complete (interim foundation). Next phase: wire real data, APIs, persistence, and marketplace flows.
 
-**Last updated:** 2026-06-02
+**Last updated:** 2026-06-02 (source document alignment)
 
-**Related:** [`BUILD_CONTROL.md`](BUILD_CONTROL.md) (module IDs), [`dashboard-implementation-log.md`](dashboard-implementation-log.md) (UI phases 1–41), [`MODULE_WORKFLOW.md`](MODULE_WORKFLOW.md)
+**Related:** [`BUILD_CONTROL.md`](BUILD_CONTROL.md) · [`dashboard-implementation-log.md`](dashboard-implementation-log.md) · [`IMPLEMENTATION_CONTEXT_FOR_NEW_FEATURES.md`](IMPLEMENTATION_CONTEXT_FOR_NEW_FEATURES.md) · [`NEW_FEATURES_COMPARISON.md`](NEW_FEATURES_COMPARISON.md) · [`PLATFORM_MILESTONE_PLAN.md`](PLATFORM_MILESTONE_PLAN.md)
 
 ---
 
@@ -21,16 +21,63 @@
 
 ---
 
-## Phase order (agreed)
+## Phase order (agreed — updated after source PDFs)
 
-1. **Functionality audit** (this document)
-2. **Core marketplace flow** (highest priority — see §2)
+| Phase | Focus | BUILD IDs |
+|-------|--------|-----------|
+| **1** | Documentation alignment + functionality audit | M295 |
+| **2** | Client post project (real save) + My Projects (real data) | M51, M06 |
+| **3** | Admin job approval + approved project release | M07 |
+| **4** | Pilot marketplace visibility by grade | M08, M27, M303 |
+| **5** | Pilot proposal submission (A-2+; A-1 blocked) | M08, M304 |
+| **6** | Client bid review, shortlist, accept | M52–M55, M96 |
+| **7** | Booking / contract creation + milestone fields (later) | M09, M307 |
+| **8** | Escrow / payment + **15%** commission | M12, M308, M56 |
+| **9** | Ratings, disputes, awards, uniform sanctions | M10, M23, M311–M314 |
+| **10** | Membership billing, Fast Forward upgrades, instructor add-on | M297–M299, M316 |
+
+**Deferred:** Stripe until Phase 8 · Commission buyout (M310) · Squadron Vote (M318) · Remote Rescue (M319) · Figma re-align pass (M320)
+
+---
+
+## Business rules (source PDFs — must hold during wiring)
+
+Authoritative detail: [`IMPLEMENTATION_CONTEXT_FOR_NEW_FEATURES.md`](IMPLEMENTATION_CONTEXT_FOR_NEW_FEATURES.md)
+
+| Rule | Requirement | Wiring module |
+|------|-------------|---------------|
+| Commission | **15% default** (not tier-based); per-pilot override later | M12, M309 |
+| Membership | **$99.99/year** all pilots; Fast Forward = **one-time** upgrades | M297–M299 |
+| Upgrade credit | Charge difference only on later Fast Forward | M299 |
+| Instructor | **$199.99/year** add-on; min A-4 | M316 |
+| Lapse | Grade time stops; benefits/verification inactive | M300 |
+| Reactivation | **30-day** window retains grade after cancel | M301 |
+| Grade promotion | Auto A-1→A-6 by tenure (active, good standing) | M302 |
+| Visibility | 48/36/24/12/6/0 hours; admin-approved jobs only | M303 |
+| A-1 | Can see (after delay) but **cannot apply** | M304 |
+| Proposal revision | Max **+20%** price increase | M305 |
+| Chat | **Client initiates** chat with pilot only | M306 |
+| Contract | Six stages + planning fields on booking | M307 |
+| Escrow | Collect → hold → release minus 15% | M308 |
+| Disputes | Separate from Messages & Support; block ratings until resolved | M23, M318 |
+| Uniform | Policy acceptance + client review + admin sanctions | M311–M313 |
+| Wings | Rule-driven + admin awarded | M314 |
+| ID card | After 30 approved days; in membership | M315 |
+| Captain's Club | Public A-6 list page | M317 |
+| Remote Rescue | **Future only** (~2027) | M319 |
+
+---
+
+## Legacy phase order (UI milestone buckets)
+
+1. **Functionality audit** (this document) ✅
+2. **Core marketplace flow** (phases 2–7 above)
 3. **Client modules** — Post Project polish → My Projects → Project Bids → Find Pilots → Billing later
-4. **Pilot modules** — Marketplace → Proposals → Contracts → Handoff → Payments later
-5. **Payments & subscriptions** — no fakes; Stripe + escrow later
-6. **Uploads & storage** — use existing patterns only
+4. **Pilot modules** — Marketplace → Proposals → Contracts → Handoff
+5. **Payments & subscriptions** — no fakes; Stripe + escrow in Phase 8–10
+6. **Uploads & storage** — existing patterns only
 7. **Admin persistence** — CMS, config, permissions, shop, certificates/badges
-8. **Final polish** — Figma, visual QA, SEO, E2E, launch prep (deferred)
+8. **Final polish** — Figma re-align (M320), visual QA, SEO, E2E
 
 ---
 
@@ -45,12 +92,14 @@ Client posts project
   → admin approves/rejects
   → approved job visible in pilot marketplace (tier delay respected)
   → pilot submits bid/proposal (JobApplication)
-  → client reviews bids (shortlist / decline / accept)
-  → booking created on accept
-  → payment/escrow (later)
+  → client may start chat with pilot (client initiates only)
+  → proposal revision capped at +20% increase
+  → booking/contract created
+  → payment held in escrow (later)
   → pilot delivers work
   → client approves handoff OR dispute
-  → payout calculated (gross − 10% platform commission)
+  → payout calculated (gross − 15% platform commission)
+  → ratings / awards (blocked if dispute open)
   → notifications at each step
 ```
 
@@ -68,7 +117,7 @@ Client posts project
 | Payment / escrow | **DEFER** | No Stripe on accept; booking payment routes exist for demo flow | M12, M56, M65 |
 | Handoff / delivery | **PARTIAL** | Booking status actions exist; new contracts UI not fully wired to deliver/upload | M102–M103 |
 | Dispute | **PARTIAL** | Prisma disputes + admin center wired; client dashboard disputes UI newer | M23, M104 |
-| Commission 10% | **PARTIAL** | `DEFAULT_COMMISSION_RATE` + commission records on booking complete; admin ledger has mock fallback | M12 |
+| Commission 15% | **PARTIAL** | `DEFAULT_COMMISSION_RATE` = 15%; commission records on booking complete; per-pilot override not built; admin ledger has mock fallback | M12, M309 |
 | Notifications | **PARTIAL** | In-app bell + event triggers exist; bid/accept/handoff email flows incomplete | M16, M57, M99 |
 
 **Tomorrow start:** Audit sign-off → wire **My Projects** to `GET /api/client/jobs` → then **Project Bids** to applications API → connect accept to booking.
@@ -175,7 +224,7 @@ Client posts project
 | Booking payment / escrow | **NOT STARTED** | Use existing Payment model; wire after accept flow — M56 |
 | Pilot tier upgrades | **NOT STARTED** | Demo enroll only today — M91 |
 | Uniform shop checkout | **NOT STARTED** | Placeholder pay route — M258 |
-| 10% commission | **PARTIAL** | `lib/commission/constants.ts`; enforce on payout — M12 |
+| 15% commission | **PARTIAL** | `lib/commission/constants.ts` (15%); per-pilot override — M309; enforce on escrow payout — M308 | M12 |
 | Pilot payout | **PARTIAL** | `amountNet` on Payment; verify end-to-end | M12 |
 
 ---
@@ -244,12 +293,42 @@ Deferred: final Figma alignment (M294), SEO (M19), E2E (M20).
 
 ## 11. Do not do in functionality phase
 
-- Redesign UI or revisit theme tokens
+- Redesign UI or revisit theme tokens (except M320 Figma pass when scheduled)
 - New storage providers
 - Fake Stripe / fake payment success
 - Duplicate job/bid/booking models
-- Public marketing page edits
+- Public marketing page edits (except Captain's Club M317 when scheduled)
 - Prisma schema changes without updating `DATA_MODEL_OVERVIEW.md`
+- Remote Rescue implementation (M319 — future only)
+- Present A-2–A-6 as monthly subscription tiers (use $99.99/yr + one-time Fast Forward)
+
+---
+
+## 13. New modules from source PDFs (M295–M320)
+
+Full task list — see [`IMPLEMENTATION_CONTEXT_FOR_NEW_FEATURES.md`](IMPLEMENTATION_CONTEXT_FOR_NEW_FEATURES.md) § Task list.
+
+| Module | Task | Phase |
+|--------|------|-------|
+| M297 | Annual membership $99.99/yr billing | 10 |
+| M298 | Fast Forward one-time upgrade fees | 10 |
+| M299 | Upgrade difference calculation | 10 |
+| M300–M301 | Lapse + 30-day reactivation | 10 |
+| M302 | Automatic grade promotion engine | 10 |
+| M303–M304 | Visibility delay + A-1 no apply | 4–5 |
+| M305 | Proposal +20% revision cap | 6 |
+| M306 | Client-initiated chat only | 6 |
+| M307 | Contract milestone / planning fields | 7 |
+| M308 | Escrow + 15% payout | 8 |
+| M309–M310 | Per-pilot commission override + buyout | 8+ (buyout post-launch) |
+| M311–M313 | Uniform policy + sanctions | 9 |
+| M314 | Rule-driven wings engine | 9 |
+| M315 | Certificate + ID card (30 days) | 9–10 |
+| M316 | Instructor $199.99/yr add-on | 10 |
+| M317 | Captain's Club public page | 9 |
+| M318 | Squadron Vote disputes | Post-MVP |
+| M319 | Remote Rescue roadmap only | Never (2027) |
+| M320 | Figma re-alignment | After Phase 10 prep |
 
 ---
 
@@ -276,3 +355,4 @@ Use these — do not rebuild:
 | Date | Change |
 |------|--------|
 | 2026-06-02 | Initial audit after UI/design phase complete (Phases 1–41) |
+| 2026-06-02 | Source PDF alignment — 15% commission, membership model, phases 1–10, M295–M320 |

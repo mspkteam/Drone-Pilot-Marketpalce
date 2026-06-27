@@ -1,5 +1,5 @@
-/** Phase 1 platform commission rate (10%). */
-export const DEFAULT_COMMISSION_RATE = 0.1;
+/** Default platform commission rate (15% — Paragraph 5 / source PDFs). Super Admin per-pilot override: M309. */
+export const DEFAULT_COMMISSION_RATE = 0.15;
 
 export function calculateCommission(amountGross: number, rate = DEFAULT_COMMISSION_RATE) {
   const amount = Math.round(amountGross * rate * 100) / 100;

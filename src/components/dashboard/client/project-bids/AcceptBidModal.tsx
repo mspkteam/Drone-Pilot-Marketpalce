@@ -1,6 +1,6 @@
 "use client";
 
-import type { ClientProjectBid } from "@/lib/client/project-bids-mock";
+import type { ClientProjectBid } from "@/lib/client/project-bids";
 
 type AcceptBidModalProps = {
   bid: ClientProjectBid | null;
@@ -28,8 +28,9 @@ export function AcceptBidModal({ bid, onCancel, onConfirm }: AcceptBidModalProps
           Accept this bid?
         </h2>
         <p className="client-project-bids-modal-text">
-          This will mark the bid from <strong>{bid.name}</strong> as accepted.
-          Payment and booking setup will be connected later.
+          This will assign <strong>{bid.name}</strong> to your project and create
+          a booking at {bid.bidAmount}. Other pending bids will be declined
+          automatically.
         </p>
         <div className="client-project-bids-modal-actions">
           <button

@@ -59,5 +59,10 @@ export type ClientJobApplicationDto = {
     displayName: string;
     locationCity: string | null;
     locationRegion: string | null;
+    averageRating?: number | null;
+    reviewCount?: number;
+    completedBookings?: number;
+    verified?: boolean;
   };
+  shortlistedAt?: string | null;
 };

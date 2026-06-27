@@ -8,9 +8,9 @@ import {
   type ClientFormState,
 } from "@/components/client/ClientProfileFormFields";
 import {
+  CLIENT_NOTIFICATION_DEFAULTS,
   CLIENT_NOTIFICATION_ROWS,
-  loadNotificationPreferences,
-  saveNotificationPreferences,
+  notificationPreferencesFromProfile,
   type ClientNotificationPreferences,
 } from "@/lib/client/settings-notifications";
 import type { AccountDto } from "@/types/account";
@@ -23,7 +23,7 @@ export function ClientAccountSettings() {
   const [account, setAccount] = useState<AccountDto | null>(null);
   const [profileForm, setProfileForm] = useState<ClientFormState | null>(null);
   const [notifications, setNotifications] = useState<ClientNotificationPreferences>(
-    loadNotificationPreferences,
+    () => ({ ...CLIENT_NOTIFICATION_DEFAULTS }),
   );
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -54,14 +54,14 @@ export function ClientAccountSettings() {
 
       const profileData = await profileRes.json();
       if (profileRes.ok && profileData.profile) {
-        setProfileForm(
-          clientDtoToFormState(profileData.profile as ClientProfileDto),
-        );
+        const profileDto = profileData.profile as ClientProfileDto;
+        setProfileForm(clientDtoToFormState(profileDto));
+        setNotifications(notificationPreferencesFromProfile(profileDto.preferences));
       } else {
         setProfileForm({
           companyName: "",
-          contactName: "John Doe",
-          phone: "+1 (555) 123-4567",
+          contactName: "",
+          phone: "",
           billingLine1: "",
           billingCity: "",
           billingRegion: "",
@@ -96,7 +96,10 @@ export function ClientAccountSettings() {
       const res = await fetch("/api/client/profile", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(clientFormToPayload(profileForm, false)),
+        body: JSON.stringify({
+          ...clientFormToPayload(profileForm, false),
+          preferences: { notifications },
+        }),
       });
       const data = await res.json();
 
@@ -106,15 +109,12 @@ export function ClientAccountSettings() {
       }
 
       if (data.profile) {
-        setProfileForm(
-          clientDtoToFormState(data.profile as ClientProfileDto),
-        );
+        const profileDto = data.profile as ClientProfileDto;
+        setProfileForm(clientDtoToFormState(profileDto));
+        setNotifications(notificationPreferencesFromProfile(profileDto.preferences));
       }
 
-      saveNotificationPreferences(notifications);
-      setSuccess(
-        "Settings saved. Notification preference sync pending backend (M68).",
-      );
+      setSuccess("Settings saved.");
     } catch {
       setError("Failed to save settings.");
     } finally {
@@ -353,6 +353,17 @@ export function ClientAccountSettings() {
               </button>
             ) : null}
           </div>
+        </section>
+
+        <section className="client-settings-card">
+          <h2 className="client-settings-card-title">Disputes</h2>
+          <p className="client-settings-card-hint">
+            View and manage booking disputes. Opening a new dispute requires an
+            active booking.
+          </p>
+          <Link href="/dashboard/client/disputes" className="client-settings-text-link">
+            Go to disputes →
+          </Link>
         </section>
 
         <div className="client-settings-save-row">

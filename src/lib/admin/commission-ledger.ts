@@ -11,7 +11,7 @@ import type {
   CommissionLedgerStatus,
 } from "@/types/admin-commissions";
 
-const FIXED_RATE_PERCENT = 10 as const;
+const FIXED_RATE_PERCENT = Math.round(DEFAULT_COMMISSION_RATE * 100);
 
 export const MOCK_COMMISSION_LEDGER: AdminCommissionLedgerRowDto[] = [
   {

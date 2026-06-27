@@ -1,3 +1,5 @@
+import type { JobPostProjectMetadata } from "@/lib/jobs/post-project-metadata";
+
 export const JOB_STATUSES = [
   "draft",
   "pending_approval",
@@ -27,6 +29,8 @@ export const JOB_CATEGORIES = [
 
 export type JobCategoryId = (typeof JOB_CATEGORIES)[number]["id"];
 
+export type { JobPostProjectMetadata } from "@/lib/jobs/post-project-metadata";
+
 export type JobDto = {
   id: string;
   clientProfileId: string;
@@ -42,6 +46,7 @@ export type JobDto = {
   budgetMax: number | null;
   currency: string;
   requirements: string | null;
+  postProject: JobPostProjectMetadata | null;
   status: JobStatus;
   rejectionReason: string | null;
   submittedAt: string | null;

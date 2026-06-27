@@ -1,6 +1,6 @@
 import type { DashboardNavGroup } from "@/types/dashboard-nav";
 
-/** Client cockpit sidebar — Figma / screenshot IA (Workspace + Account). */
+/** Client cockpit sidebar — Figma page `69:1732` (Workspace + Account). */
 export const clientNavGroups: readonly DashboardNavGroup[] = [
   {
     label: "Workspace",
@@ -18,11 +18,6 @@ export const clientNavGroups: readonly DashboardNavGroup[] = [
         activeExclude: ["/dashboard/client/jobs/new"],
       },
       {
-        label: "Disputes",
-        href: "/dashboard/client/disputes",
-        icon: "disputes",
-      },
-      {
         label: "Project Quotes",
         href: "/dashboard/client/quotes",
         icon: "proposals",
@@ -38,7 +33,6 @@ export const clientNavGroups: readonly DashboardNavGroup[] = [
     label: "Account",
     items: [
       { label: "Messages", href: "/dashboard/client/messages", icon: "messages" },
-      { label: "Profile", href: "/dashboard/client/profile", icon: "profile" },
       {
         label: "Billing",
         href: "/dashboard/client/payments",

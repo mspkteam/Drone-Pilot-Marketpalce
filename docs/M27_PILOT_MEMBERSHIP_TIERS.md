@@ -3,7 +3,9 @@
 **Version:** 0.26.0  
 **Replaces:** Basic/Pro as primary pilot membership logic (legacy plans deactivated, not deleted)
 
-## Tiers
+> **Source PDFs (2026-06-02):** Billing model is changing. **$99.99/year base membership** for all pilots + **one-time Fast Forward** upgrade fees (M297–M299). Table below reflects **grade privileges** (visibility, apply rules). Per-tier yearly prices in code/marketing are **legacy** until membership billing is rewired. See [`IMPLEMENTATION_CONTEXT_FOR_NEW_FEATURES.md`](IMPLEMENTATION_CONTEXT_FOR_NEW_FEATURES.md).
+
+## Tiers (privileges)
 
 | Code | Name | Yearly | Visibility delay | Can bid | Instructor |
 |------|------|--------|------------------|---------|------------|

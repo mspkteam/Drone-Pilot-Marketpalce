@@ -2,11 +2,6 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  CLIENT_MESSAGES_MOCK_CONVERSATIONS,
-  type ClientMockConversation,
-  type ClientMockMessage,
-} from "@/lib/client/client-messages-mock";
-import {
   formatBubbleTime,
   formatConversationTime,
   initialsFromName,
@@ -33,10 +28,6 @@ type ThreadMessage = {
   isMine: boolean;
 };
 
-function isMockConversationId(id: string): boolean {
-  return id.startsWith("mock-conv-");
-}
-
 export function ClientMessagesView({
   initialConversationId,
 }: ClientMessagesViewProps) {
@@ -44,10 +35,6 @@ export function ClientMessagesView({
     [],
   );
   const [eligible, setEligible] = useState<EligibleApplicationDto[]>([]);
-  const [mockConversations, setMockConversations] = useState(
-    CLIENT_MESSAGES_MOCK_CONVERSATIONS,
-  );
-  const [useMockFallback, setUseMockFallback] = useState(false);
   const [loadingList, setLoadingList] = useState(true);
   const [listError, setListError] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(
@@ -71,24 +58,15 @@ export function ClientMessagesView({
         setListError(data.error ?? "Failed to load messages.");
         setConversations([]);
         setEligible([]);
-        setUseMockFallback(true);
         return;
       }
 
-      const items = (data.conversations ?? []) as ConversationListItemDto[];
-      setConversations(items);
+      setConversations((data.conversations ?? []) as ConversationListItemDto[]);
       setEligible((data.eligibleApplications ?? []) as EligibleApplicationDto[]);
-
-      if (items.length === 0) {
-        setUseMockFallback(true);
-      } else {
-        setUseMockFallback(false);
-      }
     } catch {
       setListError("Failed to load messages.");
       setConversations([]);
       setEligible([]);
-      setUseMockFallback(true);
     } finally {
       setLoadingList(false);
     }
@@ -99,20 +77,12 @@ export function ClientMessagesView({
   }, [loadList]);
 
   useEffect(() => {
-    if (selectedId) return;
-
-    if (useMockFallback && mockConversations[0]) {
-      setSelectedId(mockConversations[0].id);
-      return;
-    }
-
-    if (conversations[0]) {
-      setSelectedId(conversations[0].id);
-    }
-  }, [conversations, mockConversations, selectedId, useMockFallback]);
+    if (selectedId || conversations.length === 0) return;
+    setSelectedId(conversations[0]?.id ?? null);
+  }, [conversations, selectedId]);
 
   useEffect(() => {
-    if (!selectedId || isMockConversationId(selectedId)) {
+    if (!selectedId) {
       setDetail(null);
       setLoadingThread(false);
       return;
@@ -155,56 +125,30 @@ export function ClientMessagesView({
     };
   }, [selectedId]);
 
-  const selectedMock = useMemo(
-    () => mockConversations.find((c) => c.id === selectedId) ?? null,
-    [mockConversations, selectedId],
-  );
-
-  const selectedApi = useMemo(
+  const selectedConversation = useMemo(
     () => conversations.find((c) => c.id === selectedId) ?? null,
     [conversations, selectedId],
   );
 
-  const headerName =
-    selectedMock?.pilotName ?? selectedApi?.counterpartName ?? "Messages";
+  const headerName = selectedConversation?.counterpartName ?? "Messages";
   const headerInitials = initialsFromName(headerName);
-  const headerStatus = selectedMock?.statusLabel ?? "Pilot · Online";
 
   const threadMessages: ThreadMessage[] = useMemo(() => {
-    if (selectedMock) {
-      return selectedMock.messages.map((m) => ({
-        id: m.id,
-        body: m.body,
-        timeLabel: m.timeLabel,
-        isMine: m.isMine,
-      }));
-    }
+    if (!detail) return [];
 
-    if (detail) {
-      return detail.messages.map((m: MessageDto) => ({
-        id: m.id,
-        body: m.body,
-        timeLabel: formatBubbleTime(m.createdAt),
-        isMine: m.isMine,
-      }));
-    }
-
-    return [];
-  }, [detail, selectedMock]);
+    return detail.messages.map((m: MessageDto) => ({
+      id: m.id,
+      body: m.body,
+      timeLabel: formatBubbleTime(m.createdAt),
+      isMine: m.isMine,
+    }));
+  }, [detail]);
 
   function selectConversation(id: string) {
     setSelectedId(id);
     setMobileChatOpen(true);
     setDraft("");
     setThreadError(null);
-
-    if (isMockConversationId(id)) {
-      setMockConversations((current) =>
-        current.map((item) =>
-          item.id === id ? { ...item, unreadCount: 0 } : item,
-        ),
-      );
-    }
   }
 
   async function startConversation(jobApplicationId: string) {
@@ -221,7 +165,6 @@ export function ClientMessagesView({
         setListError(data.error ?? "Could not start conversation.");
       } else if (data.conversation?.id) {
         await loadList();
-        setUseMockFallback(false);
         selectConversation(data.conversation.id as string);
       }
     } catch {
@@ -235,30 +178,6 @@ export function ClientMessagesView({
     e.preventDefault();
     const text = draft.trim();
     if (!text || !selectedId) return;
-
-    if (isMockConversationId(selectedId)) {
-      const newMessage: ClientMockMessage = {
-        id: `mock-local-${Date.now()}`,
-        body: text,
-        timeLabel: formatBubbleTime(new Date().toISOString()),
-        isMine: true,
-      };
-
-      setMockConversations((current) =>
-        current.map((item) =>
-          item.id === selectedId
-            ? {
-                ...item,
-                preview: text,
-                timeLabel: "now",
-                messages: [...item.messages, newMessage],
-              }
-            : item,
-        ),
-      );
-      setDraft("");
-      return;
-    }
 
     setSending(true);
     setThreadError(null);
@@ -303,8 +222,7 @@ export function ClientMessagesView({
     }
   }
 
-  const showMockList = useMockFallback;
-  const listItems = showMockList ? mockConversations : conversations;
+  const showThread = Boolean(selectedId);
 
   return (
     <div
@@ -322,31 +240,10 @@ export function ClientMessagesView({
         <div className="client-messages-list-scroll">
           {loadingList ? (
             <p className="client-messages-list-status">Loading conversations…</p>
-          ) : listItems.length === 0 ? (
-            <p className="client-messages-list-status">No conversations yet.</p>
-          ) : showMockList ? (
-            mockConversations.map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                className={`client-messages-list-item${selectedId === item.id ? " client-messages-list-item--active" : ""}`}
-                onClick={() => selectConversation(item.id)}
-              >
-                <span className="client-messages-avatar" aria-hidden>
-                  {item.initials}
-                </span>
-                <span className="client-messages-list-copy">
-                  <span className="client-messages-list-row">
-                    <span className="client-messages-list-name">{item.pilotName}</span>
-                    <span className="client-messages-list-time">{item.timeLabel}</span>
-                  </span>
-                  <span className="client-messages-list-preview">{item.preview}</span>
-                </span>
-                {item.unreadCount > 0 ? (
-                  <span className="client-messages-unread">{item.unreadCount}</span>
-                ) : null}
-              </button>
-            ))
+          ) : conversations.length === 0 ? (
+            <p className="client-messages-list-status">
+              No conversations yet. Message a pilot from an active bid below.
+            </p>
           ) : (
             conversations.map((item) => (
               <button
@@ -378,7 +275,7 @@ export function ClientMessagesView({
             ))
           )}
 
-          {!showMockList && eligible.length > 0 ? (
+          {eligible.length > 0 ? (
             <div className="client-messages-eligible">
               <p className="client-messages-eligible-title">Start from a pilot bid</p>
               {eligible.map((app) => (
@@ -406,85 +303,101 @@ export function ClientMessagesView({
       </aside>
 
       <section className="client-messages-chat">
-        <header className="client-messages-chat-header">
-          <button
-            type="button"
-            className="client-messages-back-btn"
-            onClick={() => setMobileChatOpen(false)}
-          >
-            ← Conversations
-          </button>
-
-          <div className="client-messages-chat-header-main">
-            <span className="client-messages-avatar client-messages-avatar--header" aria-hidden>
-              {headerInitials}
-            </span>
-            <div>
-              <p className="client-messages-chat-name">{headerName}</p>
-              <p className="client-messages-chat-status">{headerStatus}</p>
-            </div>
+        {!showThread ? (
+          <div className="client-messages-thread-status">
+            Select a conversation or start one from a pilot bid.
           </div>
-        </header>
-
-        <div className="client-messages-thread">
-          {loadingThread ? (
-            <p className="client-messages-thread-status">Loading messages…</p>
-          ) : threadError ? (
-            <p className="client-messages-thread-error" role="alert">
-              {threadError}
-            </p>
-          ) : threadMessages.length === 0 ? (
-            <p className="client-messages-thread-status">
-              No messages yet. Say hello to get started.
-            </p>
-          ) : (
-            threadMessages.map((message) => (
-              <div
-                key={message.id}
-                className={`client-messages-bubble-wrap${message.isMine ? " client-messages-bubble-wrap--mine" : ""}`}
+        ) : (
+          <>
+            <header className="client-messages-chat-header">
+              <button
+                type="button"
+                className="client-messages-back-btn"
+                onClick={() => setMobileChatOpen(false)}
               >
-                <div
-                  className={`client-messages-bubble${message.isMine ? " client-messages-bubble--mine" : ""}`}
+                ← Conversations
+              </button>
+
+              <div className="client-messages-chat-header-main">
+                <span
+                  className="client-messages-avatar client-messages-avatar--header"
+                  aria-hidden
                 >
-                  <p>{message.body}</p>
-                  <span className="client-messages-bubble-time">
-                    {message.timeLabel}
-                  </span>
+                  {headerInitials}
+                </span>
+                <div>
+                  <p className="client-messages-chat-name">{headerName}</p>
+                  <p className="client-messages-chat-status">
+                    {selectedConversation?.jobTitle ?? "Pilot conversation"}
+                  </p>
                 </div>
               </div>
-            ))
-          )}
-        </div>
+            </header>
 
-        <form className="client-messages-composer" onSubmit={(e) => void handleSend(e)}>
-          <div className="client-messages-input-wrap">
-            <input
-              type="text"
-              value={draft}
-              onChange={(e) => setDraft(e.target.value)}
-              placeholder="Type your message..."
-              className="client-messages-input"
-              disabled={!selectedId || sending}
-            />
-            <button
-              type="button"
-              className="client-messages-attach-btn"
-              disabled
-              title="File attachments pending implementation"
-              aria-label="Attach file (coming soon)"
+            <div className="client-messages-thread">
+              {loadingThread ? (
+                <p className="client-messages-thread-status">Loading messages…</p>
+              ) : threadError ? (
+                <p className="client-messages-thread-error" role="alert">
+                  {threadError}
+                </p>
+              ) : threadMessages.length === 0 ? (
+                <p className="client-messages-thread-status">
+                  No messages yet. Say hello to get started.
+                </p>
+              ) : (
+                threadMessages.map((message) => (
+                  <div
+                    key={message.id}
+                    className={`client-messages-bubble-wrap${message.isMine ? " client-messages-bubble-wrap--mine" : ""}`}
+                  >
+                    <div
+                      className={`client-messages-bubble${message.isMine ? " client-messages-bubble--mine" : ""}`}
+                    >
+                      <p>{message.body}</p>
+                      <span className="client-messages-bubble-time">
+                        {message.timeLabel}
+                      </span>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            <form
+              className="client-messages-composer"
+              onSubmit={(e) => void handleSend(e)}
             >
-              <PaperclipIcon />
-            </button>
-          </div>
-          <button
-            type="submit"
-            className="client-messages-send-btn"
-            disabled={!selectedId || sending || !draft.trim()}
-          >
-            <SendIcon />
-            {sending ? "Sending…" : "Send"}
-          </button>
-        </form>
+              <div className="client-messages-input-wrap">
+                <input
+                  type="text"
+                  value={draft}
+                  onChange={(e) => setDraft(e.target.value)}
+                  placeholder="Type your message..."
+                  className="client-messages-input"
+                  disabled={sending}
+                />
+                <button
+                  type="button"
+                  className="client-messages-attach-btn"
+                  disabled
+                  title="File attachments pending implementation"
+                  aria-label="Attach file (coming soon)"
+                >
+                  <PaperclipIcon />
+                </button>
+              </div>
+              <button
+                type="submit"
+                className="client-messages-send-btn"
+                disabled={sending || !draft.trim()}
+              >
+                <SendIcon />
+                {sending ? "Sending…" : "Send"}
+              </button>
+            </form>
+          </>
+        )}
       </section>
     </div>
   );

@@ -110,20 +110,32 @@ Job posting: [`docs/M06_CLIENT_JOB_POSTING.md`](docs/M06_CLIENT_JOB_POSTING.md)
 
 ## Getting started (developers)
 
+**Local (no Neon):** see [`docs/LOCAL_DEV.md`](docs/LOCAL_DEV.md) — set `USE_LOCAL_DB=1`, run `npm run db:setup`, then `npm run dev`.
+
+**Neon (remote):** see [`docs/NEON_SETUP.md`](docs/NEON_SETUP.md).
+
+```bash
+npm install
+copy .env.example .env   # Windows — add USE_LOCAL_DB=1 and AUTH_SECRET
+npm run db:setup
+npm run dev
+```
+
 ### Prerequisites
 
 - Node.js 20+
 - npm
 
-### Install and run
+### Install and run (local SQLite)
 
 ```bash
 npm install
-# Copy .env.example → .env and add Neon DATABASE_URL + DIRECT_URL (see docs/NEON_SETUP.md)
-npm run db:push        # sync schema to Neon
-npm run db:seed        # demo users (password: Demo123!)
+# Copy .env.example → .env — set USE_LOCAL_DB=1 and AUTH_SECRET (see docs/LOCAL_DEV.md)
+npm run db:setup       # create prisma/dev.db + seed demo users
 npm run dev
 ```
+
+Demo password for all seeded accounts: **Demo123!**
 
 Open [http://localhost:3000](http://localhost:3000).
 

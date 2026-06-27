@@ -2,6 +2,11 @@ import { NextResponse } from "next/server";
 import { requireClientSession } from "@/lib/auth/require-client";
 import { requireOnboardedClient } from "@/lib/client/require-onboarded";
 import { listJobsForClient, toJobDto } from "@/lib/jobs/job";
+import {
+  parseJobPostProjectMetadata,
+  serializeJobPostProjectMetadata,
+  type JobPostProjectMetadata,
+} from "@/lib/jobs/post-project-metadata";
 import { validateJobInput } from "@/lib/jobs/validation";
 import { prisma } from "@/lib/db";
 
@@ -45,6 +50,21 @@ export async function POST(request: Request) {
     }
 
     const data = validated.data;
+    const postProjectRaw = body.postProject;
+    let postProjectJson: string | null = null;
+    if (postProjectRaw != null) {
+      const serialized = serializeJobPostProjectMetadata(
+        postProjectRaw as JobPostProjectMetadata,
+      );
+      const parsed = parseJobPostProjectMetadata(serialized);
+      if (!parsed) {
+        return NextResponse.json(
+          { error: "Invalid post-project metadata." },
+          { status: 400 },
+        );
+      }
+      postProjectJson = serialized;
+    }
     const scheduledDate = data.scheduledDate
       ? new Date(data.scheduledDate)
       : null;
@@ -67,6 +87,7 @@ export async function POST(request: Request) {
         budgetMax: data.budgetMax,
         currency: data.currency ?? "USD",
         requirements: data.requirements,
+        postProjectJson,
         status: "draft",
       },
     });

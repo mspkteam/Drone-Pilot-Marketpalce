@@ -3,22 +3,24 @@
 **Status:** Ready for Review  
 **Depends on:** M09 (Booking Workflow)
 
+> **Source PDFs (2026-06-02):** Default platform commission is **15%** for all new pilots (not tier-based). Super Admin per-pilot override — M309. A-4+ buyout — M310 (post-launch).
+
 ---
 
 ## Purpose
 
-When a booking is marked **completed**, the platform records a **Payment** (gross → net) and a **Commission** at **10%** of `agreedAmount`. Phase 1 uses logical records only — no Stripe charges.
+When a booking is marked **completed**, the platform records a **Payment** (gross → net) and a **Commission** at **15%** of `agreedAmount`. Phase 1 uses logical records only — no Stripe charges.
 
 ---
 
 ## Calculation
 
 ```
-commission = agreedAmount × 0.10 (rounded to 2 decimals)
+commission = agreedAmount × 0.15 (rounded to 2 decimals)
 pilotNet   = agreedAmount − commission
 ```
 
-Default rate: `DEFAULT_COMMISSION_RATE = 0.1` in `src/lib/commission/constants.ts`.
+Default rate: `DEFAULT_COMMISSION_RATE = 0.15` in `src/lib/commission/constants.ts`.
 
 ---
 
@@ -50,7 +52,7 @@ Created automatically in `updateBookingStatus` → `completed` (idempotent if pa
 | Step | Expected |
 |------|----------|
 | Complete booking | Payment + commission rows created |
-| Client Payments | Shows gross, 10% fee, pilot net |
+| Client Payments | Shows gross, 15% fee, pilot net |
 | Pilot Payments | Shows payout (net) |
 | Re-complete / duplicate | Idempotent — one payment per booking |
 

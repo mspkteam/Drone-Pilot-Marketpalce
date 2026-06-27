@@ -15,6 +15,27 @@ function initialsFromLabel(label: string): string {
   return label.replace(/[^a-zA-Z0-9]/g, "").slice(0, 2).toUpperCase();
 }
 
+type ClientProfileShellInput = {
+  contactName: string;
+  companyName: string | null;
+};
+
+export function buildClientShellUser(
+  sessionUser: SessionUser,
+  profile: ClientProfileShellInput | null,
+): DashboardShellUser {
+  const displayName =
+    profile?.contactName.trim() ||
+    profile?.companyName?.trim() ||
+    sessionUser.email?.split("@")[0] ||
+    "Client";
+
+  return buildDashboardUser(sessionUser, {
+    displayName,
+    roleSubtitle: "Client account",
+  });
+}
+
 export function buildDashboardUser(
   sessionUser: SessionUser,
   options?: {

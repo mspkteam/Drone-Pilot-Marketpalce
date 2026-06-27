@@ -1,5 +1,7 @@
 "use client";
 
+import { DEFAULT_COMMISSION_RATE } from "@/lib/commission/constants";
+
 type AdminRunPayoutsModalProps = {
   onClose: () => void;
   onConfirm: () => void;
@@ -31,8 +33,9 @@ export function AdminRunPayoutsModal({
         </div>
         <div className="admin-commissions-modal-body">
           <p>
-            This will process eligible pilot payouts after the fixed 10% platform
-            commission has been deducted.
+            This will process eligible pilot payouts after the fixed{" "}
+            {Math.round(DEFAULT_COMMISSION_RATE * 100)}% platform commission has
+            been deducted.
           </p>
           {pendingMessage ? (
             <p

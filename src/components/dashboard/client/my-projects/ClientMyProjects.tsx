@@ -4,25 +4,31 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import {
   CLIENT_MY_PROJECT_TABS,
-  CLIENT_MY_PROJECTS,
   CLIENT_MY_PROJECTS_ROUTES,
   filterClientMyProjects,
+  type ClientMyProject,
   type ClientMyProjectTabId,
-} from "@/lib/client/my-projects-mock";
+} from "@/lib/client/my-projects";
 import { ClientProjectCard } from "./ClientProjectCard";
 import { PlusCircleIcon } from "./ClientMyProjectsIcons";
 
 type ClientMyProjectsProps = {
+  projects: ClientMyProject[];
   submittedBanner?: boolean;
 };
 
-export function ClientMyProjects({ submittedBanner }: ClientMyProjectsProps) {
+export function ClientMyProjects({
+  projects,
+  submittedBanner,
+}: ClientMyProjectsProps) {
   const [activeTab, setActiveTab] = useState<ClientMyProjectTabId>("all");
 
   const filteredProjects = useMemo(
-    () => filterClientMyProjects(CLIENT_MY_PROJECTS, activeTab),
-    [activeTab],
+    () => filterClientMyProjects(projects, activeTab),
+    [projects, activeTab],
   );
+
+  const isEmpty = projects.length === 0;
 
   return (
     <div className="client-my-projects-page">
@@ -44,41 +50,52 @@ export function ClientMyProjects({ submittedBanner }: ClientMyProjectsProps) {
       </header>
 
       {submittedBanner ? (
-        <p
-          className="client-my-projects-banner"
-          role="status"
-        >
-          Project submitted for admin approval. Pilots will see it after approval
-          (M07).
+        <p className="client-my-projects-banner" role="status">
+          Project submitted for admin approval. Pilots will see it after approval.
         </p>
       ) : null}
 
-      <div className="client-my-projects-tabs-wrap">
-        <div
-          className="client-my-projects-tabs"
-          role="tablist"
-          aria-label="Filter projects by status"
-        >
-          {CLIENT_MY_PROJECT_TABS.map((tab) => {
-            const selected = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                type="button"
-                role="tab"
-                aria-selected={selected}
-                className={`client-my-projects-tab${selected ? " client-my-projects-tab--active" : ""}`}
-                onClick={() => setActiveTab(tab.id)}
-              >
-                {tab.label}
-              </button>
-            );
-          })}
+      {!isEmpty ? (
+        <div className="client-my-projects-tabs-wrap">
+          <div
+            className="client-my-projects-tabs"
+            role="tablist"
+            aria-label="Filter projects by status"
+          >
+            {CLIENT_MY_PROJECT_TABS.map((tab) => {
+              const selected = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={selected}
+                  className={`client-my-projects-tab${selected ? " client-my-projects-tab--active" : ""}`}
+                  onClick={() => setActiveTab(tab.id)}
+                >
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
+          <div className="client-my-projects-tabs-divider" aria-hidden />
         </div>
-        <div className="client-my-projects-tabs-divider" aria-hidden />
-      </div>
+      ) : null}
 
-      {filteredProjects.length === 0 ? (
+      {isEmpty ? (
+        <div className="client-my-projects-empty" role="status">
+          <p className="client-my-projects-empty-title">No projects yet</p>
+          <p className="client-my-projects-empty-text">
+            Post your first project to receive bids from verified pilots.
+          </p>
+          <Link
+            href={CLIENT_MY_PROJECTS_ROUTES.newProject}
+            className="client-my-projects-empty-cta"
+          >
+            Post a Project
+          </Link>
+        </div>
+      ) : filteredProjects.length === 0 ? (
         <div className="client-my-projects-empty" role="status">
           <p className="client-my-projects-empty-title">No projects found</p>
           <p className="client-my-projects-empty-text">

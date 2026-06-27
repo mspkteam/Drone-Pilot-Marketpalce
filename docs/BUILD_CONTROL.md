@@ -18,7 +18,7 @@ Master build control table for tracking modules, status, and sprint alignment. U
 | M10 | Reviews & Ratings | Post-job reviews for pilots and clients | Ready for Review | P2 | — | M09 | Sprint 9 | Review model, post-completion reviews |
 | M11 | Pilot Subscriptions | A-1–A-6 tiers, visibility delay, demo enroll | Ready for Review | P1 | — | M02 | Sprint 10 | See M27 — replaces Basic/Pro as primary logic |
 | M27 | Pilot Membership Tiers | A-1–A-6 visibility, bidding rules, instructor flag | Ready for Review | P1 | — | M02, M07, M08 | Sprint 25 | `M27_PILOT_MEMBERSHIP_TIERS.md` |
-| M12 | Commission System | Platform commission (10% Phase 1), calculation and records | Ready for Review | P1 | — | M09, M11 | Sprint 11 | Payment + 10% commission on booking complete |
+| M12 | Commission System | Platform commission (15% default), calculation and records | Ready for Review | P1 | — | M09, M11 | Sprint 11 | Payment + 15% commission on booking complete; per-pilot override M309 |
 | M13 | Admin Dashboard | Admin UI for users, jobs, bookings, settings | Ready for Review | P1 | — | M02 | Sprint 15 | Pilots, bookings, payments, reviews, overview stats |
 | M14 | Verification System | Pilot license/cert verification workflow | Ready for Review | P2 | — | M03, M13 | Sprint 16 | Submit docs, admin queue, public verified badges |
 | M15 | Digital Wings / Achievements | Wing definitions, auto-assign, admin award, public badges | Ready for Review | P1 | — | M05, M09, M10, M14 | Sprint 23 | Priority 6 — see DEVELOPMENT_ROADMAP.md |
@@ -284,7 +284,33 @@ Master build control table for tracking modules, status, and sprint alignment. U
 | M291 | Marketing Inline Hex → Token Migration | Replace remaining hardcoded Figma hex in marketing TSX | Not Started | P3 | — | Phase 41 | — | Home + shell done |
 | M292 | Dashboard TSX `ras-*` Class Adoption | Use shared brand classes in dashboard components | Not Started | P3 | — | Phase 41 | — | CSS modules tokenized |
 | M293 | Client/Pilot Sub-Route Visual QA | Page-by-page design consistency sign-off | Not Started | P2 | — | Phase 41 | — | — |
-| M294 | Figma Design Token Handoff | Align tokens to final Figma variables | Not Started | P2 | — | ADR-009 | — | Interim tokens in globals |
+| M294 | Figma Design Token Handoff | Align tokens to final Figma variables | Not Started | P2 | — | ADR-009 | — | Interim tokens in globals; client updated Figma — see M320 |
+| M295 | Source Document Alignment | Docs from Media Kit, Membership Upgrades, Paragraph 5 PDFs | Done | P0 | — | — | — | NEW_FEATURES_COMPARISON + IMPLEMENTATION_CONTEXT |
+| M296 | Default 15% Commission Alignment | Code + docs use 15% default; remove 10% assumptions | In Progress | P1 | — | M12 | — | Constant updated; per-pilot override = M309 |
+| M297 | Annual Membership Billing | $99.99/year base membership (all pilots) | Not Started | P1 | — | M11 | — | Replaces per-tier monthly model in UI |
+| M298 | Fast Forward One-Time Upgrades | A-2–A-6 one-time upgrade fees (not recurring tiers) | Not Started | P1 | — | M297 | — | Separate from membership SKU |
+| M299 | Upgrade Difference Calculation | Charge only delta when upgrading Fast Forward again | Not Started | P1 | — | M298 | — | Example $129.99 − $89.99 = $40 |
+| M300 | Membership Lapse Handling | Stop grade time; deactivate benefits/verification | Not Started | P1 | — | M297 | — | On expired annual membership |
+| M301 | 30-Day Profile Reactivation | Retain grade if reactivated within 30 days of cancel | Not Started | P1 | — | M300 | — | Warn on account deletion |
+| M302 | Automatic Grade Promotion Engine | Time-based A-1→A-6 for active members in good standing | Not Started | P1 | — | M27 | — | Pauses when lapsed |
+| M303 | Job Visibility Delay Engine | Enforce 48/36/24/12/6/0h after admin approval | Partial | P1 | — | M27, M07 | — | Backend largely done; verify on wire |
+| M304 | Proposal Eligibility by Grade | Block A-1 from submitting proposals | Partial | P1 | — | M08, M27 | — | `canApply: false` in tiers |
+| M305 | Proposal Revision 20% Limit | Cap bid revision price increase at +20% | Not Started | P1 | — | M08 | — | Media Kit flow |
+| M306 | Client-Initiated Chat Rule | Only clients may start client–pilot job threads | Not Started | P1 | — | M21 | — | Enforce in messaging API |
+| M307 | Booking Contract Milestone Fields | Six stages + operation planning fields on booking | Not Started | P2 | — | M09 | — | Flight times, angles, delivery, etc. |
+| M308 | Escrow Payment Flow | Collect, hold, release on completion minus commission | Not Started | P1 | — | M12, M56 | — | No fake Stripe UI |
+| M309 | Per-Pilot Commission Override | Super Admin manual commission rate per pilot | Not Started | P2 | — | M296 | — | Paragraph 5 |
+| M310 | Commission Buyout (A-4+) | Optional buyout of platform commission | Not Started | P3 | — | M309 | — | Post-launch; 75% of 6mo or flat |
+| M311 | Uniform Policy Acceptance | Require acceptance at signup/profile activation | Not Started | P2 | — | M03 | — | Media Kit governance |
+| M312 | Uniform Compliance Client Review | Client asks if pilot wore proper uniform | Not Started | P2 | — | M10, M311 | — | Post-job review question |
+| M313 | Admin Sanction Controls | Demotion, visibility, job access, termination | Not Started | P2 | — | M13, M311 | — | Uniform violation path |
+| M314 | Rule-Driven Wings/Awards Engine | Hour/cert/contract rules + admin award | Not Started | P2 | — | M15 | — | Senior/Master wings criteria |
+| M315 | Certificate & ID Card Module | Digital cert free; ID mailed after 30 approved days | Not Started | P2 | — | M22, M297 | — | Templates TBD |
+| M316 | Instructor Add-On Module | $199.99/yr; min A-4; student 20% off membership | Not Started | P2 | — | M297 | — | Ceremonial promotion later |
+| M317 | Captain's Club Public Page | Alphabetical public list of active A-6 Captains | Not Started | P1 | — | M05, M17 | — | New marketing route |
+| M318 | Squadron Vote Dispute Escalation | 100-vote leadership escalation path | Not Started | P3 | — | M23 | — | Post-MVP mediation |
+| M319 | Remote Rescue Future Roadmap | Document only — late 2027 | Not Started | P3 | — | — | — | **Do not implement** |
+| M320 | Figma Re-Alignment Post Source Docs | Reconcile updated Figma with membership/commission rules | Not Started | P2 | — | M294, M297 | — | After doc alignment |
 
 ## Priority legend
 
@@ -316,7 +342,7 @@ flowchart TD
 
 ## Active workstream
 
-**Functionality wiring phase (current):** UI/design shell complete (dashboard Phases 1–41). Next: wire mock/preview surfaces to real APIs and DB. See [`FUNCTIONALITY_WIRING_PLAN.md`](FUNCTIONALITY_WIRING_PLAN.md) for the full audit and sprint order. **Start:** Client My Projects → Project Bids → core marketplace flow.
+**Functionality wiring phase (current):** UI/design shell complete (dashboard Phases 1–41). Business rules aligned to client source PDFs (see M295). Next: wire mock/preview surfaces to real APIs per [`FUNCTIONALITY_WIRING_PLAN.md`](FUNCTIONALITY_WIRING_PLAN.md) phases 2–10 and [`PLATFORM_MILESTONE_PLAN.md`](PLATFORM_MILESTONE_PLAN.md). **Context:** [`IMPLEMENTATION_CONTEXT_FOR_NEW_FEATURES.md`](IMPLEMENTATION_CONTEXT_FOR_NEW_FEATURES.md). **Start:** Milestone 1 — Client My Projects → Project Bids.
 
 **Polish phase (deferred):** See [`POLISH_IMPLEMENTATION_CHECKLIST.md`](POLISH_IMPLEMENTATION_CHECKLIST.md) for sign-off, placeholder routes, and cross-cutting fixes before SEO/publish.
 

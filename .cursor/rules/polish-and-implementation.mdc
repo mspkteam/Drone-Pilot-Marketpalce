@@ -1,5 +1,5 @@
 ---
-description: Follow DEVELOPMENT_ROADMAP priorities 1-7. No Stripe, SMTP, SEO, or launch QA unless user asks.
+description: Follow DEVELOPMENT_ROADMAP and RAS business rules. No Stripe, SEO, or launch QA unless user asks.
 globs:
 alwaysApply: true
 ---
@@ -8,9 +8,13 @@ alwaysApply: true
 
 **Roadmap:** `docs/DEVELOPMENT_ROADMAP.md` — complete **one priority at a time**.
 
-**Do not implement:** Stripe, Stripe Connect, SMTP/production email, M19 SEO, M20 launch QA, production publishing.
+**Business rules:** `docs/IMPLEMENTATION_CONTEXT_FOR_NEW_FEATURES.md` · `.cursor/rules/business-rules-ras.mdc` — 15% commission, $99.99/yr membership, RAS marketplace flow.
 
-**Current default:** Priority 1 Messaging (`docs/M21_MESSAGING.md`).
+**Functionality wiring:** `docs/FUNCTIONALITY_WIRING_PLAN.md` · `docs/PLATFORM_MILESTONE_PLAN.md`
+
+**Do not implement unless asked:** Stripe, Stripe Connect, SMTP/production email, M19 SEO, M20 launch QA, Remote Rescue (M319).
+
+**Current default:** Client My Projects + Project Bids wiring (Milestone 1).
 
 ## When implementing a priority
 
@@ -24,5 +28,6 @@ alwaysApply: true
 ## Preserve
 
 - M02 register: email, password, role only (ADR-010)
+- Dark aviation design system and completed dashboard UI
 - Working marketplace flows (jobs, bids, bookings, commission)
 - Minimize unrelated refactors

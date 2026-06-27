@@ -221,14 +221,14 @@ erDiagram
 
 ## Commission
 
-**Purpose:** Platform fee (10% Phase 1) on qualifying transactions.
+**Purpose:** Platform fee (**15% default** per source PDFs) on qualifying transactions.
 
 | Key fields | Type / notes |
 |------------|----------------|
 | id | UUID |
 | bookingId | FK → Booking |
 | paymentId | FK → Payment (optional) |
-| rate | Decimal (default 0.10) |
+| rate | Decimal (default 0.15) |
 | amount | Decimal |
 | currency | String |
 | calculatedAt | Timestamp |
@@ -322,6 +322,6 @@ erDiagram
 ## Phase 1 modeling notes
 
 - One **active Booking** per Job in Phase 1 (single accepted bid).
-- **Commission** calculated as `agreedAmount * 0.10` unless overridden in admin settings (Super Admin).
+- **Commission** calculated as `agreedAmount * 0.15` unless overridden per pilot (Super Admin — M309).
 - **Guest** is not an entity; no User row until registration.
 - API responses should expose stable ids for future mobile clients without coupling to UI.

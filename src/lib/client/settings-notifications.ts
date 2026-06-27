@@ -1,4 +1,6 @@
-/** Client notification preference UI state — wire to API in M68. */
+/** Client notification preference UI state — persisted on ClientProfile.preferencesJson. */
+
+import type { ClientProfilePreferencesDto } from "@/types/client";
 
 export type ClientNotificationPreferences = {
   emailUpdates: boolean;
@@ -26,7 +28,7 @@ export const CLIENT_NOTIFICATION_ROWS: readonly {
   },
   {
     key: "newBids",
-    title: "New bids",
+    title: "New quotes",
     description: "Get notified when a pilot bids on your project",
   },
   {
@@ -40,6 +42,12 @@ export const CLIENT_NOTIFICATION_ROWS: readonly {
     description: "Status changes and approvals",
   },
 ] as const;
+
+export function notificationPreferencesFromProfile(
+  preferences: ClientProfilePreferencesDto | undefined,
+): ClientNotificationPreferences {
+  return preferences?.notifications ?? { ...CLIENT_NOTIFICATION_DEFAULTS };
+}
 
 const STORAGE_KEY = "client-notification-preferences";
 

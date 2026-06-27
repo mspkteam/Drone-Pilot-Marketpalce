@@ -3,8 +3,25 @@
 import "dotenv/config";
 import { defineConfig } from "prisma/config";
 
-/** Prisma CLI (migrate, db push, studio) uses direct Neon URL — not the pooler. */
+export const LOCAL_SQLITE_URL = "file:./prisma/dev.db";
+
+function useLocalSqlite(): boolean {
+  if (process.env["USE_NEON"]?.trim() === "1") return false;
+  if (process.env["USE_LOCAL_DB"]?.trim() === "0") return false;
+  if (process.env["USE_LOCAL_DB"]?.trim() === "1") return true;
+  const url = process.env["DATABASE_URL"]?.trim();
+  if (url?.startsWith("file:")) return true;
+  if (process.env.NODE_ENV !== "production") return true;
+  return false;
+}
+
+/** Prisma CLI (migrate, db push, studio) — local SQLite or Neon direct URL. */
 function cliDatabaseUrl(): string {
+  if (useLocalSqlite()) {
+    const fileUrl = process.env["DATABASE_URL"]?.trim();
+    return fileUrl?.startsWith("file:") ? fileUrl : LOCAL_SQLITE_URL;
+  }
+
   const direct =
     process.env["DIRECT_URL"]?.trim() ||
     process.env["DATABASE_URL_UNPOOLED"]?.trim();
@@ -18,8 +35,7 @@ function cliDatabaseUrl(): string {
     return pooled;
   }
 
-  // `prisma generate` does not connect; postinstall must work before .env exists
-  return "postgresql://127.0.0.1:5432/placeholder?sslmode=disable";
+  return LOCAL_SQLITE_URL;
 }
 
 export default defineConfig({

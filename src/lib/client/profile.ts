@@ -1,8 +1,11 @@
 import { prisma } from "@/lib/db";
 import type { ClientProfile } from "@/generated/prisma/client";
+import { parseClientProfilePreferences } from "@/lib/client/preferences";
+import { CLIENT_NOTIFICATION_DEFAULTS } from "@/lib/client/settings-notifications";
 import type {
   ClientBillingAddress,
   ClientProfileDto,
+  ClientProfilePreferencesDto,
   ClientProfileStatus,
 } from "@/types/client";
 
@@ -28,6 +31,31 @@ export function serializeBillingAddress(
   return JSON.stringify(address);
 }
 
+export {
+  mergeClientProfilePreferences,
+  normalizeClientProfilePreferencesInput,
+  parseClientProfilePreferences,
+  serializeClientProfilePreferences,
+} from "@/lib/client/preferences";
+export type { ClientProfilePreferences } from "@/lib/client/preferences";
+
+export function toClientProfilePreferencesDto(
+  json: string | null | undefined,
+): ClientProfilePreferencesDto {
+  const parsed = parseClientProfilePreferences(json);
+  return {
+    roleTitle: parsed.roleTitle ?? "",
+    preferredContact: parsed.preferredContact ?? "Email",
+    typicalProjectArea: parsed.typicalProjectArea ?? "",
+    defaultBudgetRange: parsed.defaultBudgetRange ?? "",
+    approvalContact: parsed.approvalContact ?? "",
+    billingEmail: parsed.billingEmail ?? "",
+    projectTypes: parsed.projectTypes ?? [],
+    logoPath: parsed.logoPath ?? null,
+    notifications: parsed.notifications ?? { ...CLIENT_NOTIFICATION_DEFAULTS },
+  };
+}
+
 export function toClientProfileDto(profile: ClientProfile): ClientProfileDto {
   return {
     id: profile.id,
@@ -36,6 +64,7 @@ export function toClientProfileDto(profile: ClientProfile): ClientProfileDto {
     contactName: profile.contactName,
     phone: profile.phone,
     billingAddress: parseBillingAddress(profile.billingAddress),
+    preferences: toClientProfilePreferencesDto(profile.preferencesJson),
     status: profile.status as ClientProfileStatus,
     onboardingCompletedAt:
       profile.onboardingCompletedAt?.toISOString() ?? null,

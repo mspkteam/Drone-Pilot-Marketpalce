@@ -9,17 +9,13 @@ import {
   getClientProfileByUserId,
   isOnboardingComplete,
 } from "@/lib/client/profile";
+import { getClientDashboardOverviewData } from "@/lib/client/dashboard-overview-server";
 
 export const metadata = { title: "Client Dashboard" };
 
 type PageProps = {
   searchParams: Promise<{ onboarding?: string }>;
 };
-
-/** Screenshot/mock phase — display John until M38 wires live client greeting. */
-function clientDisplayName(): string {
-  return "John";
-}
 
 export default async function ClientDashboardPage({ searchParams }: PageProps) {
   const session = await auth();
@@ -30,12 +26,12 @@ export default async function ClientDashboardPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const profile = await getClientProfileByUserId(session.user.id);
 
-  if (!isOnboardingComplete(profile)) {
+  if (!profile || !isOnboardingComplete(profile)) {
     redirect("/dashboard/client/onboarding");
   }
 
+  const overview = await getClientDashboardOverviewData(profile.id, session.user.id);
   const justCompleted = params.onboarding === "complete";
-  const clientName = clientDisplayName();
 
   return (
     <DashboardPageLayout className="client-dashboard-shell">
@@ -46,7 +42,7 @@ export default async function ClientDashboardPage({ searchParams }: PageProps) {
         </DashboardStatusBanner>
       ) : null}
 
-      <ClientDashboardOverview clientName={clientName} />
+      <ClientDashboardOverview {...overview} />
     </DashboardPageLayout>
   );
 }

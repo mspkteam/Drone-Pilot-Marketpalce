@@ -42,18 +42,21 @@ function buildClientExtras(
 ): ClientUiExtras {
   const form = profile ? clientDtoToFormState(profile) : emptyClientFormState;
   const billing = profile?.billingAddress;
+  const prefs = profile?.preferences;
   return {
-    roleTitle: "",
+    roleTitle: prefs?.roleTitle ?? "",
     location: formatLocation(billing?.city ?? "", billing?.region ?? ""),
     primaryEmail: accountEmail ?? "",
-    preferredContact: "Email",
-    typicalProjectArea: "",
-    defaultBudgetRange: "$2,000 - $5,000",
-    approvalContact: form.contactName,
-    billingEmail: accountEmail ?? "",
+    preferredContact: prefs?.preferredContact ?? "Email",
+    typicalProjectArea: prefs?.typicalProjectArea ?? "",
+    defaultBudgetRange: prefs?.defaultBudgetRange ?? "",
+    approvalContact: prefs?.approvalContact || form.contactName,
+    billingEmail: prefs?.billingEmail || accountEmail || "",
     paymentConnected: false,
-    projectTypes: ["Real Estate", "Roof Inspection", "Construction", "Aerial Photography"],
-    logoPreview: null,
+    projectTypes: prefs?.projectTypes?.length
+      ? [...prefs.projectTypes]
+      : [],
+    logoPreview: prefs?.logoPath ?? null,
   };
 }
 
@@ -136,7 +139,19 @@ export function ClientProfileCompletionView({
       billingRegion: loc.region,
     };
 
-    const payload = clientFormToPayload(mergedForm, needsOnboarding);
+    const payload = {
+      ...clientFormToPayload(mergedForm, needsOnboarding),
+      preferences: {
+        roleTitle: extras.roleTitle,
+        preferredContact: extras.preferredContact,
+        typicalProjectArea: extras.typicalProjectArea,
+        defaultBudgetRange: extras.defaultBudgetRange,
+        approvalContact: extras.approvalContact,
+        billingEmail: extras.billingEmail,
+        projectTypes: extras.projectTypes,
+        logoPath: extras.logoPreview,
+      },
+    };
     const method = profile ? "PATCH" : "POST";
     const res = await fetch("/api/client/profile", {
       method,

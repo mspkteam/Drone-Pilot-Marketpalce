@@ -4,6 +4,7 @@ import {
   type PostProjectFormState,
   type PostProjectPriority,
   type PostProjectQuoteType,
+  type PostProjectTravelExpenses,
 } from "@/lib/client/post-project";
 import { cn } from "@/lib/utils";
 
@@ -12,7 +13,16 @@ type PostProjectStepBudgetProps = {
   onChange: (patch: Partial<PostProjectFormState>) => void;
 };
 
+function updateTravelExpenses(
+  current: PostProjectTravelExpenses,
+  patch: Partial<PostProjectTravelExpenses>,
+): PostProjectTravelExpenses {
+  return { ...current, ...patch };
+}
+
 export function PostProjectStepBudget({ form, onChange }: PostProjectStepBudgetProps) {
+  const showTravelAmounts = form.coverTravelExpenses === true;
+
   return (
     <div className="client-post-project-step">
       <h2 className="client-post-project-step-title">Project budget &amp; timeline</h2>
@@ -99,6 +109,115 @@ export function PostProjectStepBudget({ form, onChange }: PostProjectStepBudgetP
           onChange={(e) => onChange({ deadline: e.target.value })}
         />
       </label>
+
+      <section className="client-post-project-travel-section">
+        <h3 className="client-post-project-travel-title">Pilot travel coverage</h3>
+        <p className="client-post-project-travel-subtitle">
+          Set expectations so pilots can respond accurately.
+        </p>
+        <p className="client-post-project-section-label client-post-project-section-label--compact">
+          Will you cover pilot travel expenses separately?
+        </p>
+        <div className="client-post-project-radio-group" role="radiogroup">
+          {(
+            [
+              { value: true, label: "Yes" },
+              { value: false, label: "No" },
+            ] as const
+          ).map((option) => {
+            const selected = form.coverTravelExpenses === option.value;
+            return (
+              <button
+                key={option.label}
+                type="button"
+                role="radio"
+                aria-checked={selected}
+                className={cn(
+                  "client-post-project-radio-option",
+                  selected && "client-post-project-radio-option--selected",
+                )}
+                onClick={() => onChange({ coverTravelExpenses: option.value })}
+              >
+                <span className="client-post-project-radio-indicator" aria-hidden />
+                {option.label}
+              </button>
+            );
+          })}
+        </div>
+
+        {showTravelAmounts ? (
+          <div className="client-post-project-travel-grid">
+            <label className="client-post-project-field">
+              <span className="client-post-project-field-label">Air travel (USD)</span>
+              <input
+                type="number"
+                min={0}
+                className="client-post-project-input"
+                placeholder="500"
+                value={form.travelExpenses.airTravel}
+                onChange={(e) =>
+                  onChange({
+                    travelExpenses: updateTravelExpenses(form.travelExpenses, {
+                      airTravel: e.target.value,
+                    }),
+                  })
+                }
+              />
+            </label>
+            <label className="client-post-project-field">
+              <span className="client-post-project-field-label">Lodging (USD)</span>
+              <input
+                type="number"
+                min={0}
+                className="client-post-project-input"
+                placeholder="300"
+                value={form.travelExpenses.lodging}
+                onChange={(e) =>
+                  onChange({
+                    travelExpenses: updateTravelExpenses(form.travelExpenses, {
+                      lodging: e.target.value,
+                    }),
+                  })
+                }
+              />
+            </label>
+            <label className="client-post-project-field">
+              <span className="client-post-project-field-label">Incidentals (USD)</span>
+              <input
+                type="number"
+                min={0}
+                className="client-post-project-input"
+                placeholder="150"
+                value={form.travelExpenses.incidentals}
+                onChange={(e) =>
+                  onChange({
+                    travelExpenses: updateTravelExpenses(form.travelExpenses, {
+                      incidentals: e.target.value,
+                    }),
+                  })
+                }
+              />
+            </label>
+            <label className="client-post-project-field">
+              <span className="client-post-project-field-label">Ground transport (USD)</span>
+              <input
+                type="number"
+                min={0}
+                className="client-post-project-input"
+                placeholder="100"
+                value={form.travelExpenses.groundTransport}
+                onChange={(e) =>
+                  onChange({
+                    travelExpenses: updateTravelExpenses(form.travelExpenses, {
+                      groundTransport: e.target.value,
+                    }),
+                  })
+                }
+              />
+            </label>
+          </div>
+        ) : null}
+      </section>
     </div>
   );
 }

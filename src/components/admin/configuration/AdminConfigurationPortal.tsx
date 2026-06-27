@@ -9,6 +9,7 @@ import type {
   ConfigIntegration,
   IntegrationStatus,
 } from "@/types/admin-configuration";
+import { DEFAULT_COMMISSION_RATE } from "@/lib/commission/constants";
 
 function CardIcon({ children }: { children: React.ReactNode }) {
   return <span className="admin-config-card-icon" aria-hidden>{children}</span>;
@@ -129,7 +130,7 @@ export function AdminConfigurationPortal({ canManage }: AdminConfigurationPortal
       {data?.persistenceMode === "preview" ? (
         <p className="admin-config-banner admin-config-banner--info" role="status">
           Platform settings use read-only and preview values. Fee commission is fixed
-          at 10% via <code>DEFAULT_COMMISSION_RATE</code>. Security toggles are not
+          at {Math.round(DEFAULT_COMMISSION_RATE * 100)}% via <code>DEFAULT_COMMISSION_RATE</code>. Security toggles are not
           integrated yet.
         </p>
       ) : null}

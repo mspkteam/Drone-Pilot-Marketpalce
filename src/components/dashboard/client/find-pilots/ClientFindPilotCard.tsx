@@ -1,8 +1,5 @@
 import Link from "next/link";
-import {
-  CLIENT_FIND_PILOTS_ROUTES,
-  type ClientFindPilot,
-} from "@/lib/client/find-pilots-mock";
+import type { ClientFindPilot } from "@/lib/client/find-pilots";
 import {
   ClockIcon,
   PinIcon,
@@ -63,10 +60,7 @@ export function ClientFindPilotCard({ pilot }: ClientFindPilotCardProps) {
 
       <div className="client-find-pilots-footer">
         <p className="client-find-pilots-price">{pilot.priceLabel}</p>
-        <Link
-          href={CLIENT_FIND_PILOTS_ROUTES.pilotProfile(pilot.slug)}
-          className="client-find-pilots-profile-btn"
-        >
+        <Link href={pilot.profileHref} className="client-find-pilots-profile-btn">
           View profile
         </Link>
       </div>

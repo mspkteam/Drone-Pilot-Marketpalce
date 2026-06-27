@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CLIENT_DASHBOARD_ROUTES } from "@/lib/client/dashboard-overview-mock";
+import { CLIENT_DASHBOARD_ROUTES } from "@/lib/client/dashboard-overview";
 
 type ClientDashboardWelcomeProps = {
   clientName: string;

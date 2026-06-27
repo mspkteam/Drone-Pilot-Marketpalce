@@ -1,12 +1,10 @@
-"use client";
-
 import Link from "next/link";
 import {
   badgeToneForBidStatus,
   CLIENT_PROJECT_BIDS_ROUTES,
   formatDeliveryDays,
   type ClientProjectBid,
-} from "@/lib/client/project-bids-mock";
+} from "@/lib/client/project-bids";
 import {
   ClockIcon,
   MessageIcon,
@@ -17,6 +15,7 @@ import {
 type ClientProjectBidCardProps = {
   bid: ClientProjectBid;
   hasAcceptedBid: boolean;
+  busy?: boolean;
   onShortlist: (bidId: string) => void;
   onDecline: (bidId: string) => void;
   onAccept: (bid: ClientProjectBid) => void;
@@ -25,6 +24,7 @@ type ClientProjectBidCardProps = {
 export function ClientProjectBidCard({
   bid,
   hasAcceptedBid,
+  busy = false,
   onShortlist,
   onDecline,
   onAccept,
@@ -32,7 +32,9 @@ export function ClientProjectBidCard({
   const badgeTone = badgeToneForBidStatus(bid.status);
   const isAccepted = bid.status === "Accepted";
   const isDeclined = bid.status === "Declined";
-  const actionsLocked = hasAcceptedBid || isAccepted || isDeclined;
+  const actionsLocked =
+    busy || hasAcceptedBid || isAccepted || isDeclined;
+  const canShortlist = bid.applicationStatus === "submitted" && !hasAcceptedBid;
 
   return (
     <article className="client-project-bids-card">
@@ -60,11 +62,13 @@ export function ClientProjectBidCard({
 
         <p className="client-project-bids-note">{bid.proposalNote}</p>
 
-        <ul className="client-project-bids-highlights">
-          {bid.highlights.map((highlight) => (
-            <li key={highlight}>{highlight}</li>
-          ))}
-        </ul>
+        {bid.highlights.length > 0 ? (
+          <ul className="client-project-bids-highlights">
+            {bid.highlights.map((highlight) => (
+              <li key={highlight}>{highlight}</li>
+            ))}
+          </ul>
+        ) : null}
       </div>
 
       <div className="client-project-bids-card-metrics">
@@ -97,7 +101,7 @@ export function ClientProjectBidCard({
           Message
         </Link>
         <Link
-          href={CLIENT_PROJECT_BIDS_ROUTES.pilotProfile(bid.pilotSlug)}
+          href={CLIENT_PROJECT_BIDS_ROUTES.pilotProfile(bid.pilotProfileId)}
           className="client-project-bids-btn-outline"
         >
           View Profile
@@ -105,7 +109,7 @@ export function ClientProjectBidCard({
         <button
           type="button"
           className={`client-project-bids-btn-outline client-project-bids-btn-shortlist${bid.status === "Shortlisted" ? " client-project-bids-btn-shortlist--active" : ""}`}
-          disabled={actionsLocked}
+          disabled={!canShortlist || busy}
           onClick={() => onShortlist(bid.id)}
         >
           Shortlist
@@ -113,18 +117,18 @@ export function ClientProjectBidCard({
         <button
           type="button"
           className="client-project-bids-btn-outline client-project-bids-btn-decline"
-          disabled={actionsLocked}
+          disabled={actionsLocked || bid.applicationStatus !== "submitted"}
           onClick={() => onDecline(bid.id)}
         >
-          Decline
+          {busy ? "Declining…" : "Decline"}
         </button>
         <button
           type="button"
           className="client-project-bids-btn-gold"
-          disabled={actionsLocked}
+          disabled={actionsLocked || bid.applicationStatus !== "submitted"}
           onClick={() => onAccept(bid)}
         >
-          {isAccepted ? "Bid Accepted" : "Accept Bid"}
+          {isAccepted ? "Bid Accepted" : busy ? "Accepting…" : "Accept Bid"}
         </button>
       </div>
     </article>

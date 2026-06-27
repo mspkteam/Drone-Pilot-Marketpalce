@@ -58,8 +58,8 @@ Check the countdown on the Locked Jobs page and consider upgrading your membersh
     slug: "payout-schedule-and-platform-commission",
     category: "Payments",
     summary:
-      "How completed booking payouts work and when the 10% marketplace fee is deducted.",
-    body: `When a client booking is marked completed and payment is released, your pilot earnings appear on the Payments page. Remote Air Service deducts a 10% platform commission from the gross job amount; the remainder is your payout.
+      "How completed booking payouts work and when the 15% marketplace fee is deducted.",
+    body: `When a client booking is marked completed and payment is released, your pilot earnings appear on the Payments page. Remote Air Service deducts a 15% platform commission from the gross job amount; the remainder is your payout.
 
 Payout timing may depend on client payment release and internal processing. Uniform shop orders use a separate payment flow from mission escrow.`,
     audience: "pilot",

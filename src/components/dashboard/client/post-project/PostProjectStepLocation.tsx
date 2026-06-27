@@ -52,7 +52,7 @@ export function PostProjectStepLocation({ form, onChange }: PostProjectStepLocat
                 />
               </label>
 
-              <div className="client-post-project-field-row">
+              <div className="client-post-project-field-row client-post-project-field-row--3">
                 <label className="client-post-project-field">
                   <span className="client-post-project-field-label">City</span>
                   <input
@@ -64,15 +64,23 @@ export function PostProjectStepLocation({ form, onChange }: PostProjectStepLocat
                   />
                 </label>
                 <label className="client-post-project-field">
-                  <span className="client-post-project-field-label">State / Country</span>
+                  <span className="client-post-project-field-label">Country</span>
                   <input
                     type="text"
                     className="client-post-project-input"
                     placeholder="United States"
-                    value={location.stateCountry}
-                    onChange={(e) =>
-                      updateLocation(index, { stateCountry: e.target.value })
-                    }
+                    value={location.country}
+                    onChange={(e) => updateLocation(index, { country: e.target.value })}
+                  />
+                </label>
+                <label className="client-post-project-field">
+                  <span className="client-post-project-field-label">State</span>
+                  <input
+                    type="text"
+                    className="client-post-project-input"
+                    placeholder="State"
+                    value={location.state}
+                    onChange={(e) => updateLocation(index, { state: e.target.value })}
                   />
                 </label>
               </div>

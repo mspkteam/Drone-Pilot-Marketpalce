@@ -2,9 +2,9 @@ import Link from "next/link";
 import { ClientDashboardCard } from "@/components/dashboard/client/ClientDashboardCard";
 import {
   CLIENT_DASHBOARD_ROUTES,
-  CLIENT_RECENT_PROJECTS,
   type ClientProjectStatus,
-} from "@/lib/client/dashboard-overview-mock";
+  type ClientRecentProject,
+} from "@/lib/client/dashboard-overview";
 import { cn } from "@/lib/utils";
 
 const statusToneClass: Record<ClientProjectStatus, string> = {
@@ -13,7 +13,13 @@ const statusToneClass: Record<ClientProjectStatus, string> = {
   awaiting_quotes: "client-dashboard-badge-neutral",
 };
 
-export function ClientDashboardRecentProjects() {
+type ClientDashboardRecentProjectsProps = {
+  projects: ClientRecentProject[];
+};
+
+export function ClientDashboardRecentProjects({
+  projects,
+}: ClientDashboardRecentProjectsProps) {
   return (
     <ClientDashboardCard
       title="Recent Projects"
@@ -28,24 +34,36 @@ export function ClientDashboardRecentProjects() {
         </Link>
       }
     >
-      <ul className="client-dashboard-project-list">
-        {CLIENT_RECENT_PROJECTS.map((project) => (
-          <li key={project.id} className="client-dashboard-project-row">
-            <div className="client-dashboard-project-copy">
-              <p className="client-dashboard-project-title">{project.title}</p>
-              <p className="client-dashboard-project-meta">{project.metadata}</p>
-            </div>
-            <span
-              className={cn(
-                "client-dashboard-badge",
-                statusToneClass[project.status],
-              )}
-            >
-              {project.statusLabel}
-            </span>
-          </li>
-        ))}
-      </ul>
+      {projects.length === 0 ? (
+        <p className="client-dashboard-empty-copy" role="status">
+          No projects yet.{" "}
+          <Link href={CLIENT_DASHBOARD_ROUTES.postProject} className="underline">
+            Post your first project
+          </Link>
+          .
+        </p>
+      ) : (
+        <ul className="client-dashboard-project-list">
+          {projects.map((project) => (
+            <li key={project.id} className="client-dashboard-project-row">
+              <Link href={project.href} className="client-dashboard-project-link">
+                <div className="client-dashboard-project-copy">
+                  <p className="client-dashboard-project-title">{project.title}</p>
+                  <p className="client-dashboard-project-meta">{project.metadata}</p>
+                </div>
+                <span
+                  className={cn(
+                    "client-dashboard-badge",
+                    statusToneClass[project.status],
+                  )}
+                >
+                  {project.statusLabel}
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
     </ClientDashboardCard>
   );
 }

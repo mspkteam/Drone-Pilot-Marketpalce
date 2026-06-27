@@ -1,4 +1,5 @@
 import {
+  buildPostProjectTravelSummary,
   formatPostProjectBudget,
   formatPostProjectDeadline,
   formatPostProjectLocation,
@@ -7,9 +8,12 @@ import {
   serviceLabel,
   type PostProjectFormState,
 } from "@/lib/client/post-project";
+import { PostProjectTermsAcknowledgment } from "@/components/dashboard/client/post-project/PostProjectTermsAcknowledgment";
+import { cn } from "@/lib/utils";
 
 type PostProjectStepReviewProps = {
   form: PostProjectFormState;
+  onOpenTermsModal: () => void;
 };
 
 function SummaryCard({ label, value }: { label: string; value: string }) {
@@ -21,7 +25,10 @@ function SummaryCard({ label, value }: { label: string; value: string }) {
   );
 }
 
-export function PostProjectStepReview({ form }: PostProjectStepReviewProps) {
+export function PostProjectStepReview({
+  form,
+  onOpenTermsModal,
+}: PostProjectStepReviewProps) {
   const quoteLabel =
     POST_PROJECT_QUOTE_TYPES.find((q) => q.id === form.quoteType)?.label ?? "—";
   const priorityLabel =
@@ -29,6 +36,7 @@ export function PostProjectStepReview({ form }: PostProjectStepReviewProps) {
   const deliverables =
     form.deliverables.length > 0 ? form.deliverables.join(", ") : "—";
   const notes = form.specialRequirements.trim() || "—";
+  const travelSummary = buildPostProjectTravelSummary(form);
 
   return (
     <div className="client-post-project-step">
@@ -55,12 +63,44 @@ export function PostProjectStepReview({ form }: PostProjectStepReviewProps) {
         />
       </div>
 
+      {travelSummary.length > 0 ? (
+        <section className="client-post-project-travel-summary">
+          <h3 className="client-post-project-travel-summary-title">
+            Travel Information
+          </h3>
+          <div className="client-post-project-travel-summary-grid">
+            {travelSummary.map((item) => (
+              <article
+                key={item.label}
+                className={cn(
+                  "client-post-project-travel-summary-card",
+                  item.wide && "client-post-project-travel-summary-card--wide",
+                )}
+              >
+                <p className="client-post-project-travel-summary-label">
+                  {item.label}
+                </p>
+                <p className="client-post-project-travel-summary-value">
+                  {item.value}
+                </p>
+              </article>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
       <article className="client-post-project-summary-card client-post-project-summary-card--wide">
         <p className="client-post-project-summary-label">NOTES</p>
         <p className="client-post-project-summary-value client-post-project-summary-value--notes">
           {notes}
         </p>
       </article>
+
+      <PostProjectTermsAcknowledgment
+        variant="review"
+        acknowledged={form.termsAcknowledged}
+        onOpenTerms={onOpenTermsModal}
+      />
     </div>
   );
 }

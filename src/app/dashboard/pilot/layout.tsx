@@ -5,6 +5,7 @@ import {
   buildDashboardUser,
   buildPilotRankCard,
 } from "@/lib/dashboard/shell-user";
+import { getMilestoneShellProps } from "@/lib/milestone-shell-props";
 import { getPilotMembershipSummary } from "@/lib/membership/membership";
 import { pilotNavGroups } from "@/lib/navigation/dashboard-pilot";
 import {
@@ -47,12 +48,17 @@ export default async function PilotDashboardLayout({
     }
   }
 
+  const milestone = getMilestoneShellProps(
+    session?.user?.role === "pilot" ? "pilot" : undefined,
+  );
+
   return (
     <DashboardShell
       homeHref="/dashboard/pilot"
       navGroups={pilotNavGroups}
       user={user}
       rankCard={rankCard}
+      {...milestone}
     >
       <OnboardingRedirect needsOnboarding={needsOnboarding} />
       {children}

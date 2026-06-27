@@ -1,0 +1,57 @@
+---
+description: Remote Air Service business rules from client source PDFs (Media Kit, Membership Upgrades, Paragraph 5). Apply during functionality wiring — not a generic marketplace.
+globs:
+alwaysApply: true
+---
+
+# Remote Air Service — business rules (source of truth)
+
+**Read before implementing:** `docs/IMPLEMENTATION_CONTEXT_FOR_NEW_FEATURES.md` · `docs/NEW_FEATURES_COMPARISON.md` · `docs/FUNCTIONALITY_WIRING_PLAN.md`
+
+This is a **marketplace + membership + remote aviation reputation** platform. Preserve dark aviation UI; align behavior to client PDFs.
+
+## Commission
+
+- Default **15%** platform commission (not 10%). Not tier-based by default.
+- Super Admin per-pilot override — future (not in schema yet).
+- A-4+ commission buyout — post-launch only.
+
+## Membership
+
+- **$99.99/year** for all pilots (base membership).
+- A-2–A-6 = **one-time Fast Forward upgrade fees** — NOT monthly tier subscriptions.
+- Later upgrade charges **difference only** (new fee − prior fee paid).
+- Instructor add-on: **$199.99/year**, min grade A-4.
+- Lapse: grade time stops, benefits/verification inactive.
+- Profile delete: warn user; **30-day reactivation** retains grade.
+
+## Grades & visibility
+
+- A-1 Student → A-6 Captain (A-7–A-10 later, invitation only).
+- Visibility after admin approval: 48h / 36h / 24h / 12h / 6h / 0h.
+- **A-1 cannot submit proposals.** A-2+ can when visible.
+
+## Marketplace flow
+
+Client post → admin approve → grade-based visibility → pilot proposal → client review → **client initiates chat** → revision max **+20%** → booking/contract → escrow → deliver → approve → payout minus 15% → ratings/awards.
+
+## Separate systems
+
+- **Messages** — client/pilot; admin read-only tracking (no staff composer).
+- **Support Chat** — real support (keep as-is).
+- **Disputes** — formal workflow; no ratings/awards until resolved.
+
+## Out of scope now
+
+- Stripe / escrow implementation unless task explicitly requests it.
+- Remote Rescue (late 2027).
+- Squadron Vote dispute escalation (post-MVP).
+- Final certificate font assets (client TBD).
+
+## Registration (unchanged)
+
+M02 register: email, password, role only. Extended fields via onboarding (M03/M04).
+
+## Figma
+
+Client updated Figma — reconcile with these rules before visual changes; prefer token-based updates.

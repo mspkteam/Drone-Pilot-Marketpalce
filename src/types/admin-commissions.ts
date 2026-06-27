@@ -9,7 +9,7 @@ export type AdminCommissionLedgerRowDto = {
   amountGross: number;
   commissionAmount: number;
   currency: string;
-  ratePercent: 10;
+  ratePercent: number;
   status: CommissionLedgerStatus;
   createdAt: string;
 };
@@ -17,7 +17,7 @@ export type AdminCommissionLedgerRowDto = {
 export type AdminCommissionStatsDto = {
   commissionMtd: number;
   commissionMtdSubtext: string;
-  commissionRatePercent: 10;
+  commissionRatePercent: number;
   commissionRateSubtext: string;
   pendingPayouts: number;
   pendingPayoutsSubtext: string;

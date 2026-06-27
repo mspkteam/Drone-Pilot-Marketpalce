@@ -6,6 +6,7 @@ import {
   getClientProfileByUserId,
   isOnboardingComplete,
 } from "@/lib/client/profile";
+import { listClientMyProjects } from "@/lib/client/my-projects-server";
 
 export const metadata = { title: "My Projects" };
 
@@ -20,15 +21,19 @@ export default async function ClientJobsPage({ searchParams }: PageProps) {
   }
 
   const profile = await getClientProfileByUserId(session.user.id);
-  if (!isOnboardingComplete(profile)) {
+  if (!profile || !isOnboardingComplete(profile)) {
     redirect("/dashboard/client/onboarding");
   }
 
   const params = await searchParams;
+  const projects = await listClientMyProjects(profile.id);
 
   return (
     <DashboardPageLayout className="client-my-projects-shell">
-      <ClientMyProjects submittedBanner={params.submitted === "1"} />
+      <ClientMyProjects
+        projects={projects}
+        submittedBanner={params.submitted === "1"}
+      />
     </DashboardPageLayout>
   );
 }

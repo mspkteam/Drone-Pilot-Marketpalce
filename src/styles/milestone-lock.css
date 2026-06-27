@@ -1,0 +1,294 @@
+/* Milestone delivery lock — message block, modals, nav badges */
+
+.milestone-lock-screen {
+  display: flex;
+  min-height: calc(100vh - var(--dash-topbar-height) - 3rem);
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+.milestone-lock-screen-card,
+.milestone-lock-modal {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  border: 1px solid var(--dashboard-card-border);
+  border-radius: var(--radius-card);
+  background: var(--color-card-warm);
+  box-shadow: var(--shadow-card);
+}
+
+.milestone-lock-screen-card {
+  max-width: 32rem;
+  padding: 2.25rem 2rem 2rem;
+}
+
+.milestone-lock-screen-glow,
+.milestone-lock-modal-glow {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 70% 90% at 50% 0%,
+    rgba(216, 179, 57, 0.12),
+    transparent 65%
+  );
+}
+
+/* ——— Message block ——— */
+.milestone-lock-message {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.milestone-lock-message--modal {
+  padding-top: 0.25rem;
+  padding-right: 1.5rem;
+}
+
+.milestone-lock-message-icon-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  margin-bottom: 1.25rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(216, 179, 57, 0.35);
+  background: rgba(216, 179, 57, 0.1);
+  color: var(--color-gold);
+}
+
+.milestone-lock-message--modal .milestone-lock-message-icon-wrap {
+  width: 3rem;
+  height: 3rem;
+  margin-bottom: 1rem;
+}
+
+.milestone-lock-message-eyebrow {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-gold);
+}
+
+.milestone-lock-message-title {
+  margin-top: 0.75rem;
+  font-size: 1.625rem;
+  font-weight: 800;
+  line-height: 1.15;
+  color: var(--color-text-heading);
+}
+
+.milestone-lock-message-title--modal {
+  font-size: 1.375rem;
+}
+
+.milestone-lock-message-milestone {
+  margin-top: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-warm);
+}
+
+.milestone-lock-message-body {
+  width: 100%;
+  margin-top: 1.5rem;
+  padding: 1.125rem 1.25rem;
+  border-radius: calc(var(--radius-card) - 4px);
+  border: 1px solid rgba(244, 241, 234, 0.08);
+  border-left: 3px solid rgba(216, 179, 57, 0.55);
+  background: rgba(0, 0, 0, 0.22);
+  text-align: left;
+}
+
+.milestone-lock-message-body p {
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.65;
+  color: var(--color-text-muted);
+}
+
+.milestone-lock-message-footnote {
+  width: 100%;
+  margin-top: 1rem;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--color-text-soft);
+}
+
+.milestone-lock-message-footnote strong {
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.milestone-lock-message-dates {
+  color: var(--color-text-dim);
+}
+
+.milestone-lock-screen-preview {
+  position: relative;
+  margin-top: 1.25rem;
+  padding: 0.75rem 1rem;
+  border-radius: calc(var(--radius-card) - 4px);
+  border: 1px solid rgba(216, 179, 57, 0.22);
+  background: rgba(216, 179, 57, 0.06);
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: var(--color-gold-soft);
+  text-align: center;
+}
+
+.milestone-lock-screen-actions {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 1.75rem;
+}
+
+.milestone-lock-screen-btn-primary,
+.milestone-lock-screen-btn-outline,
+.milestone-lock-modal-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.625rem;
+  padding: 0 1.25rem;
+  border-radius: var(--radius);
+  font-size: 0.875rem;
+  font-weight: 700;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.milestone-lock-screen-btn-primary,
+.milestone-lock-modal-btn {
+  border: 1px solid rgba(216, 179, 57, 0.35);
+  background: var(--color-gold);
+  color: var(--color-cta-dark);
+}
+
+.milestone-lock-screen-btn-primary:hover,
+.milestone-lock-modal-btn:hover {
+  background: var(--color-gold-soft);
+}
+
+.milestone-lock-screen-btn-outline {
+  border: 1px solid var(--color-border-gold);
+  background: transparent;
+  color: var(--color-gold);
+}
+
+.milestone-lock-screen-btn-outline:hover {
+  background: rgba(216, 179, 57, 0.1);
+}
+
+/* ——— Modal ——— */
+.milestone-lock-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(4px);
+}
+
+.milestone-lock-modal {
+  max-width: 26rem;
+  padding: 1.5rem;
+}
+
+.milestone-lock-modal-close {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(244, 241, 234, 0.1);
+  background: rgba(0, 0, 0, 0.25);
+  color: var(--color-text-soft);
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.milestone-lock-modal-close:hover {
+  background: rgba(244, 241, 234, 0.06);
+  color: var(--color-text);
+}
+
+.milestone-lock-modal-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 1.25rem;
+}
+
+/* ——— Sidebar nav ——— */
+.dashboard-nav-item--locked {
+  width: 100%;
+  cursor: pointer;
+  opacity: 0.72;
+  border-left-color: transparent;
+}
+
+.dashboard-nav-item--locked:hover {
+  opacity: 1;
+  border-left-color: rgba(216, 179, 57, 0.35);
+  background: rgba(216, 179, 57, 0.05);
+  color: var(--color-text-muted);
+}
+
+.dashboard-nav-item--preview {
+  box-shadow: inset 0 0 0 1px rgba(216, 179, 57, 0.18);
+}
+
+.dashboard-nav-milestone-badge {
+  flex-shrink: 0;
+  border-radius: 9999px;
+  border: 1px solid rgba(216, 179, 57, 0.35);
+  background: rgba(216, 179, 57, 0.08);
+  padding: 0.125rem 0.5rem;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-gold);
+}
+
+.dashboard-nav-milestone-badge--preview {
+  border-color: rgba(110, 231, 183, 0.35);
+  background: rgba(110, 231, 183, 0.08);
+  color: var(--color-success);
+}
+
+@media (max-width: 639px) {
+  .milestone-lock-screen-card {
+    padding: 1.75rem 1.25rem 1.5rem;
+  }
+
+  .milestone-lock-screen-actions {
+    flex-direction: column;
+  }
+
+  .milestone-lock-screen-btn-primary,
+  .milestone-lock-screen-btn-outline {
+    width: 100%;
+  }
+}

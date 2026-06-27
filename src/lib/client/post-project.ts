@@ -1,4 +1,39 @@
 import type { JobCategoryId } from "@/types/job";
+import {
+  POST_PROJECT_DELIVERABLES,
+  POST_PROJECT_PRIORITIES,
+  POST_PROJECT_QUOTE_TYPES,
+  POST_PROJECT_SERVICES,
+  emptyPostProjectLocation,
+  type PostProjectDeliverable,
+  type PostProjectFormState,
+  type PostProjectLocation,
+  type PostProjectPriority,
+  type PostProjectQuoteType,
+  type PostProjectServiceId,
+} from "@/lib/client/post-project-constants";
+import {
+  extractPostProjectMetadata,
+  type JobPostProjectMetadata,
+} from "@/lib/jobs/post-project-metadata";
+
+export {
+  POST_PROJECT_DELIVERABLES,
+  POST_PROJECT_OFF_PLATFORM_ACKNOWLEDGMENT,
+  POST_PROJECT_PRIORITIES,
+  POST_PROJECT_QUOTE_TYPES,
+  POST_PROJECT_SERVICES,
+  emptyPostProjectLocation,
+  emptyPostProjectTravelExpenses,
+  initialPostProjectFormState,
+  type PostProjectDeliverable,
+  type PostProjectFormState,
+  type PostProjectLocation,
+  type PostProjectPriority,
+  type PostProjectQuoteType,
+  type PostProjectServiceId,
+  type PostProjectTravelExpenses,
+} from "@/lib/client/post-project-constants";
 
 export const POST_PROJECT_STEPS = [
   { id: "service", label: "Service" },
@@ -9,96 +44,6 @@ export const POST_PROJECT_STEPS = [
 ] as const;
 
 export type PostProjectStepId = (typeof POST_PROJECT_STEPS)[number]["id"];
-
-export const POST_PROJECT_SERVICES = [
-  { id: "aerial_photography", label: "Aerial Photography", category: "aerial_video" },
-  { id: "aerial_videography", label: "Aerial Videography", category: "aerial_video" },
-  { id: "real_estate_photography", label: "Real Estate Photography", category: "real_estate" },
-  { id: "land_survey_mapping", label: "Land Survey & Mapping", category: "surveying" },
-  { id: "construction_inspection", label: "Construction Inspection", category: "inspection" },
-  { id: "roof_inspection", label: "Roof Inspection", category: "inspection" },
-  { id: "event_coverage", label: "Event Coverage", category: "events" },
-  { id: "thermal_imaging", label: "Thermal Imaging", category: "inspection" },
-  { id: "agricultural_survey", label: "Agricultural Survey", category: "agriculture" },
-  { id: "other", label: "Other", category: "other" },
-] as const;
-
-export type PostProjectServiceId = (typeof POST_PROJECT_SERVICES)[number]["id"];
-
-export const POST_PROJECT_DELIVERABLES = [
-  "Photos",
-  "Video",
-  "Edited Video",
-  "Inspection Report",
-  "Survey Data",
-  "3D Model",
-  "Thermal Images",
-] as const;
-
-export type PostProjectDeliverable = (typeof POST_PROJECT_DELIVERABLES)[number];
-
-export const POST_PROJECT_QUOTE_TYPES = [
-  {
-    id: "fixed_budget",
-    label: "Fixed Budget",
-    helper: "Pilots respond if it fits your range",
-  },
-  {
-    id: "pilot_quotes",
-    label: "Receive Pilot Quotes",
-    helper: "Each pilot sets their own price",
-  },
-] as const;
-
-export type PostProjectQuoteType = (typeof POST_PROJECT_QUOTE_TYPES)[number]["id"];
-
-export const POST_PROJECT_PRIORITIES = [
-  { id: "standard", label: "Standard", helper: "Within 2 weeks" },
-  { id: "urgent", label: "Urgent", helper: "Within 3 days" },
-  { id: "emergency", label: "Emergency", helper: "Within 24 hours" },
-] as const;
-
-export type PostProjectPriority = (typeof POST_PROJECT_PRIORITIES)[number]["id"];
-
-export type PostProjectLocation = {
-  address: string;
-  city: string;
-  stateCountry: string;
-};
-
-export type PostProjectFormState = {
-  serviceId: PostProjectServiceId | "";
-  locations: PostProjectLocation[];
-  deliverables: PostProjectDeliverable[];
-  completionDate: string;
-  referenceFileNames: string[];
-  specialRequirements: string;
-  quoteType: PostProjectQuoteType | "";
-  budgetMin: string;
-  budgetMax: string;
-  priority: PostProjectPriority | "";
-  deadline: string;
-};
-
-export const emptyPostProjectLocation = (): PostProjectLocation => ({
-  address: "",
-  city: "",
-  stateCountry: "",
-});
-
-export const initialPostProjectFormState = (): PostProjectFormState => ({
-  serviceId: "",
-  locations: [emptyPostProjectLocation()],
-  deliverables: [],
-  completionDate: "",
-  referenceFileNames: [],
-  specialRequirements: "",
-  quoteType: "",
-  budgetMin: "",
-  budgetMax: "",
-  priority: "",
-  deadline: "",
-});
 
 export function postProjectStepSubtitle(step: number): string {
   const total = POST_PROJECT_STEPS.length;
@@ -119,10 +64,51 @@ export function serviceCategory(serviceId: PostProjectServiceId | ""): JobCatego
 export function formatPostProjectLocation(locations: PostProjectLocation[]): string {
   const primary = locations[0];
   if (!primary) return "—";
-  const parts = [primary.city, primary.stateCountry].filter((p) => p.trim());
+  const parts = [primary.city, primary.state, primary.country].filter((p) => p.trim());
   if (parts.length) return parts.join(", ");
   if (primary.address.trim()) return primary.address;
   return "—";
+}
+
+function formatTravelExpenseAmount(value: string): string | null {
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+  const amount = Number(trimmed);
+  if (Number.isNaN(amount)) return trimmed;
+  return `$${amount.toLocaleString()}`;
+}
+
+export type PostProjectTravelSummaryItem = {
+  label: string;
+  value: string;
+  wide?: boolean;
+};
+
+export function buildPostProjectTravelSummary(
+  form: PostProjectFormState,
+): PostProjectTravelSummaryItem[] {
+  if (form.coverTravelExpenses === null) return [];
+
+  const covered = form.coverTravelExpenses;
+  const lodgingAmount = formatTravelExpenseAmount(form.travelExpenses.lodging);
+  const transportAmount = formatTravelExpenseAmount(form.travelExpenses.groundTransport);
+
+  return [
+    { label: "TRAVEL REQUIRED", value: covered ? "Yes" : "No" },
+    {
+      label: "LODGING",
+      value: covered ? lodgingAmount ?? "Not Included" : "Not Included",
+    },
+    {
+      label: "TRANSPORTATION",
+      value: covered ? transportAmount ?? "Client to Provide" : "Pilot responsibility",
+    },
+    {
+      label: "TRAVEL EXPENSES",
+      value: covered ? "Covered by Client" : "Not covered by client",
+      wide: true,
+    },
+  ];
 }
 
 export function formatPostProjectBudget(form: PostProjectFormState): string {
@@ -133,7 +119,7 @@ export function formatPostProjectBudget(form: PostProjectFormState): string {
     const maxNum = Number(max).toLocaleString();
     return `$${minNum} - $${maxNum}`;
   }
-  if (form.quoteType === "pilot_quotes") return "Pilot quotes";
+  if (form.quoteType === "pilot_quotes") return "Pilot proposals";
   return "—";
 }
 
@@ -162,11 +148,25 @@ export function validatePostProjectStep(
   if (step === 3) {
     if (!form.quoteType) return "Select how you would like to receive quotes.";
     if (!form.priority) return "Select a project priority.";
+    if (form.coverTravelExpenses === null) {
+      return "Select whether you will cover pilot travel expenses.";
+    }
     if (form.quoteType === "fixed_budget") {
       if (!form.budgetMin.trim() || !form.budgetMax.trim()) {
         return "Enter minimum and maximum budget.";
       }
     }
+  }
+  return null;
+}
+
+export function validatePostProjectSubmit(form: PostProjectFormState): string | null {
+  for (let i = 0; i < POST_PROJECT_STEPS.length - 1; i++) {
+    const stepError = validatePostProjectStep(i, form);
+    if (stepError) return stepError;
+  }
+  if (!form.termsAcknowledged) {
+    return "Acknowledge the terms and conditions before submitting.";
   }
   return null;
 }
@@ -182,6 +182,8 @@ export function postProjectToJobPayload(form: PostProjectFormState) {
     form.locations.length > 1
       ? `Additional locations: ${form.locations.length - 1}`
       : null,
+    form.coverTravelExpenses === true ? "Client covers pilot travel expenses." : null,
+    form.coverTravelExpenses === false ? "Pilot travel expenses not covered by client." : null,
   ]
     .filter(Boolean)
     .join("\n");
@@ -196,8 +198,9 @@ export function postProjectToJobPayload(form: PostProjectFormState) {
   const requirementsParts = [
     deliverablesLine ? `Deliverables: ${deliverablesLine}` : null,
     form.specialRequirements.trim() || null,
-    meta || null,
   ].filter(Boolean);
+
+  const postProject = extractPostProjectMetadata(form);
 
   return {
     title: `${service} mission`,
@@ -205,12 +208,16 @@ export function postProjectToJobPayload(form: PostProjectFormState) {
     category: serviceCategory(form.serviceId),
     locationLabel: primary.address.trim() || primary.city.trim() || "Project site",
     locationCity: primary.city.trim() || null,
-    locationRegion: null,
-    locationCountry: primary.stateCountry.trim() || null,
+    locationRegion: primary.state.trim() || null,
+    locationCountry: primary.country.trim() || null,
     scheduledDate: form.deadline.trim() || form.completionDate.trim() || null,
     budgetMin: form.budgetMin.trim() ? Number(form.budgetMin) : null,
     budgetMax: form.budgetMax.trim() ? Number(form.budgetMax) : null,
     requirements: requirementsParts.join("\n") || null,
     currency: "USD",
+    postProject,
   };
 }
+
+export type PostProjectJobPayload = ReturnType<typeof postProjectToJobPayload>;
+export type { JobPostProjectMetadata };

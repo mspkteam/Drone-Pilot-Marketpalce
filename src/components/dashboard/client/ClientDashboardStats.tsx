@@ -1,7 +1,8 @@
-import {
-  CLIENT_DASHBOARD_STATS,
-  type ClientDashboardStat,
-} from "@/lib/client/dashboard-overview-mock";
+import type { ClientDashboardStat } from "@/lib/client/dashboard-overview";
+
+type ClientDashboardStatsProps = {
+  stats: ClientDashboardStat[];
+};
 
 function ClientStatCard({ stat }: { stat: ClientDashboardStat }) {
   return (
@@ -13,10 +14,10 @@ function ClientStatCard({ stat }: { stat: ClientDashboardStat }) {
   );
 }
 
-export function ClientDashboardStats() {
+export function ClientDashboardStats({ stats }: ClientDashboardStatsProps) {
   return (
     <section className="client-dashboard-stats-grid" aria-label="Dashboard statistics">
-      {CLIENT_DASHBOARD_STATS.map((stat) => (
+      {stats.map((stat) => (
         <ClientStatCard key={stat.label} stat={stat} />
       ))}
     </section>

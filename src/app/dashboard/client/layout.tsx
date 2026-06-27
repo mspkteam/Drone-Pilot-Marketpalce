@@ -5,7 +5,8 @@ import {
   getClientProfileByUserId,
   isOnboardingComplete,
 } from "@/lib/client/profile";
-import { buildDashboardUser } from "@/lib/dashboard/shell-user";
+import { buildClientShellUser } from "@/lib/dashboard/shell-user";
+import { getMilestoneShellProps } from "@/lib/milestone-shell-props";
 import { clientNavGroups } from "@/lib/navigation/dashboard-client";
 
 export default async function ClientDashboardLayout({
@@ -15,27 +16,24 @@ export default async function ClientDashboardLayout({
 }) {
   const session = await auth();
   let needsOnboarding = false;
-  let user = buildDashboardUser(session?.user ?? {}, {
-    displayName: "John Doe",
-    roleSubtitle: "Client account",
-  });
+  let user = buildClientShellUser(session?.user ?? {}, null);
 
   if (session?.user?.id && session.user.role === "client") {
     const profile = await getClientProfileByUserId(session.user.id);
     needsOnboarding = !isOnboardingComplete(profile);
-
-    // Screenshot/mock shell — John Doe / JD until client profile shell wiring (M50).
-    user = buildDashboardUser(session.user, {
-      displayName: "John Doe",
-      roleSubtitle: "Client account",
-    });
+    user = buildClientShellUser(session.user, profile);
   }
+
+  const milestone = getMilestoneShellProps(
+    session?.user?.role === "client" ? "client" : undefined,
+  );
 
   return (
     <DashboardShell
       homeHref="/dashboard/client"
       navGroups={clientNavGroups}
       user={user}
+      {...milestone}
     >
       <OnboardingRedirect needsOnboarding={needsOnboarding} />
       {children}

@@ -1,27 +1,29 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import type { PilotServiceId } from "@/types/pilot";
 import {
-  CLIENT_FIND_PILOTS,
   filterFindPilots,
   FIND_PILOT_FILTER_CHIPS,
-  type FindPilotFilterChip,
-} from "@/lib/client/find-pilots-mock";
+  type ClientFindPilot,
+} from "@/lib/client/find-pilots";
 import { ClientFindPilotCard } from "./ClientFindPilotCard";
 
-export function ClientFindPilots() {
+type ClientFindPilotsProps = {
+  pilots: ClientFindPilot[];
+};
+
+export function ClientFindPilots({ pilots }: ClientFindPilotsProps) {
   const [query, setQuery] = useState("");
-  const [activeFilter, setActiveFilter] = useState<FindPilotFilterChip | null>(
-    null,
-  );
+  const [activeFilter, setActiveFilter] = useState<PilotServiceId | null>(null);
 
   const filteredPilots = useMemo(
-    () => filterFindPilots(CLIENT_FIND_PILOTS, query, activeFilter),
-    [query, activeFilter],
+    () => filterFindPilots(pilots, query, activeFilter),
+    [pilots, query, activeFilter],
   );
 
-  function toggleFilter(chip: FindPilotFilterChip) {
-    setActiveFilter((current) => (current === chip ? null : chip));
+  function toggleFilter(serviceId: PilotServiceId) {
+    setActiveFilter((current) => (current === serviceId ? null : serviceId));
   }
 
   return (
@@ -51,23 +53,31 @@ export function ClientFindPilots() {
           aria-label="Filter by specialty"
         >
           {FIND_PILOT_FILTER_CHIPS.map((chip) => {
-            const selected = activeFilter === chip;
+            const selected = activeFilter === chip.id;
             return (
               <button
-                key={chip}
+                key={chip.id}
                 type="button"
                 aria-pressed={selected}
                 className={`client-find-pilots-chip${selected ? " client-find-pilots-chip--active" : ""}`}
-                onClick={() => toggleFilter(chip)}
+                onClick={() => toggleFilter(chip.id)}
               >
-                {chip}
+                {chip.label}
               </button>
             );
           })}
         </div>
       </div>
 
-      {filteredPilots.length === 0 ? (
+      {pilots.length === 0 ? (
+        <div className="client-find-pilots-empty" role="status">
+          <p className="client-find-pilots-empty-title">No pilots available yet</p>
+          <p className="client-find-pilots-empty-text">
+            Verified public pilot profiles will appear here once pilots complete
+            onboarding and make their profiles public.
+          </p>
+        </div>
+      ) : filteredPilots.length === 0 ? (
         <div className="client-find-pilots-empty" role="status">
           <p className="client-find-pilots-empty-title">No pilots found</p>
           <p className="client-find-pilots-empty-text">

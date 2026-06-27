@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 import { getCmsResourceById, updateCmsResource } from "@/lib/cms/cms-store";
-import { requireSuperAdminSession } from "@/lib/auth/require-super-admin";
+import { requireAdminModuleView, requireAdminPermission } from "@/lib/auth/require-admin-permission";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
 export async function GET(_request: Request, context: RouteContext) {
-  const authResult = await requireSuperAdminSession();
+  const authResult = await requireAdminModuleView("cmsResources");
   if (!authResult.ok) {
     return NextResponse.json(
       { error: authResult.error },
@@ -14,16 +14,16 @@ export async function GET(_request: Request, context: RouteContext) {
   }
 
   const { id } = await context.params;
-  const resource = getCmsResourceById(id);
+  const resource = await getCmsResourceById(id);
   if (!resource) {
     return NextResponse.json({ error: "Resource not found." }, { status: 404 });
   }
 
-  return NextResponse.json({ resource, persistenceMode: "preview" as const });
+  return NextResponse.json({ resource, persistenceMode: "persisted" as const });
 }
 
 export async function PATCH(request: Request, context: RouteContext) {
-  const authResult = await requireSuperAdminSession();
+  const authResult = await requireAdminPermission("cmsResources", "edit");
   if (!authResult.ok) {
     return NextResponse.json(
       { error: authResult.error },
@@ -33,7 +33,7 @@ export async function PATCH(request: Request, context: RouteContext) {
 
   const { id } = await context.params;
   const body = await request.json();
-  const result = updateCmsResource(id, body);
+  const result = await updateCmsResource(id, body);
   if (!result.ok) {
     return NextResponse.json(
       { error: result.error },
@@ -43,6 +43,6 @@ export async function PATCH(request: Request, context: RouteContext) {
 
   return NextResponse.json({
     resource: result.resource,
-    persistenceMode: "preview" as const,
+    persistenceMode: "persisted" as const,
   });
 }

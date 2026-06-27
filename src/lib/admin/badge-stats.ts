@@ -37,7 +37,16 @@ export async function getBadgeStatsForAdmin(
   ]);
 
   if (definitions.length === 0 && totalAwards === 0) {
-    return buildMockStats();
+    return {
+      totalBadges: 0,
+      awarded30d: 0,
+      awarded30dSubtext: "—",
+      mostEarnedTitle: "—",
+      mostEarnedSubtext: "—",
+      rarestTitle: "—",
+      rarestSubtext: "—",
+      usingMockStats: false,
+    };
   }
 
   const sortedByAwarded = [...definitions].sort(

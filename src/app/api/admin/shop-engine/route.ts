@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { getAdminShopEngineData } from "@/lib/admin/shop-engine";
-import { requireAdminSession } from "@/lib/auth/require-admin";
+import { requireAdminModuleView } from "@/lib/auth/require-admin-permission";
 
 export async function GET() {
-  const authResult = await requireAdminSession();
+  const authResult = await requireAdminModuleView("shop");
   if (!authResult.ok) {
     return NextResponse.json(
       { error: authResult.error },

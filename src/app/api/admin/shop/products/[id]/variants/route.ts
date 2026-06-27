@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
-import { requireSuperAdminSession } from "@/lib/auth/require-super-admin";
+import { requireAdminPermission } from "@/lib/auth/require-admin-permission";
 import { createVariant } from "@/lib/shop/shop";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
 export async function POST(request: Request, context: RouteContext) {
-  const authResult = await requireSuperAdminSession();
+  const authResult = await requireAdminPermission("shop", "manageInventory");
   if (!authResult.ok) {
     return NextResponse.json(
       { error: authResult.error },

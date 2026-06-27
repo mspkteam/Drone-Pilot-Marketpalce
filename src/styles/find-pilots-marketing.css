@@ -1,0 +1,222 @@
+/* Find Pilots — public marketing directory (/pilots) */
+
+.find-pilots-page {
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+.find-pilots-hero {
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid rgba(77, 71, 50, 0.25);
+  background: linear-gradient(180deg, rgba(216, 179, 57, 0.05) 0%, transparent 55%);
+}
+
+.find-pilots-hero-glow {
+  position: absolute;
+  top: -6rem;
+  left: -4rem;
+  width: 28rem;
+  height: 28rem;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(216, 179, 57, 0.1) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.find-pilots-hero-inner {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 2rem;
+  align-items: center;
+  padding-block: 4rem 3rem;
+}
+
+@media (min-width: 1024px) {
+  .find-pilots-hero-inner {
+    grid-template-columns: minmax(0, 1fr) minmax(16rem, 28rem);
+  }
+}
+
+.find-pilots-hero-eyebrow {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--color-text-soft);
+}
+
+.find-pilots-hero-title {
+  margin: 0.75rem 0 0;
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-weight: 800;
+  line-height: 1.05;
+}
+
+.find-pilots-hero-title-accent {
+  color: var(--color-gold);
+}
+
+.find-pilots-hero-desc {
+  margin: 1rem 0 0;
+  max-width: 34rem;
+  font-size: 1rem;
+  line-height: 1.65;
+  color: var(--color-text-muted);
+}
+
+.find-pilots-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1.75rem;
+}
+
+.find-pilots-hero-image {
+  width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(77, 71, 50, 0.35);
+  object-fit: cover;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+.find-pilots-directory {
+  padding: 3rem 0 4.5rem;
+}
+
+.find-pilots-directory-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.find-pilots-directory-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+@media (min-width: 1024px) {
+  .find-pilots-directory-toolbar {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 1.25rem;
+  }
+}
+
+.find-pilots-search {
+  flex: 1;
+  min-width: 0;
+}
+
+.find-pilots-search-input {
+  width: 100%;
+  min-height: 2.875rem;
+  border: 1px solid rgba(77, 71, 50, 0.35);
+  border-radius: 0.375rem;
+  background: var(--color-card-warm);
+  padding: 0 1rem 0 2.5rem;
+  color: var(--color-text);
+  font-size: 0.875rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none'%3E%3Ccircle cx='7' cy='7' r='4.5' stroke='%238A847A' stroke-width='1.25'/%3E%3Cpath d='M10.5 10.5L13 13' stroke='%238A847A' stroke-width='1.25' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: 0.875rem center;
+}
+
+.find-pilots-search-input::placeholder {
+  color: var(--color-text-soft);
+}
+
+.find-pilots-search-input:focus {
+  outline: none;
+  border-color: rgba(216, 179, 57, 0.45);
+}
+
+.find-pilots-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.find-pilots-chip {
+  min-height: 2.25rem;
+  border: 1px solid rgba(77, 71, 50, 0.35);
+  border-radius: 999px;
+  background: transparent;
+  padding: 0 0.875rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.find-pilots-chip:hover,
+.find-pilots-chip--active {
+  border-color: rgba(216, 179, 57, 0.45);
+  background: rgba(216, 179, 57, 0.08);
+  color: var(--color-gold-soft);
+}
+
+.find-pilots-club-note {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--color-text-soft);
+}
+
+.find-pilots-club-note a {
+  color: var(--color-gold-soft);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.find-pilots-club-note a:hover {
+  color: var(--color-gold);
+}
+
+.find-pilots-grid {
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 768px) {
+  .find-pilots-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .find-pilots-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* Reuse client card styling on marketing page */
+.find-pilots-directory-shell .client-find-pilots-card {
+  height: 100%;
+}
+
+.find-pilots-empty {
+  border: 1px dashed rgba(77, 71, 50, 0.35);
+  border-radius: 0.5rem;
+  padding: 3rem 1.5rem;
+  text-align: center;
+}
+
+.find-pilots-empty-title {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.find-pilots-empty-text {
+  margin: 0.75rem 0 0;
+  color: var(--color-text-muted);
+}
+
+.find-pilots-more-wrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 1.5rem;
+}

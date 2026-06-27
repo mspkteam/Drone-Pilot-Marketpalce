@@ -29,7 +29,8 @@ export type DashboardNavIconId =
   | "onboarding"
   | "waitlist"
   | "reports"
-  | "cms";
+  | "cms"
+  | "permissions";
 
 export type DashboardNavItem = {
   label: string;
@@ -42,6 +43,8 @@ export type DashboardNavItem = {
 export type DashboardNavGroup = {
   label: string;
   items: readonly DashboardNavItem[];
+  /** Hide section label — Figma admin uses a flat nav list. */
+  hideLabel?: boolean;
 };
 
 export type DashboardShellUser = {
@@ -54,4 +57,6 @@ export type DashboardRankCardData = {
   callSign: string;
   rankLabel: string;
   progressPct: number;
+  progressLabel?: string;
+  ariaLabel?: string;
 };

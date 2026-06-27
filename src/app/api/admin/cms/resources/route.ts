@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { createCmsResource, listCmsResources } from "@/lib/cms/cms-store";
-import { requireSuperAdminSession } from "@/lib/auth/require-super-admin";
+import { requireAdminModuleView, requireAdminPermission } from "@/lib/auth/require-admin-permission";
 
 export async function GET() {
-  const authResult = await requireSuperAdminSession();
+  const authResult = await requireAdminModuleView("cmsResources");
   if (!authResult.ok) {
     return NextResponse.json(
       { error: authResult.error },
@@ -12,13 +12,13 @@ export async function GET() {
   }
 
   return NextResponse.json({
-    resources: listCmsResources(),
-    persistenceMode: "preview" as const,
+    resources: await listCmsResources(),
+    persistenceMode: "persisted" as const,
   });
 }
 
 export async function POST(request: Request) {
-  const authResult = await requireSuperAdminSession();
+  const authResult = await requireAdminPermission("cmsResources", "create");
   if (!authResult.ok) {
     return NextResponse.json(
       { error: authResult.error },
@@ -27,13 +27,13 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json();
-  const result = createCmsResource(body);
+  const result = await createCmsResource(body);
   if (!result.ok) {
     return NextResponse.json({ error: result.error }, { status: 400 });
   }
 
   return NextResponse.json(
-    { resource: result.resource, persistenceMode: "preview" as const },
+    { resource: result.resource, persistenceMode: "persisted" as const },
     { status: 201 },
   );
 }

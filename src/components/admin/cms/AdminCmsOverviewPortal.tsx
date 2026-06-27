@@ -46,7 +46,7 @@ export function AdminCmsOverviewPortal() {
         <div className="admin-cms-hero-inner">
           <div className="admin-cms-hero-copy">
             <p className="admin-ops-eyebrow">CONTENT COMMAND</p>
-            <h1 className="admin-cms-hero-title">CMS Collections</h1>
+            <h1 className="admin-cms-hero-title">CMS Pages</h1>
             <p className="admin-cms-hero-desc">
               Manage marketplace articles and resources from one aviation-grade content
               system.

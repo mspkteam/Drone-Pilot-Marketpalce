@@ -13,16 +13,16 @@ import type {
   AdminSubscriptionStatsDto,
 } from "@/types/admin";
 
-const MOCK_STATS: AdminSubscriptionStatsDto = {
-  activeSubscribers: 972,
-  activeSubscribersSubtext: "+38 this month",
-  monthlyRecurring: "$184K",
-  monthlyRecurringSubtext: "+12% MRR",
-  avgTier: "A-2.4",
+const EMPTY_STATS: AdminSubscriptionStatsDto = {
+  activeSubscribers: 0,
+  activeSubscribersSubtext: "—",
+  monthlyRecurring: "$0",
+  monthlyRecurringSubtext: "from enrolled pilots",
+  avgTier: "—",
   avgTierSubtext: "across all pilots",
-  churnRate: "2.1%",
-  churnRateSubtext: "below target",
-  usingMockChurn: true,
+  churnRate: "—",
+  churnRateSubtext: "no subscription activity yet",
+  usingMockChurn: false,
 };
 
 type EditState = {
@@ -105,7 +105,7 @@ export function AdminTierPlansPortal() {
     }
   }
 
-  const displayStats = stats ?? MOCK_STATS;
+  const displayStats = stats ?? EMPTY_STATS;
   const commissionPct = Math.round(DEFAULT_COMMISSION_RATE * 100);
 
   return (
@@ -118,7 +118,7 @@ export function AdminTierPlansPortal() {
         <div className="admin-subscriptions-hero-inner">
           <div className="admin-subscriptions-hero-copy">
             <p className="admin-ops-eyebrow">SUBSCRIPTION MANAGEMENT</p>
-            <h1 className="admin-subscriptions-hero-title">Pilot Tier Plans</h1>
+            <h1 className="admin-subscriptions-hero-title">Subscriptions</h1>
             <p className="admin-subscriptions-hero-desc">
               Six tiers from Recruit to Ace. Edit pricing, features and commission
               rates without redeploying.

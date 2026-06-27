@@ -3,10 +3,10 @@ import {
   isValidVerificationFilter,
   listVerificationsForAdmin,
 } from "@/lib/verification/verification";
-import { requireAdminSession } from "@/lib/auth/require-admin";
+import { requireAdminModuleView } from "@/lib/auth/require-admin-permission";
 
 export async function GET(request: Request) {
-  const authResult = await requireAdminSession();
+  const authResult = await requireAdminModuleView("certificates");
   if (!authResult.ok) {
     return NextResponse.json(
       { error: authResult.error },

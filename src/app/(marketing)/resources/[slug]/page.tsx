@@ -1,37 +1,25 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
-  FEATURED_RESOURCE,
-  RESOURCE_ARTICLES,
-} from "@/lib/marketing/resources-content";
+  getCmsArticleBySlug,
+  getCmsResourceBySlug,
+} from "@/lib/cms/cms-store";
 
 type ResourceArticlePageProps = {
   params: Promise<{ slug: string }>;
 };
 
-function getArticle(slug: string) {
-  if (FEATURED_RESOURCE.slug === slug) {
-    return FEATURED_RESOURCE;
-  }
-  return RESOURCE_ARTICLES.find((article) => article.slug === slug);
-}
-
-export async function generateStaticParams() {
-  return [
-    { slug: FEATURED_RESOURCE.slug },
-    ...RESOURCE_ARTICLES.map((article) => ({ slug: article.slug })),
-  ];
-}
-
 export async function generateMetadata({ params }: ResourceArticlePageProps) {
   const { slug } = await params;
-  const article = getArticle(slug);
-  if (!article) {
+  const article = await getCmsArticleBySlug(slug);
+  const resource = article ? null : await getCmsResourceBySlug(slug);
+  const item = article ?? resource;
+  if (!item) {
     return { title: "Resource — Remote Air Service" };
   }
   return {
-    title: `${article.title} — Remote Air Service`,
-    description: article.description,
+    title: `${item.title} — Remote Air Service`,
+    description: "excerpt" in item ? item.excerpt : item.summary,
   };
 }
 
@@ -39,10 +27,16 @@ export default async function ResourceArticlePage({
   params,
 }: ResourceArticlePageProps) {
   const { slug } = await params;
-  const article = getArticle(slug);
-  if (!article) {
+  const article = await getCmsArticleBySlug(slug);
+  const resource = article ? null : await getCmsResourceBySlug(slug);
+  const item = article ?? resource;
+
+  if (!item || item.status !== "published") {
     notFound();
   }
+
+  const description = "excerpt" in item ? item.excerpt : item.summary;
+  const body = item.body;
 
   return (
     <section className="figma-resources-section figma-marketing-section">
@@ -55,15 +49,16 @@ export default async function ResourceArticlePage({
             ← Back to Resources
           </Link>
           <h1 className="mt-6 text-3xl font-extrabold tracking-tight text-ras-text sm:text-4xl">
-            {article.title}
+            {item.title}
           </h1>
           <p className="mt-5 text-base leading-relaxed text-ras-soft">
-            {article.description}
+            {description}
           </p>
-          <p className="mt-8 rounded-[14px] border border-[rgba(216,179,57,0.22)] bg-surface px-5 py-4 text-sm text-ras-muted">
-            Full article content is pending CMS integration (M30-Resources CMS).
-            This placeholder route confirms navigation from resource cards.
-          </p>
+          <div className="mt-8 space-y-4 text-sm leading-relaxed text-ras-muted">
+            {body.split("\n\n").map((paragraph) => (
+              <p key={paragraph.slice(0, 40)}>{paragraph}</p>
+            ))}
+          </div>
         </div>
       </div>
     </section>

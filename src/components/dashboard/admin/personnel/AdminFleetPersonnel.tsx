@@ -49,18 +49,25 @@ export function AdminFleetPersonnel({ data }: AdminFleetPersonnelProps) {
 
   const [roleFilter, setRoleFilter] = useState<string>("All roles");
   const [regionFilter, setRegionFilter] = useState<string>("Global");
+  const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(1);
   const [inviteOpen, setInviteOpen] = useState(false);
 
   const filteredRows = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
     return data.rows.filter((row) => {
       const roleMatch =
         roleFilter === "All roles" || row.roleFilter === roleFilter;
       const regionMatch =
         regionFilter === "Global" || row.region === regionFilter;
-      return roleMatch && regionMatch;
+      if (!roleMatch || !regionMatch) return false;
+      if (!query) return true;
+      return [row.name, row.displayId, row.roleLabel, row.region]
+        .join(" ")
+        .toLowerCase()
+        .includes(query);
     });
-  }, [data.rows, roleFilter, regionFilter]);
+  }, [data.rows, roleFilter, regionFilter, searchQuery]);
 
   const totalPages = Math.max(1, Math.ceil(filteredRows.length / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
@@ -95,7 +102,7 @@ export function AdminFleetPersonnel({ data }: AdminFleetPersonnelProps) {
             <p className="admin-ops-eyebrow">USER MANAGEMENT</p>
             <h1 className="admin-personnel-hero-title">Fleet &amp; Personnel</h1>
             <p className="admin-personnel-hero-desc">
-              Every client, pilot, admin and moderator across all regions in one
+              Every client, officer, admin and moderator across all regions in one
               place.
             </p>
           </div>
@@ -189,6 +196,20 @@ export function AdminFleetPersonnel({ data }: AdminFleetPersonnelProps) {
           </div>
         </div>
 
+        <label className="admin-personnel-search">
+          <span className="sr-only">Search personnel</span>
+          <input
+            type="search"
+            className="admin-personnel-search-input"
+            placeholder="Search a pilot by name"
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setPage(1);
+            }}
+          />
+        </label>
+
         <div className="admin-personnel-table-wrap">
           <table className="admin-personnel-table">
             <thead>
@@ -246,7 +267,6 @@ export function AdminFleetPersonnel({ data }: AdminFleetPersonnelProps) {
           <p className="admin-personnel-footer-count">
             SHOWING {rangeStart}-{rangeEnd} OF {filteredRows.length.toLocaleString()}{" "}
             ENTRIES
-            {data.usingMockRows ? " (demo roster)" : ""}
           </p>
           <div className="admin-personnel-pagination">
             <button

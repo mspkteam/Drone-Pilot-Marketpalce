@@ -156,7 +156,7 @@ async function buildActionQueue(): Promise<AdminActionQueueItem[]> {
     );
     items.push({
       id: `verification-${pendingVerification.id}`,
-      typeLabel: "PILOT VERIFICATION",
+      typeLabel: "OFFICER VERIFICATION",
       text: `${pendingVerification.pilotProfile.displayName} · ${typeLabel} pending`,
       actionLabel: "REVIEW",
       href: "/dashboard/admin/verifications",

@@ -1,6 +1,5 @@
 import {
   enrichCertificateTemplate,
-  MOCK_CERTIFICATE_TEMPLATES,
 } from "@/lib/admin/certificate-display";
 import { getCertificateStatsForAdmin } from "@/lib/admin/certificate-stats";
 import {
@@ -17,11 +16,7 @@ export async function getAdminCertificateEngineData(): Promise<AdminCertificateE
     listPilotsForCertificateAssign(),
   ]);
 
-  const usingMockTemplates = dbTemplates.length === 0;
-  const templates = usingMockTemplates
-    ? MOCK_CERTIFICATE_TEMPLATES
-    : dbTemplates.map(enrichCertificateTemplate);
-
+  const templates = dbTemplates.map(enrichCertificateTemplate);
   const stats = await getCertificateStatsForAdmin(templates.length);
 
   return {
@@ -29,6 +24,6 @@ export async function getAdminCertificateEngineData(): Promise<AdminCertificateE
     stats,
     certificates,
     pilots,
-    usingMockTemplates,
+    usingMockTemplates: false,
   };
 }

@@ -198,7 +198,7 @@ export function AdminBadgesWingsPortal({ canManage }: AdminBadgesWingsPortalProp
         <div className="admin-ops-hero-glow" aria-hidden />
         <div className="admin-badges-hero-inner">
           <div className="admin-badges-hero-copy">
-            <p className="admin-ops-eyebrow">ACHIEVEMENTS</p>
+            <p className="admin-ops-eyebrow">BADGES &amp; WINGS</p>
             <h1 className="admin-badges-hero-title">Badges & Wings</h1>
             <p className="admin-badges-hero-desc">
               Recognize pilots with badges they wear on their profile. Create new

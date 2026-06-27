@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
-import { requireAdminSession } from "@/lib/auth/require-admin";
+import { requireAdminModuleView } from "@/lib/auth/require-admin-permission";
 import { listJobsForAdmin } from "@/lib/jobs/admin";
 import { JOB_STATUSES, type JobStatus } from "@/types/job";
 
 export async function GET(request: Request) {
-  const authResult = await requireAdminSession();
+  const authResult = await requireAdminModuleView("jobApproval");
   if (!authResult.ok) {
     return NextResponse.json(
       { error: authResult.error },

@@ -1,14 +1,18 @@
-import { DEFAULT_COMMISSION_RATE } from "@/lib/commission/constants";
 import { getCmsOverview, listCmsArticles } from "@/lib/cms/cms-store";
+import {
+  getDefaultPlatformConfig,
+  getPersistedPlatformConfig,
+  toDefaultCommissionRow,
+} from "@/lib/admin/platform-settings";
 import type { AdminConfigurationDataDto } from "@/types/admin-configuration";
 
 function envConfigured(key: string): boolean {
   return Boolean(process.env[key]?.trim());
 }
 
-function buildContentStats(): AdminConfigurationDataDto["contentStats"] {
-  const overview = getCmsOverview();
-  const articles = listCmsArticles();
+async function buildContentStats(): Promise<AdminConfigurationDataDto["contentStats"]> {
+  const overview = await getCmsOverview();
+  const articles = await listCmsArticles();
   const now = Date.now();
   const scheduled = articles.filter((article) => {
     if (!article.publishedAt) return false;
@@ -34,44 +38,19 @@ function buildContentStats(): AdminConfigurationDataDto["contentStats"] {
   };
 }
 
-export function getAdminConfigurationData(): AdminConfigurationDataDto {
-  const commissionPct = `${Math.round(DEFAULT_COMMISSION_RATE * 100)}%`;
+export async function getAdminConfigurationData(): Promise<AdminConfigurationDataDto> {
+  const persisted = await getPersistedPlatformConfig();
+  const defaults = getDefaultPlatformConfig();
 
   return {
-    fees: [
-      {
-        id: "base-commission",
-        label: "Base platform commission",
-        description: "Fixed marketplace commission on completed jobs",
-        value: commissionPct,
-        readOnly: true,
-      },
-      {
-        id: "payment-processing",
-        label: "Payment processing",
-        description: "Stripe pass-through (planned)",
-        value: "2.9% + $0.30",
-        readOnly: true,
-      },
-      {
-        id: "withdrawal-fee",
-        label: "Withdrawal fee",
-        description: "Per pilot payout (planned)",
-        value: "$1.50",
-        readOnly: true,
-      },
-      {
-        id: "currency-conversion",
-        label: "Currency conversion",
-        description: "Above mid-market rate (planned)",
-        value: "1.2%",
-        readOnly: true,
-      },
-    ],
+    defaultCommission: toDefaultCommissionRow(persisted.defaultCommissionRate),
+    gradeRates: persisted.gradeRates,
+    manageRules: persisted.manageRules,
+    pilotOverridePreview: persisted.pilotOverridePreview,
     emailTemplates: [
       {
         id: "welcome-pilot",
-        name: "Welcome — new pilot",
+        name: "Welcome — new pilots",
         subject: "Welcome to Remote Air Service",
         preheader: "Your pilot account is ready.",
         body: "Your pilot account is ready. Complete your profile to get started.",
@@ -124,57 +103,8 @@ export function getAdminConfigurationData(): AdminConfigurationDataDto {
         integrated: true,
       },
     ],
-    security: [
-      {
-        id: "admin-2fa",
-        label: "Require 2FA for admins",
-        enabled: false,
-        integrated: false,
-      },
-      {
-        id: "auto-suspend",
-        label: "Auto-suspend after 5 failed logins",
-        enabled: false,
-        integrated: false,
-      },
-      {
-        id: "ip-allowlist",
-        label: "IP allowlist for super admins",
-        enabled: false,
-        integrated: false,
-      },
-      {
-        id: "sso-google",
-        label: "Single sign-on (Google Workspace)",
-        enabled: false,
-        integrated: false,
-      },
-    ],
+    security: persisted.security.length > 0 ? persisted.security : defaults.security,
     integrations: [
-      {
-        id: "database",
-        name: "NEON DATABASE",
-        status: envConfigured("DATABASE_URL") ? "connected" : "not_configured",
-        detail: envConfigured("DATABASE_URL")
-          ? "PostgreSQL connection configured"
-          : "DATABASE_URL missing",
-      },
-      {
-        id: "auth",
-        name: "AUTH.JS",
-        status: envConfigured("AUTH_SECRET") ? "configured" : "not_configured",
-        detail: envConfigured("AUTH_SECRET")
-          ? "Session secret configured"
-          : "AUTH_SECRET missing",
-      },
-      {
-        id: "smtp",
-        name: "EMAIL (SMTP)",
-        status: envConfigured("SMTP_URL") ? "connected" : "not_configured",
-        detail: envConfigured("SMTP_URL")
-          ? "SMTP_URL configured"
-          : "Console logging only — SMTP_URL not set",
-      },
       {
         id: "stripe",
         name: "STRIPE",
@@ -184,10 +114,16 @@ export function getAdminConfigurationData(): AdminConfigurationDataDto {
           : "Demo payments only — no Stripe keys",
       },
       {
-        id: "storage",
-        name: "FILE STORAGE",
-        status: "configured",
-        detail: "Local disk storage for verifications and certificates",
+        id: "sendgrid",
+        name: "SENDGRID",
+        status:
+          envConfigured("SENDGRID_API_KEY") || envConfigured("SMTP_URL")
+            ? "connected"
+            : "not_configured",
+        detail:
+          envConfigured("SENDGRID_API_KEY") || envConfigured("SMTP_URL")
+            ? "Email delivery configured"
+            : "Console logging only — no email provider",
       },
       {
         id: "twilio",
@@ -202,6 +138,15 @@ export function getAdminConfigurationData(): AdminConfigurationDataDto {
         detail: "Maps not integrated",
       },
       {
+        id: "aws-s3",
+        name: "AWS S3",
+        status:
+          envConfigured("AWS_ACCESS_KEY_ID") || envConfigured("S3_BUCKET")
+            ? "connected"
+            : "not_configured",
+        detail: "Object storage for uploads",
+      },
+      {
         id: "docusign",
         name: "DOCUSIGN",
         status: envConfigured("DOCUSIGN_INTEGRATION_KEY")
@@ -210,7 +155,7 @@ export function getAdminConfigurationData(): AdminConfigurationDataDto {
         detail: "E-sign not integrated",
       },
     ],
-    contentStats: buildContentStats(),
-    persistenceMode: "preview",
+    contentStats: await buildContentStats(),
+    persistenceMode: "persisted",
   };
 }

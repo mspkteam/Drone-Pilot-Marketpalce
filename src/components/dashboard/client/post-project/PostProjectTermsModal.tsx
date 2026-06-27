@@ -1,10 +1,8 @@
 "use client";
 
 import { PostProjectTermsAcknowledgment } from "@/components/dashboard/client/post-project/PostProjectTermsAcknowledgment";
-import {
-  TERMS_LAST_UPDATED,
-  TERMS_SECTIONS,
-} from "@/lib/marketing/terms-content";
+import { TermsLegalBody } from "@/components/marketing/terms/TermsLegalBody";
+import { TERMS_INTRO, TERMS_LAST_UPDATED } from "@/lib/marketing/terms-content";
 
 type PostProjectTermsModalProps = {
   open: boolean;
@@ -61,32 +59,10 @@ export function PostProjectTermsModal({
         </header>
 
         <div className="client-post-project-terms-modal-body">
-          <p>
-            Welcome to Remote Air Service (&quot;Remote Air Service,&quot; &quot;RAS,&quot;
-            &quot;we,&quot; &quot;our,&quot; or &quot;us&quot;). These Terms and
-            Conditions govern access to and use of the Remote Air Service platform,
-            website, mobile applications, services, communications, and related
-            technologies (collectively, the &quot;Platform&quot;). By creating an
-            account, posting a mission, applying for a mission, accepting a mission,
-            accessing the Platform, or otherwise using any Remote Air Service service,
-            you agree to be legally bound by these Terms. If you do not agree with
-            these Terms, you must not use the Platform.
-          </p>
-          <section>
-            <h3>1. PLATFORM PURPOSE</h3>
-            <p>
-              Remote Air Service is a marketplace that connects businesses,
-              organizations, government agencies, and individuals (&quot;Clients&quot;)
-              with qualified drone operators, remote pilots, aerial service providers,
-              and related professionals (&quot;Providers&quot; or &quot;Pilots&quot;).
-            </p>
-          </section>
-          {TERMS_SECTIONS.map((section) => (
-            <section key={section.title}>
-              <h3>{section.title}</h3>
-              <p>{section.body}</p>
-            </section>
+          {TERMS_INTRO.map((parts, index) => (
+            <p key={index}>{parts.map((part) => part.text).join("")}</p>
           ))}
+          <TermsLegalBody headingLevel="h3" />
         </div>
 
         <PostProjectTermsAcknowledgment

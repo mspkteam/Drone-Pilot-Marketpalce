@@ -1,3 +1,4 @@
+import { listPublishedCmsArticles, listPublishedCmsResources } from "@/lib/cms/cms-store";
 import { ResourcesArticleBrowse } from "@/components/marketing/resources/ResourcesArticleBrowse";
 import { ResourcesHero } from "@/components/marketing/resources/ResourcesHero";
 import { ResourcesWaitlistSection } from "@/components/marketing/resources/ResourcesWaitlistSection";
@@ -8,11 +9,16 @@ export const metadata = {
     "Drone resources, hiring guides, regulations, pilot tips, safety advice, and industry insights from Remote Air Service.",
 };
 
-export default function ResourcesPage() {
+export default async function ResourcesPage() {
+  const [articles, resources] = await Promise.all([
+    listPublishedCmsArticles(),
+    listPublishedCmsResources(),
+  ]);
+
   return (
     <>
       <ResourcesHero />
-      <ResourcesArticleBrowse />
+      <ResourcesArticleBrowse cmsArticles={articles} cmsResources={resources} />
       <ResourcesWaitlistSection />
     </>
   );

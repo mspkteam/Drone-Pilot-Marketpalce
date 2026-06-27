@@ -197,7 +197,7 @@ export function AdminUniformShopPortal({
         <div className="admin-shop-hero-inner">
           <div className="admin-shop-hero-copy">
             <p className="admin-ops-eyebrow">UNIFORM SHOP</p>
-            <h1 className="admin-shop-hero-title">Products & Orders</h1>
+            <h1 className="admin-shop-hero-title">Uniform Shop</h1>
             <p className="admin-shop-hero-desc">
               Official uniform store: products, inventory and fulfillment in one place.
             </p>

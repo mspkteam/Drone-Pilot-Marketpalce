@@ -1,7 +1,7 @@
 import type { UserRole } from "@/types/roles";
 
 /** Official 5-week delivery schedule — change this (or env) to unlock the next milestone. */
-export const ACTIVE_MILESTONE = 1;
+export const ACTIVE_MILESTONE = 3;
 
 export type MilestoneStatus = "locked" | "in_progress" | "complete";
 
@@ -21,7 +21,7 @@ export const MILESTONE_DEFINITIONS: readonly MilestoneDefinition[] = [
     weekLabel: "Week 1",
     title: "Client",
     dateRange: "23 Jun – 27 Jun 2026",
-    status: "in_progress",
+    status: "complete",
     summary: "Client posting, projects, bids, directory, messages, disputes, and profile.",
     lockedMessage:
       "This section is part of Milestone 1 — Client. It will become available when Week 1 begins.",
@@ -31,22 +31,22 @@ export const MILESTONE_DEFINITIONS: readonly MilestoneDefinition[] = [
     weekLabel: "Week 2",
     title: "Admin & Moderator",
     dateRange: "30 Jun – 4 Jul 2026",
-    status: "locked",
+    status: "complete",
     summary:
       "Job approval, fleet, disputes, commissions, permissions, CMS, configuration, certificates, badges, shop, and subscriptions.",
     lockedMessage:
-      "This section is part of Milestone 2 — Admin & Moderator. We are currently completing Week 1 — Client features. This section will become available after Week 1 sign-off.",
+      "This section is part of Milestone 2 — Admin & Moderator. Week 2 is complete.",
   },
   {
     number: 3,
     weekLabel: "Week 3",
     title: "Pilot",
     dateRange: "7 Jul – 11 Jul 2026",
-    status: "locked",
+    status: "in_progress",
     summary:
       "Marketplace, proposals, contracts, delivery, pilot dashboard, messages, portfolio, verifications, and profile.",
     lockedMessage:
-      "This section is part of Milestone 3 — Pilot. We are currently completing Week 1 — Client features. This section will become available after the earlier milestones are signed off.",
+      "This section is part of Milestone 3 — Pilot. Week 3 work is in progress.",
   },
   {
     number: 4,
@@ -255,6 +255,27 @@ export const ROUTE_MILESTONE_RULES: readonly RouteMilestoneRule[] = [
     milestone: 2,
     featureKey: "admin.disputes",
     featureLabel: "Dispute Centre",
+    allowedRoles: ["moderator", "super_admin"],
+  },
+  {
+    pathPrefix: "/dashboard/admin/squadron-voting",
+    milestone: 2,
+    featureKey: "admin.squadron-voting",
+    featureLabel: "Squadron Voting",
+    allowedRoles: ["moderator", "super_admin"],
+  },
+  {
+    pathPrefix: "/dashboard/admin/regions",
+    milestone: 2,
+    featureKey: "admin.regions",
+    featureLabel: "Regions",
+    allowedRoles: ["moderator", "super_admin"],
+  },
+  {
+    pathPrefix: "/dashboard/admin/verifications",
+    milestone: 2,
+    featureKey: "admin.verifications",
+    featureLabel: "Pilot Verification",
     allowedRoles: ["moderator", "super_admin"],
   },
   {

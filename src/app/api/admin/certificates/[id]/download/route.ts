@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
 import { getCertificateById } from "@/lib/certificates/certificate";
 import { readCertificatePdf } from "@/lib/certificates/storage";
-import { requireAdminSession } from "@/lib/auth/require-admin";
+import { requireAdminModuleView } from "@/lib/auth/require-admin-permission";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
 export async function GET(_request: Request, context: RouteContext) {
-  const authResult = await requireAdminSession();
+  const authResult = await requireAdminModuleView("certificates");
   if (!authResult.ok) {
     return NextResponse.json(
       { error: authResult.error },

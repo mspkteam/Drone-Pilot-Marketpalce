@@ -3,10 +3,10 @@ import {
   isValidWaitlistFilter,
   listWaitlistForAdmin,
 } from "@/lib/waitlist/waitlist";
-import { requireAdminSession } from "@/lib/auth/require-admin";
+import { requireAdminModuleView } from "@/lib/auth/require-admin-permission";
 
 export async function GET(request: Request) {
-  const authResult = await requireAdminSession();
+  const authResult = await requireAdminModuleView("users");
   if (!authResult.ok) {
     return NextResponse.json(
       { error: authResult.error },

@@ -5,7 +5,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { AdminDisputeResolveModal } from "@/components/dashboard/admin/disputes/AdminDisputeResolveModal";
 import { AdminDisputeVoteModal } from "@/components/dashboard/admin/disputes/AdminDisputeVoteModal";
 import {
-  getMockDisputeRows,
   sortDisputeRows,
   toDisputeCenterRow,
 } from "@/lib/admin/dispute-center-filters";
@@ -43,7 +42,6 @@ export function AdminDisputeCenter({
 }: AdminDisputeCenterProps) {
   const [stats] = useState(initialData.stats);
   const [rows, setRows] = useState<AdminDisputeCenterRow[]>([]);
-  const [usingMockRows, setUsingMockRows] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showArchive, setShowArchive] = useState(false);
@@ -70,7 +68,6 @@ export function AdminDisputeCenter({
       if (!res.ok) {
         setError(data.error ?? "Failed to load disputes.");
         setRows([]);
-        setUsingMockRows(false);
         return;
       }
 
@@ -81,17 +78,10 @@ export function AdminDisputeCenter({
           : ACTIVE_STATUSES.has(dispute.status),
       );
 
-      if (!showArchive && active.length === 0) {
-        setRows(getMockDisputeRows());
-        setUsingMockRows(true);
-      } else {
-        setRows(active.map(toDisputeCenterRow));
-        setUsingMockRows(false);
-      }
+      setRows(active.map(toDisputeCenterRow));
     } catch {
       setError("Failed to load disputes.");
       setRows([]);
-      setUsingMockRows(false);
     } finally {
       setLoading(false);
     }
@@ -121,16 +111,6 @@ export function AdminDisputeCenter({
   }, [rows, searchQuery, sortBy, statusFilter, priorityFilter]);
 
   function openResolve(row: AdminDisputeCenterRow) {
-    if (usingMockRows) {
-      setModal({
-        type: "resolve",
-        row,
-        canResolve: false,
-        needsReview: false,
-      });
-      return;
-    }
-
     setModal({
       type: "resolve",
       row,
@@ -148,7 +128,7 @@ export function AdminDisputeCenter({
         <div className="admin-ops-hero-glow" aria-hidden />
         <div className="admin-dispute-hero-copy">
           <p className="admin-ops-eyebrow">DISPUTES CENTER</p>
-          <h1 className="admin-dispute-hero-title">Client &amp; Pilot Issues</h1>
+          <h1 className="admin-dispute-hero-title">Disputes</h1>
           <p className="admin-dispute-hero-desc">
             Every open case in one place. Aim to resolve within 72 hours to
             maintain trust scores.
@@ -269,34 +249,28 @@ export function AdminDisputeCenter({
                   <p className="admin-dispute-card-opened">{row.openedLabel}</p>
                 </div>
                 <div className="admin-dispute-card-actions">
-                  {usingMockRows ? (
-                    <span className="admin-dispute-card-demo">Demo case</span>
-                  ) : (
-                    <>
-                      <Link
-                        href={row.detailHref}
-                        className="admin-dispute-btn admin-dispute-btn--outline"
-                      >
-                        OPEN THREAD
-                      </Link>
-                      <button
-                        type="button"
-                        className="admin-dispute-btn admin-dispute-btn--ghost"
-                        onClick={() => setModal({ type: "vote", row })}
-                      >
-                        SEND TO SQUADRON VOTE
-                      </button>
-                      {canResolve || canRecommend ? (
-                        <button
-                          type="button"
-                          className="admin-dispute-btn admin-dispute-btn--gold"
-                          onClick={() => openResolve(row)}
-                        >
-                          {canResolve ? "RESOLVE" : "RECOMMEND RESOLUTION"}
-                        </button>
-                      ) : null}
-                    </>
-                  )}
+                  <Link
+                    href={row.detailHref}
+                    className="admin-dispute-btn admin-dispute-btn--outline"
+                  >
+                    OPEN THREAD
+                  </Link>
+                  <button
+                    type="button"
+                    className="admin-dispute-btn admin-dispute-btn--ghost"
+                    onClick={() => setModal({ type: "vote", row })}
+                  >
+                    SEND TO SQUADRON VOTE
+                  </button>
+                  {canResolve || canRecommend ? (
+                    <button
+                      type="button"
+                      className="admin-dispute-btn admin-dispute-btn--gold"
+                      onClick={() => openResolve(row)}
+                    >
+                      {canResolve ? "RESOLVE" : "RECOMMEND RESOLUTION"}
+                    </button>
+                  ) : null}
                 </div>
               </li>
             ))}

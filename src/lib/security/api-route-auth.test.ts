@@ -16,6 +16,8 @@ const AUTH_GUARD_PATTERNS = [
   /requireClientSession/,
   /requirePilotSession/,
   /requireAdminSession/,
+  /requireAdminPermission/,
+  /requireAdminModuleView/,
   /requireModeratorSession/,
   /requireSuperAdminSession/,
   /from ["']@\/auth["']/,
@@ -113,7 +115,7 @@ describe("role-scoped API route prefixes", () => {
       const source = readFileSync(join(API_ROOT, route), "utf8");
       assert.match(
         source,
-        /requireAdminSession|requireModeratorSession|requireSuperAdminSession/,
+        /requireAdminSession|requireAdminPermission|requireAdminModuleView|requireModeratorSession|requireSuperAdminSession/,
         `${route} should use an admin auth guard`,
       );
     }

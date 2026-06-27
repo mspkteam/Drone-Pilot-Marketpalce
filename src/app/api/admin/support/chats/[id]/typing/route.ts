@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
-import { requireSuperAdminSession } from "@/lib/auth/require-super-admin";
+import { requireAdminPermission } from "@/lib/auth/require-admin-permission";
 import { pulseAdminTyping } from "@/lib/support/support";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
 export async function POST(_request: Request, context: RouteContext) {
-  const authResult = await requireSuperAdminSession();
+  const authResult = await requireAdminPermission("support", "reply");
   if (!authResult.ok) {
     return NextResponse.json(
       { error: authResult.error },

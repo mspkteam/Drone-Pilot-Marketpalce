@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { isValidPilotFilter, listPilotsForAdmin } from "@/lib/admin/pilots";
-import { requireAdminSession } from "@/lib/auth/require-admin";
+import { requireAdminModuleView } from "@/lib/auth/require-admin-permission";
 
 export async function GET(request: Request) {
-  const authResult = await requireAdminSession();
+  const authResult = await requireAdminModuleView("users");
   if (!authResult.ok) {
     return NextResponse.json(
       { error: authResult.error },

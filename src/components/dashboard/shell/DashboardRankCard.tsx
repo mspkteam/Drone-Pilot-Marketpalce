@@ -5,8 +5,13 @@ type DashboardRankCardProps = {
 };
 
 export function DashboardRankCard({ data }: DashboardRankCardProps) {
+  const progressLabel = data.progressLabel ?? "Rank progress";
+
   return (
-    <div className="dashboard-rank-card" aria-label="Pilot rank status">
+    <div
+      className="dashboard-rank-card"
+      aria-label={data.ariaLabel ?? "Pilot rank status"}
+    >
       <span className="dashboard-rank-card-corner dashboard-rank-card-corner--tl" aria-hidden />
       <span className="dashboard-rank-card-corner dashboard-rank-card-corner--br" aria-hidden />
       <p className="dashboard-rank-card-callsign">{data.callSign}</p>
@@ -18,7 +23,7 @@ export function DashboardRankCard({ data }: DashboardRankCardProps) {
         />
       </div>
       <p className="dashboard-rank-card-progress">
-        Rank progress · {data.progressPct}%
+        {progressLabel} · {data.progressPct}%
       </p>
     </div>
   );

@@ -2,7 +2,8 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { AdminBadgesWingsPortal } from "@/components/admin/badges/AdminBadgesWingsPortal";
 import { DashboardPageLayout } from "@/components/dashboard";
-import { canPerform, getModeratorPermissions } from "@/lib/auth/moderator-permissions";
+import { canPerform } from "@/lib/auth/moderator-permissions";
+import { getModeratorPermissionsFromDb } from "@/lib/auth/moderator-permissions-db";
 import { isAdminRole, type UserRole } from "@/types/roles";
 import "@/styles/admin-dashboard.css";
 import "@/styles/admin-badges.css";
@@ -16,7 +17,9 @@ export default async function AdminAchievementsPage() {
     redirect("/login");
   }
   const permissionConfig =
-    role === "moderator" ? getModeratorPermissions(session.user.id) : null;
+    role === "moderator"
+      ? await getModeratorPermissionsFromDb(session.user.id)
+      : null;
   const canManage =
     canPerform(role, session.user.id, "badges", "create", permissionConfig) ||
     canPerform(role, session.user.id, "badges", "edit", permissionConfig) ||

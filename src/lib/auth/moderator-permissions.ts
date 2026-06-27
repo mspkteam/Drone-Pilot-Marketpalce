@@ -1,7 +1,3 @@
-import {
-  getStoredModeratorPermissions,
-  setStoredModeratorPermissions,
-} from "@/lib/auth/moderator-permissions-store";
 import type { DashboardNavGroup } from "@/types/dashboard-nav";
 import type {
   ModeratorPermissionConfig,
@@ -190,6 +186,9 @@ export const PERMISSION_MODULES: PermissionModuleDef[] = [
 ];
 
 const ADMIN_PATH_MODULE_ENTRIES: Array<[string, PermissionModuleKey]> = [
+  ["/dashboard/admin/verifications", "certificates"],
+  ["/dashboard/admin/regions", "configuration"],
+  ["/dashboard/admin/squadron-voting", "disputes"],
   ["/dashboard/admin/permissions", "configuration"],
   ["/dashboard/admin/settings", "configuration"],
   ["/dashboard/admin/cms/resources", "cmsResources"],
@@ -213,6 +212,9 @@ const NAV_HREF_MODULE: Record<string, PermissionModuleKey> = {
   "/dashboard/admin": "dashboard",
   "/dashboard/admin/reports": "reports",
   "/dashboard/admin/users": "users",
+  "/dashboard/admin/verifications": "certificates",
+  "/dashboard/admin/regions": "configuration",
+  "/dashboard/admin/squadron-voting": "disputes",
   "/dashboard/admin/jobs": "jobApproval",
   "/dashboard/admin/messages": "messages",
   "/dashboard/admin/support": "support",
@@ -327,35 +329,24 @@ export function getDefaultModeratorPermissions(
 }
 
 function seedMockStoreIfNeeded(): void {
-  const seeds: Array<[string, PermissionPreset]> = [
-    ["mock-mod-hana", "full"],
-    ["mock-mod-elara", "limited"],
-    ["mock-mod-quinn", "custom"],
-  ];
-  for (const [id, preset] of seeds) {
-    if (!getStoredModeratorPermissions(id)) {
-      setStoredModeratorPermissions(getDefaultModeratorPermissions(id, preset));
-    }
-  }
+  // Legacy no-op — permissions are persisted in Prisma.
 }
 
+/** @deprecated Use getModeratorPermissionsFromDb in server code. */
 export function getModeratorPermissions(userId: string): ModeratorPermissionConfig {
-  seedMockStoreIfNeeded();
-  const stored = getStoredModeratorPermissions(userId);
-  if (stored) return stored;
   return getDefaultModeratorPermissions(userId, "full");
 }
 
+/** @deprecated Use saveModeratorPermissionsToDb in server code. */
 export function saveModeratorPermissions(
   config: ModeratorPermissionConfig,
   updatedBy: string,
 ): ModeratorPermissionConfig {
-  const saved: ModeratorPermissionConfig = {
+  return {
     ...config,
     updatedAt: new Date().toISOString(),
     updatedBy,
   };
-  return setStoredModeratorPermissions(saved);
 }
 
 export function getModuleKeyForAdminPath(pathname: string): PermissionModuleKey | null {
@@ -436,6 +427,18 @@ export function canAccessAdminPathWithPermissions(
   return canAccessModule(role, userId, moduleKey, config);
 }
 
+const SUPER_ADMIN_ONLY_NAV_HREFS = new Set(["/dashboard/admin/permissions"]);
+
+function stripSuperAdminOnlyNavItems<T extends { href: string }>(
+  items: readonly T[],
+  role: UserRole,
+): T[] {
+  if (role === "super_admin") {
+    return [...items];
+  }
+  return items.filter((item) => !SUPER_ADMIN_ONLY_NAV_HREFS.has(item.href));
+}
+
 export function filterAdminNavForPermissions(
   navGroups: readonly DashboardNavGroup[],
   role: UserRole,
@@ -449,17 +452,18 @@ export function filterAdminNavForPermissions(
     }));
   }
   if (role !== "moderator" || !userId) {
-    return navGroups.map((group) => ({
-      ...group,
-      items: [...group.items],
-    }));
+    return navGroups
+      .map((group) => ({
+        ...group,
+        items: stripSuperAdminOnlyNavItems(group.items, role),
+      }))
+      .filter((group) => group.items.length > 0);
   }
 
   return navGroups
     .map((group) => ({
       ...group,
-      items: group.items.filter((item) => {
-        if (item.href === "/dashboard/admin/permissions") return false;
+      items: stripSuperAdminOnlyNavItems(group.items, role).filter((item) => {
         const moduleKey = getModuleKeyForNavHref(item.href);
         if (!moduleKey) return true;
         return canAccessModule(role, userId, moduleKey, config);

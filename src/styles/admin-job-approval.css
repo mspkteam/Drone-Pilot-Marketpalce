@@ -154,6 +154,35 @@
   padding: 1.25rem 1.625rem;
 }
 
+.admin-job-approval-search {
+  display: block;
+  padding: 0 1.625rem 1rem;
+  background: var(--color-card-warm-alt);
+}
+
+.admin-job-approval-search-input {
+  width: 100%;
+  min-height: 2.75rem;
+  border: 1px solid rgba(244, 241, 234, 0.1);
+  border-radius: 0.375rem;
+  background: #2a2a28;
+  padding: 0 1rem 0 2.5rem;
+  font-size: 0.875rem;
+  color: var(--color-text);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none'%3E%3Ccircle cx='7' cy='7' r='4.5' stroke='%238A847A' stroke-width='1.25'/%3E%3Cpath d='M10.5 10.5L13 13' stroke='%238A847A' stroke-width='1.25' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: 0.75rem center;
+}
+
+.admin-job-approval-search-input::placeholder {
+  color: var(--color-text-soft);
+}
+
+.admin-job-approval-search-input:focus {
+  outline: none;
+  border-color: rgba(216, 179, 57, 0.45);
+}
+
 .admin-job-approval-panel-title {
   margin: 0;
   font-size: 0.8125rem;

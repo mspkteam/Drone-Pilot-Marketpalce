@@ -3,10 +3,13 @@ import {
   createCertificateTemplate,
   listCertificateTemplates,
 } from "@/lib/certificates/certificate";
-import { requireAdminSession } from "@/lib/auth/require-admin";
+import {
+  requireAdminModuleView,
+  requireAdminPermission,
+} from "@/lib/auth/require-admin-permission";
 
 export async function GET() {
-  const authResult = await requireAdminSession();
+  const authResult = await requireAdminModuleView("certificates");
   if (!authResult.ok) {
     return NextResponse.json(
       { error: authResult.error },
@@ -19,7 +22,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const authResult = await requireAdminSession();
+  const authResult = await requireAdminPermission("certificates", "create");
   if (!authResult.ok) {
     return NextResponse.json(
       { error: authResult.error },

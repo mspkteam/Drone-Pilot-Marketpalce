@@ -4,51 +4,6 @@ import type {
 } from "@/types/admin-dispute";
 import type { DisputeListItemDto } from "@/types/dispute";
 
-const MOCK_ROWS: AdminDisputeCenterRow[] = [
-  {
-    id: "mock-3122",
-    disputeId: "DSP-3122",
-    missionId: "MIS-8807",
-    priority: "high",
-    priorityLabel: "HIGH PRIORITY",
-    title: "APEX CONSTRUCTION ↔ HANA OKAFOR",
-    description:
-      "Footage quality below brief. Client claims sensor interference was avoidable.",
-    openedLabel: "Opened 3 hours ago",
-    status: "open",
-    detailHref: "/dashboard/admin/disputes",
-    isMock: true,
-  },
-  {
-    id: "mock-3118",
-    disputeId: "DSP-3118",
-    missionId: "MIS-8772",
-    priority: "medium",
-    priorityLabel: "MEDIUM PRIORITY",
-    title: "LUMEN FILMS ↔ JULIAN REYES",
-    description:
-      "Late delivery (48h). Pilot cites severe atmospheric disruption in Sector 4.",
-    openedLabel: "Opened 1 day ago",
-    status: "under_review",
-    detailHref: "/dashboard/admin/disputes",
-    isMock: true,
-  },
-  {
-    id: "mock-3104",
-    disputeId: "DSP-3104",
-    missionId: "MIS-8701",
-    priority: "low",
-    priorityLabel: "LOW PRIORITY",
-    title: "HELIOGRID ↔ MARCUS VAUGHAN",
-    description:
-      "Scope change refused. Client requested additional flight paths mid-op.",
-    openedLabel: "Opened 4 days ago",
-    status: "open",
-    detailHref: "/dashboard/admin/disputes",
-    isMock: true,
-  },
-];
-
 export function formatDisputeDisplayId(disputeId: string): string {
   const compact = disputeId.replace(/[^a-zA-Z0-9]/g, "");
   return `DSP-${compact.slice(-4).toUpperCase() || compact.slice(0, 4).toUpperCase()}`;
@@ -136,8 +91,4 @@ export function sortDisputeRows(
   }
 
   return copy;
-}
-
-export function getMockDisputeRows(): AdminDisputeCenterRow[] {
-  return MOCK_ROWS;
 }

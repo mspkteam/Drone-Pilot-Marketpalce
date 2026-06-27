@@ -8,57 +8,6 @@ import type {
   JobRiskLevel,
 } from "@/types/admin-job-approval";
 
-const MOCK_ROWS: JobApprovalQueueRow[] = [
-  {
-    id: "mock-8842",
-    missionId: "MISSION-8842",
-    title: "SOLAR FARM THERMAL SURVEY",
-    postedBy: "HELIOGRID ENERGY",
-    location: "NEVADA, US",
-    budget: "$4,800",
-    riskLevel: "low",
-    riskLabel: "LOW RISK",
-    isNightOp: false,
-    reviewHref: "/dashboard/admin/jobs",
-  },
-  {
-    id: "mock-8841",
-    missionId: "MISSION-8841",
-    title: "COASTAL CLIFF INSPECTION",
-    postedBy: "ATLANTIC SURVEY CO.",
-    location: "CORNWALL, UK",
-    budget: "$2,150",
-    riskLevel: "medium",
-    riskLabel: "MEDIUM RISK",
-    isNightOp: false,
-    reviewHref: "/dashboard/admin/jobs",
-  },
-  {
-    id: "mock-8840",
-    missionId: "MISSION-8840",
-    title: "STADIUM ROOF MAPPING (NIGHT)",
-    postedBy: "APEX CONSTRUCTION",
-    location: "BERLIN, DE",
-    budget: "$8,400",
-    riskLevel: "high",
-    riskLabel: "HIGH RISK",
-    isNightOp: true,
-    reviewHref: "/dashboard/admin/jobs",
-  },
-  {
-    id: "mock-8839",
-    missionId: "MISSION-8839",
-    title: "WEDDING AERIAL COVERAGE",
-    postedBy: "LUMEN FILMS",
-    location: "TUSCANY, IT",
-    budget: "$1,200",
-    riskLevel: "low",
-    riskLabel: "LOW RISK",
-    isNightOp: false,
-    reviewHref: "/dashboard/admin/jobs",
-  },
-];
-
 function assessJobRisk(job: AdminJobDto): {
   level: JobRiskLevel;
   label: string;
@@ -169,7 +118,7 @@ async function buildStats(
     approvalDeltas.length > 0
       ? approvalDeltas.reduce((sum, v) => sum + v, 0) / approvalDeltas.length
       : null;
-  const avgMinutes = avgMs != null ? Math.round(avgMs / 60000) : 42;
+  const avgMinutes = avgMs != null ? Math.round(avgMs / 60000) : 0;
 
   const approvedDelta = approvedToday - approvedYesterday;
   const approvedSubtext =
@@ -195,8 +144,8 @@ async function buildStats(
     },
     {
       label: "AVG. APPROVAL TIME",
-      value: `${avgMinutes}M`,
-      subtext: "under SLA",
+      value: avgMinutes > 0 ? `${avgMinutes}M` : "—",
+      subtext: avgMinutes > 0 ? "under SLA" : "no approvals yet",
       tone: "neutral",
     },
     {
@@ -213,24 +162,6 @@ export async function getJobApprovalQueueData(): Promise<JobApprovalQueueData> {
   const rows = pendingJobs.map(toQueueRow);
   const stats = await buildStats(rows);
 
-  if (rows.length === 0) {
-    const mockStats = await buildStats(MOCK_ROWS);
-    return {
-      stats: mockStats.map((card, index) =>
-        index === 0
-          ? {
-              ...card,
-              value: String(MOCK_ROWS.length),
-              subtext: "2 flagged high-risk",
-            }
-          : card,
-      ),
-      rows: MOCK_ROWS,
-      totalPending: 9,
-      usingMockRows: true,
-    };
-  }
-
   return {
     stats,
     rows,
@@ -238,3 +169,4 @@ export async function getJobApprovalQueueData(): Promise<JobApprovalQueueData> {
     usingMockRows: false,
   };
 }
+

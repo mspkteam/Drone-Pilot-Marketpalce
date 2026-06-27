@@ -129,16 +129,22 @@
   font-size: 1.375rem;
 }
 
-/* Grid */
-.admin-config-grid {
+/* Bento grid */
+.admin-config-bento {
   display: grid;
   gap: 1.5rem;
   grid-template-columns: minmax(0, 1fr);
 }
 
 @media (min-width: 1024px) {
-  .admin-config-grid {
+  .admin-config-bento {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: auto auto auto;
+    align-items: start;
+  }
+
+  .admin-config-card--fees {
+    grid-row: 1 / span 3;
   }
 }
 
@@ -156,6 +162,11 @@
   justify-content: space-between;
   gap: 1rem;
   margin-bottom: 1.25rem;
+}
+
+.admin-config-card-head--border {
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(77, 71, 50, 0.3);
 }
 
 .admin-config-card-title {
@@ -191,6 +202,15 @@
   color: var(--color-text-soft);
 }
 
+.admin-config-section-title {
+  margin: 1.5rem 0 0.875rem;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text);
+}
+
 /* Fee rows */
 .admin-config-rows {
   margin: 0;
@@ -199,6 +219,10 @@
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+}
+
+.admin-config-rows--compact {
+  gap: 0.375rem;
 }
 
 .admin-config-row {
@@ -210,6 +234,11 @@
   border-radius: 0.375rem;
   background: var(--color-card-warm-alt);
   padding: 1rem 1.125rem;
+}
+
+.admin-config-row--compact {
+  min-height: 3.0625rem;
+  padding: 0.75rem;
 }
 
 .admin-config-row-label {
@@ -227,13 +256,123 @@
 
 .admin-config-value-pill {
   flex-shrink: 0;
-  padding: 0.375rem 0.75rem;
+  padding: 0.3125rem 0.8125rem;
   border-radius: 0.375rem;
   background: var(--color-panel);
-  border: 1px solid rgba(216, 179, 57, 0.2);
-  font-size: 0.8125rem;
-  font-weight: 700;
+  border: 1px solid rgba(77, 71, 50, 0.2);
+  font-size: 1.125rem;
+  font-weight: 500;
+  line-height: 1.55;
   color: var(--color-gold-soft);
+}
+
+/* Custom pilot rates */
+.admin-config-pilot-search {
+  display: flex;
+  align-items: stretch;
+  gap: 0.625rem;
+  margin-top: 0.875rem;
+}
+
+.admin-config-pilot-search-field {
+  flex: 1;
+  min-width: 0;
+}
+
+.admin-config-pilot-search-input {
+  width: 100%;
+  min-height: 2.25rem;
+  border: 1px solid #272420;
+  border-radius: 0.6875rem;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 0 1rem 0 2.25rem;
+  font-size: 0.875rem;
+  color: var(--color-text);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none'%3E%3Ccircle cx='7' cy='7' r='4.5' stroke='%238A847A' stroke-width='1.25'/%3E%3Cpath d='M10.5 10.5L13 13' stroke='%238A847A' stroke-width='1.25' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: 0.625rem center;
+}
+
+.admin-config-pilot-search-input::placeholder {
+  color: rgba(229, 226, 225, 0.26);
+}
+
+.admin-config-pilot-search-input:focus {
+  outline: none;
+  border-color: rgba(216, 179, 57, 0.45);
+}
+
+.admin-config-pilot-search-btn {
+  flex-shrink: 0;
+  min-width: 4.1875rem;
+  border: 1px solid transparent;
+  border-radius: 0.375rem;
+  background: #8b8679;
+  padding: 0 0.875rem;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-gold-soft);
+  cursor: pointer;
+}
+
+.admin-config-override-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  margin-top: 0.875rem;
+}
+
+.admin-config-override-field {
+  border: 1px solid #302919;
+  border-radius: 0.375rem;
+  background: #0d0c0a;
+  padding: 0.75rem;
+}
+
+.admin-config-override-label {
+  margin: 0;
+  font-size: 0.625rem;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  color: #d0c6ab;
+}
+
+.admin-config-override-value {
+  margin: 0.125rem 0 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.admin-config-override-value--gold {
+  color: var(--color-gold-soft);
+}
+
+.admin-config-override-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.125rem;
+  margin-top: 1.25rem;
+}
+
+.admin-config-btn-save-override,
+.admin-config-btn-all-pilots {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.625rem;
+  min-width: 10.625rem;
+  padding: 0 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.admin-config-btn-all-pilots {
+  border-color: #555;
+  color: #f1eee7;
 }
 
 /* Email templates */
@@ -417,6 +556,10 @@
 /* Save */
 .admin-config-save-wrap {
   margin-top: 0.5rem;
+}
+
+.admin-config-save-wrap--inline {
+  margin-top: 1.5rem;
 }
 
 .admin-config-btn-gold {

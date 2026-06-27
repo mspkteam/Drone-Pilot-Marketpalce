@@ -7,93 +7,6 @@ import type {
 } from "@/types/admin-personnel";
 import type { UserRole } from "@/types/roles";
 
-const PAGE_MOCK_ROWS: PersonnelRow[] = [
-  {
-    id: "mock-1",
-    displayId: "RAS-WSGT-04",
-    name: "MARCUS VAUGHAN",
-    roleLabel: "Elite Pilot",
-    roleFilter: "Elite Pilot",
-    region: "North America",
-    statusLabel: "ACTIVE DUTY",
-    statusTone: "success",
-    joinedAt: new Date(Date.now() - 14 * 60 * 1000).toISOString(),
-    joinedLabel: "14 min ago",
-    viewHref: "/dashboard/admin/pilots",
-    editHref: "/dashboard/admin/pilots",
-  },
-  {
-    id: "mock-2",
-    displayId: "EMEA-CENTRAL-01",
-    name: "ELARA VANCE",
-    roleLabel: "Squadron Lead",
-    roleFilter: "Squadron Lead",
-    region: "Western Europe",
-    statusLabel: "ACTIVE DUTY",
-    statusTone: "success",
-    joinedAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-    joinedLabel: "2 hours ago",
-    viewHref: "/dashboard/admin/pilots",
-    editHref: "/dashboard/admin/pilots",
-  },
-  {
-    id: "mock-3",
-    displayId: "APAC-SOUTH-09",
-    name: "JULIAN REYES",
-    roleLabel: "Client",
-    roleFilter: "Client",
-    region: "Asia Pacific",
-    statusLabel: "ACTIVE CONTRACT",
-    statusTone: "success",
-    joinedAt: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000).toISOString(),
-    joinedLabel: "12 days ago",
-    viewHref: "/dashboard/admin/clients",
-    editHref: "/dashboard/admin/clients",
-  },
-  {
-    id: "mock-4",
-    displayId: "ENT-MULTI-22",
-    name: "SKYWARD ENERGY CO.",
-    roleLabel: "Enterprise Client",
-    roleFilter: "Enterprise Client",
-    region: "Global",
-    statusLabel: "MULTINATIONAL",
-    statusTone: "success",
-    joinedAt: new Date().toISOString(),
-    joinedLabel: "Just now",
-    viewHref: "/dashboard/admin/clients",
-    editHref: "/dashboard/admin/clients",
-  },
-  {
-    id: "mock-5",
-    displayId: "RAS-LT-77",
-    name: "QUINN MENDES",
-    roleLabel: "Pilot",
-    roleFilter: "Pilot",
-    region: "North America",
-    statusLabel: "PENDING",
-    statusTone: "pending",
-    joinedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-    joinedLabel: "3 days ago",
-    viewHref: "/dashboard/admin/pilots",
-    editHref: "/dashboard/admin/pilots",
-  },
-  {
-    id: "mock-6",
-    displayId: "EMEA-NORTH-12",
-    name: "HANA OKAFOR",
-    roleLabel: "Moderator",
-    roleFilter: "Moderator",
-    region: "Western Europe",
-    statusLabel: "ACTIVE DUTY",
-    statusTone: "success",
-    joinedAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-    joinedLabel: "1 month ago",
-    viewHref: "/dashboard/admin/users",
-    editHref: null,
-  },
-];
-
 const ELITE_TIER_CODES = new Set(["A5_FIRST_OFFICER", "A6_CAPTAIN"]);
 
 function formatTimeAgo(date: Date): string {
@@ -408,14 +321,6 @@ export async function getPersonnelDirectoryData(options: {
     buildRowsFromDatabase(options.isSuperAdmin),
     buildStats(),
   ]);
-
-  if (dbRows.length === 0) {
-    return {
-      rows: PAGE_MOCK_ROWS,
-      stats,
-      usingMockRows: true,
-    };
-  }
 
   return {
     rows: dbRows,

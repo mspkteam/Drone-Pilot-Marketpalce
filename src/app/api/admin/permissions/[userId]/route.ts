@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
 import {
   buildPresetPermissions,
-  getModeratorPermissions,
-  saveModeratorPermissions,
 } from "@/lib/auth/moderator-permissions";
+import {
+  getModeratorPermissionsFromDb,
+  saveModeratorPermissionsToDb,
+} from "@/lib/auth/moderator-permissions-db";
 import { requireSuperAdminSession } from "@/lib/auth/require-super-admin";
 import type {
   ModeratorPermissionConfig,
@@ -24,8 +26,8 @@ export async function GET(_request: Request, context: RouteContext) {
   }
 
   const { userId } = await context.params;
-  const config = getModeratorPermissions(userId);
-  return NextResponse.json({ config, persistenceMode: "preview" as const });
+  const config = await getModeratorPermissionsFromDb(userId);
+  return NextResponse.json({ config, persistenceMode: "persisted" as const });
 }
 
 export async function PATCH(request: Request, context: RouteContext) {
@@ -43,7 +45,7 @@ export async function PATCH(request: Request, context: RouteContext) {
     permissions?: ModeratorPermissionConfig["permissions"];
   };
 
-  const current = getModeratorPermissions(userId);
+  const current = await getModeratorPermissionsFromDb(userId);
   const preset = body.preset ?? current.preset;
   const permissions =
     preset === "custom" && body.permissions
@@ -52,7 +54,7 @@ export async function PATCH(request: Request, context: RouteContext) {
         ? buildPresetPermissions(preset)
         : current.permissions;
 
-  const saved = saveModeratorPermissions(
+  const saved = await saveModeratorPermissionsToDb(
     {
       userId,
       preset,
@@ -65,8 +67,7 @@ export async function PATCH(request: Request, context: RouteContext) {
 
   return NextResponse.json({
     config: saved,
-    persistenceMode: "preview" as const,
-    message:
-      "Permission persistence is pending. Changes are preview-only until backend access control is connected.",
+    persistenceMode: "persisted" as const,
+    message: "Moderator permissions saved.",
   });
 }

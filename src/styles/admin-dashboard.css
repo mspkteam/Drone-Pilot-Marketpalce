@@ -109,6 +109,8 @@
   font-size: clamp(1.875rem, 2.8vw, 2.5rem);
   font-weight: 800;
   line-height: 1.12;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   color: var(--color-text);
 }
 
@@ -152,8 +154,29 @@
   padding: 0 1.25rem;
   font-size: 0.875rem;
   font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   cursor: pointer;
   transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+/* Shared admin inner-page hero titles — Figma 808:24076 */
+.admin-personnel-hero-title,
+.admin-job-approval-hero-title,
+.admin-dispute-hero-title,
+.admin-commissions-hero-title,
+.admin-subscriptions-hero-title,
+.admin-certificates-hero-title,
+.admin-badges-hero-title,
+.admin-shop-hero-title,
+.admin-reports-hero-title,
+.admin-cms-hero-title,
+.admin-config-hero-title,
+.admin-verifications-hero-title,
+.admin-regions-hero-title,
+.admin-squadron-hero-title {
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .admin-ops-btn-primary {

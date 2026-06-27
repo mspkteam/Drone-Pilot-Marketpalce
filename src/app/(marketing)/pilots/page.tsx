@@ -1,37 +1,28 @@
-import { PublicPilotCard } from "@/components/pilots/PublicPilotCard";
-import { MarketingPage } from "@/components/layout/MarketingPage";
-import { listPublicPilots } from "@/lib/pilot/public";
+import { FindPilotsDirectory } from "@/components/marketing/find-pilots/FindPilotsDirectory";
+import { FindPilotsHero } from "@/components/marketing/find-pilots/FindPilotsHero";
+import { listClientFindPilots } from "@/lib/client/find-pilots-server";
+import "@/styles/find-pilots-marketing.css";
+import "@/styles/client-find-pilots.css";
 
 export const metadata = {
   title: "Find Pilots",
-  description: "Browse approved drone pilots on the marketplace.",
+  description:
+    "Browse approved, marketplace-verified drone pilots by location, services, and ratings.",
 };
 
-export default async function PilotsDirectoryPage() {
-  const pilots = await listPublicPilots();
+export default async function FindPilotsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ region?: string }>;
+}) {
+  const params = await searchParams;
+  const pilots = await listClientFindPilots();
+  const initialRegion = params.region ? decodeURIComponent(params.region) : null;
 
   return (
-    <MarketingPage
-      title="Find pilots"
-      description="Browse approved, marketplace-verified drone pilots by location, services, and ratings."
-    >
-      {pilots.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-border p-12 text-center">
-          <p className="text-muted-foreground">
-            No public pilot profiles yet. Check back soon or{" "}
-            <a href="/for-pilots" className="text-gold-dark hover:text-gold">
-              join as a pilot
-            </a>
-            .
-          </p>
-        </div>
-      ) : (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {pilots.map((pilot) => (
-            <PublicPilotCard key={pilot.id} pilot={pilot} />
-          ))}
-        </div>
-      )}
-    </MarketingPage>
+    <main className="find-pilots-page">
+      <FindPilotsHero />
+      <FindPilotsDirectory pilots={pilots} initialRegion={initialRegion} />
+    </main>
   );
 }

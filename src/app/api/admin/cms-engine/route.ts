@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { getCmsOverview } from "@/lib/cms/cms-store";
-import { requireSuperAdminSession } from "@/lib/auth/require-super-admin";
+import { requireAdminModuleView } from "@/lib/auth/require-admin-permission";
 
 export async function GET() {
-  const authResult = await requireSuperAdminSession();
+  const authResult = await requireAdminModuleView("cmsArticles");
   if (!authResult.ok) {
     return NextResponse.json(
       { error: authResult.error },
@@ -11,5 +11,5 @@ export async function GET() {
     );
   }
 
-  return NextResponse.json(getCmsOverview());
+  return NextResponse.json(await getCmsOverview());
 }

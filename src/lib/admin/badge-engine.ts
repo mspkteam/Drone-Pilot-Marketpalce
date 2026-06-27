@@ -1,6 +1,5 @@
 import {
   enrichBadgeDefinition,
-  MOCK_BADGE_CARDS,
 } from "@/lib/admin/badge-display";
 import { getBadgeStatsForAdmin } from "@/lib/admin/badge-stats";
 import {
@@ -17,20 +16,14 @@ export async function getAdminBadgeEngineData(): Promise<AdminBadgeEngineDataDto
     listPilotsForWingAssign(),
   ]);
 
-  const usingMockBadges = definitions.length === 0;
-  const badges = usingMockBadges
-    ? MOCK_BADGE_CARDS
-    : definitions.map(enrichBadgeDefinition);
-
-  const stats = await getBadgeStatsForAdmin(
-    usingMockBadges ? MOCK_BADGE_CARDS : definitions,
-  );
+  const badges = definitions.map(enrichBadgeDefinition);
+  const stats = await getBadgeStatsForAdmin(definitions);
 
   return {
     badges,
     stats,
     recentAwards,
     pilots,
-    usingMockBadges,
+    usingMockBadges: false,
   };
 }

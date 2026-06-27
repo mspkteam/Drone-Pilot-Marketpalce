@@ -54,6 +54,18 @@ export async function getSubscriptionStatsForAdmin(): Promise<AdminSubscriptionS
       ? `A-${(tierValues.reduce((a, b) => a + b, 0) / tierValues.length).toFixed(1)}`
       : "—";
 
+  const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+  const cancelledLast30 = await prisma.pilotSubscription.count({
+    where: {
+      status: { in: ["cancelled", "canceled", "expired"] },
+      updatedAt: { gte: thirtyDaysAgo },
+    },
+  });
+
+  const churnBase = activeSubscribers + cancelledLast30;
+  const churnPercent =
+    churnBase > 0 ? (cancelledLast30 / churnBase) * 100 : null;
+
   return {
     activeSubscribers,
     activeSubscribersSubtext: `+${newThisMonth} this month`,
@@ -61,8 +73,9 @@ export async function getSubscriptionStatsForAdmin(): Promise<AdminSubscriptionS
     monthlyRecurringSubtext: "from enrolled pilots",
     avgTier,
     avgTierSubtext: "across all pilots",
-    churnRate: "2.1%",
-    churnRateSubtext: "analytics backend pending",
-    usingMockChurn: true,
+    churnRate: churnPercent !== null ? `${churnPercent.toFixed(1)}%` : "—",
+    churnRateSubtext:
+      churnBase > 0 ? "last 30 days" : "no subscription activity yet",
+    usingMockChurn: false,
   };
 }

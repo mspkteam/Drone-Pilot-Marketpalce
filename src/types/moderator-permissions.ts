@@ -86,7 +86,7 @@ export type ModeratorPermissionListItem = {
 };
 
 export type AdminPermissionsEngineDto = {
-  persistenceMode: "preview";
+  persistenceMode: "preview" | "persisted";
   moderators: ModeratorPermissionListItem[];
   modules: PermissionModuleDef[];
   selectedUserId: string | null;

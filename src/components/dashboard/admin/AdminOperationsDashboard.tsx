@@ -87,10 +87,10 @@ export function AdminOperationsDashboard({ data }: AdminOperationsDashboardProps
         <div className="admin-ops-hero-glow" aria-hidden />
         <div className="admin-ops-hero-inner">
           <div className="admin-ops-hero-copy">
-            <p className="admin-ops-eyebrow">COMMAND CENTER</p>
+            <p className="admin-ops-eyebrow">Member Center</p>
             <h1 className="admin-ops-hero-title">Operations Dashboard</h1>
             <p className="admin-ops-hero-desc">
-              Welcome back, Commander. Here&apos;s how the platform is performing
+              Welcome back, officer. Here&apos;s how the platform is performing
               right now.
             </p>
           </div>
@@ -135,7 +135,7 @@ export function AdminOperationsDashboard({ data }: AdminOperationsDashboardProps
                 </span>
                 <span className="admin-ops-legend-item">
                   <span className="admin-ops-legend-dot admin-ops-legend-dot--green" />
-                  New pilots onboarded
+                  New officers onboarded
                 </span>
               </div>
             </div>

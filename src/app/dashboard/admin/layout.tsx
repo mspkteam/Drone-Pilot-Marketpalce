@@ -6,8 +6,8 @@ import { buildDashboardUser } from "@/lib/dashboard/shell-user";
 import { getMilestoneShellProps } from "@/lib/milestone-shell-props";
 import {
   filterAdminNavForPermissions,
-  getModeratorPermissions,
 } from "@/lib/auth/moderator-permissions";
+import { getModeratorPermissionsFromDb } from "@/lib/auth/moderator-permissions-db";
 import { adminNavGroups } from "@/lib/navigation/dashboard-admin";
 import type { UserRole } from "@/types/roles";
 import "@/styles/admin-permissions.css";
@@ -21,7 +21,9 @@ export default async function AdminDashboardLayout({
   const role = (session?.user?.role ?? "guest") as UserRole;
   const userId = session?.user?.id ?? null;
   const permissionConfig =
-    role === "moderator" && userId ? getModeratorPermissions(userId) : null;
+    role === "moderator" && userId
+      ? await getModeratorPermissionsFromDb(userId)
+      : null;
 
   const navGroups = filterAdminNavForPermissions(
     adminNavGroups,

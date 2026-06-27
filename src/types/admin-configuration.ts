@@ -1,9 +1,18 @@
-export type ConfigFeeRow = {
+export type ConfigCommissionRow = {
   id: string;
   label: string;
-  description: string;
+  description?: string;
   value: string;
-  readOnly: true;
+};
+
+export type ConfigPilotOverridePreview = {
+  pilotName: string;
+  rank: string;
+  defaultCommission: string;
+  manualOverrideEnabled: boolean;
+  customCommissionRate: string;
+  reason: string;
+  effectiveDate: string;
 };
 
 export type ConfigEmailTemplate = {
@@ -41,10 +50,13 @@ export type ConfigContentStats = {
 };
 
 export type AdminConfigurationDataDto = {
-  fees: ConfigFeeRow[];
+  defaultCommission: ConfigCommissionRow;
+  gradeRates: ConfigCommissionRow[];
+  manageRules: ConfigCommissionRow[];
+  pilotOverridePreview: ConfigPilotOverridePreview;
   emailTemplates: ConfigEmailTemplate[];
   security: ConfigSecuritySetting[];
   integrations: ConfigIntegration[];
   contentStats: ConfigContentStats;
-  persistenceMode: "preview";
+  persistenceMode: "preview" | "persisted";
 };

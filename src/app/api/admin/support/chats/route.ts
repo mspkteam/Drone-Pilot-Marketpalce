@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
-import { requireAdminSession } from "@/lib/auth/require-admin";
+import { requireAdminModuleView } from "@/lib/auth/require-admin-permission";
 import {
   isValidSupportStatus,
   listSupportChatsForAdmin,
 } from "@/lib/support/support";
 
 export async function GET(request: Request) {
-  const authResult = await requireAdminSession();
+  const authResult = await requireAdminModuleView("support");
   if (!authResult.ok) {
     return NextResponse.json(
       { error: authResult.error },

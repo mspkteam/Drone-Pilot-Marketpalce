@@ -163,10 +163,7 @@ export function AdminModeratorPermissionsPortal({
         return;
       }
       if (json.config) setDraft(json.config);
-      setNotice(
-        json.message ??
-          "Permission persistence is pending. Changes are preview-only until backend access control is connected.",
-      );
+      setNotice(json.message ?? "Moderator permissions saved.");
       setShowSaveConfirm(false);
       void load(selectedId);
     } catch {
@@ -221,13 +218,6 @@ export function AdminModeratorPermissionsPortal({
         </p>
       ) : null}
 
-      {data?.persistenceMode === "preview" ? (
-        <p className="admin-perms-banner admin-perms-banner--info" role="status">
-          Permission persistence is pending. Changes are preview-only until backend access
-          control is connected.
-        </p>
-      ) : null}
-
       <div className="admin-perms-layout">
         <aside className="admin-perms-list-panel" aria-label="Moderator list">
           <h2 className="admin-perms-panel-title">MODERATORS</h2>
@@ -252,9 +242,6 @@ export function AdminModeratorPermissionsPortal({
                     <span className="admin-perms-moderator-email">{mod.email}</span>
                     <div className="admin-perms-moderator-meta">
                       <span className="admin-perms-status">{mod.status}</span>
-                      {mod.isMock ? (
-                        <span className="admin-perms-mock-tag">Preview</span>
-                      ) : null}
                     </div>
                   </button>
                 </li>

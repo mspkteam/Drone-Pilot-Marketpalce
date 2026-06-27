@@ -86,7 +86,7 @@ export type CmsEngineOverviewDto = {
   stats: CmsOverviewStats;
   articles: CmsCollectionStats;
   resources: CmsCollectionStats;
-  persistenceMode: "preview";
+  persistenceMode: "preview" | "persisted";
 };
 
 export type CmsArticleInput = Omit<

@@ -86,3 +86,23 @@ export function buildPilotRankCard(options: {
     progressPct: options.progressPct ?? 62,
   };
 }
+
+export function buildAdminRankCard(
+  displayName: string,
+  role: string | null | undefined,
+): DashboardRankCardData {
+  const callSign =
+    role === "super_admin"
+      ? "SUPER ADMIN"
+      : role === "moderator"
+        ? "MODERATOR"
+        : "ADMIN";
+
+  return {
+    callSign,
+    rankLabel: displayName.trim().toUpperCase() || "OFFICER",
+    progressPct: 62,
+    progressLabel: "Grade progress",
+    ariaLabel: "Admin grade progress",
+  };
+}

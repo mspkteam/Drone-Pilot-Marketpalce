@@ -165,7 +165,7 @@ export function AdminCommissionsPortal() {
         <div className="admin-commissions-hero-inner">
           <div className="admin-commissions-hero-copy">
             <p className="admin-ops-eyebrow">COMMISSION LEDGER</p>
-            <h1 className="admin-commissions-hero-title">Pilot Commissions</h1>
+            <h1 className="admin-commissions-hero-title">Commissions</h1>
             <p className="admin-commissions-hero-desc">
               Live tracking of every {COMMISSION_PCT}% commission earned by the platform, broken
               down per mission.

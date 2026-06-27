@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireAdminSession } from "@/lib/auth/require-admin";
+import { requireAdminPermission } from "@/lib/auth/require-admin-permission";
 import { getJobForAdmin } from "@/lib/jobs/admin";
 import { canRejectJob } from "@/lib/jobs/status";
 import { toJobDto } from "@/lib/jobs/job";
@@ -10,7 +10,7 @@ import type { JobStatus } from "@/types/job";
 type RouteParams = { params: Promise<{ id: string }> };
 
 export async function POST(request: Request, { params }: RouteParams) {
-  const authResult = await requireAdminSession();
+  const authResult = await requireAdminPermission("jobApproval", "reject");
   if (!authResult.ok) {
     return NextResponse.json(
       { error: authResult.error },

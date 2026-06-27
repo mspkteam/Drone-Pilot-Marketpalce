@@ -11,6 +11,7 @@ import {
   enrollPilotInTierCode,
   seedMembershipTiers,
 } from "../src/lib/membership/seed-tiers";
+import { buildPresetPermissions } from "../src/lib/auth/moderator-permissions";
 
 const prisma = createPrismaClient();
 
@@ -52,6 +53,21 @@ async function main() {
         status: "active",
       },
     });
+
+    if (user.role === "moderator") {
+      await prisma.moderatorPermissionRecord.upsert({
+        where: { userId: record.id },
+        create: {
+          userId: record.id,
+          preset: "limited",
+          permissionsJson: JSON.stringify(buildPresetPermissions("limited")),
+        },
+        update: {
+          preset: "limited",
+          permissionsJson: JSON.stringify(buildPresetPermissions("limited")),
+        },
+      });
+    }
 
     if (user.role === "client") {
       const now = new Date();

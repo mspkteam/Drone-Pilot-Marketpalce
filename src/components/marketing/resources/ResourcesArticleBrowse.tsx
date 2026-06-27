@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { ResourceArticleCard } from "@/components/marketing/resources/ResourceArticleCard";
 import { ResourcesFeaturedCard } from "@/components/marketing/resources/ResourcesFeaturedCard";
 import {
@@ -9,15 +9,65 @@ import {
   type ResourceCategoryId,
 } from "@/lib/marketing/resources-content";
 import { cn } from "@/lib/utils";
+import type { CmsArticle, CmsResource } from "@/types/cms";
 
-export function ResourcesArticleBrowse() {
+type BrowseArticle = {
+  slug: string;
+  categoryLabel: string;
+  title: string;
+  description: string;
+  categoryId?: ResourceCategoryId;
+};
+
+type ResourcesArticleBrowseProps = {
+  cmsArticles?: CmsArticle[];
+  cmsResources?: CmsResource[];
+};
+
+function mapCmsArticles(articles: CmsArticle[]): BrowseArticle[] {
+  return articles.map((article) => ({
+    slug: article.slug,
+    categoryLabel: article.category,
+    title: article.title,
+    description: article.excerpt,
+  }));
+}
+
+function mapCmsResources(resources: CmsResource[]): BrowseArticle[] {
+  return resources.map((resource) => ({
+    slug: resource.slug,
+    categoryLabel: resource.category,
+    title: resource.title,
+    description: resource.summary,
+  }));
+}
+
+export function ResourcesArticleBrowse({
+  cmsArticles = [],
+  cmsResources = [],
+}: ResourcesArticleBrowseProps) {
   const [activeCategory, setActiveCategory] = useState<ResourceCategoryId | null>(
     null,
   );
 
+  const articles = useMemo<BrowseArticle[]>(() => {
+    const cmsMapped = [
+      ...mapCmsArticles(cmsArticles),
+      ...mapCmsResources(cmsResources),
+    ];
+    if (cmsMapped.length > 0) return cmsMapped;
+    return RESOURCE_ARTICLES.map((article) => ({
+      slug: article.slug,
+      categoryLabel: article.categoryLabel,
+      title: article.title,
+      description: article.description,
+      categoryId: article.categoryId,
+    }));
+  }, [cmsArticles, cmsResources]);
+
   const filteredArticles = activeCategory
-    ? RESOURCE_ARTICLES.filter((article) => article.categoryId === activeCategory)
-    : RESOURCE_ARTICLES;
+    ? articles.filter((article) => article.categoryId === activeCategory)
+    : articles;
 
   function handleCategoryClick(categoryId: ResourceCategoryId) {
     setActiveCategory((current) =>

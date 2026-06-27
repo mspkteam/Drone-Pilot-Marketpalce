@@ -1,7 +1,5 @@
-import {
-  calculateCommission,
-  DEFAULT_COMMISSION_RATE,
-} from "@/lib/commission/constants";
+import { calculateCommission } from "@/lib/commission/constants";
+import { getEffectiveCommissionRate } from "@/lib/admin/platform-settings";
 import { prisma } from "@/lib/db";
 import { formatMissionDisplayId } from "@/lib/admin/dispute-center-filters";
 import type {
@@ -10,76 +8,6 @@ import type {
   AdminCommissionsResponseDto,
   CommissionLedgerStatus,
 } from "@/types/admin-commissions";
-
-const FIXED_RATE_PERCENT = Math.round(DEFAULT_COMMISSION_RATE * 100);
-
-export const MOCK_COMMISSION_LEDGER: AdminCommissionLedgerRowDto[] = [
-  {
-    id: "mock-1",
-    missionId: "MIS-8821",
-    missionTitle: "HelioGrid solar survey",
-    pilotName: "Marcus Vaughan",
-    clientName: "HelioGrid",
-    amountGross: 4800,
-    commissionAmount: 480,
-    currency: "USD",
-    ratePercent: FIXED_RATE_PERCENT,
-    status: "SETTLED",
-    createdAt: "2026-05-28T12:00:00.000Z",
-  },
-  {
-    id: "mock-2",
-    missionId: "MIS-8819",
-    missionTitle: "Atlantic coastal mapping",
-    pilotName: "Elara Vance",
-    clientName: "Atlantic Survey",
-    amountGross: 2150,
-    commissionAmount: 215,
-    currency: "USD",
-    ratePercent: FIXED_RATE_PERCENT,
-    status: "PENDING",
-    createdAt: "2026-05-27T12:00:00.000Z",
-  },
-  {
-    id: "mock-3",
-    missionId: "MIS-8814",
-    missionTitle: "Lumen aerial cinematography",
-    pilotName: "Julian Reyes",
-    clientName: "Lumen Films",
-    amountGross: 1200,
-    commissionAmount: 120,
-    currency: "USD",
-    ratePercent: FIXED_RATE_PERCENT,
-    status: "SETTLED",
-    createdAt: "2026-05-26T12:00:00.000Z",
-  },
-  {
-    id: "mock-4",
-    missionId: "MIS-8807",
-    missionTitle: "Apex site inspection",
-    pilotName: "Hana Okafor",
-    clientName: "Apex Construction",
-    amountGross: 8400,
-    commissionAmount: 840,
-    currency: "USD",
-    ratePercent: FIXED_RATE_PERCENT,
-    status: "HELD",
-    createdAt: "2026-05-25T12:00:00.000Z",
-  },
-  {
-    id: "mock-5",
-    missionId: "MIS-8801",
-    missionTitle: "Skyward pipeline patrol",
-    pilotName: "Quinn Mendes",
-    clientName: "Skyward Energy",
-    amountGross: 6200,
-    commissionAmount: 620,
-    currency: "USD",
-    ratePercent: FIXED_RATE_PERCENT,
-    status: "SETTLED",
-    createdAt: "2026-05-24T12:00:00.000Z",
-  },
-];
 
 function mapLedgerStatus(
   paymentStatus: string,
@@ -96,8 +24,8 @@ function mapLedgerStatus(
   return "PENDING";
 }
 
-function fixedCommissionAmount(amountGross: number): number {
-  return calculateCommission(amountGross, DEFAULT_COMMISSION_RATE).amount;
+function commissionAmount(amountGross: number, rate: number): number {
+  return calculateCommission(amountGross, rate).amount;
 }
 
 function growthSubtext(current: number, previous: number): string {
@@ -109,6 +37,9 @@ function growthSubtext(current: number, previous: number): string {
 }
 
 export async function getAdminCommissionsData(): Promise<AdminCommissionsResponseDto> {
+  const commissionRate = await getEffectiveCommissionRate();
+  const ratePercent = Math.round(commissionRate * 100);
+
   const payments = await prisma.payment.findMany({
     include: {
       commission: true,
@@ -124,11 +55,12 @@ export async function getAdminCommissionsData(): Promise<AdminCommissionsRespons
   });
 
   if (payments.length === 0) {
+    const emptyLedger: AdminCommissionLedgerRowDto[] = [];
     return {
-      ledger: MOCK_COMMISSION_LEDGER,
-      stats: buildMockStats(),
-      totalEntries: 124,
-      usingMockLedger: true,
+      ledger: emptyLedger,
+      stats: computeStatsFromLedger(emptyLedger, ratePercent),
+      totalEntries: 0,
+      usingMockLedger: false,
     };
   }
 
@@ -144,15 +76,15 @@ export async function getAdminCommissionsData(): Promise<AdminCommissionsRespons
       pilotName: payment.booking.pilotProfile.displayName,
       clientName,
       amountGross: payment.amountGross,
-      commissionAmount: fixedCommissionAmount(payment.amountGross),
+      commissionAmount: commissionAmount(payment.amountGross, commissionRate),
       currency: payment.currency,
-      ratePercent: FIXED_RATE_PERCENT,
+      ratePercent,
       status: mapLedgerStatus(payment.status, payment.commission?.status ?? null),
       createdAt: payment.createdAt.toISOString(),
     };
   });
 
-  const stats = computeStatsFromLedger(ledger);
+  const stats = computeStatsFromLedger(ledger, ratePercent);
   return {
     ledger,
     stats,
@@ -161,23 +93,9 @@ export async function getAdminCommissionsData(): Promise<AdminCommissionsRespons
   };
 }
 
-function buildMockStats(): AdminCommissionStatsDto {
-  return {
-    commissionMtd: 48210,
-    commissionMtdSubtext: "+22%",
-    commissionRatePercent: FIXED_RATE_PERCENT,
-    commissionRateSubtext: "fixed platform rate",
-    pendingPayouts: 12840,
-    pendingPayoutsSubtext: "14 missions",
-    settled30d: 162400,
-    settled30dSubtext: "+9%",
-    currency: "USD",
-    usingMockGrowth: true,
-  };
-}
-
 function computeStatsFromLedger(
   ledger: AdminCommissionLedgerRowDto[],
+  ratePercent: number,
 ): AdminCommissionStatsDto {
   const now = new Date();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -224,8 +142,8 @@ function computeStatsFromLedger(
   return {
     commissionMtd,
     commissionMtdSubtext: growthSubtext(commissionMtd, commissionPrevMtd),
-    commissionRatePercent: FIXED_RATE_PERCENT,
-    commissionRateSubtext: "fixed platform rate",
+    commissionRatePercent: ratePercent,
+    commissionRateSubtext: "from platform configuration",
     pendingPayouts,
     pendingPayoutsSubtext: `${pendingRows.length} mission${
       pendingRows.length === 1 ? "" : "s"

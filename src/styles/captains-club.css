@@ -1,0 +1,482 @@
+/* Captain's Club — marketing directory (Figma 967:828) */
+
+.captains-club-page {
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+.captains-club-hero {
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid rgba(77, 71, 50, 0.25);
+  background: linear-gradient(180deg, rgba(216, 179, 57, 0.06) 0%, transparent 55%);
+}
+
+.captains-club-hero-glow {
+  position: absolute;
+  top: -8rem;
+  right: -6rem;
+  width: 36rem;
+  height: 36rem;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(216, 179, 57, 0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.captains-club-hero-inner {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 2.5rem;
+  align-items: center;
+  padding-block: 4.5rem 3.5rem;
+}
+
+@media (min-width: 1024px) {
+  .captains-club-hero-inner {
+    grid-template-columns: minmax(0, 1fr) minmax(18rem, 34rem);
+    gap: 3rem;
+  }
+}
+
+.captains-club-hero-title {
+  margin: 0;
+  font-size: clamp(2.75rem, 6vw, 4.5rem);
+  font-weight: 800;
+  line-height: 1.05;
+  color: var(--color-text);
+}
+
+.captains-club-hero-title-accent {
+  color: var(--color-gold);
+}
+
+.captains-club-hero-eyebrow {
+  margin: 1rem 0 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--color-text-soft);
+}
+
+.captains-club-hero-desc {
+  margin: 1.25rem 0 0;
+  max-width: 32rem;
+  font-size: 1rem;
+  line-height: 1.65;
+  color: var(--color-text-muted);
+}
+
+.captains-club-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.captains-club-hero-media {
+  min-width: 0;
+}
+
+.captains-club-hero-image {
+  width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(77, 71, 50, 0.35);
+  object-fit: cover;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.45);
+}
+
+.captains-club-stats {
+  margin-top: -3.5rem;
+  position: relative;
+  z-index: 2;
+  padding-bottom: 2rem;
+}
+
+.captains-club-stats-grid {
+  display: grid;
+  gap: 0;
+  grid-template-columns: minmax(0, 1fr);
+  border: 1px solid rgba(77, 71, 50, 0.35);
+  border-radius: 0.5rem;
+  background: rgba(23, 21, 18, 0.92);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+}
+
+@media (min-width: 768px) {
+  .captains-club-stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .captains-club-stats-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.captains-club-stat-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 10.625rem;
+  padding: 1.5rem 1rem;
+  text-align: center;
+  border-bottom: 1px solid rgba(77, 71, 50, 0.25);
+}
+
+@media (min-width: 768px) {
+  .captains-club-stat-card:nth-child(odd) {
+    border-right: 1px solid rgba(77, 71, 50, 0.25);
+  }
+
+  .captains-club-stat-card:nth-last-child(-n + 2) {
+    border-bottom: none;
+  }
+}
+
+@media (min-width: 1024px) {
+  .captains-club-stat-card {
+    border-bottom: none;
+    border-right: 1px solid rgba(77, 71, 50, 0.25);
+  }
+
+  .captains-club-stat-card:last-child {
+    border-right: none;
+  }
+}
+
+.captains-club-stat-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-bottom: 0.75rem;
+  font-size: 1rem;
+  color: var(--color-gold);
+}
+
+.captains-club-stat-label {
+  margin: 0;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text-soft);
+}
+
+.captains-club-stat-value {
+  margin: 0.5rem 0 0;
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1.1;
+  color: var(--color-text);
+}
+
+.captains-club-directory {
+  padding: 3rem 0 4rem;
+}
+
+.captains-club-directory-toolbar {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: minmax(0, 1fr);
+  margin-bottom: 2rem;
+}
+
+@media (min-width: 768px) {
+  .captains-club-directory-toolbar {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .captains-club-directory-toolbar {
+    grid-template-columns: 1.2fr repeat(3, minmax(0, 1fr));
+  }
+}
+
+.captains-club-search {
+  display: block;
+}
+
+.captains-club-search-input,
+.captains-club-select {
+  width: 100%;
+  min-height: 2.875rem;
+  border: 1px solid rgba(77, 71, 50, 0.35);
+  border-radius: 0.375rem;
+  background: var(--color-card-warm);
+  color: var(--color-text);
+  font-size: 0.875rem;
+}
+
+.captains-club-search-input {
+  padding: 0 1rem 0 2.5rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none'%3E%3Ccircle cx='7' cy='7' r='4.5' stroke='%238A847A' stroke-width='1.25'/%3E%3Cpath d='M10.5 10.5L13 13' stroke='%238A847A' stroke-width='1.25' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: 0.875rem center;
+}
+
+.captains-club-search-input::placeholder {
+  color: var(--color-text-soft);
+}
+
+.captains-club-search-input:focus,
+.captains-club-select:focus {
+  outline: none;
+  border-color: rgba(216, 179, 57, 0.45);
+}
+
+.captains-club-select-wrap {
+  display: block;
+}
+
+.captains-club-select {
+  appearance: none;
+  padding: 0 2.25rem 0 1rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M3 4.5L6 7.5L9 4.5' stroke='%238A847A' stroke-width='1.25' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.875rem center;
+}
+
+.captains-club-grid {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 640px) {
+  .captains-club-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .captains-club-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.captains-club-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  border: 1px solid rgba(77, 71, 50, 0.3);
+  border-radius: 0.5rem;
+  background: var(--color-card-warm);
+  padding: 1.5rem;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
+}
+
+.captains-club-card-head {
+  display: flex;
+  gap: 1rem;
+}
+
+.captains-club-card-avatar {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50%;
+  background: var(--color-panel);
+  border: 1px solid rgba(216, 179, 57, 0.25);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-gold-soft);
+}
+
+.captains-club-card-meta {
+  min-width: 0;
+}
+
+.captains-club-card-name {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.captains-club-card-location {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  margin: 0.375rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--color-text-soft);
+}
+
+.captains-club-card-pin {
+  display: inline-block;
+  width: 0.75rem;
+  height: 0.75rem;
+  background: currentColor;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath fill='black' d='M6 0C3.8 0 2 1.8 2 4c0 2.8 4 8 4 8s4-5.2 4-8c0-2.2-1.8-4-4-4Zm0 5.5A1.5 1.5 0 1 1 6 2.5 1.5 1.5 0 0 1 6 5.5Z'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+  opacity: 0.8;
+}
+
+.captains-club-card-rating {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin: 0.375rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--color-text);
+}
+
+.captains-club-card-star {
+  color: var(--color-gold);
+}
+
+.captains-club-card-review-count {
+  color: var(--color-text-soft);
+}
+
+.captains-club-card-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.captains-club-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.3125rem;
+  padding: 0 0.5625rem;
+  border: 1px solid rgba(77, 71, 50, 0.35);
+  border-radius: 0.25rem;
+  background: rgba(35, 31, 21, 0.85);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--color-gold-soft);
+}
+
+.captains-club-card-bio {
+  margin: 1rem 0 0;
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: var(--color-text-muted);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.captains-club-card-bio--empty {
+  font-style: italic;
+}
+
+.captains-club-card-link {
+  margin-top: auto;
+  padding-top: 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-gold-soft);
+  text-decoration: none;
+}
+
+.captains-club-card-link:hover {
+  color: var(--color-gold);
+}
+
+.captains-club-empty {
+  border: 1px dashed rgba(77, 71, 50, 0.35);
+  border-radius: 0.5rem;
+  padding: 3rem 1.5rem;
+  text-align: center;
+}
+
+.captains-club-empty-title {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.captains-club-empty-text {
+  margin: 0.75rem 0 0;
+  font-size: 0.9375rem;
+  color: var(--color-text-muted);
+}
+
+.captains-club-more-wrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.captains-club-standards {
+  border-top: 1px solid rgba(77, 71, 50, 0.25);
+  background: var(--color-bg-soft);
+  padding: 4rem 0 5rem;
+}
+
+.captains-club-standards-inner {
+  text-align: center;
+}
+
+.captains-club-standards-eyebrow {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--color-gold);
+}
+
+.captains-club-standards-title {
+  margin: 0.75rem 0 0;
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  font-weight: 800;
+  color: var(--color-text);
+}
+
+.captains-club-standards-grid {
+  display: grid;
+  gap: 1.25rem;
+  margin-top: 2.5rem;
+  text-align: left;
+}
+
+@media (min-width: 768px) {
+  .captains-club-standards-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .captains-club-standards-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.captains-club-standards-card {
+  min-height: 100%;
+  border: 1px solid rgba(77, 71, 50, 0.3);
+  border-radius: 0.5rem;
+  background: var(--color-card-warm);
+  padding: 1.5rem;
+}
+
+.captains-club-standards-card-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.captains-club-standards-card-desc {
+  margin: 0.75rem 0 0;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--color-text-muted);
+}

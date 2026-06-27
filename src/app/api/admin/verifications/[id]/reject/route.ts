@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 import { rejectVerification } from "@/lib/verification/verification";
-import { requireAdminSession } from "@/lib/auth/require-admin";
+import { requireAdminPermission } from "@/lib/auth/require-admin-permission";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
 export async function POST(request: Request, context: RouteContext) {
-  const authResult = await requireAdminSession();
+  const authResult = await requireAdminPermission("certificates", "edit");
   if (!authResult.ok) {
     return NextResponse.json(
       { error: authResult.error },

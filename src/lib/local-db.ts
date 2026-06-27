@@ -13,10 +13,8 @@ export function useLocalSqlite(): boolean {
   const url = process.env.DATABASE_URL?.trim();
   if (url?.startsWith("file:")) return true;
 
-  // SQLite schema — ignore stale Neon URLs until USE_NEON=1 + postgresql provider
-  if (process.env.NODE_ENV !== "production") return true;
-
-  return false;
+  // prisma/schema.prisma uses sqlite — stay on local file unless USE_NEON=1
+  return true;
 }
 
 export function resolveSqliteUrl(): string {

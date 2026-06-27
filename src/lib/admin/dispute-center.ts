@@ -100,23 +100,6 @@ async function buildStats(): Promise<AdminDisputeStatCard[]> {
 
 export async function getDisputeCenterData(): Promise<AdminDisputeCenterData> {
   const stats = await buildStats();
-  const hasActive = Number(stats[0]?.value ?? 0) > 0;
-
-  if (!hasActive) {
-    return {
-      stats: stats.map((card, index) => {
-        if (index === 0) {
-          return { ...card, value: "8", subtext: "3 high priority" };
-        }
-        if (index === 2) {
-          return { ...card, value: "2" };
-        }
-        return card;
-      }),
-      usingMockStats: true,
-    };
-  }
-
   return { stats, usingMockStats: false };
 }
 

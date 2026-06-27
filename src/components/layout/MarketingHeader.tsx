@@ -72,7 +72,7 @@ function HeaderAuthActions({
         onClick={onNavigate}
         className="text-xs font-medium uppercase tracking-[0.12em] text-ras-text transition-colors hover:text-gold"
       >
-        Login
+        Log in
       </Link>
       <Link
         href="/register"

@@ -1,9 +1,12 @@
 import { NextResponse } from "next/server";
-import { requireSuperAdminSession } from "@/lib/auth/require-super-admin";
+import {
+  requireAdminModuleView,
+  requireAdminPermission,
+} from "@/lib/auth/require-admin-permission";
 import { createProduct, listProductsForAdmin } from "@/lib/shop/shop";
 
 export async function GET() {
-  const authResult = await requireSuperAdminSession();
+  const authResult = await requireAdminModuleView("shop");
   if (!authResult.ok) {
     return NextResponse.json(
       { error: authResult.error },
@@ -16,7 +19,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const authResult = await requireSuperAdminSession();
+  const authResult = await requireAdminPermission("shop", "create");
   if (!authResult.ok) {
     return NextResponse.json(
       { error: authResult.error },

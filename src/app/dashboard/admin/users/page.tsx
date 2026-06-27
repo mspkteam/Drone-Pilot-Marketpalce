@@ -3,7 +3,8 @@ import { auth } from "@/auth";
 import { AdminFleetPersonnel } from "@/components/dashboard/admin/personnel/AdminFleetPersonnel";
 import { DashboardPageLayout } from "@/components/dashboard";
 import { getPersonnelDirectoryData } from "@/lib/admin/personnel-directory";
-import { canPerform, getModeratorPermissions } from "@/lib/auth/moderator-permissions";
+import { canPerform } from "@/lib/auth/moderator-permissions";
+import { getModeratorPermissionsFromDb } from "@/lib/auth/moderator-permissions-db";
 import { isAdminRole, type UserRole } from "@/types/roles";
 import "@/styles/admin-dashboard.css";
 import "@/styles/admin-personnel.css";
@@ -18,7 +19,9 @@ export default async function AdminUsersPage() {
   }
 
   const permissionConfig =
-    role === "moderator" ? getModeratorPermissions(session.user.id) : null;
+    role === "moderator"
+      ? await getModeratorPermissionsFromDb(session.user.id)
+      : null;
   const canEditUsers = canPerform(role, session.user.id, "users", "edit", permissionConfig);
   const data = await getPersonnelDirectoryData({ isSuperAdmin: canEditUsers });
 

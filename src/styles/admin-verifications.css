@@ -1,0 +1,103 @@
+/* Admin Pilot Verification — Figma 808:25258 */
+
+.admin-verifications-shell.dashboard-page {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: none;
+  gap: 0;
+}
+
+.admin-verifications-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+  min-width: 0;
+}
+
+.admin-verifications-hero {
+  position: relative;
+  overflow: hidden;
+  min-height: 9.375rem;
+  border: 1px solid rgba(244, 241, 234, 0.08);
+  border-radius: 0.5rem;
+  background: var(--color-card-warm);
+  padding: 1.75rem;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+}
+
+.admin-verifications-hero-copy {
+  position: relative;
+  z-index: 2;
+  min-width: 0;
+}
+
+.admin-verifications-hero-title {
+  margin: 0.625rem 0 0;
+  font-size: clamp(1.875rem, 2.8vw, 2.5rem);
+  font-weight: 800;
+  line-height: 1.12;
+  color: var(--color-text);
+}
+
+.admin-verifications-hero-desc {
+  margin: 0.75rem 0 0;
+  max-width: 40rem;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--color-text-muted);
+}
+
+.admin-verifications-alert {
+  margin: 0;
+  border: 1px solid rgba(216, 179, 57, 0.35);
+  border-radius: 0.375rem;
+  background: rgba(216, 179, 57, 0.1);
+  padding: 0.875rem 1rem;
+  font-size: 0.875rem;
+  color: var(--color-gold);
+}
+
+.admin-verifications-panel {
+  padding: 0;
+  overflow: hidden;
+}
+
+.admin-verifications-panel-head {
+  padding: 1.25rem 1.625rem 0;
+}
+
+.admin-verifications-panel-title {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--color-text);
+}
+
+.admin-verifications-panel-sub {
+  margin: 0.375rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+}
+
+.admin-verifications-panel .dashboard-filter-bar {
+  margin: 1rem 1.625rem 0;
+  border: 1px solid rgba(244, 241, 234, 0.08);
+  border-radius: 0.375rem;
+  background: #2a2a28;
+  padding: 0.5rem;
+}
+
+.admin-verifications-panel .list-panel {
+  margin: 1rem 1.625rem 1.625rem;
+  border: 1px solid rgba(244, 241, 234, 0.08);
+  border-radius: 0.375rem;
+  background: var(--color-card-warm-alt);
+}
+
+.admin-verifications-panel .empty-state,
+.admin-verifications-panel .text-muted-foreground {
+  margin: 1rem 1.625rem 1.625rem;
+}

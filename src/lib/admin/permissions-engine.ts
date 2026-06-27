@@ -1,7 +1,8 @@
 import { listUsersForAdmin } from "@/lib/admin/users";
 import {
-  getModeratorPermissions,
-  MOCK_MODERATOR_SEEDS,
+  getModeratorPermissionsFromDb,
+} from "@/lib/auth/moderator-permissions-db";
+import {
   PERMISSION_MODULES,
 } from "@/lib/auth/moderator-permissions";
 import type {
@@ -13,26 +14,20 @@ export async function getAdminPermissionsEngineData(
   selectedUserId?: string | null,
 ): Promise<AdminPermissionsEngineDto> {
   const users = await listUsersForAdmin();
-  const dbModerators: ModeratorPermissionListItem[] = users
-    .filter((user) => user.role === "moderator")
-    .map((user) => {
-      const config = getModeratorPermissions(user.id);
-      return {
-        id: user.id,
-        name: user.email.split("@")[0] ?? user.email,
-        email: user.email,
-        status: user.status,
-        preset: config.preset,
-      };
-    });
-
-  const moderators =
-    dbModerators.length > 0
-      ? dbModerators
-      : MOCK_MODERATOR_SEEDS.map((seed) => ({
-          ...seed,
-          preset: getModeratorPermissions(seed.id).preset,
-        }));
+  const moderators: ModeratorPermissionListItem[] = await Promise.all(
+    users
+      .filter((user) => user.role === "moderator")
+      .map(async (user) => {
+        const config = await getModeratorPermissionsFromDb(user.id);
+        return {
+          id: user.id,
+          name: user.email.split("@")[0] ?? user.email,
+          email: user.email,
+          status: user.status,
+          preset: config.preset,
+        };
+      }),
+  );
 
   const resolvedSelected =
     selectedUserId && moderators.some((m) => m.id === selectedUserId)
@@ -40,11 +35,11 @@ export async function getAdminPermissionsEngineData(
       : (moderators[0]?.id ?? null);
 
   const config = resolvedSelected
-    ? getModeratorPermissions(resolvedSelected)
+    ? await getModeratorPermissionsFromDb(resolvedSelected)
     : null;
 
   return {
-    persistenceMode: "preview",
+    persistenceMode: "persisted",
     moderators,
     modules: PERMISSION_MODULES,
     selectedUserId: resolvedSelected,

@@ -40,7 +40,9 @@ export function DashboardNavGroup({
 }: DashboardNavGroupProps) {
   return (
     <div className="dashboard-nav-group">
-      <p className="dashboard-nav-group-label">{group.label}</p>
+      {group.hideLabel ? null : (
+        <p className="dashboard-nav-group-label">{group.label}</p>
+      )}
       <ul className="space-y-0.5">
         {group.items.map((item) => (
           <li key={`${group.label}-${item.href}-${item.label}`}>

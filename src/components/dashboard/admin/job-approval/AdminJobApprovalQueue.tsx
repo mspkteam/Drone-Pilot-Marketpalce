@@ -31,8 +31,8 @@ export function AdminJobApprovalQueue({ initialData }: AdminJobApprovalQueueProp
   const [rows, setRows] = useState(initialData.rows);
   const [stats, setStats] = useState(initialData.stats);
   const [totalPending, setTotalPending] = useState(initialData.totalPending);
-  const [usingMockRows, setUsingMockRows] = useState(initialData.usingMockRows);
   const [riskFilter, setRiskFilter] = useState<JobRiskLevel | "all">("all");
+  const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(1);
   const [modal, setModal] = useState<ModalState>({
     open: false,
@@ -44,9 +44,16 @@ export function AdminJobApprovalQueue({ initialData }: AdminJobApprovalQueueProp
   const [filterOpen, setFilterOpen] = useState(false);
 
   const filteredRows = useMemo(() => {
-    if (riskFilter === "all") return rows;
-    return rows.filter((row) => row.riskLevel === riskFilter);
-  }, [rows, riskFilter]);
+    const query = searchQuery.trim().toLowerCase();
+    return rows.filter((row) => {
+      if (riskFilter !== "all" && row.riskLevel !== riskFilter) return false;
+      if (!query) return true;
+      return [row.title, row.missionId, row.postedBy, row.location, row.budget]
+        .join(" ")
+        .toLowerCase()
+        .includes(query);
+    });
+  }, [rows, riskFilter, searchQuery]);
 
   const totalPages = Math.max(1, Math.ceil(filteredRows.length / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
@@ -77,29 +84,18 @@ export function AdminJobApprovalQueue({ initialData }: AdminJobApprovalQueueProp
       requirements: string | null;
     }>;
 
-    if (pending.length === 0 && usingMockRows) return;
+    if (pending.length === 0) return;
 
     window.location.reload();
-  }, [usingMockRows]);
+  }, []);
 
   function openModal(mode: "approve" | "reject", row: JobApprovalQueueRow) {
-    if (usingMockRows) {
-      setModalError(
-        "Demo missions cannot be moderated — seed pending jobs to use live approval.",
-      );
-      setModal({ open: true, mode, row });
-      return;
-    }
     setModalError(null);
     setModal({ open: true, mode, row });
   }
 
   async function handleConfirm(reason?: string) {
     if (!modal.row) return;
-    if (usingMockRows) {
-      setModal({ open: false, mode: "approve", row: null });
-      return;
-    }
 
     setSubmitting(true);
     setModalError(null);
@@ -162,7 +158,7 @@ export function AdminJobApprovalQueue({ initialData }: AdminJobApprovalQueueProp
         <div className="admin-ops-hero-glow" aria-hidden />
         <div className="admin-job-approval-hero-copy">
           <p className="admin-ops-eyebrow">MISSION CONTROL</p>
-          <h1 className="admin-job-approval-hero-title">Job Approval Queue</h1>
+          <h1 className="admin-job-approval-hero-title">Job Approval</h1>
           <p className="admin-job-approval-hero-desc">
             Approve missions before they&apos;re released to the pilot network.
             High-risk jobs are flagged automatically.
@@ -238,6 +234,20 @@ export function AdminJobApprovalQueue({ initialData }: AdminJobApprovalQueueProp
             </button>
           </div>
         </div>
+
+        <label className="admin-job-approval-search">
+          <span className="sr-only">Search pending missions</span>
+          <input
+            type="search"
+            className="admin-job-approval-search-input"
+            placeholder="Search missions by title or client"
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setPage(1);
+            }}
+          />
+        </label>
 
         <ul className="admin-job-approval-mission-list">
           {pageRows.map((row) => (
@@ -323,7 +333,6 @@ export function AdminJobApprovalQueue({ initialData }: AdminJobApprovalQueueProp
         <div className="admin-job-approval-panel-footer">
           <p className="admin-job-approval-footer-count">
             SHOWING {rangeStart}-{rangeEnd} OF {totalPending} PENDING MISSIONS
-            {usingMockRows ? " (demo)" : ""}
           </p>
           <div className="admin-job-approval-footer-nav">
             <button

@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 import { getDisputeForAdmin } from "@/lib/disputes/dispute";
-import { requireAdminSession } from "@/lib/auth/require-admin";
+import { requireAdminModuleView } from "@/lib/auth/require-admin-permission";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
 export async function GET(_request: Request, context: RouteContext) {
-  const authResult = await requireAdminSession();
+  const authResult = await requireAdminModuleView("disputes");
   if (!authResult.ok) {
     return NextResponse.json(
       { error: authResult.error },

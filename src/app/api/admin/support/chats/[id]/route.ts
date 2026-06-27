@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
-import { requireAdminSession } from "@/lib/auth/require-admin";
-import { requireSuperAdminSession } from "@/lib/auth/require-super-admin";
+import {
+  requireAdminModuleView,
+  requireAdminPermission,
+} from "@/lib/auth/require-admin-permission";
 import {
   getSupportChatForAdmin,
   isValidSupportStatus,
@@ -10,7 +12,7 @@ import {
 type RouteContext = { params: Promise<{ id: string }> };
 
 export async function GET(_request: Request, context: RouteContext) {
-  const authResult = await requireAdminSession();
+  const authResult = await requireAdminModuleView("support");
   if (!authResult.ok) {
     return NextResponse.json(
       { error: authResult.error },
@@ -28,7 +30,7 @@ export async function GET(_request: Request, context: RouteContext) {
 }
 
 export async function PATCH(request: Request, context: RouteContext) {
-  const authResult = await requireSuperAdminSession();
+  const authResult = await requireAdminPermission("support", "changeStatus");
   if (!authResult.ok) {
     return NextResponse.json(
       { error: authResult.error },

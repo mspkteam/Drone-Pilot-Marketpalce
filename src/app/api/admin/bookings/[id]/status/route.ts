@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
 import { updateBookingStatusForAdmin } from "@/lib/admin/bookings";
-import { requireAdminSession } from "@/lib/auth/require-admin";
+import { requireAdminPermission } from "@/lib/auth/require-admin-permission";
 import { BOOKING_STATUSES, type BookingStatus } from "@/types/booking";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
 export async function PATCH(request: Request, context: RouteContext) {
-  const authResult = await requireAdminSession();
+  const authResult = await requireAdminPermission("users", "edit");
   if (!authResult.ok) {
     return NextResponse.json(
       { error: authResult.error },

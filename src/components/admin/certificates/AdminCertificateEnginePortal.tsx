@@ -183,7 +183,7 @@ export function AdminCertificateEnginePortal({
         <div className="admin-certificates-hero-inner">
           <div className="admin-certificates-hero-copy">
             <p className="admin-ops-eyebrow">CERTIFICATE ENGINE</p>
-            <h1 className="admin-certificates-hero-title">Automated Certificates</h1>
+            <h1 className="admin-certificates-hero-title">Certificates</h1>
             <p className="admin-certificates-hero-desc">
               Templates that auto-generate signed PDFs whenever a pilot hits a milestone.
             </p>

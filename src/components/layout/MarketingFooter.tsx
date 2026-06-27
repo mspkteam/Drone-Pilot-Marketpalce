@@ -65,6 +65,14 @@ export function MarketingFooter() {
                   </li>
                 ))}
               </ul>
+              {column.title === "Compliance" ? (
+                <Link
+                  href="/contact"
+                  className="ras-btn-primary mt-5 inline-flex min-h-10 px-5 text-xs uppercase tracking-[0.12em]"
+                >
+                  Talk to Support
+                </Link>
+              ) : null}
             </div>
           ))}
         </div>

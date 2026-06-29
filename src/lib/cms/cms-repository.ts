@@ -122,80 +122,83 @@ function mapResource(record: {
   };
 }
 
+async function seedCmsArticles(articles: ReturnType<typeof buildArticlesSeed>): Promise<void> {
+  if (articles.length === 0) return;
+
+  await prisma.cmsArticleRecord.createMany({
+    data: articles.map((article) => ({
+      title: article.title,
+      slug: article.slug,
+      excerpt: article.excerpt,
+      body: article.body,
+      featuredImage: article.featuredImage,
+      category: article.category,
+      tagsJson: JSON.stringify(article.tags),
+      audience: article.audience,
+      status: article.status,
+      featured: article.featured,
+      author: article.author,
+      readTimeMinutes: article.readTimeMinutes,
+      publishedAt: article.publishedAt ? new Date(article.publishedAt) : null,
+      seoTitle: article.seoTitle,
+      seoDescription: article.seoDescription,
+      ogImage: article.ogImage,
+      sortOrder: article.sortOrder,
+      createdAt: new Date(article.createdAt),
+      updatedAt: new Date(article.updatedAt),
+    })),
+    skipDuplicates: true,
+  });
+}
+
+async function seedCmsResources(
+  resources: ReturnType<typeof buildResourcesSeed>,
+): Promise<void> {
+  if (resources.length === 0) return;
+
+  await prisma.cmsResourceRecord.createMany({
+    data: resources.map((resource) => ({
+      title: resource.title,
+      slug: resource.slug,
+      resourceType: resource.resourceType,
+      summary: resource.summary,
+      body: resource.body,
+      featuredImage: resource.featuredImage,
+      fileUrl: resource.fileUrl,
+      externalUrl: resource.externalUrl,
+      category: resource.category,
+      tagsJson: JSON.stringify(resource.tags),
+      audience: resource.audience,
+      status: resource.status,
+      featured: resource.featured,
+      downloadCtaLabel: resource.downloadCtaLabel,
+      publishedAt: resource.publishedAt ? new Date(resource.publishedAt) : null,
+      seoTitle: resource.seoTitle,
+      seoDescription: resource.seoDescription,
+      sortOrder: resource.sortOrder,
+      createdAt: new Date(resource.createdAt),
+      updatedAt: new Date(resource.updatedAt),
+    })),
+    skipDuplicates: true,
+  });
+}
+
+/** Idempotent CMS bootstrap — safe during parallel static generation. */
+export async function seedCmsContent(): Promise<void> {
+  await seedCmsArticles(buildArticlesSeed());
+  await seedCmsResources(buildResourcesSeed());
+}
+
+let cmsSeedPromise: Promise<void> | null = null;
+
 async function ensureCmsSeeded(): Promise<void> {
-  const [articleCount, resourceCount] = await Promise.all([
-    prisma.cmsArticleRecord.count(),
-    prisma.cmsResourceRecord.count(),
-  ]);
-  if (articleCount > 0 && resourceCount > 0) return;
-
-  const articles = buildArticlesSeed();
-  const resources = buildResourcesSeed();
-
-  if (articleCount === 0) {
-    for (const article of articles) {
-      await prisma.cmsArticleRecord.upsert({
-        where: { slug: article.slug },
-        create: {
-          title: article.title,
-          slug: article.slug,
-          excerpt: article.excerpt,
-          body: article.body,
-          featuredImage: article.featuredImage,
-          category: article.category,
-          tagsJson: JSON.stringify(article.tags),
-          audience: article.audience,
-          status: article.status,
-          featured: article.featured,
-          author: article.author,
-          readTimeMinutes: article.readTimeMinutes,
-          publishedAt: article.publishedAt
-            ? new Date(article.publishedAt)
-            : null,
-          seoTitle: article.seoTitle,
-          seoDescription: article.seoDescription,
-          ogImage: article.ogImage,
-          sortOrder: article.sortOrder,
-          createdAt: new Date(article.createdAt),
-          updatedAt: new Date(article.updatedAt),
-        },
-        update: {},
-      });
-    }
+  if (!cmsSeedPromise) {
+    cmsSeedPromise = seedCmsContent().catch((error) => {
+      cmsSeedPromise = null;
+      throw error;
+    });
   }
-
-  if (resourceCount === 0) {
-    for (const resource of resources) {
-      await prisma.cmsResourceRecord.upsert({
-        where: { slug: resource.slug },
-        create: {
-          title: resource.title,
-          slug: resource.slug,
-          resourceType: resource.resourceType,
-          summary: resource.summary,
-          body: resource.body,
-          featuredImage: resource.featuredImage,
-          fileUrl: resource.fileUrl,
-          externalUrl: resource.externalUrl,
-          category: resource.category,
-          tagsJson: JSON.stringify(resource.tags),
-          audience: resource.audience,
-          status: resource.status,
-          featured: resource.featured,
-          downloadCtaLabel: resource.downloadCtaLabel,
-          publishedAt: resource.publishedAt
-            ? new Date(resource.publishedAt)
-            : null,
-          seoTitle: resource.seoTitle,
-          seoDescription: resource.seoDescription,
-          sortOrder: resource.sortOrder,
-          createdAt: new Date(resource.createdAt),
-          updatedAt: new Date(resource.updatedAt),
-        },
-        update: {},
-      });
-    }
-  }
+  await cmsSeedPromise;
 }
 
 function collectionStats<T extends { status: CmsStatus }>(

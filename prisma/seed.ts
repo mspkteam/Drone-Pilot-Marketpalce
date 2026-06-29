@@ -12,6 +12,7 @@ import {
   seedMembershipTiers,
 } from "../src/lib/membership/seed-tiers";
 import { buildPresetPermissions } from "../src/lib/auth/moderator-permissions";
+import { seedCmsContent } from "../src/lib/cms/cms-repository";
 
 const prisma = createPrismaClient();
 
@@ -390,6 +391,8 @@ async function main() {
 
     await evaluateAndAssignWings(demoPilot.id);
   }
+
+  await seedCmsContent();
 
   console.log("Seed complete. Demo password for all accounts:", SEED_PASSWORD);
   console.log("Accounts:", users.map((u) => u.email).join(", "));

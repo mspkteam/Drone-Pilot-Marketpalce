@@ -3,7 +3,7 @@ export const LOCAL_SQLITE_URL = "file:./prisma/dev.db";
 
 /**
  * Whether the app and Prisma CLI should use local SQLite.
- * Defaults to local in development even if Neon URLs remain in `.env`.
+ * PostgreSQL URLs (Neon) always use the remote adapter — required when schema provider is postgresql.
  */
 export function isLocalSqliteEnabled(): boolean {
   if (process.env.USE_NEON?.trim() === "1") return false;
@@ -12,9 +12,14 @@ export function isLocalSqliteEnabled(): boolean {
 
   const url = process.env.DATABASE_URL?.trim();
   if (url?.startsWith("file:")) return true;
+  if (
+    url?.startsWith("postgresql://") ||
+    url?.startsWith("postgres://")
+  ) {
+    return false;
+  }
 
-  // prisma/schema.prisma uses sqlite — stay on local file unless USE_NEON=1
-  return true;
+  return process.env.NODE_ENV !== "production";
 }
 
 export function resolveSqliteUrl(): string {

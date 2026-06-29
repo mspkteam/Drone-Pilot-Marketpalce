@@ -11,6 +11,12 @@ function isLocalSqliteEnabled(): boolean {
   if (process.env["USE_LOCAL_DB"]?.trim() === "1") return true;
   const url = process.env["DATABASE_URL"]?.trim();
   if (url?.startsWith("file:")) return true;
+  if (
+    url?.startsWith("postgresql://") ||
+    url?.startsWith("postgres://")
+  ) {
+    return false;
+  }
   if (process.env.NODE_ENV !== "production") return true;
   return false;
 }

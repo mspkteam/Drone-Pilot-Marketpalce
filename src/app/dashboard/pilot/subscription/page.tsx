@@ -8,7 +8,7 @@ import {
 } from "@/lib/pilot/profile";
 import "@/styles/pilot-subscription.css";
 
-export const metadata = { title: "Subscription" };
+export const metadata = { title: "Membership" };
 
 export default async function PilotSubscriptionPage() {
   const session = await auth();

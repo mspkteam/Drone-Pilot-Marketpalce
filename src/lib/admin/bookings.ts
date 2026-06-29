@@ -37,7 +37,7 @@ export async function listBookingsForAdmin(
     orderBy: { updatedAt: "desc" },
   });
 
-  return bookings.map(toListItem);
+  return bookings.map((booking) => toListItem(booking));
 }
 
 export function isValidBookingFilter(

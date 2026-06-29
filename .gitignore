@@ -51,3 +51,7 @@ next-env.d.ts
 
 # generated certificate PDFs and uploads
 /storage/
+
+# mobile screenshot automation output
+/mobile-screenshots/
+/mobile-screenshots.zip

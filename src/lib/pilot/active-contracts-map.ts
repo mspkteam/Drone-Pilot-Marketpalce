@@ -3,7 +3,7 @@ import {
   PILOT_ACTIVE_CONTRACTS_ROUTES,
   type PilotActiveContract,
   type PilotContractUiStatus,
-} from "@/lib/pilot/active-contracts-mock";
+} from "@/lib/pilot/active-contracts-types";
 
 const DUE_SOON_DAYS = 5;
 
@@ -88,7 +88,9 @@ export function mapBookingToActiveContract(
     value: formatValue(booking.agreedAmount, booking.currency),
     status: mapBookingStatusToContractUi(booking.status, booking),
     deliverHref: detailHref,
-    messageHref: PILOT_ACTIVE_CONTRACTS_ROUTES.messages,
+    messageHref: booking.conversationId
+      ? PILOT_ACTIVE_CONTRACTS_ROUTES.conversation(booking.conversationId)
+      : PILOT_ACTIVE_CONTRACTS_ROUTES.messages,
     disputeHref: `${detailHref}#dispute`,
   };
 }

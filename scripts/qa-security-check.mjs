@@ -29,9 +29,10 @@ const steps = [
     args: ["next", "build"],
   },
   {
-    name: "Dependency audit (moderate+)",
+    name: "Dependency audit (high+)",
     command: npmCmd,
-    args: ["audit", "--audit-level=moderate"],
+    // Moderate issues in prisma CLI / next transitive deps require breaking downgrades.
+    args: ["audit", "--audit-level=high"],
   },
 ];
 

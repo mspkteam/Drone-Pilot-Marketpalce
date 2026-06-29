@@ -16,6 +16,7 @@ export type PilotMissionCard = {
   href: string;
   hasApplied: boolean;
   canApply: boolean;
+  eligibilityNote: string | null;
   searchText: string;
 };
 
@@ -80,9 +81,14 @@ export function mapOpenJobToMissionCard(job: PilotOpenJobDto): PilotMissionCard 
     deadline: formatDeadline(job.scheduledDate),
     budget: formatBudgetDisplay(job),
     license,
-    href: `/dashboard/pilot/jobs/${job.id}`,
+    href: job.hasApplied
+      ? `/dashboard/pilot/jobs/${job.id}`
+      : job.canApply
+        ? `/dashboard/pilot/jobs/${job.id}/proposal`
+        : `/dashboard/pilot/jobs/${job.id}`,
     hasApplied: job.hasApplied,
     canApply: job.canApply,
+    eligibilityNote: job.applyBlockedReason,
     searchText: [
       job.title,
       clientName,

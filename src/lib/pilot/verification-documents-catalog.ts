@@ -140,20 +140,11 @@ export function mockVerificationDocumentCards(): PilotVerificationDocumentCard[]
 
 export function computeVerificationProgress(
   cards: PilotVerificationDocumentCard[],
-  usingMock = false,
 ): {
   pendingActionCount: number;
   completePct: number;
   pendingActionLabel: string;
 } {
-  if (usingMock) {
-    return {
-      pendingActionCount: 2,
-      completePct: 67,
-      pendingActionLabel: "2 OF 6 DOCUMENTS PENDING ACTION",
-    };
-  }
-
   const required = cards.filter((c) => !c.optional);
   const pendingActionCount = required.filter(
     (c) => c.uiStatus === "rejected" || c.uiStatus === "missing",

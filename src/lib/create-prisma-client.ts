@@ -3,7 +3,7 @@ import type { SqlDriverAdapterFactory } from "@prisma/client/runtime/client";
 import {
   LOCAL_SQLITE_URL,
   resolveSqliteUrl,
-  useLocalSqlite,
+  isLocalSqliteEnabled,
 } from "@/lib/local-db";
 
 function requirePostgresUrl(name: "DATABASE_URL" | "DIRECT_URL"): string {
@@ -41,7 +41,7 @@ function createPostgresClient(connectionString: string): PrismaClient {
 
 /** Runtime Prisma client — SQLite locally (default in dev), Neon when USE_NEON=1. */
 export function createPrismaClient(): PrismaClient {
-  if (useLocalSqlite()) {
+  if (isLocalSqliteEnabled()) {
     return createSqliteClient(resolveSqliteUrl());
   }
 

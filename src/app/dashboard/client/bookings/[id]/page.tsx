@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { auth } from "@/auth";
+import { BookingDeliverySection } from "@/components/bookings/BookingDeliverySection";
 import { BookingDetailCard } from "@/components/bookings/BookingDetailCard";
 import { BookingDisputeSection } from "@/components/disputes/BookingDisputeSection";
 import { BookingPaymentSection } from "@/components/payments/BookingPaymentSection";
@@ -65,6 +66,11 @@ export default async function ClientBookingDetailPage({
           booking={booking}
           actor="client"
           apiBase="/api/client/bookings"
+        />
+        <BookingDeliverySection
+          bookingId={booking.id}
+          bookingStatus={booking.status}
+          actor="client"
         />
         <BookingPaymentSection
           bookingId={booking.id}

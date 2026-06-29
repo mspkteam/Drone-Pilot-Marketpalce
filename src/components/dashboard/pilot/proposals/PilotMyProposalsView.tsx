@@ -10,7 +10,6 @@ import {
   type PilotProposalRow,
   type PilotProposalUiStatus,
 } from "@/lib/pilot/proposals-map";
-import { PILOT_PROPOSALS_MOCK } from "@/lib/pilot/proposals-mock";
 import type { PilotApplicationListItemDto } from "@/types/application";
 
 const APPLICATIONS_API = "/api/pilot/applications" as const;
@@ -41,13 +40,10 @@ export function PilotMyProposalsView() {
       .finally(() => setLoading(false));
   }, []);
 
-  const { rows, usingMock } = useMemo(() => {
-    const live = applications.map(mapApplicationToProposalRow);
-    if (live.length > 0) {
-      return { rows: live, usingMock: false };
-    }
-    return { rows: [...PILOT_PROPOSALS_MOCK], usingMock: true };
-  }, [applications]);
+  const rows = useMemo(
+    () => applications.map(mapApplicationToProposalRow),
+    [applications],
+  );
 
   const counts = useMemo(() => countProposalsByStatus(rows), [rows]);
 
@@ -70,13 +66,12 @@ export function PilotMyProposalsView() {
       {error ? (
         <p className="pilot-proposals-banner pilot-proposals-banner--error" role="alert">
           {error}
-          {usingMock ? " Showing sample proposals." : null}
         </p>
       ) : null}
 
-      {usingMock ? (
+      {rows.length === 0 && !error ? (
         <p className="pilot-proposals-banner" role="status">
-          Showing sample proposals until you submit bids on marketplace missions.
+          No proposals yet. Browse the marketplace and submit your first bid.
         </p>
       ) : null}
 
@@ -95,7 +90,7 @@ export function PilotMyProposalsView() {
               }
               onClick={() => setActiveTab(status)}
             >
-              {status} - {counts[status]}
+              {status === "REVISED" ? "Revised" : status} - {counts[status]}
             </button>
           ))}
         </div>
@@ -107,7 +102,7 @@ export function PilotMyProposalsView() {
           <p className="pilot-proposals-muted">
             Proposals with this status will appear here.
           </p>
-          {activeTab === "PENDING" && !usingMock ? (
+          {activeTab === "PENDING" && rows.length === 0 ? (
             <Link href="/dashboard/pilot/jobs" className="pilot-proposals-empty-link">
               Browse marketplace →
             </Link>
@@ -150,7 +145,7 @@ function ProposalTableRow({ row }: { row: PilotProposalRow }) {
       <td className="pilot-proposals-cell-bid">{row.bid}</td>
       <td className="pilot-proposals-cell-sent">{row.sent}</td>
       <td>
-        <PilotProposalStatusBadge status={row.status} />
+        <PilotProposalStatusBadge status={row.status} label={row.badgeLabel} />
       </td>
       <td className="pilot-proposals-cell-action">
         <Link href={row.viewHref} className="pilot-proposals-view-link">

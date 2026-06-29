@@ -1,4 +1,4 @@
-import type { PilotPortfolioItem } from "@/lib/pilot/portfolio-mock";
+import type { PilotPortfolioItem } from "@/lib/pilot/portfolio";
 
 type PilotPortfolioCardProps = {
   item: PilotPortfolioItem;

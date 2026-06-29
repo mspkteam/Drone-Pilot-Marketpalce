@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
 }
 
 model User {
@@ -63,6 +63,7 @@ model PilotProfile {
   locationCountry       String?
   serviceRadiusKm       Int?
   servicesOffered       String              @default("[]")
+  portfolioJson         String              @default("[]")
   hourlyRateMin         Float?
   hourlyRateMax         Float?
   licenseNumber         String
@@ -170,6 +171,7 @@ model JobApplication {
   currency              String       @default("USD")
   message               String?
   estimatedDeliveryDate DateTime?
+  proposalDetailsJson   String?
   status                String       @default("submitted")
   shortlistedAt         DateTime?
   submittedAt           DateTime     @default(now())
@@ -206,9 +208,26 @@ model Booking {
   commission        Commission?
   conversation      Conversation?
   dispute           Dispute?
+  delivery          BookingDelivery?
 
   @@index([pilotProfileId])
   @@index([clientProfileId])
+  @@index([status])
+}
+
+model BookingDelivery {
+  id             String    @id @default(cuid())
+  bookingId      String    @unique
+  booking        Booking   @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  status         String    @default("draft")
+  notes          String?
+  filesJson      String?
+  clientFeedback String?
+  submittedAt    DateTime?
+  reviewedAt     DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
   @@index([status])
 }
 

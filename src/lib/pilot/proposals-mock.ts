@@ -9,7 +9,8 @@ export const PILOT_PROPOSALS_MOCK: readonly PilotProposalRow[] = [
     client: "Northwind Energy",
     bid: "$4,100",
     sent: "2d ago",
-    status: "SHORTLISTED",
+    status: "REVISED",
+    badgeLabel: "Shortlisted",
     viewHref: "/dashboard/pilot/jobs",
   },
   {
@@ -20,6 +21,7 @@ export const PILOT_PROPOSALS_MOCK: readonly PilotProposalRow[] = [
     bid: "$2,050",
     sent: "3d ago",
     status: "PENDING",
+    badgeLabel: "Pending",
     viewHref: "/dashboard/pilot/jobs",
   },
   {
@@ -30,6 +32,7 @@ export const PILOT_PROPOSALS_MOCK: readonly PilotProposalRow[] = [
     bid: "$920",
     sent: "5d ago",
     status: "ACCEPTED",
+    badgeLabel: "Accepted",
     viewHref: "/dashboard/pilot/jobs",
   },
   {
@@ -40,6 +43,7 @@ export const PILOT_PROPOSALS_MOCK: readonly PilotProposalRow[] = [
     bid: "$1,350",
     sent: "1w ago",
     status: "REJECTED",
+    badgeLabel: "Rejected",
     viewHref: "/dashboard/pilot/jobs",
   },
   {
@@ -50,6 +54,7 @@ export const PILOT_PROPOSALS_MOCK: readonly PilotProposalRow[] = [
     bid: "$2,800",
     sent: "2w ago",
     status: "WITHDRAWN",
+    badgeLabel: "Withdrawn",
     viewHref: "/dashboard/pilot/jobs",
   },
 ] as const;

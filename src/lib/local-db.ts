@@ -5,7 +5,7 @@ export const LOCAL_SQLITE_URL = "file:./prisma/dev.db";
  * Whether the app and Prisma CLI should use local SQLite.
  * Defaults to local in development even if Neon URLs remain in `.env`.
  */
-export function useLocalSqlite(): boolean {
+export function isLocalSqliteEnabled(): boolean {
   if (process.env.USE_NEON?.trim() === "1") return false;
   if (process.env.USE_LOCAL_DB?.trim() === "0") return false;
   if (process.env.USE_LOCAL_DB?.trim() === "1") return true;

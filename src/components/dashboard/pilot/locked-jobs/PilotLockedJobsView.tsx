@@ -5,7 +5,6 @@ import { useEffect, useMemo, useState } from "react";
 import { PilotLockedJobCardView } from "@/components/dashboard/pilot/locked-jobs/PilotLockedJobCard";
 import { PILOT_DASHBOARD_ROUTES } from "@/lib/pilot/dashboard-overview-mock";
 import { mapLockedJobToCard } from "@/lib/pilot/locked-jobs-map";
-import { PILOT_LOCKED_JOBS_MOCK } from "@/lib/pilot/locked-jobs-mock";
 import type { PilotJobsListResponse } from "@/types/application";
 
 const JOBS_API = "/api/pilot/jobs" as const;
@@ -43,13 +42,10 @@ export function PilotLockedJobsView() {
       .finally(() => setLoading(false));
   }, []);
 
-  const { jobs, usingMock } = useMemo(() => {
-    const live = (data?.lockedJobs ?? []).map(mapLockedJobToCard);
-    if (live.length > 0) {
-      return { jobs: live, usingMock: false };
-    }
-    return { jobs: [...PILOT_LOCKED_JOBS_MOCK], usingMock: true };
-  }, [data?.lockedJobs]);
+  const jobs = useMemo(
+    () => (data?.lockedJobs ?? []).map(mapLockedJobToCard),
+    [data?.lockedJobs],
+  );
 
   if (loading) {
     return <p className="pilot-locked-jobs-muted">Loading locked missions…</p>;
@@ -99,9 +95,10 @@ export function PilotLockedJobsView() {
         </p>
       ) : null}
 
-      {usingMock ? (
+      {jobs.length === 0 && !error ? (
         <p className="pilot-locked-jobs-banner" role="status">
-          Showing sample locked missions until tier-delayed jobs appear on your account.
+          No locked missions right now. Higher-tier jobs with visibility delays will
+          appear here.
         </p>
       ) : null}
 

@@ -32,7 +32,10 @@ export async function POST(request: Request, context: RouteContext) {
     const result = await createJobApplication(
       jobId,
       eligible.profile.id,
-      validated.data,
+      {
+        ...validated.data,
+        proposalDetails: validated.data.proposalDetails,
+      },
     );
 
     if (!result.ok) {

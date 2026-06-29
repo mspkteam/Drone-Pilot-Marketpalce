@@ -67,7 +67,8 @@ export function BookingDetailCard({
       <div className="rounded-lg border border-border p-6">
         <h3 className="font-medium">Actions</h3>
         <p className="mt-1 text-sm text-muted-foreground">
-          Advance the booking through confirmation, work, and completion.
+          Confirm the booking, start work, or cancel. Completion happens after
+          deliverable approval.
         </p>
         <div className="mt-4">
           <BookingStatusActions

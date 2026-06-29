@@ -7,7 +7,6 @@ import {
   formatShopPrice,
   imageForVariant,
   mapProductForDisplay,
-  PILOT_SHOP_MOCK_DISPLAY,
   type ShopDisplayProduct,
 } from "@/lib/pilot/shop-display-map";
 import { UNIFORM_SHIPPING_FLAT_RATE } from "@/lib/shop/constants";
@@ -78,8 +77,6 @@ export function PilotUniformShop() {
     [products],
   );
 
-  const usingMockCatalog = !loading && displayProducts.length === 0;
-
   const variantIndex = useMemo(() => {
     const map = new Map<
       string,
@@ -119,7 +116,7 @@ export function PilotUniformShop() {
     if (cartDetails[0]) {
       return imageForVariant(cartDetails[0].variantId, displayProducts);
     }
-    return displayProducts[0]?.imageSrc ?? PILOT_SHOP_MOCK_DISPLAY[0]!.imageSrc;
+    return displayProducts[0]?.imageSrc ?? "/images/shop-placeholder.png";
   }, [previewVariantId, cartDetails, displayProducts]);
 
   function addToCart(variantId: string) {
@@ -198,48 +195,21 @@ export function PilotUniformShop() {
         </p>
       ) : null}
 
-      {usingMockCatalog ? (
-        <p className="pilot-shop-note" role="status">
-          Sample catalog shown until shop products are seeded. Add buttons are disabled
-          in preview mode.
-        </p>
-      ) : (
-        <p className="pilot-shop-note">
-          Official marketplace apparel and insignia. Flat ${UNIFORM_SHIPPING_FLAT_RATE}{" "}
-          shipping is added at checkout (separate from job escrow).
-        </p>
-      )}
+      <p className="pilot-shop-note">
+        Official marketplace apparel and insignia. Flat ${UNIFORM_SHIPPING_FLAT_RATE}{" "}
+        shipping is added at checkout (separate from job escrow).
+      </p>
 
       {loading ? (
         <p className="pilot-shop-loading">Loading catalog…</p>
+      ) : displayProducts.length === 0 ? (
+        <p className="pilot-shop-empty">
+          No shop products are available yet. Check back after the catalog is seeded.
+        </p>
       ) : (
         <div className="pilot-shop-layout">
           <ul className="pilot-shop-grid">
-            {usingMockCatalog
-              ? PILOT_SHOP_MOCK_DISPLAY.map((item) => (
-                  <li key={item.id} className="pilot-shop-card">
-                    <div className="pilot-shop-card-media">
-                      <Image
-                        src={item.imageSrc}
-                        alt=""
-                        width={220}
-                        height={180}
-                        className="pilot-shop-card-image"
-                      />
-                    </div>
-                    <span className="pilot-shop-card-badge">{item.category}</span>
-                    <h2 className="pilot-shop-card-name">{item.name}</h2>
-                    <div className="pilot-shop-card-footer">
-                      <span className="pilot-shop-card-price">
-                        {formatShopPrice(item.displayPrice)}
-                      </span>
-                      <button type="button" className="pilot-shop-add-btn" disabled>
-                        + ADD
-                      </button>
-                    </div>
-                  </li>
-                ))
-              : displayProducts.map((item) => (
+            {displayProducts.map((item) => (
                   <li key={item.productId} className="pilot-shop-card">
                     <div className="pilot-shop-card-media">
                       <Image

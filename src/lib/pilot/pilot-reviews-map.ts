@@ -54,19 +54,16 @@ export function buildPilotReviewsMockRows(): PilotReviewRow[] {
   }));
 }
 
-export function summarizePilotReviews(
-  rows: PilotReviewRow[],
-  options?: { usingMock?: boolean },
-): PilotReviewsSummary {
-  if (options?.usingMock) {
+export function summarizePilotReviews(rows: PilotReviewRow[]): PilotReviewsSummary {
+  if (rows.length === 0) {
     return {
-      averageRating: 4.9,
-      count: 47,
-      fillPct: Math.round((4.9 / 5) * 100),
+      averageRating: 0,
+      count: 0,
+      fillPct: 0,
     };
   }
 
-  const avg = averageRating(rows) ?? 4.9;
+  const avg = averageRating(rows) ?? 0;
   return {
     averageRating: avg,
     count: rows.length,

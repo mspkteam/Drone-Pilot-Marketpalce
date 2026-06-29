@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { PilotReviewsStars } from "./PilotReviewsStars";
 import {
-  buildPilotReviewsMockRows,
   mapApiReviewsToPilotRows,
   summarizePilotReviews,
   type PilotReviewRow,
@@ -36,20 +35,11 @@ export function PilotReviewsView() {
       .finally(() => setLoading(false));
   }, []);
 
-  const { rows, usingMock, summary } = useMemo(() => {
+  const { rows, summary } = useMemo(() => {
     const live = mapApiReviewsToPilotRows(reviews);
-    if (live.length > 0) {
-      return {
-        rows: live,
-        usingMock: false,
-        summary: summarizePilotReviews(live),
-      };
-    }
-    const mock = buildPilotReviewsMockRows();
     return {
-      rows: mock,
-      usingMock: true,
-      summary: summarizePilotReviews(mock, { usingMock: true }),
+      rows: live,
+      summary: summarizePilotReviews(live),
     };
   }, [reviews]);
 
@@ -70,13 +60,6 @@ export function PilotReviewsView() {
         {error ? (
           <p className="pilot-reviews-banner pilot-reviews-banner--error" role="alert">
             {error}
-            {usingMock ? " Showing sample reviews." : null}
-          </p>
-        ) : null}
-
-        {usingMock && !loading ? (
-          <p className="pilot-reviews-banner" role="status">
-            Showing sample reviews until published client ratings are available.
           </p>
         ) : null}
 
@@ -100,11 +83,18 @@ export function PilotReviewsView() {
               </p>
             </div>
 
-            <div className="pilot-reviews-list">
-              {rows.map((row) => (
-                <PilotReviewRowCard key={row.id} row={row} />
-              ))}
-            </div>
+            {rows.length === 0 ? (
+              <p className="pilot-reviews-empty">
+                No published reviews yet. Complete bookings and client ratings will appear
+                here.
+              </p>
+            ) : (
+              <div className="pilot-reviews-list">
+                {rows.map((row) => (
+                  <PilotReviewRowCard key={row.id} row={row} />
+                ))}
+              </div>
+            )}
           </>
         )}
       </section>

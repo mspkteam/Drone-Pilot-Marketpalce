@@ -1,3 +1,5 @@
+import type { ProposalDetails } from "@/lib/applications/proposal-metadata";
+
 export const APPLICATION_STATUSES = [
   "submitted",
   "withdrawn",
@@ -16,6 +18,8 @@ export type JobApplicationDto = {
   currency: string;
   message: string | null;
   estimatedDeliveryDate: string | null;
+  proposalDetails: ProposalDetails | null;
+  shortlistedAt: string | null;
   status: ApplicationStatus;
   submittedAt: string;
   updatedAt: string;
@@ -40,6 +44,7 @@ export type PilotOpenJobDto = {
   approvedAt: string | null;
   visibleAt: string;
   canApply: boolean;
+  applyBlockedReason: string | null;
   hasApplied: boolean;
   applicationId: string | null;
   clientDisplayName: string;
@@ -82,9 +87,30 @@ export type PilotApplicationListItemDto = JobApplicationDto & {
   };
 };
 
+export type PilotProposalDetailDto = JobApplicationDto & {
+  job: {
+    id: string;
+    title: string;
+    description: string;
+    category: string;
+    locationLabel: string;
+    scheduledDate: string | null;
+    budgetMin: number | null;
+    budgetMax: number | null;
+    currency: string;
+    requirements: string | null;
+    status: string;
+    clientDisplayName: string;
+  };
+};
+
 export type PilotJobDetailDto = {
   job: PilotOpenJobDto;
   application: JobApplicationDto | null;
   canApply: boolean;
   applyBlockedMessage: string | null;
+  membership: {
+    tierName: string;
+    jobVisibilityDelayHours: number;
+  } | null;
 };

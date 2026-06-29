@@ -2,8 +2,8 @@ import { NextResponse } from "next/server";
 import { requirePilotSession } from "@/lib/auth/require-pilot";
 import {
   cancelPilotSubscription,
-  enrollPilotInPlan,
   getCurrentPilotSubscription,
+  setPilotMembershipTier,
 } from "@/lib/subscriptions/subscription";
 import { getPilotProfileByUserId, isOnboardingComplete } from "@/lib/pilot/profile";
 
@@ -52,12 +52,19 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Plan ID is required." }, { status: 400 });
     }
 
-    const result = await enrollPilotInPlan(profile.id, planId);
+    const result = await setPilotMembershipTier(profile.id, planId);
     if (!result.ok) {
       return NextResponse.json({ error: result.error }, { status: result.status });
     }
 
-    return NextResponse.json({ subscription: result.subscription }, { status: 201 });
+    return NextResponse.json(
+      {
+        subscription: result.subscription,
+        enrolled: result.enrolled,
+        upgradeFeeUsd: result.upgradeFeeUsd,
+      },
+      { status: result.enrolled ? 201 : 200 },
+    );
   } catch {
     return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
   }

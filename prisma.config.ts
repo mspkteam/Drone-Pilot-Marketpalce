@@ -5,7 +5,7 @@ import { defineConfig } from "prisma/config";
 
 export const LOCAL_SQLITE_URL = "file:./prisma/dev.db";
 
-function useLocalSqlite(): boolean {
+function isLocalSqliteEnabled(): boolean {
   if (process.env["USE_NEON"]?.trim() === "1") return false;
   if (process.env["USE_LOCAL_DB"]?.trim() === "0") return false;
   if (process.env["USE_LOCAL_DB"]?.trim() === "1") return true;
@@ -17,7 +17,7 @@ function useLocalSqlite(): boolean {
 
 /** Prisma CLI (migrate, db push, studio) — local SQLite or Neon direct URL. */
 function cliDatabaseUrl(): string {
-  if (useLocalSqlite()) {
+  if (isLocalSqliteEnabled()) {
     const fileUrl = process.env["DATABASE_URL"]?.trim();
     return fileUrl?.startsWith("file:") ? fileUrl : LOCAL_SQLITE_URL;
   }

@@ -21,7 +21,9 @@ function PinIcon() {
 export function PilotMissionCardView({ mission }: PilotMissionCardProps) {
   const ctaLabel = mission.hasApplied
     ? "View Proposal"
-    : "View & Submit Proposal";
+    : mission.canApply
+      ? "Submit Proposal →"
+      : "View Mission";
 
   return (
     <article className="pilot-marketplace-card">
@@ -63,6 +65,12 @@ export function PilotMissionCardView({ mission }: PilotMissionCardProps) {
       </div>
 
       <p className="pilot-marketplace-license">LICENSE: {mission.license}</p>
+
+      {!mission.canApply && !mission.hasApplied && mission.eligibilityNote ? (
+        <p className="pilot-marketplace-eligibility" role="status">
+          {mission.eligibilityNote}
+        </p>
+      ) : null}
 
       <Link href={mission.href} className="pilot-marketplace-cta">
         {ctaLabel}

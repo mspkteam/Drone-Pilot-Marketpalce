@@ -8,10 +8,9 @@ import { mapBookingToActiveContract } from "@/lib/pilot/active-contracts-map";
 import {
   filterPilotActiveContracts,
   PILOT_ACTIVE_CONTRACT_TABS,
-  PILOT_ACTIVE_CONTRACTS_MOCK,
   PILOT_ACTIVE_CONTRACTS_ROUTES,
   type PilotContractTabId,
-} from "@/lib/pilot/active-contracts-mock";
+} from "@/lib/pilot/active-contracts-types";
 import type { BookingListItemDto } from "@/types/booking";
 
 const BOOKINGS_API = "/api/pilot/bookings" as const;
@@ -40,13 +39,10 @@ export function PilotActiveContracts() {
       .finally(() => setLoading(false));
   }, []);
 
-  const { contracts, usingMock } = useMemo(() => {
-    const live = bookings.map(mapBookingToActiveContract);
-    if (live.length > 0) {
-      return { contracts: live, usingMock: false };
-    }
-    return { contracts: [...PILOT_ACTIVE_CONTRACTS_MOCK], usingMock: true };
-  }, [bookings]);
+  const contracts = useMemo(
+    () => bookings.map(mapBookingToActiveContract),
+    [bookings],
+  );
 
   const filteredContracts = useMemo(
     () => filterPilotActiveContracts(contracts, activeTab),
@@ -79,14 +75,13 @@ export function PilotActiveContracts() {
       {error ? (
         <p className="client-my-projects-banner" role="alert">
           {error}
-          {usingMock ? " Showing sample contracts." : null}
         </p>
       ) : null}
 
-      {usingMock ? (
+      {contracts.length === 0 && !error ? (
         <p className="client-my-projects-banner" role="status">
-          Showing sample contracts until a client accepts your proposal and a
-          booking is created.
+          No active contracts yet. When a client accepts your proposal, the
+          booking will appear here.
         </p>
       ) : null}
 
@@ -121,7 +116,7 @@ export function PilotActiveContracts() {
           <p className="client-my-projects-empty-text">
             Contracts matching this status will appear here.
           </p>
-          {activeTab === "all" && !usingMock ? (
+          {activeTab === "all" && contracts.length === 0 ? (
             <Link
               href={PILOT_ACTIVE_CONTRACTS_ROUTES.browseJobs}
               className="client-my-projects-empty-cta"

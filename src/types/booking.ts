@@ -42,6 +42,7 @@ export type BookingListItemDto = BookingDto & {
     contactName: string;
     companyName: string | null;
   };
+  conversationId: string | null;
 };
 
 export type ClientJobApplicationDto = {

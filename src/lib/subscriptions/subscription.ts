@@ -1,4 +1,5 @@
 import type { PilotSubscription, SubscriptionPlan } from "@/generated/prisma/client";
+import { getFastForwardFeeUsd } from "@/lib/membership/pilot-membership-catalog";
 import { toMembershipTierDto } from "@/lib/membership/membership";
 import { prisma } from "@/lib/db";
 import type {
@@ -56,13 +57,19 @@ function addYears(date: Date, years: number) {
   return d;
 }
 
-export async function enrollPilotInPlan(
+export type SetPilotMembershipResult =
+  | {
+      ok: true;
+      subscription: PilotSubscriptionDto;
+      enrolled: boolean;
+      upgradeFeeUsd: number;
+    }
+  | { ok: false; error: string; status: 404 | 409 };
+
+export async function setPilotMembershipTier(
   pilotProfileId: string,
   planId: string,
-): Promise<
-  | { ok: true; subscription: PilotSubscriptionDto }
-  | { ok: false; error: string; status: 404 | 409 }
-> {
+): Promise<SetPilotMembershipResult> {
   const plan = await prisma.subscriptionPlan.findFirst({
     where: { id: planId, isActive: true },
   });
@@ -76,33 +83,88 @@ export async function enrollPilotInPlan(
       pilotProfileId,
       status: { in: [...ACTIVE_STATUSES] },
     },
+    include: { subscriptionPlan: true },
   });
 
-  if (existing) {
+  if (!existing) {
+    const now = new Date();
+    const periodEnd = addYears(now, 1);
+
+    const sub = await prisma.pilotSubscription.create({
+      data: {
+        pilotProfileId,
+        subscriptionPlanId: plan.id,
+        status: "active",
+        currentPeriodStart: now,
+        currentPeriodEnd: periodEnd,
+        externalSubscriptionId: "demo_internal",
+      },
+      include: { subscriptionPlan: true },
+    });
+
+    return {
+      ok: true,
+      subscription: toSubscriptionDto(sub),
+      enrolled: true,
+      upgradeFeeUsd: getFastForwardFeeUsd(plan.code ?? ""),
+    };
+  }
+
+  if (existing.subscriptionPlanId === plan.id) {
     return {
       ok: false,
-      error:
-        "You already have an active membership. Cancel it before switching tiers.",
+      error: "You are already on this membership grade.",
       status: 409,
     };
   }
 
-  const now = new Date();
-  const periodEnd = addYears(now, 1);
+  if (plan.sortOrder <= existing.subscriptionPlan.sortOrder) {
+    return {
+      ok: false,
+      error: "Fast Forward upgrades must move to a higher grade.",
+      status: 409,
+    };
+  }
 
-  const sub = await prisma.pilotSubscription.create({
-    data: {
-      pilotProfileId,
-      subscriptionPlanId: plan.id,
-      status: "active",
-      currentPeriodStart: now,
-      currentPeriodEnd: periodEnd,
-      externalSubscriptionId: "demo_internal",
-    },
+  const upgradeFeeUsd =
+    getFastForwardFeeUsd(plan.code ?? "") -
+    getFastForwardFeeUsd(existing.subscriptionPlan.code ?? "");
+
+  const updated = await prisma.pilotSubscription.update({
+    where: { id: existing.id },
+    data: { subscriptionPlanId: plan.id },
     include: { subscriptionPlan: true },
   });
 
-  return { ok: true, subscription: toSubscriptionDto(sub) };
+  return {
+    ok: true,
+    subscription: toSubscriptionDto(updated),
+    enrolled: false,
+    upgradeFeeUsd: Math.max(0, Math.round(upgradeFeeUsd * 100) / 100),
+  };
+}
+
+/** @deprecated Use setPilotMembershipTier — kept for callers expecting enroll-only semantics. */
+export async function enrollPilotInPlan(
+  pilotProfileId: string,
+  planId: string,
+): Promise<
+  | { ok: true; subscription: PilotSubscriptionDto }
+  | { ok: false; error: string; status: 404 | 409 }
+> {
+  const result = await setPilotMembershipTier(pilotProfileId, planId);
+  if (!result.ok) {
+    return { ok: false, error: result.error, status: result.status };
+  }
+  if (!result.enrolled) {
+    return {
+      ok: false,
+      error:
+        "You already have an active membership. Use Fast Forward to upgrade your grade.",
+      status: 409,
+    };
+  }
+  return { ok: true, subscription: result.subscription };
 }
 
 export async function cancelPilotSubscription(

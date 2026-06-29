@@ -2,11 +2,6 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  PILOT_MESSAGES_MOCK_CONVERSATIONS,
-  type PilotMockConversation,
-  type PilotMockMessage,
-} from "@/lib/pilot/pilot-messages-mock";
-import {
   formatBubbleTime,
   formatConversationTime,
   initialsFromName,
@@ -35,20 +30,12 @@ type ThreadMessage = {
   isMine: boolean;
 };
 
-function isMockConversationId(id: string): boolean {
-  return id.startsWith("mock-conv-");
-}
-
 export function PilotMessagesView({
   initialConversationId,
 }: PilotMessagesViewProps) {
   const [conversations, setConversations] = useState<ConversationListItemDto[]>(
     [],
   );
-  const [mockConversations, setMockConversations] = useState(
-    PILOT_MESSAGES_MOCK_CONVERSATIONS,
-  );
-  const [useMockFallback, setUseMockFallback] = useState(false);
   const [loadingList, setLoadingList] = useState(true);
   const [listError, setListError] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(
@@ -70,17 +57,13 @@ export function PilotMessagesView({
       if (!res.ok) {
         setListError(data.error ?? "Failed to load messages.");
         setConversations([]);
-        setUseMockFallback(true);
         return;
       }
 
-      const items = (data.conversations ?? []) as ConversationListItemDto[];
-      setConversations(items);
-      setUseMockFallback(items.length === 0);
+      setConversations((data.conversations ?? []) as ConversationListItemDto[]);
     } catch {
       setListError("Failed to load messages.");
       setConversations([]);
-      setUseMockFallback(true);
     } finally {
       setLoadingList(false);
     }
@@ -92,19 +75,13 @@ export function PilotMessagesView({
 
   useEffect(() => {
     if (selectedId) return;
-
-    if (useMockFallback && mockConversations[0]) {
-      setSelectedId(mockConversations[0].id);
-      return;
-    }
-
     if (conversations[0]) {
       setSelectedId(conversations[0].id);
     }
-  }, [conversations, mockConversations, selectedId, useMockFallback]);
+  }, [conversations, selectedId]);
 
   useEffect(() => {
-    if (!selectedId || isMockConversationId(selectedId)) {
+    if (!selectedId) {
       setDetail(null);
       setLoadingThread(false);
       return;
@@ -147,86 +124,36 @@ export function PilotMessagesView({
     };
   }, [selectedId]);
 
-  const selectedMock = useMemo(
-    () => mockConversations.find((c) => c.id === selectedId) ?? null,
-    [mockConversations, selectedId],
-  );
-
   const selectedApi = useMemo(
     () => conversations.find((c) => c.id === selectedId) ?? null,
     [conversations, selectedId],
   );
 
-  const headerName =
-    selectedMock?.clientName ?? selectedApi?.counterpartName ?? "Messages";
+  const headerName = selectedApi?.counterpartName ?? "Messages";
   const headerInitials = initialsFromName(headerName);
-  const headerStatus = selectedMock?.statusLabel ?? "Client · Online";
+  const headerStatus = "Client";
 
   const threadMessages: ThreadMessage[] = useMemo(() => {
-    if (selectedMock) {
-      return selectedMock.messages.map((m) => ({
-        id: m.id,
-        body: m.body,
-        timeLabel: m.timeLabel,
-        isMine: m.isMine,
-      }));
-    }
-
-    if (detail) {
-      return detail.messages.map((m: MessageDto) => ({
-        id: m.id,
-        body: m.body,
-        timeLabel: formatBubbleTime(m.createdAt),
-        isMine: m.isMine,
-      }));
-    }
-
-    return [];
-  }, [detail, selectedMock]);
+    if (!detail) return [];
+    return detail.messages.map((m: MessageDto) => ({
+      id: m.id,
+      body: m.body,
+      timeLabel: formatBubbleTime(m.createdAt),
+      isMine: m.isMine,
+    }));
+  }, [detail]);
 
   function selectConversation(id: string) {
     setSelectedId(id);
     setMobileChatOpen(true);
     setDraft("");
     setThreadError(null);
-
-    if (isMockConversationId(id)) {
-      setMockConversations((current) =>
-        current.map((item) =>
-          item.id === id ? { ...item, unreadCount: 0 } : item,
-        ),
-      );
-    }
   }
 
   async function handleSend(e: React.FormEvent) {
     e.preventDefault();
     const text = draft.trim();
     if (!text || !selectedId) return;
-
-    if (isMockConversationId(selectedId)) {
-      const newMessage: PilotMockMessage = {
-        id: `mock-local-${Date.now()}`,
-        body: text,
-        timeLabel: formatBubbleTime(new Date().toISOString()),
-        isMine: true,
-      };
-
-      setMockConversations((current) =>
-        current.map((item) =>
-          item.id === selectedId
-            ? {
-                ...item,
-                preview: text,
-                timeLabel: "now",
-                messages: [...item.messages, newMessage],
-              }
-            : item,
-        ),
-      );
-      setDraft("");
-      return;
-    }
 
     setSending(true);
     setThreadError(null);
@@ -271,9 +198,6 @@ export function PilotMessagesView({
     }
   }
 
-  const showMockList = useMockFallback;
-  const listItems = showMockList ? mockConversations : conversations;
-
   return (
     <div
       className={`client-messages-layout${mobileChatOpen ? " client-messages-layout--chat-open" : ""}`}
@@ -290,31 +214,8 @@ export function PilotMessagesView({
         <div className="client-messages-list-scroll">
           {loadingList ? (
             <p className="client-messages-list-status">Loading conversations…</p>
-          ) : listItems.length === 0 ? (
+          ) : conversations.length === 0 ? (
             <p className="client-messages-list-status">No conversations yet.</p>
-          ) : showMockList ? (
-            mockConversations.map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                className={`client-messages-list-item${selectedId === item.id ? " client-messages-list-item--active" : ""}`}
-                onClick={() => selectConversation(item.id)}
-              >
-                <span className="client-messages-avatar" aria-hidden>
-                  {item.initials}
-                </span>
-                <span className="client-messages-list-copy">
-                  <span className="client-messages-list-row">
-                    <span className="client-messages-list-name">{item.clientName}</span>
-                    <span className="client-messages-list-time">{item.timeLabel}</span>
-                  </span>
-                  <span className="client-messages-list-preview">{item.preview}</span>
-                </span>
-                {item.unreadCount > 0 ? (
-                  <span className="client-messages-unread">{item.unreadCount}</span>
-                ) : null}
-              </button>
-            ))
           ) : (
             conversations.map((item) => (
               <button
@@ -370,7 +271,11 @@ export function PilotMessagesView({
         </header>
 
         <div className="client-messages-thread">
-          {loadingThread ? (
+          {!selectedId ? (
+            <p className="client-messages-thread-status">
+              Select a conversation to view messages.
+            </p>
+          ) : loadingThread ? (
             <p className="client-messages-thread-status">Loading messages…</p>
           ) : threadError ? (
             <p className="client-messages-thread-error" role="alert">

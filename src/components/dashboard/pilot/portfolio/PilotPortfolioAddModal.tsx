@@ -3,16 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 import {
   parsePortfolioTags,
+  type PilotPortfolioDraft,
   type PilotPortfolioMediaType,
-} from "@/lib/pilot/portfolio-mock";
-
-export type PilotPortfolioDraft = {
-  title: string;
-  type: PilotPortfolioMediaType;
-  tags: string[];
-  description: string;
-  thumbnailUrl: string | null;
-};
+} from "@/lib/pilot/portfolio";
 
 type PilotPortfolioAddModalProps = {
   open: boolean;

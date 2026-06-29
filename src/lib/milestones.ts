@@ -42,11 +42,11 @@ export const MILESTONE_DEFINITIONS: readonly MilestoneDefinition[] = [
     weekLabel: "Week 3",
     title: "Pilot",
     dateRange: "7 Jul – 11 Jul 2026",
-    status: "in_progress",
+    status: "complete",
     summary:
-      "Marketplace, proposals, contracts, delivery, pilot dashboard, messages, portfolio, verifications, and profile.",
+      "Marketplace, proposals, contracts, delivery, membership, messages, portfolio, reviews, shop, and verifications — core loop and secondary modules complete.",
     lockedMessage:
-      "This section is part of Milestone 3 — Pilot. Week 3 work is in progress.",
+      "This section is part of Milestone 3 — Pilot. Week 3 is complete.",
   },
   {
     number: 4,

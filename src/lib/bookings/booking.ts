@@ -57,12 +57,14 @@ export function toListItem(
       companyName: string | null;
     };
   },
+  conversationId: string | null = null,
 ): BookingListItemDto {
   return {
     ...toBookingDto(booking),
     job: booking.job,
     pilot: booking.pilotProfile,
     client: booking.clientProfile,
+    conversationId,
   };
 }
 
@@ -88,7 +90,7 @@ export async function listBookingsForClient(clientProfileId: string) {
     include: bookingInclude,
     orderBy: { updatedAt: "desc" },
   });
-  return bookings.map(toListItem);
+  return bookings.map((booking) => toListItem(booking));
 }
 
 export async function listBookingsForPilot(pilotProfileId: string) {
@@ -97,7 +99,22 @@ export async function listBookingsForPilot(pilotProfileId: string) {
     include: bookingInclude,
     orderBy: { updatedAt: "desc" },
   });
-  return bookings.map(toListItem);
+
+  const applicationIds = bookings.map((booking) => booking.jobApplicationId);
+  const conversations = applicationIds.length
+    ? await prisma.conversation.findMany({
+        where: { jobApplicationId: { in: applicationIds } },
+        select: { id: true, jobApplicationId: true },
+      })
+    : [];
+
+  const conversationByApplication = new Map(
+    conversations.map((conversation) => [conversation.jobApplicationId, conversation.id]),
+  );
+
+  return bookings.map((booking) =>
+    toListItem(booking, conversationByApplication.get(booking.jobApplicationId) ?? null),
+  );
 }
 
 export async function getBookingByJobId(jobId: string) {

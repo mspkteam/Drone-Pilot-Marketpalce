@@ -2,7 +2,7 @@ import type { ApplicationStatus, PilotApplicationListItemDto } from "@/types/app
 
 export type PilotProposalUiStatus =
   | "PENDING"
-  | "SHORTLISTED"
+  | "REVISED"
   | "ACCEPTED"
   | "REJECTED"
   | "WITHDRAWN";
@@ -15,12 +15,13 @@ export type PilotProposalRow = {
   bid: string;
   sent: string;
   status: PilotProposalUiStatus;
+  badgeLabel: string;
   viewHref: string;
 };
 
 export const PILOT_PROPOSAL_TAB_ORDER: readonly PilotProposalUiStatus[] = [
   "PENDING",
-  "SHORTLISTED",
+  "REVISED",
   "ACCEPTED",
   "REJECTED",
   "WITHDRAWN",
@@ -28,6 +29,7 @@ export const PILOT_PROPOSAL_TAB_ORDER: readonly PilotProposalUiStatus[] = [
 
 export function mapApplicationStatusToUi(
   status: ApplicationStatus,
+  shortlistedAt: string | null,
 ): PilotProposalUiStatus {
   switch (status) {
     case "accepted":
@@ -39,8 +41,15 @@ export function mapApplicationStatusToUi(
       return "WITHDRAWN";
     case "submitted":
     default:
-      return "PENDING";
+      return shortlistedAt ? "REVISED" : "PENDING";
   }
+}
+
+export function proposalBadgeLabel(
+  status: PilotProposalUiStatus,
+): string {
+  if (status === "REVISED") return "Shortlisted";
+  return status.charAt(0) + status.slice(1).toLowerCase();
 }
 
 function formatProposalId(applicationId: string): string {
@@ -82,8 +91,11 @@ export function mapApplicationToProposalRow(
     client: app.job.clientDisplayName,
     bid: formatBid(app.proposedAmount, app.currency),
     sent: formatSentAgo(app.submittedAt),
-    status: mapApplicationStatusToUi(app.status),
-    viewHref: `/dashboard/pilot/jobs/${app.jobId}`,
+    status: mapApplicationStatusToUi(app.status, app.shortlistedAt),
+    badgeLabel: proposalBadgeLabel(
+      mapApplicationStatusToUi(app.status, app.shortlistedAt),
+    ),
+    viewHref: `/dashboard/pilot/proposals/${app.id}`,
   };
 }
 

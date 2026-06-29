@@ -7,7 +7,6 @@ import {
   catalogTag,
   computeVerificationProgress,
   mapVerificationsToDocumentCards,
-  mockVerificationDocumentCards,
   type PilotVerificationDocumentCard,
 } from "@/lib/pilot/verification-documents-catalog";
 import { VERIFICATION_MAX_BYTES } from "@/lib/verification/constants";
@@ -30,7 +29,6 @@ export function PilotVerificationDocumentsView() {
   const [success, setSuccess] = useState<string | null>(null);
   const [uploadingCatalogId, setUploadingCatalogId] = useState<string | null>(null);
   const [activeCatalogId, setActiveCatalogId] = useState<string | null>(null);
-  const [usingMock, setUsingMock] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -41,16 +39,12 @@ export function PilotVerificationDocumentsView() {
       if (!res.ok) {
         setError(data.error ?? "Failed to load verifications.");
         setVerifications([]);
-        setUsingMock(true);
       } else {
-        const items = (data.verifications ?? []) as VerificationDto[];
-        setVerifications(items);
-        setUsingMock(items.length === 0);
+        setVerifications((data.verifications ?? []) as VerificationDto[]);
       }
     } catch {
       setError("Failed to load verifications.");
       setVerifications([]);
-      setUsingMock(true);
     } finally {
       setLoading(false);
     }
@@ -60,15 +54,12 @@ export function PilotVerificationDocumentsView() {
     void load();
   }, [load]);
 
-  const cards: PilotVerificationDocumentCard[] = useMemo(() => {
-    if (usingMock) return mockVerificationDocumentCards();
-    return mapVerificationsToDocumentCards(verifications);
-  }, [usingMock, verifications]);
-
-  const progress = useMemo(
-    () => computeVerificationProgress(cards, usingMock),
-    [cards, usingMock],
+  const cards: PilotVerificationDocumentCard[] = useMemo(
+    () => mapVerificationsToDocumentCards(verifications),
+    [verifications],
   );
+
+  const progress = useMemo(() => computeVerificationProgress(cards), [cards]);
 
   function openFilePicker(catalogId: string) {
     setActiveCatalogId(catalogId);
@@ -109,7 +100,6 @@ export function PilotVerificationDocumentsView() {
         setError(data.error ?? "Upload failed.");
       } else {
         setSuccess(`${card.title} submitted for admin review.`);
-        setUsingMock(false);
         await load();
       }
     } catch {
@@ -157,11 +147,6 @@ export function PilotVerificationDocumentsView() {
       {success ? (
         <p className="pilot-verification-banner" role="status">
           {success}
-        </p>
-      ) : null}
-      {usingMock && !loading ? (
-        <p className="pilot-verification-banner" role="status">
-          Showing sample document statuses until you upload verification files.
         </p>
       ) : null}
 

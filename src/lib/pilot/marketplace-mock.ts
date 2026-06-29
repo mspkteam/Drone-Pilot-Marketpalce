@@ -16,6 +16,7 @@ export const PILOT_MARKETPLACE_MOCK_JOBS: readonly PilotMissionCard[] = [
     href: "/dashboard/pilot/jobs",
     hasApplied: false,
     canApply: true,
+    eligibilityNote: null,
     searchText:
       "coastal offshore turbine assessment northwind energy inspection north sea sector 14 faa part 107 bvlos",
   },
@@ -33,6 +34,7 @@ export const PILOT_MARKETPLACE_MOCK_JOBS: readonly PilotMissionCard[] = [
     href: "/dashboard/pilot/jobs",
     hasApplied: false,
     canApply: true,
+    eligibilityNote: null,
     searchText:
       "emergency medical payload delivery medreach logistics appalachian faa part 107 night",
   },
@@ -50,6 +52,7 @@ export const PILOT_MARKETPLACE_MOCK_JOBS: readonly PilotMissionCard[] = [
     href: "/dashboard/pilot/jobs",
     hasApplied: false,
     canApply: true,
+    eligibilityNote: null,
     searchText:
       "precision crop survey agriscope agriculture california region iv faa part 107",
   },
@@ -67,6 +70,7 @@ export const PILOT_MARKETPLACE_MOCK_JOBS: readonly PilotMissionCard[] = [
     href: "/dashboard/pilot/jobs",
     hasApplied: false,
     canApply: true,
+    eligibilityNote: null,
     searchText:
       "sub-station thermal scan gridwatch energy detroit metro faa part 107 thermal",
   },
@@ -84,6 +88,7 @@ export const PILOT_MARKETPLACE_MOCK_JOBS: readonly PilotMissionCard[] = [
     href: "/dashboard/pilot/jobs",
     hasApplied: false,
     canApply: true,
+    eligibilityNote: null,
     searchText:
       "federal pipeline survey pipeline authority inspection texas corridor faa part 107 bvlos",
   },
@@ -101,6 +106,7 @@ export const PILOT_MARKETPLACE_MOCK_JOBS: readonly PilotMissionCard[] = [
     href: "/dashboard/pilot/jobs",
     hasApplied: false,
     canApply: true,
+    eligibilityNote: null,
     searchText:
       "real estate development mapping summit developments survey denver metro faa part 107",
   },

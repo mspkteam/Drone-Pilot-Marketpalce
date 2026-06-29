@@ -71,9 +71,6 @@ export function getAvailableBookingActions(
     if (status === "pending") {
       actions.push({ action: "confirmed", label: "Confirm booking" });
     }
-    if (status === "in_progress") {
-      actions.push({ action: "completed", label: "Mark completed" });
-    }
     if (status === "pending" || status === "confirmed") {
       actions.push({ action: "cancelled", label: "Cancel booking" });
     }
@@ -85,9 +82,6 @@ export function getAvailableBookingActions(
   if (actor === "pilot") {
     if (status === "confirmed") {
       actions.push({ action: "in_progress", label: "Start work" });
-    }
-    if (status === "in_progress") {
-      actions.push({ action: "completed", label: "Mark completed" });
     }
     if (status === "confirmed" || status === "in_progress") {
       actions.push({ action: "cancelled", label: "Cancel booking" });

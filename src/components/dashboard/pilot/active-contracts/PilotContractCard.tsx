@@ -2,7 +2,7 @@ import Link from "next/link";
 import {
   badgeToneForContractStatus,
   type PilotActiveContract,
-} from "@/lib/pilot/active-contracts-mock";
+} from "@/lib/pilot/active-contracts-types";
 import { ClientIcon, ContractIcon } from "./PilotActiveContractsIcons";
 
 type PilotContractCardProps = {

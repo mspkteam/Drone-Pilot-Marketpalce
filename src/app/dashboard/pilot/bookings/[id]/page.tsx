@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { auth } from "@/auth";
+import { BookingDeliverySection } from "@/components/bookings/BookingDeliverySection";
 import { BookingDetailCard } from "@/components/bookings/BookingDetailCard";
 import { BookingPaymentSection } from "@/components/payments/BookingPaymentSection";
 import { BookingDisputeSection } from "@/components/disputes/BookingDisputeSection";
@@ -52,6 +53,11 @@ export default async function PilotBookingDetailPage({ params }: PageProps) {
           booking={booking}
           actor="pilot"
           apiBase="/api/pilot/bookings"
+        />
+        <BookingDeliverySection
+          bookingId={booking.id}
+          bookingStatus={booking.status}
+          actor="pilot"
         />
         <BookingPaymentSection
           bookingId={booking.id}

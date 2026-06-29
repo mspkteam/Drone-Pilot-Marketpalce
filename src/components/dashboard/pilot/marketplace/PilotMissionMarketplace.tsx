@@ -1,25 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { PilotMissionCardView } from "@/components/dashboard/pilot/marketplace/PilotMissionCard";
-import {
-  filterMissionCards,
-  mapOpenJobToMissionCard,
-} from "@/lib/pilot/marketplace-map";
-import { PILOT_MARKETPLACE_MOCK_JOBS } from "@/lib/pilot/marketplace-mock";
+import { mapOpenJobToMissionCard } from "@/lib/pilot/marketplace-map";
 import type { PilotJobsListResponse } from "@/types/application";
-
-const FILTER_PILLS = [
-  "LOCATION",
-  "SERVICE",
-  "BUDGET",
-  "DEADLINE",
-  "RANK",
-  "DISTANCE",
-] as const;
+import { JOB_CATEGORIES } from "@/types/job";
 
 const JOBS_API = "/api/pilot/jobs" as const;
+
+const FILTER_PILLS = ["SERVICE", "BUDGET"] as const;
+type FilterPill = (typeof FILTER_PILLS)[number];
 
 function SearchIcon() {
   return (
@@ -30,41 +21,72 @@ function SearchIcon() {
   );
 }
 
+function buildJobsUrl(options: {
+  q: string;
+  category: string;
+  budgetMin: string;
+  budgetMax: string;
+}): string {
+  const params = new URLSearchParams();
+  if (options.q.trim()) params.set("q", options.q.trim());
+  if (options.category) params.set("category", options.category);
+  if (options.budgetMin.trim()) params.set("budgetMin", options.budgetMin.trim());
+  if (options.budgetMax.trim()) params.set("budgetMax", options.budgetMax.trim());
+  const query = params.toString();
+  return query ? `${JOBS_API}?${query}` : JOBS_API;
+}
+
 export function PilotMissionMarketplace() {
   const [data, setData] = useState<PilotJobsListResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
-  const [activeFilter, setActiveFilter] = useState<string | null>(null);
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [activeFilter, setActiveFilter] = useState<FilterPill | null>(null);
+  const [category, setCategory] = useState("");
+  const [budgetMin, setBudgetMin] = useState("");
+  const [budgetMax, setBudgetMax] = useState("");
 
   useEffect(() => {
-    fetch(JOBS_API)
-      .then((res) => res.json())
-      .then((json) => {
-        if (json.error) {
-          setError(json.error);
-        } else {
-          setData(json as PilotJobsListResponse);
-        }
-      })
-      .catch(() => setError("Failed to load marketplace jobs."))
-      .finally(() => setLoading(false));
-  }, []);
+    const timer = window.setTimeout(() => setDebouncedSearch(search), 300);
+    return () => window.clearTimeout(timer);
+  }, [search]);
 
-  const { missions, usingMock } = useMemo(() => {
-    const live = (data?.jobs ?? []).map(mapOpenJobToMissionCard);
-    if (live.length > 0) {
-      return { missions: live, usingMock: false };
+  const loadJobs = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(
+        buildJobsUrl({
+          q: debouncedSearch,
+          category: activeFilter === "SERVICE" ? category : "",
+          budgetMin: activeFilter === "BUDGET" ? budgetMin : "",
+          budgetMax: activeFilter === "BUDGET" ? budgetMax : "",
+        }),
+      );
+      const json = await res.json();
+      if (json.error) {
+        setError(json.error);
+      } else {
+        setData(json as PilotJobsListResponse);
+      }
+    } catch {
+      setError("Failed to load marketplace jobs.");
+    } finally {
+      setLoading(false);
     }
-    return { missions: [...PILOT_MARKETPLACE_MOCK_JOBS], usingMock: true };
-  }, [data?.jobs]);
+  }, [activeFilter, budgetMax, budgetMin, category, debouncedSearch]);
 
-  const filteredMissions = useMemo(
-    () => filterMissionCards(missions, search),
-    [missions, search],
+  useEffect(() => {
+    void loadJobs();
+  }, [loadJobs]);
+
+  const missions = useMemo(
+    () => (data?.jobs ?? []).map(mapOpenJobToMissionCard),
+    [data?.jobs],
   );
 
-  if (loading) {
+  if (loading && !data) {
     return <p className="pilot-marketplace-muted">Loading mission marketplace…</p>;
   }
 
@@ -112,13 +134,55 @@ export function PilotMissionMarketplace() {
               onClick={() =>
                 setActiveFilter((current) => (current === pill ? null : pill))
               }
-              title="Advanced filtering pending backend (M80)"
             >
               {pill}
             </button>
           ))}
         </div>
       </div>
+
+      {activeFilter === "SERVICE" ? (
+        <label className="pilot-marketplace-filter-field">
+          <span>Service category</span>
+          <select
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            className="pilot-marketplace-filter-select"
+          >
+            <option value="">All categories</option>
+            {JOB_CATEGORIES.map((item) => (
+              <option key={item.id} value={item.id}>
+                {item.label}
+              </option>
+            ))}
+          </select>
+        </label>
+      ) : null}
+
+      {activeFilter === "BUDGET" ? (
+        <div className="pilot-marketplace-filter-row">
+          <label className="pilot-marketplace-filter-field">
+            <span>Min budget</span>
+            <input
+              type="number"
+              min={0}
+              value={budgetMin}
+              onChange={(e) => setBudgetMin(e.target.value)}
+              className="pilot-marketplace-filter-input"
+            />
+          </label>
+          <label className="pilot-marketplace-filter-field">
+            <span>Max budget</span>
+            <input
+              type="number"
+              min={0}
+              value={budgetMax}
+              onChange={(e) => setBudgetMax(e.target.value)}
+              className="pilot-marketplace-filter-input"
+            />
+          </label>
+        </div>
+      ) : null}
 
       {data?.membership ? (
         <p className="pilot-marketplace-tier-note" role="status">
@@ -136,15 +200,10 @@ export function PilotMissionMarketplace() {
         </p>
       ) : null}
 
-      {usingMock ? (
+      {missions.length === 0 && !error && !loading ? (
         <p className="pilot-marketplace-banner pilot-marketplace-banner--muted" role="status">
-          Showing sample missions until admin-approved jobs are available on your tier.
-        </p>
-      ) : null}
-
-      {activeFilter ? (
-        <p className="pilot-marketplace-banner pilot-marketplace-banner--muted" role="status">
-          {activeFilter} filter is a UI placeholder — server-side filtering pending (M80).
+          No open missions match your filters yet. Admin-approved jobs appear here after
+          your membership visibility delay.
         </p>
       ) : null}
 
@@ -154,7 +213,9 @@ export function PilotMissionMarketplace() {
         </p>
       ) : null}
 
-      {filteredMissions.length === 0 ? (
+      {loading ? (
+        <p className="pilot-marketplace-muted">Updating missions…</p>
+      ) : missions.length === 0 ? (
         <div className="pilot-marketplace-empty">
           <h2 className="pilot-marketplace-empty-title">No missions found</h2>
           <p className="pilot-marketplace-muted">
@@ -163,13 +224,13 @@ export function PilotMissionMarketplace() {
         </div>
       ) : (
         <div className="pilot-marketplace-grid">
-          {filteredMissions.map((mission) => (
+          {missions.map((mission) => (
             <PilotMissionCardView key={mission.id} mission={mission} />
           ))}
         </div>
       )}
 
-      {!usingMock && (data?.lockedJobs?.length ?? 0) > 0 ? (
+      {(data?.lockedJobs?.length ?? 0) > 0 ? (
         <section className="pilot-marketplace-locked">
           <h2 className="pilot-marketplace-locked-title">
             LOCKED MISSIONS · VISIBILITY COUNTDOWN

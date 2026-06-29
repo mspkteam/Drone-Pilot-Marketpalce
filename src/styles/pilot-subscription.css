@@ -12,6 +12,468 @@
   flex-direction: column;
   width: 100%;
   min-width: 0;
+  gap: 1.25rem;
+}
+
+.pilot-subscription-bracket-card {
+  position: relative;
+}
+
+.pilot-subscription-bracket-card::before,
+.pilot-subscription-bracket-card::after {
+  content: "";
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.pilot-subscription-bracket-card::before {
+  top: 10px;
+  left: 10px;
+  border-top: 1px solid rgba(244, 241, 234, 0.22);
+  border-left: 1px solid rgba(244, 241, 234, 0.22);
+}
+
+.pilot-subscription-bracket-card::after {
+  right: 10px;
+  bottom: 10px;
+  border-right: 1px solid rgba(244, 241, 234, 0.22);
+  border-bottom: 1px solid rgba(244, 241, 234, 0.22);
+}
+
+.pilot-subscription-hero {
+  overflow: hidden;
+  border: 1px solid rgba(244, 241, 234, 0.08);
+  border-radius: 0.625rem;
+  background: var(--color-card-warm);
+  padding: 1.5rem 1.75rem;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+}
+
+.pilot-subscription-eyebrow {
+  margin: 0;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-gold);
+}
+
+.pilot-subscription-hero-lead {
+  margin: 0.625rem 0 0;
+  max-width: 36rem;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+.pilot-subscription-info {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem 2rem;
+  border: 1px solid rgba(244, 241, 234, 0.08);
+  border-radius: 0.625rem;
+  background: var(--color-card-warm-alt);
+  padding: 1.25rem 1.5rem;
+}
+
+.pilot-subscription-info-title {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.pilot-subscription-info-sub {
+  margin: 0.375rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--color-text-soft);
+}
+
+.pilot-subscription-info-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+}
+
+.pilot-subscription-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.pilot-subscription-section-title {
+  margin: 0;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.pilot-subscription-annual {
+  display: grid;
+  gap: 1.25rem;
+  border: 1px solid rgba(216, 179, 57, 0.18);
+  border-radius: 0.75rem;
+  background: linear-gradient(
+    165deg,
+    rgba(216, 179, 57, 0.08) 0%,
+    var(--color-card-warm) 55%
+  );
+  padding: 1.375rem 1.5rem;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+}
+
+@media (min-width: 900px) {
+  .pilot-subscription-annual {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.4fr) auto;
+    align-items: center;
+  }
+}
+
+.pilot-subscription-annual-price {
+  margin: 0;
+  font-size: clamp(1.75rem, 4vw, 2.25rem);
+  font-weight: 800;
+  line-height: 1.1;
+  color: var(--color-gold);
+}
+
+.pilot-subscription-annual-price span {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.pilot-subscription-annual-copy {
+  margin: 0.5rem 0 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+.pilot-subscription-annual-benefits {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.375rem 1rem;
+  font-size: 0.75rem;
+  color: var(--color-text-soft);
+}
+
+@media (min-width: 640px) {
+  .pilot-subscription-annual-benefits {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.pilot-subscription-annual-benefits li::before {
+  content: "✓ ";
+  color: var(--color-gold);
+}
+
+.pilot-subscription-annual-btn {
+  max-width: 16rem;
+}
+
+.pilot-subscription-annual-active {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #6ee7a0;
+}
+
+.pilot-subscription-notice {
+  border: 1px solid rgba(216, 179, 57, 0.22);
+  border-radius: 0.625rem;
+  background: rgba(216, 179, 57, 0.06);
+  padding: 0.875rem 1.125rem;
+}
+
+.pilot-subscription-notice-title {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.pilot-subscription-notice-copy {
+  margin: 0.375rem 0 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+.pilot-subscription-ff-grid {
+  display: grid;
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 640px) {
+  .pilot-subscription-ff-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1200px) {
+  .pilot-subscription-ff-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.pilot-subscription-ff-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  border: 1px solid rgba(216, 179, 57, 0.14);
+  border-radius: 0.625rem;
+  background: var(--color-card-warm);
+  padding: 1.5rem 1.375rem;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
+}
+
+.pilot-subscription-ff-card--recommended {
+  border-color: rgba(216, 179, 57, 0.45);
+  box-shadow: 0 16px 36px rgba(216, 179, 57, 0.12);
+}
+
+.pilot-subscription-ff-card--current {
+  border-color: rgba(110, 231, 160, 0.35);
+}
+
+.pilot-subscription-ff-ribbon {
+  position: absolute;
+  top: 0.75rem;
+  left: 1.25rem;
+  border-radius: 0.25rem;
+  background: rgba(216, 179, 57, 0.16);
+  padding: 0.125rem 0.5rem;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-gold);
+}
+
+.pilot-subscription-ff-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.pilot-subscription-ff-code {
+  margin: 0;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-gold);
+}
+
+.pilot-subscription-ff-rank {
+  margin-top: 1rem;
+  width: auto;
+  height: 3rem;
+  object-fit: contain;
+  object-position: left;
+}
+
+.pilot-subscription-ff-title {
+  margin: 0.75rem 0 0;
+  font-size: 1.375rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--color-text);
+}
+
+.pilot-subscription-ff-note,
+.pilot-subscription-ff-fee-label {
+  margin: 0.5rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--color-text-soft);
+}
+
+.pilot-subscription-ff-fee {
+  margin: 0.375rem 0 0;
+  font-size: 1.75rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--color-gold);
+}
+
+.pilot-subscription-ff-signup-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+  border: 1px solid rgba(244, 241, 234, 0.08);
+  border-radius: 0.5rem;
+  background: rgba(0, 0, 0, 0.18);
+  padding: 0.625rem 0.75rem;
+}
+
+.pilot-subscription-ff-signup-label {
+  margin: 0;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-soft);
+}
+
+.pilot-subscription-ff-signup-breakdown {
+  margin: 0.125rem 0 0;
+  font-size: 0.625rem;
+  color: var(--color-text-soft);
+}
+
+.pilot-subscription-ff-signup-amount {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.pilot-subscription-ff-upgrade-diff {
+  margin: 0.625rem 0 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-gold);
+}
+
+.pilot-subscription-ff-features {
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.pilot-subscription-ff-features li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--color-text-muted);
+}
+
+.pilot-subscription-diff {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem 2rem;
+  border: 1px solid rgba(244, 241, 234, 0.08);
+  border-radius: 0.625rem;
+  background: var(--color-card-warm-alt);
+  padding: 1.25rem 1.5rem;
+}
+
+.pilot-subscription-diff-title {
+  margin: 0;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.pilot-subscription-diff-copy {
+  margin: 0.375rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--color-text-soft);
+}
+
+.pilot-subscription-diff-grid {
+  display: grid;
+  gap: 0.75rem 1.5rem;
+  margin: 0;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.pilot-subscription-diff-grid dt {
+  margin: 0;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-soft);
+}
+
+.pilot-subscription-diff-grid dd {
+  margin: 0.25rem 0 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-gold);
+}
+
+.pilot-subscription-captains {
+  display: grid;
+  gap: 1.25rem;
+  border: 1px solid rgba(244, 241, 234, 0.08);
+  border-radius: 0.625rem;
+  background: var(--color-card-warm);
+  padding: 1.375rem 1.5rem;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
+}
+
+@media (min-width: 900px) {
+  .pilot-subscription-captains {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.pilot-subscription-captains-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.pilot-subscription-captains-copy {
+  margin: 0.375rem 0 0;
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: var(--color-text-muted);
+}
+
+.pilot-subscription-footer-link {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.pilot-subscription-banner--success {
+  border-color: rgba(110, 231, 160, 0.35);
+  background: rgba(110, 231, 160, 0.08);
+  color: #6ee7a0;
+}
+
+.pilot-subscription-ff-card .pilot-subscription-plan-btn {
+  margin-top: 1.25rem;
+}
+
+@media (max-width: 639px) {
+  .pilot-subscription-diff-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 .pilot-subscription-header {
@@ -80,7 +542,7 @@
 }
 
 .pilot-subscription-banner {
-  margin: 0 0 1rem;
+  margin: 0;
   border-radius: 0.5rem;
   border: 1px solid rgba(239, 68, 68, 0.35);
   background: rgba(239, 68, 68, 0.08);
@@ -107,7 +569,6 @@
 }
 
 .pilot-subscription-current {
-  margin-bottom: 1.5rem;
   border: 1px solid rgba(216, 179, 57, 0.22);
   border-radius: 0.75rem;
   background: linear-gradient(

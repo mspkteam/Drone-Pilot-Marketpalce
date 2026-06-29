@@ -12,16 +12,12 @@ import {
   getPilotDashboardOverview,
   type PilotDashboardOverview,
 } from "@/lib/pilot/dashboard";
-import {
-  PILOT_MOCK_ACTIVITY,
-  PILOT_MOCK_LOCKED_JOBS,
-  PILOT_MOCK_RECOMMENDED_JOBS,
-  PILOT_MOCK_REVIEWS,
-  type PilotMockLockedJob,
-  type PilotMockRecommendedJob,
-  type PilotMockReview,
-} from "@/lib/pilot/dashboard-overview-mock";
 import { getApprovedVerificationTypes } from "@/lib/verification/verification";
+import {
+  parsePortfolioJson,
+  portfolioStrengthLabel,
+  portfolioStrengthStatus,
+} from "@/lib/pilot/portfolio";
 
 export type PilotDashboardActivityTone =
   | "success"
@@ -159,19 +155,6 @@ function mapOpenJobToCard(job: PilotOpenJobDto): PilotRecommendedJobCard {
   };
 }
 
-function mapMockJob(job: PilotMockRecommendedJob): PilotRecommendedJobCard {
-  return {
-    id: job.id,
-    category: job.category,
-    price: job.price,
-    title: job.title,
-    location: job.location,
-    time: job.time,
-    href: job.href,
-    hasApplied: false,
-  };
-}
-
 function mapLockedJob(job: PilotLockedJobDto): PilotLockedJobRow {
   return {
     id: job.id,
@@ -181,30 +164,23 @@ function mapLockedJob(job: PilotLockedJobDto): PilotLockedJobRow {
   };
 }
 
-function mapMockLocked(job: PilotMockLockedJob): PilotLockedJobRow {
-  return {
-    id: job.id,
-    title: job.title,
-    requirement: job.requirement,
-    unlockAt: job.unlockAt,
-  };
-}
-
 function buildProfileChecklist(
   profile: PilotProfile,
   verifiedTypes: string[],
+  portfolioCount: number,
 ): PilotProfileStrengthItem[] {
   const photoBioDone =
     Boolean(profile.displayName?.trim()) && Boolean(profile.bio?.trim());
   const licenseDone = verifiedTypes.includes("license");
   const insuranceDone = verifiedTypes.includes("insurance");
+  const portfolioStatus = portfolioStrengthStatus(portfolioCount);
 
   return [
     { label: "Photo & Bio", status: photoBioDone ? "done" : "missing" },
     { label: "License Verified", status: licenseDone ? "done" : "missing" },
     {
-      label: "Portfolio (4/8)",
-      status: "partial",
+      label: portfolioStrengthLabel(portfolioCount),
+      status: portfolioStatus,
     },
     { label: "Insurance Doc", status: insuranceDone ? "done" : "missing" },
   ];
@@ -247,16 +223,6 @@ function mapReviewToCard(review: {
     date,
     rating: review.rating,
     text: (review.comment ?? "").toUpperCase(),
-  };
-}
-
-function mapMockReview(review: PilotMockReview): PilotDashboardReviewCard {
-  return {
-    id: review.id,
-    title: review.title,
-    date: review.date,
-    rating: review.rating,
-    text: review.text,
   };
 }
 
@@ -335,30 +301,16 @@ export async function getPilotDashboardPageData(
   const liveJobs = jobsSnapshot?.jobs ?? [];
   const liveLocked = jobsSnapshot?.lockedJobs ?? [];
 
-  const usingMockRecommendedJobs = approved && liveJobs.length === 0;
-  const recommendedJobs = usingMockRecommendedJobs
-    ? PILOT_MOCK_RECOMMENDED_JOBS.map(mapMockJob)
-    : liveJobs.slice(0, 4).map(mapOpenJobToCard);
+  const recommendedJobs = liveJobs.slice(0, 4).map(mapOpenJobToCard);
+  const lockedJobs = liveLocked.slice(0, 4).map(mapLockedJob);
+  const reviewCards = recentReviews.map(mapReviewToCard);
 
-  const usingMockLockedJobs = approved && liveLocked.length === 0;
-  const lockedJobs = usingMockLockedJobs
-    ? PILOT_MOCK_LOCKED_JOBS.map(mapMockLocked)
-    : liveLocked.slice(0, 4).map(mapLockedJob);
-
-  const reviewCards =
-    recentReviews.length > 0
-      ? recentReviews.map(mapReviewToCard)
-      : PILOT_MOCK_REVIEWS.map(mapMockReview);
-
-  const activityItems: PilotDashboardActivityItem[] =
-    notifications.length > 0
-      ? notifications.map((n) => ({
-          id: n.id,
-          text: n.body || n.title,
-          timeLabel: formatRelativeTime(n.createdAt.toISOString()),
-          tone: notificationTone(n.type),
-        }))
-      : [...PILOT_MOCK_ACTIVITY];
+  const activityItems: PilotDashboardActivityItem[] = notifications.map((n) => ({
+    id: n.id,
+    text: n.body || n.title,
+    timeLabel: formatRelativeTime(n.createdAt.toISOString()),
+    tone: notificationTone(n.type),
+  }));
 
   const membershipDaysLeft = membership?.currentPeriodEnd
     ? Math.max(
@@ -383,9 +335,9 @@ export async function getPilotDashboardPageData(
     membershipDaysLeft,
     isVerified,
     recommendedJobs,
-    usingMockRecommendedJobs,
+    usingMockRecommendedJobs: false,
     lockedJobs,
-    usingMockLockedJobs,
+    usingMockLockedJobs: false,
     stats: {
       totalEarnings,
       earningsThisMonth,
@@ -398,22 +350,24 @@ export async function getPilotDashboardPageData(
     },
     profileStrength: {
       pct: overview.profileCompletionPct,
-      items: buildProfileChecklist(profile, verifiedTypes),
+      items: buildProfileChecklist(
+        profile,
+        verifiedTypes,
+        parsePortfolioJson(profile.portfolioJson).length,
+      ),
     },
     reviews: {
       averageRating: overview.averageRating,
       count: overview.reviewCount,
       items: reviewCards,
-      usingMockReviews: recentReviews.length === 0,
+      usingMockReviews: false,
     },
     activity: {
       items: activityItems,
-      usingMockActivity: notifications.length === 0,
+      usingMockActivity: false,
     },
     hero: {
-      newRecommendedJobs: usingMockRecommendedJobs
-        ? PILOT_MOCK_RECOMMENDED_JOBS.length
-        : liveJobs.length,
+      newRecommendedJobs: liveJobs.length,
       proposalsAwaitingResponse: pendingProposals,
     },
   };

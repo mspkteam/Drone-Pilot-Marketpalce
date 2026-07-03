@@ -1,5 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
+import { brandClasses } from "@/lib/design/brand";
+import { HOME_HERO } from "@/lib/marketing/home-content";
 import { homeAssets } from "@/lib/marketing/home-assets";
 import { cn } from "@/lib/utils";
 
@@ -57,7 +59,7 @@ function HeroPanel({
   return (
     <article
       className={cn(
-        "figma-home-hero-panel relative flex min-h-[28rem] flex-col justify-end overflow-hidden sm:min-h-[32rem] lg:min-h-[36rem] lg:min-h-[57.5rem]",
+        "figma-home-hero-panel relative flex min-h-[26rem] flex-col justify-end overflow-hidden sm:min-h-[32rem] lg:min-h-[36rem] xl:min-h-[57.5rem]",
         isClient &&
           "border-b border-[var(--color-border-muted)] lg:border-b-0 lg:border-r",
       )}
@@ -75,15 +77,16 @@ function HeroPanel({
         aria-hidden
       />
 
-      <div className="relative z-10 px-8 py-10 sm:px-12 sm:py-14 lg:px-16 lg:py-16">
+      <div className="relative z-10 px-6 py-10 sm:px-12 sm:py-14 lg:px-16 lg:py-16">
         <span className="ras-eyebrow-pill">
           <span className="ras-eyebrow-pill-dot" aria-hidden />
           {eyebrow}
         </span>
-        <h1 className="ras-hero-title mt-6 max-w-lg text-3xl sm:text-4xl lg:text-[3rem]">
+        <h1 className="ras-hero-title mt-6 max-w-lg text-[1.875rem] leading-[1.08] sm:text-4xl lg:text-[3rem]">
           {isClient ? (
             <>
-              Find Local Drone Pilots <span className="text-gold">Anywhere</span>
+              Find Local Drone Pilots{" "}
+              <span className="ras-hero-title-accent">Anywhere</span>
             </>
           ) : (
             title
@@ -92,13 +95,16 @@ function HeroPanel({
         <p className="ras-hero-body mt-4 max-w-lg text-base sm:text-lg">{description}</p>
         <Link
           href={ctaHref}
-          className={cn("mt-8", isClient ? "ras-btn-primary" : "ras-btn-outline")}
+          className={cn(
+            "mt-8 w-full max-w-sm sm:w-auto sm:max-w-none",
+            isClient ? brandClasses.btnHomeGold : brandClasses.btnHomeHeroLight,
+          )}
         >
-          {ctaLabel}
+          <span>{ctaLabel}</span>
           {isClient ? (
-            <ArrowIcon className="h-4 w-4" />
+            <ArrowIcon className="h-[0.9375rem] w-[0.9375rem] shrink-0" />
           ) : (
-            <PlaneIcon className="h-4 w-4" />
+            <PlaneIcon className="h-[1.0625rem] w-[1.21875rem] shrink-0" />
           )}
         </Link>
       </div>
@@ -115,21 +121,21 @@ export function HomeHeroDual() {
       <div className="grid lg:grid-cols-2">
         <HeroPanel
           variant="client"
-          eyebrow="For Businesses"
-          title="Find Local Drone Pilots Anywhere"
-          description="Book qualified drone operators for inspections, mapping, real estate, construction, agriculture, public safety, and more."
-          ctaLabel="Find a drone pilot"
-          ctaHref="/for-clients"
+          eyebrow={HOME_HERO.client.eyebrow}
+          title={HOME_HERO.client.title}
+          description={HOME_HERO.client.description}
+          ctaLabel={HOME_HERO.client.ctaLabel}
+          ctaHref={HOME_HERO.client.ctaHref}
           imageSrc={homeAssets.heroDrone}
           imageAlt="Professional drone flying over terrain at dusk"
         />
         <HeroPanel
           variant="pilot"
-          eyebrow="For Pilots"
-          title="Get Paid Flying Missions"
-          description="Join a global network of drone professionals and submit proposals for amazing opportunities from businesses in your area."
-          ctaLabel="Join the Pilot Network"
-          ctaHref="/register?role=pilot"
+          eyebrow={HOME_HERO.pilot.eyebrow}
+          title={HOME_HERO.pilot.title}
+          description={HOME_HERO.pilot.description}
+          ctaLabel={HOME_HERO.pilot.ctaLabel}
+          ctaHref={HOME_HERO.pilot.ctaHref}
           imageSrc={homeAssets.heroPilot}
           imageAlt="Drone pilot in mission control environment"
         />

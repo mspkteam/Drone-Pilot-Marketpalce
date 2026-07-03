@@ -50,31 +50,29 @@ export function MarketingWaitlistSection({
   return (
     <section
       id={id}
-      className="figma-home-waitlist border-t border-ras-border-muted"
+      className="figma-home-waitlist"
       aria-label="Join the waitlist"
     >
-      <div className="public-container py-20 sm:py-28">
-        <div className="mx-auto max-w-3xl text-center">
-          <h2 className="text-3xl font-extrabold uppercase tracking-tight text-ras-waitlist sm:text-4xl lg:text-[3.25rem]">
+      <div className="figma-waitlist-inner public-container">
+        <div className="figma-waitlist-stack">
+          <h2 className="figma-waitlist-title w-full text-center">
             Join the Waitlist
           </h2>
-          <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-ras-waitlist/85 sm:text-lg">
+          <p className="figma-waitlist-body w-full text-center">
             We are currently accepting a limited number of both enterprise clients
             and pilots interested in “Fast Forwarding” through grades A-3 and above.
             Join the waitlist for priority access to the marketplace.
           </p>
 
           {success ? (
-            <p
-              className="mt-10 rounded border border-ras-waitlist/20 bg-ras-waitlist/10 px-4 py-3 text-sm font-medium text-ras-waitlist"
-              role="status"
-            >
-              You&apos;re on the waitlist. We&apos;ll email you when priority access opens.
+            <p className="figma-waitlist-success" role="status">
+              You&apos;re on the waitlist. We&apos;ll email you when priority access
+              opens.
             </p>
           ) : (
             <form
               onSubmit={(e) => void handleSubmit(e)}
-              className="mx-auto mt-10 flex max-w-2xl flex-col gap-3 sm:flex-row sm:items-stretch sm:justify-center"
+              className="figma-waitlist-form"
             >
               <label className="sr-only" htmlFor={`${id}-email`}>
                 Email address
@@ -87,12 +85,12 @@ export function MarketingWaitlistSection({
                 placeholder="ENTER EMAIL"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="h-14 min-w-0 flex-1 border border-ras-border-muted bg-surface px-6 text-sm uppercase tracking-wide text-foreground placeholder:text-muted-foreground focus:border-ras-waitlist/40 focus:outline-none focus:ring-2 focus:ring-ras-waitlist/25"
+                className="figma-waitlist-input"
               />
               <button
                 type="submit"
                 disabled={loading}
-                className="h-14 shrink-0 bg-surface px-10 text-xs font-bold uppercase tracking-[0.12em] text-foreground transition-colors hover:bg-surface-elevated disabled:opacity-60"
+                className="figma-waitlist-submit"
               >
                 {loading ? "Joining…" : "Join the waitlist"}
               </button>
@@ -100,7 +98,10 @@ export function MarketingWaitlistSection({
           )}
 
           {error ? (
-            <p className="mt-4 text-sm text-destructive" role="alert">
+            <p
+              className="w-full text-center text-sm font-medium text-[var(--color-waitlist-heading)]"
+              role="alert"
+            >
               {error}
             </p>
           ) : null}

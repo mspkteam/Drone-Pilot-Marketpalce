@@ -10,10 +10,10 @@ export const metadata = {
 
 export default function HowItWorksPage() {
   return (
-    <>
+    <div className="figma-how-it-works-page">
       <HowItWorksHero />
       <HowItWorksProcess />
       <HowItWorksPathCta />
-    </>
+    </div>
   );
 }

@@ -282,10 +282,10 @@ Workflow: [`FIGMA_IMPLEMENTATION_WORKFLOW.md`](FIGMA_IMPLEMENTATION_WORKFLOW.md)
 | Field | Value |
 |-------|--------|
 | **Date** | 2026-06-02 |
-| **Figma frame** | How It Works |
-| **Figma URL** | https://www.figma.com/design/6E3XlFsDuajsjYjf4LiOPZ/remote-air-service?node-id=323-7693 |
+| **Figma frame** | How It Works (`808:46297`) |
+| **Figma URL** | https://www.figma.com/design/6E3XlFsDuajsjYjf4LiOPZ/remote-air-service?node-id=808-46297 |
 | **Route** | `/how-it-works` |
-| **Status** | Implemented |
+| **Status** | Implemented (2026-06-02 alignment pass) |
 
 **Components created:** `HowItWorksHero`, `HowItWorksProcess`, `HowItWorksPathCta`  
 **Components reused:** `MarketingHeader`, `MarketingFooter`, `public-container`, client/pilot step copy from `for-clients-content` / `for-pilots-content`  
@@ -302,6 +302,7 @@ Workflow: [`FIGMA_IMPLEMENTATION_WORKFLOW.md`](FIGMA_IMPLEMENTATION_WORKFLOW.md)
 - Header “Safety” still links to `/how-it-works` until `/safety` exists
 - “Apply as Pilot” → `/register?role=pilot`; “View Pilot Plans” → `/pricing`
 - Uses global 1280px `public-container` — no custom page max-width
+- **2026-06-02:** Frame `808:46297`; dedicated 6-step pilot tab copy; Figma tab control + gold path CTA; header/footer untouched
 
 ---
 
@@ -341,10 +342,10 @@ Workflow: [`FIGMA_IMPLEMENTATION_WORKFLOW.md`](FIGMA_IMPLEMENTATION_WORKFLOW.md)
 | Field | Value |
 |-------|--------|
 | **Date** | 2026-06-08 |
-| **Figma frame** | for clients |
-| **Figma URL** | https://www.figma.com/design/6E3XlFsDuajsjYjf4LiOPZ/remote-air-service?node-id=323-3765 |
+| **Figma frame** | For Clients (`808:42364`) |
+| **Figma URL** | https://www.figma.com/design/6E3XlFsDuajsjYjf4LiOPZ/remote-air-service?node-id=808-42364 |
 | **Route** | `/for-clients` |
-| **Status** | Implemented |
+| **Status** | Implemented (2026-06-02 alignment pass) |
 
 **Components created:** `ClientPageHero`, `ClientWhoItsFor`, `ClientHowItWorks`, `ClientBenefits`, `ClientSafetyCta`, `MarketingSectionLabel`, `MarketingWaitlistSection`  
 **Components reused:** `MarketingHeader`, `MarketingFooter`, `Logo`, waitlist API (`/api/waitlist`)  
@@ -362,6 +363,7 @@ Workflow: [`FIGMA_IMPLEMENTATION_WORKFLOW.md`](FIGMA_IMPLEMENTATION_WORKFLOW.md)
 - “Post a Drone Project” → `/register?role=client` (M06 job posting requires auth)
 - “Learn About Safety” → `/safety`
 - Waitlist uses `roleInterest: "client"` and `source: "for-clients"`
+- **2026-06-02:** Frame updated to `808:42364`; hero eyebrow `FOR CLIENTS`; gold CTAs; step badges; responsive grids; header/footer untouched
 
 ---
 
@@ -370,12 +372,12 @@ Workflow: [`FIGMA_IMPLEMENTATION_WORKFLOW.md`](FIGMA_IMPLEMENTATION_WORKFLOW.md)
 | Field | Value |
 |-------|--------|
 | **Date** | 2026-06-04 |
-| **Figma frame** | Homepage |
-| **Figma URL** | https://www.figma.com/design/6E3XlFsDuajsjYjf4LiOPZ/remote-air-service?node-id=97-2145 |
+| **Figma frame** | Homepage (`808:8249`) |
+| **Figma URL** | https://www.figma.com/design/6E3XlFsDuajsjYjf4LiOPZ/remote-air-service?node-id=808-8249 |
 | **Route** | `/` |
-| **Status** | Implemented |
+| **Status** | Implemented (2026-06-02 alignment pass) |
 
-**Components created:** `HomeHeroDual`, `HomeTrustStrip`, `HomeAudienceCards`, `HomeSopSection`, `HomeRankProgression`, `HomeCapabilities`, `HomeWaitlistSection`  
+**Components created:** `HomeHeroDual`, `HomeTrustStrip`, `HomeAudienceCards`, `HomeSopSection`, `HomeRankProgression`, `HomeCaptainsClub`, `HomeCapabilities`, `HomeWaitlistSection`  
 **Components reused:** `Logo`, `PublicPageContainer` pattern (`public-container`), existing waitlist API  
 **Files created:** `src/lib/marketing/home-content.ts`, `src/components/marketing/home/*`, `public/marketing/*.jpg`  
 **Files updated:** `src/app/(marketing)/page.tsx`, `MarketingHeader`, `MarketingFooter`, `marketing.ts`, `globals.css`
@@ -392,6 +394,7 @@ Workflow: [`FIGMA_IMPLEMENTATION_WORKFLOW.md`](FIGMA_IMPLEMENTATION_WORKFLOW.md)
 - Homepage waitlist form posts email only with `roleInterest: "both"` and `source: "homepage"`
 - A-4 hours use Figma copy (1000+) not summary (1500+)
 - Brand footer copyright uses Figma “Remote Air Service”; logo text unchanged (interim)
+- **2026-06-02:** Frame updated to `808:8249`; Captain's Club section added with mock A-6 cards; header/footer untouched
 
 ---
 

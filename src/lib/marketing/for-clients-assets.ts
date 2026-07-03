@@ -1,4 +1,4 @@
-/** For Clients page icons — Figma frame 323:3765 exports */
+/** For Clients page icons — Figma frame 808:42364 */
 
 export const forClientsAssets = {
   audience: {
@@ -9,5 +9,5 @@ export const forClientsAssets = {
     surveying: "/marketing/icon-audience-surveying.png",
     private: "/marketing/icon-audience-private.png",
   },
-  benefitShield: "/marketing/icon-trust-verified.png",
+  benefitCheck: "/marketing/icon-trust-verified.png",
 } as const;

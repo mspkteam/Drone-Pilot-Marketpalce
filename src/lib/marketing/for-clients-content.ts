@@ -1,4 +1,4 @@
-/** For Clients page copy — Figma frame 323:3765 */
+/** For Clients page copy — Figma frame 808:42364 */
 
 import { forClientsAssets } from "@/lib/marketing/for-clients-assets";
 

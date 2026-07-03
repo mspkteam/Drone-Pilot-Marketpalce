@@ -1,5 +1,6 @@
 import { HomeAudienceCards } from "@/components/marketing/home/HomeAudienceCards";
 import { HomeCapabilities } from "@/components/marketing/home/HomeCapabilities";
+import { HomeCaptainsClub } from "@/components/marketing/home/HomeCaptainsClub";
 import { HomeHeroDual } from "@/components/marketing/home/HomeHeroDual";
 import { HomeRankProgression } from "@/components/marketing/home/HomeRankProgression";
 import { HomeSopSection } from "@/components/marketing/home/HomeSopSection";
@@ -20,6 +21,7 @@ export default function HomePage() {
       <HomeAudienceCards />
       <HomeSopSection />
       <HomeRankProgression />
+      <HomeCaptainsClub />
       <HomeCapabilities />
       <HomeWaitlistSection />
     </>

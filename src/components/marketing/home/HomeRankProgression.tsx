@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
-import { HOME_PILOT_RANKS } from "@/lib/marketing/home-content";
-import { homeAssets } from "@/lib/marketing/home-assets";
+import { brandClasses } from "@/lib/design/brand";
+import { HOME_PILOT_RANKS } from "@/lib/marketing/home-content";import { homeAssets } from "@/lib/marketing/home-assets";
 import { cn } from "@/lib/utils";
 
 const RANK_BADGES: Record<(typeof HOME_PILOT_RANKS)[number]["badge"], string> = {
@@ -22,7 +22,9 @@ export function HomeRankProgression() {
       <div className="public-container">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-xl">
-            <p className="ras-section-eyebrow tracking-[0.12em]">Professional Hierarchy</p>
+            <p className="ras-section-eyebrow tracking-[0.12em]">
+              PROFESSIONAL HIERARCHY
+            </p>
             <h2 className="ras-hero-title mt-4 text-2xl sm:text-[2rem]">
               The Aviator Grade Progression
             </h2>
@@ -33,18 +35,17 @@ export function HomeRankProgression() {
           </div>
           <Link
             href="/pricing"
-            className="ras-btn-outline h-auto px-6 py-3 text-xs font-bold uppercase tracking-[0.12em]"
+            className={cn(brandClasses.btnHomeMuted, "w-full text-center sm:w-auto")}
           >
             Grade Benefits Documentation
-          </Link>
-        </div>
+          </Link>        </div>
 
-        <div className="figma-home-ranks-scroll mt-12 flex gap-4 overflow-x-auto pb-2 lg:grid lg:grid-cols-6 lg:overflow-visible">
+        <div className="figma-home-ranks-scroll mt-12 flex gap-4 overflow-x-auto pb-2 md:grid md:grid-cols-3 md:overflow-visible lg:grid-cols-6">
           {HOME_PILOT_RANKS.map((rank) => (
             <article
               key={rank.code}
               className={cn(
-                "figma-home-rank-card relative min-w-[11.5rem] shrink-0 p-6 text-center lg:min-w-0",
+                "figma-home-rank-card relative min-w-[11.5rem] shrink-0 p-6 text-center md:min-w-0",
                 rank.elite && "figma-home-rank-card--elite",
               )}
             >

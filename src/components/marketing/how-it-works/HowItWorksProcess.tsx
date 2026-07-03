@@ -14,19 +14,21 @@ function WorkflowCards({ tab }: { tab: HowItWorksTab }) {
     tab === "clients" ? HOW_IT_WORKS_CLIENT_STEPS : HOW_IT_WORKS_PILOT_STEPS;
 
   return (
-    <ol className="mt-10 grid gap-5 pt-2 sm:grid-cols-2 lg:grid-cols-3">
+    <ol
+      className={cn(
+        "figma-how-it-works-steps",
+        tab === "clients"
+          ? "figma-how-it-works-steps--clients"
+          : "figma-how-it-works-steps--pilots",
+      )}
+    >
       {steps.map((step) => (
-        <li
-          key={step.number}
-          className="relative rounded-[14px] border border-ras-gold-subtle bg-ras-card px-6 pb-6 pt-9"
-        >
-          <span className="absolute -top-4 left-6 flex h-9 w-9 items-center justify-center rounded-md bg-gold text-xs font-extrabold text-ras-cta shadow-lg">
-            {step.number}
-          </span>
-          <h3 className="text-base font-bold tracking-tight text-ras-text">
+        <li key={step.number} className="figma-how-it-works-step-card">
+          <span className="figma-client-step-badge">{step.number}</span>
+          <h3 className="text-base font-bold tracking-[-0.02em] text-ras-heading">
             {step.title}
           </h3>
-          <p className="mt-2 text-sm leading-relaxed text-ras-soft">
+          <p className="mt-2 text-sm leading-relaxed text-ras-warm">
             {step.description}
           </p>
         </li>
@@ -39,13 +41,10 @@ export function HowItWorksProcess() {
   const [activeTab, setActiveTab] = useState<HowItWorksTab>("clients");
 
   return (
-    <section
-      className="figma-how-it-works-process figma-marketing-section border-t border-[rgba(255,255,255,0.05)]"
-      aria-label="Workflow process"
-    >
-      <div className="public-container">
+    <section className="figma-how-it-works-process" aria-label="Workflow process">
+      <div className="public-container figma-how-it-works-process-inner">
         <div
-          className="inline-flex rounded-lg border border-[rgba(216,179,57,0.18)] bg-[rgba(216,179,57,0.04)] p-1"
+          className="figma-how-it-works-tabs"
           role="tablist"
           aria-label="Choose client or pilot workflow"
         >
@@ -54,15 +53,15 @@ export function HowItWorksProcess() {
             return (
               <button
                 key={tab.id}
+                id={`tab-${tab.id}`}
                 type="button"
                 role="tab"
                 aria-selected={isActive}
+                aria-controls={`panel-${tab.id}`}
                 onClick={() => setActiveTab(tab.id)}
                 className={cn(
-                  "rounded-md px-5 py-2.5 text-sm font-bold transition-colors",
-                  isActive
-                    ? "bg-ras-soft text-ras-text shadow-sm"
-                    : "border border-transparent text-gold-dark/80 hover:text-gold",
+                  "figma-how-it-works-tab",
+                  isActive && "figma-how-it-works-tab--active",
                 )}
               >
                 {tab.label}
@@ -71,7 +70,12 @@ export function HowItWorksProcess() {
           })}
         </div>
 
-        <div role="tabpanel" aria-labelledby={`tab-${activeTab}`}>
+        <div
+          id={`panel-${activeTab}`}
+          role="tabpanel"
+          aria-labelledby={`tab-${activeTab}`}
+          className="figma-how-it-works-steps-panel"
+        >
           <WorkflowCards tab={activeTab} />
         </div>
       </div>

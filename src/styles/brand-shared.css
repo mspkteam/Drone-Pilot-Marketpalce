@@ -32,6 +32,11 @@
   color: var(--color-cta-dark);
 }
 
+.ras-btn-primary:focus-visible {
+  outline: 2px solid var(--color-gold-soft);
+  outline-offset: 2px;
+}
+
 .ras-btn-outline {
   display: inline-flex;
   align-items: center;
@@ -57,6 +62,150 @@
   border-color: var(--color-gold);
   background: rgba(216, 179, 57, 0.1);
   color: var(--color-gold-soft);
+}
+
+.ras-btn-outline:focus-visible {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 2px;
+}
+
+/* Homepage marketing CTAs — Figma frame 808:8249 */
+.ras-btn-marketing-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  line-height: 1;
+}
+
+.ras-btn-home-gold {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  min-height: 2.9375rem;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: var(--color-home-btn-gold);
+  color: var(--color-home-btn-gold-text);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  line-height: 1;
+  text-decoration: none;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.ras-btn-home-gold:hover {
+  background: var(--color-gold-soft);
+  color: var(--color-home-btn-gold-text);
+}
+
+.ras-btn-home-gold:focus-visible {
+  outline: 2px solid var(--color-home-btn-light);
+  outline-offset: 2px;
+}
+
+.ras-btn-home-gold--sentence {
+  min-height: 2.5rem;
+  height: 2.5rem;
+  padding: 0 2rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.ras-btn-home-hero-light {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  min-height: 3.328rem;
+  padding: 1.125rem 2.125rem;
+  border-radius: 8px;
+  border: 2px solid var(--color-home-btn-light);
+  background: transparent;
+  color: var(--color-home-btn-light);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  line-height: 1;
+  text-decoration: none;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.ras-btn-home-hero-light:hover {
+  background: rgba(229, 226, 225, 0.08);
+  border-color: var(--color-home-btn-light);
+  color: var(--color-home-btn-light);
+}
+
+.ras-btn-home-hero-light:focus-visible {
+  outline: 2px solid var(--color-home-btn-light);
+  outline-offset: 2px;
+}
+
+.ras-btn-home-muted {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.375rem;
+  padding: 0.8125rem 1.5625rem;
+  border-radius: 8px;
+  border: 1px solid var(--color-home-btn-muted-border);
+  background: var(--color-home-btn-muted-bg);
+  color: var(--color-home-btn-light);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  line-height: 1;
+  text-decoration: none;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.ras-btn-home-muted:hover {
+  border-color: var(--color-gold);
+  background: rgba(53, 53, 52, 0.92);
+  color: var(--color-home-btn-light);
+}
+
+.ras-btn-home-muted:focus-visible {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 2px;
+}
+
+.ras-btn-text-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-gold);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.ras-btn-text-link:hover {
+  color: var(--color-gold-soft);
+}
+
+.ras-btn-text-link:focus-visible {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 2px;
+  border-radius: 2px;
 }
 
 .ras-btn-danger {
@@ -107,6 +256,32 @@
   line-height: 1.05;
   letter-spacing: -0.02em;
   color: var(--color-text-heading);
+}
+
+.ras-hero-title-accent {
+  background: linear-gradient(
+    180deg,
+    var(--color-gold) 4.33%,
+    #f7a922 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.ras-marketing-section-title {
+  font-size: 2.25rem;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  color: var(--color-text-heading);
+}
+
+@media (max-width: 639px) {
+  .ras-marketing-section-title {
+    font-size: 1.75rem;
+    line-height: 1.2;
+  }
 }
 
 .ras-hero-body {

@@ -15,9 +15,12 @@ export function HomeTrustStrip() {
       aria-label="Trust and compliance"
     >
       <div className="public-container">
-        <ul className="grid gap-8 sm:grid-cols-3 sm:gap-6">
+        <ul className="flex flex-col items-center gap-8 sm:grid sm:grid-cols-3 sm:items-start sm:gap-6">
           {HOME_TRUST_ITEMS.map((item, index) => (
-            <li key={item.title} className="flex items-start gap-4">
+            <li
+              key={item.title}
+              className="flex max-w-xs items-start gap-4 sm:max-w-none"
+            >
               <Image
                 src={TRUST_ICONS[index]}
                 alt=""
@@ -26,9 +29,13 @@ export function HomeTrustStrip() {
                 className="h-7 w-6 shrink-0 object-contain"
                 aria-hidden
               />
-              <div>
+              <div className="text-center sm:text-left">
                 <p className="ras-section-eyebrow tracking-[0.1em]">{item.title}</p>
-                <p className="mt-1 text-sm text-[var(--color-text-muted)]">{item.subtitle}</p>
+                {item.subtitle ? (
+                  <p className="mt-1 text-sm text-[var(--color-text-muted)]">
+                    {item.subtitle}
+                  </p>
+                ) : null}
               </div>
             </li>
           ))}

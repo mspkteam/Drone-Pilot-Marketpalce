@@ -1,9 +1,9 @@
-/** Homepage copy and structure — aligned to Figma frame Homepage (97:2145). */
+/** Homepage copy — Figma frame Homepage (808:8249). */
 
 export const HOME_TRUST_ITEMS = [
   {
-    title: "Verified Licensed Pilots",
-    subtitle: "100% Background Checked",
+    title: "100% Background Checked",
+    subtitle: null,
   },
   {
     title: "FAA Part 107 Status",
@@ -15,13 +15,30 @@ export const HOME_TRUST_ITEMS = [
   },
 ] as const;
 
+export const HOME_HERO = {
+  client: {
+    eyebrow: "FOR BUSINESSES",
+    title: "Find Local Drone Pilots Anywhere",
+    description:
+      "Book qualified drone operators for events, inspections, mapping, real estate, construction, agriculture, public safety, and more.",
+    ctaLabel: "Find a drone pilot",
+    ctaHref: "/for-clients",
+  },
+  pilot: {
+    eyebrow: "FOR PILOTS",
+    title: "Get Paid Flying Missions",
+    description:
+      "Join a global network of drone professionals and submit proposals for amazing opportunities from businesses in your area and across the globe.",
+    ctaLabel: "Join the Pilot Network",
+    ctaHref: "/register?role=pilot",
+  },
+} as const;
+
 export const HOME_AUDIENCE_CARDS = [
   {
     side: "client" as const,
     label: "Client Demands",
     title: "SCALE YOUR OPERATIONS",
-    description:
-      "Connect with local professional, licensed, background-checked drone pilots with a variety of equipment to complete your project.",
     bullets: [
       "Post “Missions” like events, surveys, tourism, etc.",
       "Global capabilities with travel-willing remote pilots",
@@ -33,9 +50,7 @@ export const HOME_AUDIENCE_CARDS = [
   {
     side: "pilot" as const,
     label: "Pilot Careers",
-    title: "ASCEND THE RANKS",
-    description:
-      "Build your professional pilot reputation through our platform and earn consistent compensation for the talented effort you put into your flying.",
+    title: "ADVANCE THROUGH GRADES",
     bullets: [
       "Submit proposals to a variety of client-posted missions",
       "Automatic promotions allowing you to propose sooner",
@@ -76,42 +91,42 @@ export const HOME_SOP_STEPS = [
 export const HOME_PILOT_RANKS = [
   {
     code: "A-1",
-    name: "STUDENT",
+    name: "Student",
     subtitle: "0–100 HOURS",
     badge: "a1",
     elite: false,
   },
   {
     code: "A-2",
-    name: "JR. FLIGHT OFFICER",
+    name: "Junior Flight Officer",
     subtitle: "100+ HOURS",
     badge: "a2",
     elite: false,
   },
   {
     code: "A-3",
-    name: "FLIGHT OFFICER",
+    name: "Flight Officer",
     subtitle: "500+ HOURS",
     badge: "a3",
     elite: false,
   },
   {
     code: "A-4",
-    name: "SR. FLIGHT OFFICER",
+    name: "Senior Flight Officer",
     subtitle: "1000+ HOURS",
     badge: "a4",
     elite: false,
   },
   {
     code: "A-5",
-    name: "FIRST OFFICER",
+    name: "First Officer",
     subtitle: "COMMAND GRADE",
     badge: "a5",
     elite: false,
   },
   {
     code: "A-6",
-    name: "CAPTAIN",
+    name: "Captain",
     subtitle: "MASTER OPERATIONS",
     badge: "a6",
     elite: true,
@@ -120,7 +135,7 @@ export const HOME_PILOT_RANKS = [
 
 export const HOME_CAPABILITIES = [
   {
-    title: "United States of America",
+    title: "UNITED STATES OF AMERICA",
     description:
       "FAA Part 107 Compliance allows us to operate in every major city and/or rural area in every square mile of the United States of America",
   },

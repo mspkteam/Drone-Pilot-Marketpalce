@@ -3212,3 +3212,190 @@ Passes (`npx next build`, 2026-06-02).
 ### Production build
 
 Passes after documentation + commission constant update (2026-06-02).
+
+---
+
+## Homepage Design Alignment (2026-06-02)
+
+| Field | Value |
+|-------|--------|
+| **Page / module** | Homepage Design Alignment |
+| **Screenshot source** | Client-provided homepage screenshot (premium dark aviation marketplace) |
+| **Figma** | https://www.figma.com/design/6E3XlFsDuajsjYjf4LiOPZ/remote-air-service?node-id=808-8249 |
+| **FIGMA_LINK_PLACEHOLDER** | Add final Figma URL here when provided: `https://www.figma.com/design/6E3XlFsDuajsjYjf4LiOPZ/remote-air-service?node-id=808-8249` |
+| **Route** | `/` |
+| **Status** | Implemented (content + layout alignment; mock Captain's Club cards) |
+
+### Preserved (unchanged)
+
+- **Header** — logo, nav (Hire Pilots, Join as Pilot, How It Works, Pricing, Safety), Login, Get Started
+- **Footer** — logo, brand text, regions, legal, compliance, copyright
+
+### Sections adjusted
+
+| Section | Changes |
+|---------|---------|
+| Hero | Eyebrows `FOR BUSINESSES` / `FOR PILOTS`; full client/pilot copy; gradient accent on “Anywhere”; stacked mobile/tablet |
+| Trust strip | `100% Background Checked`, FAA Part 107, Secure Payments with subtexts |
+| Audience cards | `SCALE YOUR OPERATIONS` / `ADVANCE THROUGH GRADES`; bullets + links only (no extra description paragraph) |
+| SOP | Official four-step copy (REQUEST → REVIEW) |
+| Aviator grades | Official titles (Student through Captain); horizontal scroll on mobile |
+| **Captain's Club** | **New** — four mock A-6 cards (Alex Morgan, Sarah Mitchell, James Walker, Daniel Ruiz); link to `/captains-club` |
+| Capabilities | `UNITED STATES OF AMERICA` / `EUROPE` titles |
+| Waitlist | Existing Figma-aligned gold CTA; wired to `POST /api/waitlist` |
+| **Buttons** | Figma 808:8249 — gold fill (`#ddb049`), pilot hero light outline (`#e5e2e1`), grade benefits muted outline, Captain's Club gold CTA; keyboard focus rings added |
+
+### Responsive adjustments
+
+- Hero: side-by-side desktop, stack tablet/mobile
+- Trust strip: centered mobile, 3-column tablet+
+- Feature cards: 2 columns desktop/tablet, stack mobile
+- Grade cards: 6-column desktop, 3-column tablet, horizontal scroll mobile
+- Captain cards: 4 / 2 / 1 columns (lg / sm / default) via `captains-club-grid`
+- Capabilities: 2-column desktop, stack mobile
+- Waitlist form: stacks on narrow viewports
+
+### Mock data / pending APIs
+
+| Item | Status |
+|------|--------|
+| Captain's Club homepage cards | Mock data in `src/lib/marketing/home-captains-content.ts` — **public A-6 API pending (M317)** |
+| Grade cards | Static content from `home-content.ts` — no live pilot tier feed |
+| Waitlist | **Connected** — `POST /api/waitlist` with `roleInterest: "both"`, `source: "homepage"` |
+| Commission bullet on pilot card | Generic “low commissions…lower over time” — **no hardcoded %** (default 15% in business rules; overrides M309) |
+
+### Files updated
+
+- `src/lib/marketing/home-content.ts`
+- `src/lib/marketing/home-captains-content.ts` (new)
+- `src/components/marketing/home/HomeHeroDual.tsx`
+- `src/components/marketing/home/HomeTrustStrip.tsx`
+- `src/components/marketing/home/HomeAudienceCards.tsx`
+- `src/components/marketing/home/HomeRankProgression.tsx`
+- `src/components/marketing/home/HomeCaptainsClub.tsx` (new)
+- `src/app/(marketing)/page.tsx`
+
+### Production build
+
+Homepage changes type-check clean. Full `npm run build` blocked by pre-existing `src/middleware.ts` NextAuth typing error (unrelated to homepage pass).
+
+---
+
+## Hire Pilots / For Clients Page Alignment (2026-06-02)
+
+| Field | Value |
+|-------|--------|
+| **Page / module** | Hire Pilots / For Clients Page Alignment |
+| **Screenshot source** | Client-provided For Clients page screenshot |
+| **Figma** | https://www.figma.com/design/6E3XlFsDuajsjYjf4LiOPZ/remote-air-service?node-id=808-42364 |
+| **FIGMA_LINK_PLACEHOLDER** | Add final Figma URL here when provided: `https://www.figma.com/design/6E3XlFsDuajsjYjf4LiOPZ/remote-air-service?node-id=808-42364` |
+| **Route** | `/for-clients` (nav label: Hire Pilots) |
+| **Status** | Implemented |
+
+### Preserved (unchanged)
+
+- **Header** — logo, nav, Login, Get Started
+- **Footer** — logo, brand text, regions, legal, compliance, copyright
+
+### Sections adjusted
+
+| Section | Changes |
+|---------|---------|
+| Hero | `FOR CLIENTS` eyebrow; gold accent on “Your Project”; ~600px content width; `#ddb049` gold CTA; responsive glow |
+| Who It's For | Equal-height cards; 3 / 2 / 1 column grid; gold icon wells |
+| How It Works | Figma step badges (`#ddb049`); removed double padding; mobile horizontal scroll; `md` 2-col / `lg` 5-col grid |
+| Client Benefits | 3 / 2 / 1 grid; shield icons; overflow protection |
+| Safety CTA | `14px` rounded card; gold sentence-case CTA → `/safety` |
+| Waitlist | Shared `MarketingWaitlistSection`; `roleInterest: "client"` |
+
+### Responsive adjustments
+
+- Hero title scales `1.875rem` → `3.75rem`; CTA full-width on mobile
+- Marketing sections: reduced mobile vertical padding (`3.5rem`)
+- Step cards: scroll on mobile, grid wrap on tablet+
+- Benefits and audience cards stack cleanly; `overflow-x: clip` on wide sections
+
+### Waitlist / CTA status
+
+| Item | Status |
+|------|--------|
+| Waitlist | **Connected** — `POST /api/waitlist`, `source: "for-clients"`, `roleInterest: "client"` |
+| Post a Drone Project | Routes to `/register?role=client` — logged-in client job posting deep link still pending (M06) |
+
+### Known remaining issues
+
+- Logged-in users clicking “Post a Drone Project” land on register instead of `/dashboard/client` job create
+- No dedicated Figma mobile frames — responsive behavior is code-driven
+- Full production build may still fail on pre-existing `middleware.ts` NextAuth typing
+
+### Files updated
+
+- `src/app/(marketing)/for-clients/page.tsx`
+- `src/components/marketing/for-clients/*`
+- `src/lib/marketing/for-clients-content.ts`
+- `src/lib/marketing/for-clients-assets.ts`
+- `src/app/globals.css`
+- `src/styles/brand-shared.css`
+
+---
+
+## How It Works Page Alignment (2026-06-02)
+
+| Field | Value |
+|-------|--------|
+| **Page / module** | How It Works Page Alignment |
+| **Screenshot source** | Client-provided How It Works page screenshot |
+| **Figma** | https://www.figma.com/design/6E3XlFsDuajsjYjf4LiOPZ/remote-air-service?node-id=808-46297 |
+| **FIGMA_LINK_PLACEHOLDER** | Add final Figma URL here when provided: `https://www.figma.com/design/6E3XlFsDuajsjYjf4LiOPZ/remote-air-service?node-id=808-46297` |
+| **Route** | `/how-it-works` |
+| **Status** | Implemented |
+
+### Preserved (unchanged)
+
+- **Header** — logo, nav, Login, Get Started; active state on How It Works
+- **Footer** — unchanged
+
+### Tab content
+
+**For Clients (default):** 5 steps — Create Account → Complete the Job (same as Hire Pilots page)
+
+**For Pilots:** 6 steps — Create Pilot Account → Complete Contracts; aligned to business rules ($99.99/yr membership, one-time Fast Forward, grade visibility, client-initiated chat)
+
+### Sections adjusted
+
+| Section | Changes |
+|---------|---------|
+| Hero | `PROCESS` eyebrow; gold **Remote Air Service** accent; ~680px max width; responsive glow |
+| Tabs | Figma dark wrapper; active `#14100b` fill; inactive gold border/text |
+| Step cards | `figma-client-step-badge`; 3-col desktop (clients 3+2, pilots 3+3); 2-col tablet; 1-col mobile |
+| Path CTA | Full gold band; **Apply as Pilot** (black fill); **View Pilot Plans** (black outline) |
+
+### Responsive adjustments
+
+- Mobile section padding reduced
+- Tabs wrap without overflow
+- CTA buttons stack on mobile, inline on tablet+
+- `overflow-x: clip` on process section
+
+### CTA routes
+
+| Button | Route | Status |
+|--------|-------|--------|
+| Apply as Pilot | `/register?role=pilot` | Connected |
+| View Pilot Plans | `/pricing` | Connected |
+
+### Known remaining issues
+
+- Pilot tab copy references membership model; pricing UI may still show legacy tier presentation until M320
+- No dedicated Figma mobile frames
+
+### Files updated
+
+- `src/app/(marketing)/how-it-works/page.tsx`
+- `src/components/marketing/how-it-works/*`
+- `src/lib/marketing/how-it-works-content.ts`
+- `src/app/globals.css`
+
+### Production build
+
+Passes after middleware fix (2026-06-02).

@@ -9,25 +9,30 @@ const CAPABILITY_ICONS = [
 
 export function HomeCapabilities() {
   return (
-    <section className="figma-home-section border-t border-border" aria-label="Regional capabilities">
+    <section
+      className="figma-home-section figma-home-capabilities border-t border-[var(--color-border-muted)]"
+      aria-label="Regional capabilities"
+    >
       <div className="public-container">
-        <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
-          <div>
+        <div className="grid items-stretch gap-8 sm:gap-10 lg:grid-cols-2 lg:items-center lg:gap-16">
+          <div className="min-w-0">
             <h2 className="ras-hero-title text-2xl sm:text-[2rem]">Capabilities</h2>
-            <ul className="mt-10 space-y-10">
+            <ul className="mt-8 space-y-8 sm:mt-10 sm:space-y-10">
               {HOME_CAPABILITIES.map((item, index) => (
-                <li key={item.title} className="flex gap-5">
-                  <Image
-                    src={CAPABILITY_ICONS[index]}
-                    alt=""
-                    width={40}
-                    height={40}
-                    className="h-10 w-10 shrink-0 object-contain"
-                    aria-hidden
-                  />
-                  <div>
-                    <h3 className="ras-section-eyebrow tracking-[0.12em]">{item.title}</h3>
-                    <p className="ras-hero-body mt-3 text-sm">
+                <li key={item.title} className="flex items-start gap-4 sm:gap-5">
+                  <div className="figma-home-capability-icon" aria-hidden>
+                    <Image
+                      src={CAPABILITY_ICONS[index]}
+                      alt=""
+                      width={20}
+                      height={20}
+                    />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="text-xs font-bold uppercase tracking-[0.1em] text-[var(--color-home-btn-light)] break-words">
+                      {item.title}
+                    </h3>
+                    <p className="ras-hero-body mt-3 text-sm leading-relaxed sm:text-base">
                       {item.description}
                     </p>
                   </div>
@@ -36,12 +41,12 @@ export function HomeCapabilities() {
             </ul>
           </div>
 
-          <div className="ras-card relative aspect-[608/500] min-h-[18rem] overflow-hidden border-[var(--color-border-muted)]">
+          <div className="figma-home-capabilities-map w-full">
             <Image
               src={homeAssets.capabilities.map}
               alt="Global operations map"
               fill
-              className="object-cover"
+              className="figma-home-capabilities-map-image object-cover"
               sizes="(max-width: 1024px) 100vw, 50vw"
             />
           </div>

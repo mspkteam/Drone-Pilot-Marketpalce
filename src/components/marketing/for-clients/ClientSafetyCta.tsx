@@ -1,11 +1,12 @@
 import Link from "next/link";
+import { brandClasses } from "@/lib/design/brand";
 
 export function ClientSafetyCta() {
   return (
     <section className="figma-marketing-section pt-0" aria-label="Safety">
       <div className="public-container">
-        <div className="rounded-[18px] border border-ras-gold-subtle bg-[rgba(21,17,12,0.4)] p-10 sm:p-14">
-          <h2 className="max-w-2xl text-2xl font-bold tracking-tight text-ras-heading sm:text-3xl">
+        <div className="rounded-[14px] border border-[var(--color-border-gold-subtle)] bg-[rgba(21,17,12,0.4)] p-8 sm:p-10 lg:p-14">
+          <h2 className="ras-marketing-section-title max-w-2xl text-[1.75rem] leading-tight sm:text-[1.875rem]">
             Professional Flights Require Professional Pilots
           </h2>
           <p className="mt-4 max-w-2xl text-base leading-relaxed text-ras-warm">
@@ -14,7 +15,7 @@ export function ClientSafetyCta() {
           </p>
           <Link
             href="/safety"
-            className="mt-8 inline-flex h-10 items-center rounded-lg bg-gold px-8 text-sm font-semibold text-ras-cta transition-colors hover:bg-gold-light"
+            className={`${brandClasses.btnHomeGold} ras-btn-home-gold--sentence mt-8 w-full max-w-xs sm:w-auto sm:max-w-none`}
           >
             Learn About Safety
           </Link>

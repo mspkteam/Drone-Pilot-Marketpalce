@@ -14,7 +14,7 @@ export function MarketingSectionLabel({
   return (
     <p
       className={cn(
-        "text-xs font-semibold uppercase tracking-[0.2em] text-gold",
+        "text-xs font-semibold uppercase tracking-[0.25em] text-gold",
         centered && "text-center",
         className,
       )}

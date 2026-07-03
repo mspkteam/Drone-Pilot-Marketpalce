@@ -19,7 +19,10 @@
   --color-border: #2a2a2a;
   --color-border-muted: #4d4635;
   --color-border-gold: rgba(216, 179, 57, 0.35);
-  --color-border-gold-subtle: rgba(235, 169, 65, 0.11);
+  /* Figma Overlay+Border — #EBA941 @ 10.8% */
+  --color-border-gold-subtle: rgba(235, 169, 65, 0.108);
+  --color-gold-figma: #eba941;
+  --color-gold-icon-wash: rgba(235, 169, 65, 0.1);
   --color-gold: #d8b339;
   --color-gold-soft: #e9bf4a;
   --color-gold-dark: #c9a227;
@@ -31,7 +34,21 @@
   --color-text-dim-alt: #8f8980;
   --color-text-warm: #a39684;
   --color-cta-dark: #0e0a07;
+  --color-waitlist-bg: #d4af37;
+  --color-waitlist-heading: #241a00;
+  --color-waitlist-body: #574500;
+  --color-waitlist-input-bg: rgba(60, 47, 0, 0.13);
+  --color-waitlist-input-border: rgba(0, 0, 0, 0.17);
+  --color-waitlist-input-placeholder: rgba(0, 0, 0, 0.24);
+  --color-waitlist-button-bg: #241a00;
+  --color-waitlist-button-text: #ddb049;
   --color-waitlist-text: #3c2f00;
+  /* Homepage CTAs — Figma 808:8249 */
+  --color-home-btn-gold: #ddb049;
+  --color-home-btn-gold-text: #3c2f00;
+  --color-home-btn-light: #e5e2e1;
+  --color-home-btn-muted-bg: #353534;
+  --color-home-btn-muted-border: #99907c;
   --color-input-bg: #141414;
   --color-panel: #14120f;
   --color-panel-deep: #12100d;
@@ -120,6 +137,7 @@
   --color-ras-border-muted: var(--color-border-muted);
   --color-ras-cta: var(--color-cta-dark);
   --color-ras-waitlist: var(--color-waitlist-text);
+  --color-ras-gold-subtle: var(--color-border-gold-subtle);
   --color-ras-success: var(--color-success);
   --font-sans: var(--font-inter);
   --font-mono: var(--font-geist-mono);
@@ -399,6 +417,69 @@ a.dashboard-card:hover {
   scrollbar-color: var(--border) transparent;
 }
 
+/* Capabilities — Figma 808:8606 */
+.figma-home-capabilities {
+  overflow-x: clip;
+}
+
+@media (max-width: 639px) {
+  .figma-home-capabilities {
+    padding-top: 3.5rem;
+    padding-bottom: 3.5rem;
+  }
+}
+
+.figma-home-capability-icon {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid var(--color-home-btn-muted-border);
+  background: var(--color-border);
+}
+
+.figma-home-capability-icon img {
+  width: 1.25rem;
+  height: 1.25rem;
+  object-fit: contain;
+}
+
+.figma-home-capabilities-map {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--color-border-muted);
+  border-radius: var(--radius-card);
+  background: var(--color-card);
+  min-height: 14rem;
+}
+
+@media (min-width: 640px) {
+  .figma-home-capabilities-map {
+    min-height: 20rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .figma-home-capabilities-map {
+    height: 31.25rem;
+    min-height: 31.25rem;
+  }
+}
+
+.figma-home-capabilities-map::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: rgba(242, 202, 80, 0.05);
+}
+
+.figma-home-capabilities-map-image {
+  opacity: 0.5;
+}
+
 /* Figma marketing pages (for-clients, etc.) */
 .figma-marketing-section {
   width: 100%;
@@ -412,8 +493,49 @@ a.dashboard-card:hover {
   background: var(--color-card);
 }
 
+.figma-marketing-card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  flex-shrink: 0;
+  border-radius: 10px;
+  background: var(--color-gold-icon-wash);
+}
+
+.figma-marketing-benefit {
+  border: 1px solid var(--color-border-gold-subtle);
+  border-radius: var(--radius-card);
+  background: var(--color-card);
+}
+
 .figma-client-hero {
   background: var(--color-bg);
+}
+
+.figma-client-step-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 8px;
+  background: var(--color-home-btn-gold);
+  color: var(--color-home-btn-gold-text);
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1;
+  box-shadow:
+    0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -4px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 767px) {
+  .figma-for-clients-page .figma-marketing-section {
+    padding-top: 3.5rem;
+    padding-bottom: 3.5rem;
+  }
 }
 
 /* Figma for-pilots page (frame 323:4399) */
@@ -421,13 +543,273 @@ a.dashboard-card:hover {
   background: var(--color-bg-soft);
 }
 
-/* Figma how-it-works page (frame 323:7693) */
+/* Figma how-it-works page (frame 808:46297) */
+.figma-how-it-works-page {
+  background: var(--color-bg);
+}
+
 .figma-how-it-works-hero {
-  background: var(--color-bg-soft);
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--color-border-gold-subtle);
 }
 
 .figma-how-it-works-process {
-  background: var(--color-bg-section);
+  background: var(--color-bg);
+  overflow-x: clip;
+}
+
+.figma-how-it-works-process-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+  padding-top: 3rem;
+  padding-bottom: 4rem;
+}
+
+@media (min-width: 1024px) {
+  .figma-how-it-works-process-inner {
+    gap: 3rem;
+    padding-top: 4rem;
+    padding-bottom: 6.25rem;
+  }
+}
+
+.figma-how-it-works-tabs {
+  display: flex;
+  flex-wrap: nowrap;
+  width: min(100%, 18.75rem);
+  max-width: 100%;
+  gap: 0.625rem;
+  padding: 0.5rem;
+  border: 1px solid rgba(221, 176, 73, 0.19);
+  border-radius: 1rem;
+  background: rgba(52, 45, 34, 0.48);
+}
+
+.figma-how-it-works-tab {
+  display: inline-flex;
+  flex: 1 1 0;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  min-height: 2.5rem;
+  padding: 0 1rem;
+  border: 1px solid var(--color-home-btn-gold);
+  border-radius: 8px;
+  background: transparent;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--color-home-btn-gold);
+  white-space: nowrap;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    opacity 0.2s ease;
+  cursor: pointer;
+}
+
+.figma-how-it-works-tab:hover:not(.figma-how-it-works-tab--active) {
+  opacity: 0.85;
+}
+
+.figma-how-it-works-tab--active {
+  border-color: transparent;
+  background: #14100b;
+  color: #fff;
+  opacity: 1;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.figma-how-it-works-tab:focus-visible {
+  outline: 2px solid var(--color-home-btn-gold);
+  outline-offset: 2px;
+}
+
+.figma-how-it-works-steps-panel {
+  width: 100%;
+  min-width: 0;
+}
+
+.figma-how-it-works-steps {
+  display: grid;
+  width: 100%;
+  gap: 1.25rem;
+  padding-top: 1rem;
+  list-style: none;
+  margin: 0;
+}
+
+.figma-how-it-works-step-card {
+  position: relative;
+  min-width: 0;
+  border: 1px solid var(--color-border-gold-subtle);
+  border-radius: 14px;
+  background: var(--color-card);
+  padding: 2.3125rem 1.5625rem 1.5625rem;
+}
+
+.figma-how-it-works-step-card .figma-client-step-badge {
+  position: absolute;
+  top: -1rem;
+  left: 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .figma-how-it-works-steps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.875rem 1.25rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .figma-how-it-works-steps--clients,
+  .figma-how-it-works-steps--pilots {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.875rem 1.25rem;
+  }
+}
+
+@media (max-width: 639px) {
+  .figma-how-it-works-process-inner {
+    padding-top: 2.5rem;
+    padding-bottom: 3.5rem;
+  }
+
+  .figma-how-it-works-tabs {
+    width: 100%;
+  }
+}
+
+.figma-how-it-works-path-cta {
+  position: relative;
+  overflow: hidden;
+  background: var(--color-waitlist-bg);
+  padding-top: 5rem;
+  padding-bottom: 5rem;
+}
+
+@media (min-width: 640px) {
+  .figma-how-it-works-path-cta {
+    padding-top: 6.25rem;
+    padding-bottom: 6.25rem;
+  }
+}
+
+.figma-how-it-works-path-cta::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.2;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 1440 531.39' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none'%3E%3Crect width='100%25' height='100%25' fill='url(%23grad)'/%3E%3Cdefs%3E%3CradialGradient id='grad' gradientUnits='userSpaceOnUse' cx='0' cy='0' r='10' gradientTransform='matrix(193.46 0 0 71.392 -64080 -23647)'%3E%3Cstop stop-color='rgba(0,0,0,1)' offset='0.009304'/%3E%3Cstop stop-color='rgba(0,0,0,0)' offset='0.009304'/%3E%3C/radialGradient%3E%3C/defs%3E%3C/svg%3E");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+
+.figma-how-it-works-path-cta-inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.93125rem;
+  text-align: center;
+}
+
+.figma-how-it-works-path-cta-title {
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--color-waitlist-heading);
+}
+
+@media (min-width: 640px) {
+  .figma-how-it-works-path-cta-title {
+    font-size: 3rem;
+  }
+}
+
+.figma-how-it-works-path-cta-actions {
+  display: flex;
+  width: 100%;
+  max-width: 42rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding-top: 0.5rem;
+}
+
+@media (min-width: 640px) {
+  .figma-how-it-works-path-cta-actions {
+    flex-direction: row;
+    gap: 1.25rem;
+  }
+}
+
+.figma-path-cta-btn-dark,
+.figma-path-cta-btn-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-height: 2.5rem;
+  width: 100%;
+  max-width: 13.5rem;
+  padding: 0 2rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+@media (min-width: 640px) {
+  .figma-path-cta-btn-dark,
+  .figma-path-cta-btn-outline {
+    width: auto;
+  }
+}
+
+.figma-path-cta-btn-dark {
+  border: 1px solid #000;
+  background: #000;
+  color: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.figma-path-cta-btn-dark:hover {
+  background: #1a1a1a;
+}
+
+.figma-path-cta-btn-outline {
+  border: 1px solid #000;
+  background: transparent;
+  color: #000;
+}
+
+.figma-path-cta-btn-outline:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.figma-path-cta-btn-dark:focus-visible,
+.figma-path-cta-btn-outline:focus-visible {
+  outline: 2px solid var(--color-waitlist-heading);
+  outline-offset: 2px;
+}
+
+@media (max-width: 767px) {
+  .figma-how-it-works-hero .public-container {
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+  }
 }
 
 /* Figma pricing page (frame 323:5052) */
@@ -640,12 +1022,211 @@ a.dashboard-card:hover {
 }
 
 .figma-home-waitlist {
-  background: linear-gradient(
-    180deg,
-    var(--color-gold-soft) 0%,
-    var(--color-gold) 45%,
-    var(--color-gold-dark) 100%
-  );
+  position: relative;
+  overflow: hidden;
+  background: var(--color-waitlist-bg);
+  padding-top: 5rem;
+  padding-bottom: 5rem;
+}
+
+@media (min-width: 640px) {
+  .figma-home-waitlist {
+    padding-top: 7.9375rem;
+    padding-bottom: 8rem;
+  }
+}
+
+/* Figma 808:8634 — gradient wash @ 20% over #d4af37 */
+.figma-home-waitlist::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.2;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 1440 531.39' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none'%3E%3Crect width='100%25' height='100%25' fill='url(%23grad)'/%3E%3Cdefs%3E%3CradialGradient id='grad' gradientUnits='userSpaceOnUse' cx='0' cy='0' r='10' gradientTransform='matrix(193.46 0 0 71.392 -64080 -23647)'%3E%3Cstop stop-color='rgba(0,0,0,1)' offset='0.009304'/%3E%3Cstop stop-color='rgba(0,0,0,0)' offset='0.009304'/%3E%3C/radialGradient%3E%3C/defs%3E%3C/svg%3E");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+
+.figma-waitlist-inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+}
+
+.figma-waitlist-stack {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.93125rem;
+  text-align: center;
+}
+
+.figma-waitlist-title {
+  width: 100%;
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  text-align: center;
+  text-transform: uppercase;
+  color: var(--color-waitlist-heading);
+}
+
+@media (min-width: 640px) {
+  .figma-waitlist-title {
+    font-size: 3rem;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+}
+
+.figma-waitlist-body {
+  width: 100%;
+  max-width: 42rem;
+  margin-inline: auto;
+  font-size: 1rem;
+  line-height: 1.6;
+  text-align: center;
+  color: var(--color-waitlist-body);
+}
+
+@media (min-width: 640px) {
+  .figma-waitlist-body {
+    font-size: 1.125rem;
+    line-height: 1.6;
+  }
+}
+
+.figma-waitlist-form {
+  display: flex;
+  width: 100%;
+  max-width: 40rem;
+  margin-inline: auto;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  gap: 1rem;
+  padding-top: 1.06875rem;
+}
+
+@media (min-width: 480px) {
+  .figma-waitlist-form {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    max-width: 38.5rem;
+  }
+}
+
+.figma-waitlist-input {
+  box-sizing: border-box;
+  display: block;
+  height: 3.5rem;
+  min-height: 3.5rem;
+  max-height: 3.5rem;
+  width: 100%;
+  min-width: 0;
+  flex: 1 1 auto;
+  border-radius: 8px;
+  border: 1px solid var(--color-waitlist-input-border);
+  background: var(--color-waitlist-input-bg);
+  padding: 0 1.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--color-waitlist-heading);
+}
+
+@media (min-width: 480px) {
+  .figma-waitlist-input {
+    flex: 1 1 24rem;
+    width: 24rem;
+    max-width: 24rem;
+  }
+}
+
+.figma-waitlist-input::placeholder {
+  color: var(--color-waitlist-input-placeholder);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.figma-waitlist-input:focus {
+  outline: 2px solid rgba(36, 26, 0, 0.25);
+  outline-offset: 0;
+  border-color: rgba(0, 0, 0, 0.28);
+}
+
+.figma-waitlist-submit {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 3.5rem;
+  min-height: 3.5rem;
+  max-height: 3.5rem;
+  width: 100%;
+  max-width: 13.5rem;
+  align-self: center;
+  flex: 0 0 auto;
+  border-radius: 8px;
+  border: none;
+  background: var(--color-waitlist-button-bg);
+  padding: 0 1.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-waitlist-button-text);
+  transition: background-color 0.2s ease;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+@media (min-width: 480px) {
+  .figma-waitlist-submit {
+    width: 13.5rem;
+    max-width: 13.5rem;
+    align-self: auto;
+    padding: 0 1.25rem;
+  }
+}
+
+.figma-waitlist-submit:focus-visible {
+  outline: 2px solid var(--color-waitlist-heading);
+  outline-offset: 2px;
+}
+
+.figma-waitlist-submit:hover:not(:disabled) {
+  background: #1a1400;
+}
+
+.figma-waitlist-submit:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.figma-waitlist-success {
+  width: 100%;
+  max-width: 40rem;
+  margin-inline: auto;
+  margin-top: 0;
+  border-radius: 8px;
+  border: 1px solid rgba(36, 26, 0, 0.15);
+  background: rgba(36, 26, 0, 0.08);
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-waitlist-heading);
 }
 
 /* Home — split client / pilot banner (legacy interim) */

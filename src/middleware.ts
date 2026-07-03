@@ -5,29 +5,37 @@ import { authConfig } from "@/auth.config";
 import { getAuthSecret } from "@/lib/auth/secret";
 import { isPublicMarketingPathAllowed } from "@/lib/public-access";
 
-const authMiddleware = getAuthSecret()
-  ? NextAuth(authConfig).auth
-  : null;
-
-export default async function middleware(req: NextRequest) {
+function marketingPathGuard(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   if (pathname.startsWith("/dashboard")) {
-    if (authMiddleware) {
-      return authMiddleware(req);
-    }
-    return NextResponse.next();
+    return null;
   }
 
-  if (!isPublicMarketingPathAllowed(pathname)) {
-    const url = req.nextUrl.clone();
-    url.pathname = "/";
-    url.searchParams.set("locked", "1");
-    return NextResponse.redirect(url);
+  if (isPublicMarketingPathAllowed(pathname)) {
+    return null;
+  }
+
+  const url = req.nextUrl.clone();
+  url.pathname = "/";
+  url.searchParams.set("locked", "1");
+  return NextResponse.redirect(url);
+}
+
+async function middlewareWithoutAuth(req: NextRequest) {
+  const blocked = marketingPathGuard(req);
+  if (blocked) {
+    return blocked;
   }
 
   return NextResponse.next();
 }
+
+const { auth } = NextAuth(authConfig);
+
+const middlewareWithAuth = auth((req) => marketingPathGuard(req) ?? undefined);
+
+export default getAuthSecret() ? middlewareWithAuth : middlewareWithoutAuth;
 
 export const config = {
   matcher: [

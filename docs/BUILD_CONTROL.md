@@ -311,6 +311,15 @@ Master build control table for tracking modules, status, and sprint alignment. U
 | M318 | Squadron Vote Dispute Escalation | 100-vote leadership escalation path | Not Started | P3 | — | M23 | — | Post-MVP mediation |
 | M319 | Remote Rescue Future Roadmap | Document only — late 2027 | Not Started | P3 | — | — | — | **Do not implement** |
 | M320 | Figma Re-Alignment Post Source Docs | Reconcile updated Figma with membership/commission rules | Not Started | P2 | — | M294, M297 | — | After doc alignment |
+| M321 | Homepage Final Figma Alignment (808:8249) | Match homepage sections to Figma frame 808:8249 across breakpoints | In Progress | P1 | — | M17 | — | Header/footer preserved; Captain's Club mock on home |
+| M322 | Homepage Captain's Club Live Data | Wire homepage featured captains from public A-6 API | Not Started | P2 | — | M317, M321 | — | Mock cards today |
+| M323 | Homepage Mobile Visual QA | Final responsive sign-off for `/` at 375/390/768/1024+ | Not Started | P2 | — | M321 | — | No dedicated Figma mobile frames |
+| M324 | For Clients Final Figma Alignment (808:42364) | Match `/for-clients` sections to Figma frame 808:42364 | In Progress | P1 | — | M17 | — | Header/footer preserved |
+| M325 | For Clients Mobile Visual QA | Final responsive sign-off for `/for-clients` | Not Started | P2 | — | M324 | — | — |
+| M326 | Client Post Project CTA Deep Link | Logged-in clients: hero CTA → job create, not register | Not Started | P2 | — | M06, M324 | — | Currently `/register?role=client` |
+| M327 | How It Works Final Figma Alignment (808:46297) | Match `/how-it-works` tabs, steps, path CTA to Figma | In Progress | P1 | — | M17 | — | Header/footer preserved |
+| M328 | How It Works Mobile Visual QA | Final responsive sign-off for `/how-it-works` | Not Started | P2 | — | M327 | — | — |
+| M329 | Pilot Plans Route Polish | Ensure `/pricing` matches $99.99/yr + Fast Forward copy for path CTA | Not Started | P2 | — | M320, M327 | — | CTA links to `/pricing` today |
 
 ## Priority legend
 

@@ -2,9 +2,18 @@ import Image from "next/image";
 import Link from "next/link";
 import { Logo } from "@/components/layout/Logo";
 import { homeAssets } from "@/lib/marketing/home-assets";
+import { isMarketingNavHrefVisible } from "@/lib/public-access";
 import { marketingFooterNav } from "@/lib/navigation/marketing";
 
 export function MarketingFooter() {
+  const footerColumns = marketingFooterNav
+    .map((column) => ({
+      ...column,
+      items: column.items.filter((item) => isMarketingNavHrefVisible(item.href)),
+    }))
+    .filter((column) => column.items.length > 0);
+
+  const showContact = isMarketingNavHrefVisible("/contact");
   return (
     <footer className="border-t border-[var(--color-border-muted)] bg-[var(--color-bg-soft)] text-sidebar-foreground">
       <div className="public-container py-16">
@@ -31,24 +40,26 @@ export function MarketingFooter() {
                   aria-hidden
                 />
               </a>
-              <a
-                href="/contact"
-                className="opacity-80 transition-opacity hover:opacity-100"
-                aria-label="Share or contact"
-              >
-                <Image
-                  src={homeAssets.footer.socialShare}
-                  alt=""
-                  width={17}
-                  height={19}
-                  className="h-[1.2rem] w-[1.1rem] object-contain"
-                  aria-hidden
-                />
-              </a>
+              {showContact ? (
+                <a
+                  href="/contact"
+                  className="opacity-80 transition-opacity hover:opacity-100"
+                  aria-label="Share or contact"
+                >
+                  <Image
+                    src={homeAssets.footer.socialShare}
+                    alt=""
+                    width={17}
+                    height={19}
+                    className="h-[1.2rem] w-[1.1rem] object-contain"
+                    aria-hidden
+                  />
+                </a>
+              ) : null}
             </div>
           </div>
 
-          {marketingFooterNav.map((column) => (
+          {footerColumns.map((column) => (
             <div key={column.title}>
               <h3 className="text-xs font-bold uppercase tracking-[0.12em] text-ras-text">
                 {column.title}
@@ -65,7 +76,7 @@ export function MarketingFooter() {
                   </li>
                 ))}
               </ul>
-              {column.title === "Compliance" ? (
+              {column.title === "Compliance" && showContact ? (
                 <Link
                   href="/contact"
                   className="ras-btn-primary mt-5 inline-flex min-h-10 px-5 text-xs uppercase tracking-[0.12em]"

@@ -1,15 +1,37 @@
 import NextAuth from "next-auth";
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 import { authConfig } from "@/auth.config";
 import { getAuthSecret } from "@/lib/auth/secret";
+import { isPublicMarketingPathAllowed } from "@/lib/public-access";
 
-/** Skip Edge auth when secret is missing (avoids MIDDLEWARE_INVOCATION_FAILED on Vercel). */
-export default getAuthSecret()
+const authMiddleware = getAuthSecret()
   ? NextAuth(authConfig).auth
-  : function middleware() {
-      return undefined;
-    };
+  : null;
+
+export default async function middleware(req: NextRequest) {
+  const { pathname } = req.nextUrl;
+
+  if (pathname.startsWith("/dashboard")) {
+    if (authMiddleware) {
+      return authMiddleware(req);
+    }
+    return NextResponse.next();
+  }
+
+  if (!isPublicMarketingPathAllowed(pathname)) {
+    const url = req.nextUrl.clone();
+    url.pathname = "/";
+    url.searchParams.set("locked", "1");
+    return NextResponse.redirect(url);
+  }
+
+  return NextResponse.next();
+}
 
 export const config = {
-  // Auth pages stay off Edge middleware so missing AUTH_SECRET does not 500 /login.
-  matcher: ["/dashboard/:path*"],
+  matcher: [
+    "/dashboard/:path*",
+    "/((?!api|_next/static|_next/image|favicon.ico|.*\\..*).*)",
+  ],
 };

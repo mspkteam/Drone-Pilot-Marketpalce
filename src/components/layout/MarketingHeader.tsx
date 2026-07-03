@@ -7,7 +7,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Logo } from "@/components/layout/Logo";
 import { getDashboardHomeForRole } from "@/lib/auth/permissions";
-import { isMarketingNavActive, marketingNav } from "@/lib/navigation/marketing";
+import { getVisibleMarketingNav, isMarketingNavActive } from "@/lib/navigation/marketing";
 import { cn } from "@/lib/utils";
 import type { UserRole } from "@/types/roles";
 
@@ -134,6 +134,7 @@ export function MarketingHeader() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const closeMenu = () => setOpen(false);
+  const visibleNav = getVisibleMarketingNav();
 
   return (
     <header className="sticky top-0 z-50 border-b border-[var(--color-border-muted)] bg-[var(--color-bg)]/95 backdrop-blur-md">
@@ -143,7 +144,7 @@ export function MarketingHeader() {
           className="hidden items-center gap-8 lg:flex"
           aria-label="Main navigation"
         >
-          {marketingNav.map((item) => (
+          {visibleNav.map((item) => (
             <NavLink
               key={item.href + item.label}
               href={item.href}
@@ -192,7 +193,7 @@ export function MarketingHeader() {
         )}
       >
         <nav className="flex flex-col gap-1 px-4 py-4" aria-label="Mobile navigation">
-          {marketingNav.map((item) => (
+          {visibleNav.map((item) => (
             <NavLink
               key={item.href + item.label}
               href={item.href}

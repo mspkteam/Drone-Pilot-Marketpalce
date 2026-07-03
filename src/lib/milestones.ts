@@ -1,7 +1,7 @@
 import type { UserRole } from "@/types/roles";
 
 /** Official 5-week delivery schedule — change this (or env) to unlock the next milestone. */
-export const ACTIVE_MILESTONE = 3;
+export const ACTIVE_MILESTONE = 1;
 
 export type MilestoneStatus = "locked" | "in_progress" | "complete";
 
@@ -20,55 +20,55 @@ export const MILESTONE_DEFINITIONS: readonly MilestoneDefinition[] = [
     number: 1,
     weekLabel: "Week 1",
     title: "Client",
-    dateRange: "23 Jun – 27 Jun 2026",
-    status: "complete",
-    summary: "Client posting, projects, bids, directory, messages, disputes, and profile.",
+    dateRange: "2 Jul – 6 Jul 2026",
+    status: "in_progress",
+    summary: "Client posting, projects, bids, find pilots, dashboard, messages, disputes, and profile.",
     lockedMessage:
-      "This section is part of Milestone 1 — Client. It will become available when Week 1 begins.",
+      "This section is part of Milestone 1 — Client. Week 1 is in progress.",
   },
   {
     number: 2,
     weekLabel: "Week 2",
     title: "Admin & Moderator",
-    dateRange: "30 Jun – 4 Jul 2026",
-    status: "complete",
+    dateRange: "9 Jul – 13 Jul 2026",
+    status: "locked",
     summary:
       "Job approval, fleet, disputes, commissions, permissions, CMS, configuration, certificates, badges, shop, and subscriptions.",
     lockedMessage:
-      "This section is part of Milestone 2 — Admin & Moderator. Week 2 is complete.",
+      "This section is part of Milestone 2 — Admin & Moderator. It unlocks after Week 1 sign-off.",
   },
   {
     number: 3,
     weekLabel: "Week 3",
     title: "Pilot",
-    dateRange: "7 Jul – 11 Jul 2026",
-    status: "complete",
+    dateRange: "16 Jul – 20 Jul 2026",
+    status: "locked",
     summary:
-      "Marketplace, proposals, contracts, delivery, membership, messages, portfolio, reviews, shop, and verifications — core loop and secondary modules complete.",
+      "Marketplace, proposals, contracts, delivery, membership, messages, portfolio, reviews, shop, and verifications.",
     lockedMessage:
-      "This section is part of Milestone 3 — Pilot. Week 3 is complete.",
+      "This section is part of Milestone 3 — Pilot. It unlocks after Week 2 sign-off.",
   },
   {
     number: 4,
     weekLabel: "Week 4",
     title: "Bug Fixes & Hardening",
-    dateRange: "14 Jul – 18 Jul 2026",
+    dateRange: "23 Jul – 27 Jul 2026",
     status: "locked",
     summary:
       "Cross-role fixes, security, performance, Stripe payments, file uploads, and mock data removal.",
     lockedMessage:
-      "This section is part of Milestone 4 — Bug Fixes & Hardening. It will become available after Milestones 1–3 are signed off.",
+      "This section is part of Milestone 4 — Bug Fixes & Hardening. It unlocks after Week 3 sign-off.",
   },
   {
     number: 5,
     weekLabel: "Week 5",
     title: "Testing & Launch",
-    dateRange: "21 Jul – 25 Jul 2026",
+    dateRange: "30 Jul – 3 Aug 2026",
     status: "locked",
     summary:
       "E2E testing, accessibility, SEO, analytics, load testing, launch checklist, and visual QA.",
     lockedMessage:
-      "This section is part of Milestone 5 — Testing & Launch. It will become available after Milestone 4 is signed off.",
+      "This section is part of Milestone 5 — Testing & Launch. It unlocks after Week 4 sign-off.",
   },
 ] as const;
 

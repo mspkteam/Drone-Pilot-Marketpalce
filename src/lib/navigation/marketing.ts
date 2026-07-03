@@ -1,4 +1,6 @@
 /** Primary marketing header nav — Figma global header. */
+import { isMarketingNavHrefVisible } from "@/lib/public-access";
+
 export const marketingNav = [
   { label: "Find Pilots", href: "/pilots", match: "/pilots" },
   { label: "For Clients", href: "/for-clients", match: "/for-clients" },
@@ -6,6 +8,10 @@ export const marketingNav = [
   { label: "Pricing", href: "/pricing", match: "/pricing" },
   { label: "How It Works", href: "/how-it-works", match: "/how-it-works" },
 ] as const;
+
+export function getVisibleMarketingNav() {
+  return marketingNav.filter((item) => isMarketingNavHrefVisible(item.href));
+}
 
 export function isMarketingNavActive(
   pathname: string,

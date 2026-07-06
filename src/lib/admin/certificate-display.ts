@@ -33,7 +33,7 @@ const DISPLAY_META_BY_KEY: Record<string, DisplayMeta> = {
     displayDescription:
       "Reserved for Top 1% performers within specific military sectors.",
     previewTitleLines: ["ELITE PILOT", "CERTIFICATE"],
-    previewMission: "A-4 Senior Flight Officer Tier",
+    previewMission: "A-4 Sr. Flight Officer Tier",
   },
   "safety-excellence": {
     triggerLabel: "12 months, zero incidents",
@@ -140,7 +140,7 @@ export const MOCK_CERTIFICATE_TEMPLATES: AdminCertificateTemplateCardDto[] = [
     displayDescription:
       "Reserved for Top 1% performers within specific military sectors.",
     previewTitleLines: ["ELITE PILOT", "CERTIFICATE"],
-    previewMission: "A-4 Senior Flight Officer Tier",
+    previewMission: "A-4 Sr. Flight Officer Tier",
     isMock: true,
   },
   {

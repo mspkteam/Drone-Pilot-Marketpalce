@@ -4,7 +4,7 @@ import { PILOT_PROFILE_MOCK } from "@/lib/marketing/for-pilots-content";
 function LocationPin() {
   return (
     <svg
-      className="h-3 w-3 shrink-0 text-ras-dim-alt"
+      className="h-3 w-3 shrink-0 text-ras-warm"
       viewBox="0 0 12 12"
       fill="none"
       stroke="currentColor"
@@ -30,28 +30,28 @@ export function PilotProfileSection() {
       aria-label="Pilot profile"
     >
       <div className="public-container">
-        <div className="flex flex-col items-start gap-10 lg:flex-row lg:items-center lg:justify-between lg:gap-16">
-          <div className="max-w-xl shrink-0">
-            <MarketingSectionLabel>Pilot Profile</MarketingSectionLabel>
-            <h2 className="mt-4 text-3xl font-extrabold tracking-tight text-ras-text sm:text-4xl">
-              Your Aviation-Style Pilot Card
+        <div className="flex flex-col gap-10 lg:flex-row lg:items-start lg:justify-between">
+          <div className="max-w-[42rem] shrink-0">
+            <MarketingSectionLabel>Remote Aviator Profile</MarketingSectionLabel>
+            <h2 className="ras-marketing-section-title mt-3">
+              Create your Professional Pilot Profile
             </h2>
           </div>
 
-          <div className="figma-pilot-profile-card w-full max-w-[30rem] shrink-0 rounded-xl border border-[rgba(216,179,57,0.45)] bg-ras-card-warm p-6 shadow-[0_0_40px_rgba(216,179,57,0.08)] lg:max-w-[32rem]">
+          <div className="figma-pilot-profile-card w-full max-w-[36.125rem] shrink-0 p-[21px]">
             <div className="flex items-start justify-between gap-4">
               <div className="flex min-w-0 items-center gap-3">
                 <div
-                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gold text-sm font-extrabold text-ras-cta"
+                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gold text-sm font-bold text-ras-cta"
                   aria-hidden
                 >
                   {pilot.initials}
                 </div>
                 <div className="min-w-0">
-                  <p className="truncate text-[15px] font-bold text-ras-text">
+                  <p className="truncate text-base font-bold text-ras-heading">
                     {pilot.name}
                   </p>
-                  <p className="mt-1 flex items-center gap-1 text-xs text-ras-dim-alt">
+                  <p className="mt-1 flex items-center gap-1 text-xs text-ras-warm">
                     <LocationPin />
                     {pilot.branch}
                   </p>
@@ -61,11 +61,11 @@ export function PilotProfileSection() {
                 {pilot.rank}
               </span>
             </div>
-            <ul className="mt-5 flex flex-wrap gap-2">
+            <ul className="mt-4 flex flex-wrap gap-2">
               {pilot.tags.map((tag) => (
                 <li
                   key={tag}
-                  className="rounded-full border border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.04)] px-2 py-1 text-[11px] text-ras-muted"
+                  className="rounded-full border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.04)] px-2.5 py-1 text-[11px] text-ras-muted"
                 >
                   {tag}
                 </li>

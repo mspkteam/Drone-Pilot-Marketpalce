@@ -59,7 +59,7 @@ function HeroPanel({
   return (
     <article
       className={cn(
-        "figma-home-hero-panel relative flex min-h-[26rem] flex-col justify-end overflow-hidden sm:min-h-[32rem] lg:min-h-[36rem] xl:min-h-[57.5rem]",
+        "figma-home-hero-panel relative flex min-h-[26rem] flex-col justify-end overflow-hidden sm:min-h-[28rem] lg:min-h-[32rem] xl:min-h-[36rem]",
         isClient &&
           "border-b border-[var(--color-border-muted)] lg:border-b-0 lg:border-r",
       )}
@@ -114,31 +114,30 @@ function HeroPanel({
 
 export function HomeHeroDual() {
   return (
-    <section
-      className="figma-home-hero border-b border-[var(--color-border-muted)]"
-      aria-label="Hero"
-    >
-      <div className="grid lg:grid-cols-2">
-        <HeroPanel
-          variant="client"
-          eyebrow={HOME_HERO.client.eyebrow}
-          title={HOME_HERO.client.title}
-          description={HOME_HERO.client.description}
-          ctaLabel={HOME_HERO.client.ctaLabel}
-          ctaHref={HOME_HERO.client.ctaHref}
-          imageSrc={homeAssets.heroDrone}
-          imageAlt="Professional drone flying over terrain at dusk"
-        />
-        <HeroPanel
-          variant="pilot"
-          eyebrow={HOME_HERO.pilot.eyebrow}
-          title={HOME_HERO.pilot.title}
-          description={HOME_HERO.pilot.description}
-          ctaLabel={HOME_HERO.pilot.ctaLabel}
-          ctaHref={HOME_HERO.pilot.ctaHref}
-          imageSrc={homeAssets.heroPilot}
-          imageAlt="Drone pilot in mission control environment"
-        />
+    <section className="figma-home-hero" aria-label="Hero">
+      <div className="public-container py-6 sm:py-8 lg:py-10">
+        <div className="figma-home-hero-inner grid lg:grid-cols-2">
+          <HeroPanel
+            variant="client"
+            eyebrow={HOME_HERO.client.eyebrow}
+            title={HOME_HERO.client.title}
+            description={HOME_HERO.client.description}
+            ctaLabel={HOME_HERO.client.ctaLabel}
+            ctaHref={HOME_HERO.client.ctaHref}
+            imageSrc={homeAssets.heroDrone}
+            imageAlt="Professional drone flying over terrain at dusk"
+          />
+          <HeroPanel
+            variant="pilot"
+            eyebrow={HOME_HERO.pilot.eyebrow}
+            title={HOME_HERO.pilot.title}
+            description={HOME_HERO.pilot.description}
+            ctaLabel={HOME_HERO.pilot.ctaLabel}
+            ctaHref={HOME_HERO.pilot.ctaHref}
+            imageSrc={homeAssets.heroPilot}
+            imageAlt="Drone pilot in mission control environment"
+          />
+        </div>
       </div>
     </section>
   );

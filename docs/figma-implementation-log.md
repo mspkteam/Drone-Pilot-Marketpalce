@@ -11,7 +11,33 @@ Workflow: [`FIGMA_IMPLEMENTATION_WORKFLOW.md`](FIGMA_IMPLEMENTATION_WORKFLOW.md)
 
 | Screens implemented | Missing modules logged | Last updated |
 |--------------------|------------------------|--------------|
-| 12 | 9 | 2026-06-02 (QA pass) |
+| 12 | 9 | 2026-07-06 |
+
+---
+
+## QA — Figma 808 alignment pass (2026-07-06)
+
+| Field | Value |
+|-------|--------|
+| **Date** | 2026-07-06 |
+| **Frames** | For Pilots `808:42998`, Safety `808:44504` |
+| **Routes** | `/for-pilots`, `/safety` |
+| **Changes** | Hero copy/layout, icon cards, onboarding grid, profile card, membership preview, reputation CTA, safety verify/certification/workflow/operations panels |
+| **Header/footer** | Unchanged |
+
+---
+
+## QA — Remaining header nav pages (2026-07-06)
+
+| Field | Value |
+|-------|--------|
+| **Date** | 2026-07-06 |
+| **Pages** | `/for-pilots`, `/pricing`, `/safety` |
+| **Public unlock** | All six header nav routes live in `DEFAULT_UNLOCKED_PUBLIC_PATHS` |
+| **Pricing** | $99.99/yr membership intro + Fast Forward grade cards from `pilot-membership-catalog` |
+| **For Pilots** | Hero/onboarding/CTAs aligned to shared `ras-*` brand pattern |
+| **Safety** | Hero aligned to shared brand pattern |
+| **Build / tests** | `npm test` 97/97, `npm run build` pass |
 
 ---
 

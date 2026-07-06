@@ -13,13 +13,13 @@ export const metadata = {
 
 export default function SafetyPage() {
   return (
-    <>
+    <div className="figma-safety-page">
       <SafetyHero />
       <SafetyVerifyOverview />
       <SafetyCertification />
       <SafetyOperationsCta />
       <SafetyWorkflow />
       <SafetyPathCta />
-    </>
+    </div>
   );
 }

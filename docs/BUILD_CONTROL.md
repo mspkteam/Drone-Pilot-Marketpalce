@@ -319,7 +319,7 @@ Master build control table for tracking modules, status, and sprint alignment. U
 | M326 | Client Post Project CTA Deep Link | Logged-in clients: hero CTA → job create, not register | Not Started | P2 | — | M06, M324 | — | Currently `/register?role=client` |
 | M327 | How It Works Final Figma Alignment (808:46297) | Match `/how-it-works` tabs, steps, path CTA to Figma | In Progress | P1 | — | M17 | — | Header/footer preserved |
 | M328 | How It Works Mobile Visual QA | Final responsive sign-off for `/how-it-works` | Not Started | P2 | — | M327 | — | — |
-| M329 | Pilot Plans Route Polish | Ensure `/pricing` matches $99.99/yr + Fast Forward copy for path CTA | Not Started | P2 | — | M320, M327 | — | CTA links to `/pricing` today |
+| M329 | Pilot Plans Route Polish | Ensure `/pricing` matches $99.99/yr + Fast Forward copy for path CTA | Done | P2 | — | M320, M327 | — | Marketing `/pricing` uses `pilot-membership-catalog` |
 
 ## Priority legend
 

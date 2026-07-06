@@ -1,8 +1,7 @@
-/** Safety page copy — Figma frame 323:5900 */
+/** Safety page copy — Figma frame 808:44504 */
 
 import { forClientsAssets } from "@/lib/marketing/for-clients-assets";
 
-/** Same six icons as For Pilots “Built for Professional Drone Pilots” — grid order. */
 const safetyVerifyIcons = [
   forClientsAssets.audience.realEstate,
   forClientsAssets.audience.construction,
@@ -15,7 +14,7 @@ const safetyVerifyIcons = [
 export const SAFETY_VERIFY_CARDS = [
   {
     title: "Profile Review",
-    description: "Identity and pilot details checked.",
+    description: "Identity, pilot details, and background check.",
     icon: safetyVerifyIcons[0],
   },
   {
@@ -44,8 +43,9 @@ export const SAFETY_VERIFY_CARDS = [
     icon: safetyVerifyIcons[5],
   },
 ] as const;
+
 export const SAFETY_CONFIDENCE_CHECKLIST = [
-  "View pilot profiles",
+  "View Remote Aviator profiles",
   "Check services and experience",
   "Review reputation badges",
   "Compare completed work",

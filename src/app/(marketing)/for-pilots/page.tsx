@@ -14,7 +14,7 @@ export const metadata = {
 
 export default function ForPilotsPage() {
   return (
-    <>
+    <div className="figma-for-pilots-page">
       <PilotPageHero />
       <PilotWhyJoin />
       <PilotOnboarding />
@@ -22,6 +22,6 @@ export default function ForPilotsPage() {
       <PilotMembershipPreview />
       <PilotReputationCta />
       <MarketingWaitlistSection source="for-pilots" roleInterest="pilot" />
-    </>
+    </div>
   );
 }

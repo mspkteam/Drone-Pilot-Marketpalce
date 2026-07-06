@@ -383,8 +383,14 @@ a.dashboard-card:hover {
 }
 
 .figma-home-hero {
+  background: var(--color-bg);
+}
+
+.figma-home-hero-inner {
+  overflow: hidden;
+  border: 1px solid var(--color-border-muted);
+  border-radius: var(--radius-card);
   background: var(--color-bg-deeper);
-  border-color: var(--color-border-muted);
 }
 
 .figma-home-hero-panel {
@@ -427,23 +433,6 @@ a.dashboard-card:hover {
     padding-top: 3.5rem;
     padding-bottom: 3.5rem;
   }
-}
-
-.figma-home-capability-icon {
-  display: flex;
-  flex-shrink: 0;
-  align-items: center;
-  justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  border: 1px solid var(--color-home-btn-muted-border);
-  background: var(--color-border);
-}
-
-.figma-home-capability-icon img {
-  width: 1.25rem;
-  height: 1.25rem;
-  object-fit: contain;
 }
 
 .figma-home-capabilities-map {
@@ -493,17 +482,6 @@ a.dashboard-card:hover {
   background: var(--color-card);
 }
 
-.figma-marketing-card-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.75rem;
-  height: 2.75rem;
-  flex-shrink: 0;
-  border-radius: 10px;
-  background: var(--color-gold-icon-wash);
-}
-
 .figma-marketing-benefit {
   border: 1px solid var(--color-border-gold-subtle);
   border-radius: var(--radius-card);
@@ -538,9 +516,59 @@ a.dashboard-card:hover {
   }
 }
 
-/* Figma for-pilots page (frame 323:4399) */
+/* Figma for-pilots page (frame 808:42998) */
+.figma-for-pilots-page {
+  background: var(--color-bg);
+}
+
 .figma-pilot-hero {
-  background: var(--color-bg-soft);
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--color-border-gold-subtle);
+}
+
+.figma-pilot-section {
+  background: var(--color-bg);
+}
+
+.figma-pilot-onboarding {
+  background: rgba(21, 17, 12, 0.3);
+  border-top: 1px solid var(--color-border-gold-subtle);
+  border-bottom: 1px solid var(--color-border-gold-subtle);
+}
+
+.figma-pilot-membership-card {
+  border-radius: 14px;
+  border: 1px solid var(--color-border-gold-subtle);
+  background: var(--color-card);
+}
+
+.figma-pilot-profile-card {
+  border-radius: 14px;
+  border: 1px solid var(--color-border-gold-subtle);
+  background: var(--color-card);
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.1),
+    0 1px 2px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Figma safety page (frame 808:44504) */
+.figma-safety-page {
+  background: #131313;
+}
+
+.figma-safety-hero {
+  background: var(--color-bg);
+  border-bottom: 1px solid rgba(235, 169, 65, 0.11);
+}
+
+.figma-safety-section {
+  background: var(--color-bg);
+}
+
+.figma-safety-workflow-section {
+  background: rgba(21, 17, 12, 0.3);
+  border-top: 1px solid rgba(235, 169, 65, 0.11);
+  border-bottom: 1px solid rgba(235, 169, 65, 0.11);
 }
 
 /* Figma how-it-works page (frame 808:46297) */
@@ -970,36 +998,6 @@ a.dashboard-card:hover {
 
 .figma-contact-section {
   background: var(--color-bg-section);
-}
-
-/* Figma safety page (frame 323:5900) */
-.figma-safety-hero {
-  background: var(--color-bg-soft);
-}
-
-.figma-safety-section {
-  background: var(--color-bg-section);
-}
-
-.figma-pilot-section {
-  background: var(--color-bg-section);
-}
-
-.figma-pilot-onboarding {
-  background: var(--color-bg-deeper);
-}
-
-.figma-pilot-membership-card {
-  background-image: linear-gradient(
-    145deg,
-    rgba(216, 179, 57, 0.12) 0%,
-    rgba(216, 179, 57, 0.04) 40%,
-    transparent 70%
-  );
-}
-
-.figma-pilot-profile-card {
-  background: #151310;
 }
 
 /* Figma public pilot profile (frame 279:58686) */

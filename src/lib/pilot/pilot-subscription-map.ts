@@ -1,7 +1,10 @@
+import type { PricingPlanFeature } from "@/lib/marketing/pricing-content";
+import { MARKETING_GRADE_PLANS } from "@/lib/marketing/pricing-content";
 import {
-  PRICING_PLANS,
-  type PricingPlanFeature,
-} from "@/lib/marketing/pricing-content";
+  getFastForwardFeeUsd,
+  PILOT_ANNUAL_MEMBERSHIP_FEE_USD,
+  totalAtSignupUsd,
+} from "@/lib/membership/pilot-membership-catalog";
 import {
   RECOMMENDED_PRICING_PLAN_CODE,
   TIER_CODE_TO_PRICING_PLAN_CODE,
@@ -28,17 +31,17 @@ export function getTierMarketingPrices(
   tierCode: string,
   fallback?: { priceMonthly: number; priceYearly: number },
 ): { priceMonthly: number; priceYearly: number } {
-  const pricingCode = getPricingCodeForTier(tierCode);
-  const marketing = PRICING_PLANS.find((entry) => entry.code === pricingCode);
-  if (marketing) {
+  const fastForwardFeeUsd = getFastForwardFeeUsd(tierCode);
+  if (fastForwardFeeUsd >= 0) {
+    const priceYearly = totalAtSignupUsd(fastForwardFeeUsd);
     return {
-      priceMonthly: marketing.priceMonthly,
-      priceYearly: marketing.priceMonthly * 12,
+      priceMonthly: priceYearly / 12,
+      priceYearly,
     };
   }
   return {
-    priceMonthly: fallback?.priceMonthly ?? 0,
-    priceYearly: fallback?.priceYearly ?? 0,
+    priceMonthly: fallback?.priceMonthly ?? PILOT_ANNUAL_MEMBERSHIP_FEE_USD / 12,
+    priceYearly: fallback?.priceYearly ?? PILOT_ANNUAL_MEMBERSHIP_FEE_USD,
   };
 }
 
@@ -65,7 +68,7 @@ function buildFallbackFeatures(plan: MembershipTierDto): PricingPlanFeature[] {
 
 function displayFeaturesFromPlan(
   plan: MembershipTierDto,
-  marketing: (typeof PRICING_PLANS)[number] | undefined,
+  marketing: (typeof MARKETING_GRADE_PLANS)[number] | undefined,
 ): PricingPlanFeature[] {
   if (plan.displayFeatures?.length) {
     return plan.displayFeatures;
@@ -77,7 +80,9 @@ export function mapTierToSubscriptionCard(
   plan: MembershipTierDto,
 ): PilotSubscriptionPlanCard {
   const pricingCode = getPricingCodeForTier(plan.code) ?? plan.code;
-  const marketing = PRICING_PLANS.find((entry) => entry.code === pricingCode);
+  const marketing = MARKETING_GRADE_PLANS.find(
+    (entry) => entry.code === pricingCode,
+  );
 
   return {
     id: plan.id,

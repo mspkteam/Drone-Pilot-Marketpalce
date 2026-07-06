@@ -1,7 +1,14 @@
 import Image from "next/image";
 import Link from "next/link";
 import { PricingFeatureIcon } from "@/components/marketing/pricing/PricingFeatureIcon";
-import { PRICING_PLANS } from "@/lib/marketing/pricing-content";
+import {
+  MARKETING_GRADE_PLANS,
+  totalAtSignupUsd,
+} from "@/lib/marketing/pricing-content";
+import {
+  formatMembershipUsd,
+  PILOT_ANNUAL_MEMBERSHIP_FEE_USD,
+} from "@/lib/membership/pilot-membership-catalog";
 import {
   getPricingPlanButtonHref,
   RECOMMENDED_PRICING_PLAN_CODE,
@@ -40,16 +47,31 @@ export function PricingPlanCards({
   return (
     <section
       className="figma-pricing-plans figma-marketing-section"
-      aria-label="Membership plans"
+      aria-label="Fast Forward grades"
     >
       <div className="public-container">
-        <ul className="grid items-stretch gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {PRICING_PLANS.map((plan) => {
+        <div className="mx-auto max-w-2xl text-center">
+          <p className="text-xs font-bold uppercase tracking-[0.14em] text-gold">
+            Fast Forward grades
+          </p>
+          <h2 className="ras-marketing-section-title mt-3">
+            Choose your starting grade
+          </h2>
+          <p className="mt-3 text-sm leading-relaxed text-ras-warm">
+            One-time Fast Forward fee plus{" "}
+            {formatMembershipUsd(PILOT_ANNUAL_MEMBERSHIP_FEE_USD)}/year membership
+            at signup. Upgrade later by paying the difference only.
+          </p>
+        </div>
+
+        <ul className="mt-12 grid items-stretch gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {MARKETING_GRADE_PLANS.map((plan) => {
             const isCurrent = currentPlanCode === plan.code;
             const isRecommended =
               !isCurrent &&
               plan.code === RECOMMENDED_PRICING_PLAN_CODE &&
               currentPlanCode !== RECOMMENDED_PRICING_PLAN_CODE;
+            const signupTotal = totalAtSignupUsd(plan.fastForwardFeeUsd);
 
             return (
               <li
@@ -78,29 +100,46 @@ export function PricingPlanCards({
                   aria-hidden
                 />
 
-                <h2 className="mt-4 text-[1.375rem] font-bold leading-tight tracking-tight text-ras-text">
+                <h3 className="mt-4 text-[1.375rem] font-bold leading-tight tracking-tight text-ras-text">
                   {plan.title}
-                </h2>
+                </h3>
 
-                <p className="mt-4 flex items-baseline gap-1">
+                {plan.isStartingGrade ? (
+                  <p className="mt-3 text-[13px] leading-snug text-ras-soft">
+                    No Fast Forward fee. All new pilots may start here.
+                  </p>
+                ) : (
+                  <p className="mt-3 text-[11px] font-bold uppercase tracking-[0.08em] text-ras-soft">
+                    One-time Fast Forward fee
+                  </p>
+                )}
+
+                <p className="mt-2 flex items-baseline gap-1">
                   <span className="text-[2rem] font-extrabold leading-none text-gold">
-                    ${plan.priceMonthly}
-                  </span>
-                  <span className="text-sm font-medium text-ras-soft">
-                    /month
+                    {formatMembershipUsd(plan.fastForwardFeeUsd)}
                   </span>
                 </p>
+
+                {plan.fastForwardFeeUsd > 0 ? (
+                  <div className="mt-4 rounded-lg border border-[rgba(216,179,57,0.12)] bg-[rgba(21,17,12,0.35)] px-4 py-3">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.08em] text-ras-soft">
+                      Total at signup
+                    </p>
+                    <p className="mt-1 text-lg font-extrabold text-ras-heading">
+                      {formatMembershipUsd(signupTotal)}
+                    </p>
+                    <p className="mt-1 text-[11px] text-ras-dim">
+                      ({formatMembershipUsd(PILOT_ANNUAL_MEMBERSHIP_FEE_USD)}{" "}
+                      membership + {formatMembershipUsd(plan.fastForwardFeeUsd)})
+                    </p>
+                  </div>
+                ) : null}
 
                 <ul className="mt-6 flex flex-1 flex-col gap-2.5">
                   {plan.features.map((feature) => (
                     <li
                       key={feature.label}
-                      className={cn(
-                        "flex items-start gap-2.5 text-[13px] leading-snug",
-                        feature.included
-                          ? "text-ras-muted"
-                          : "text-[rgba(168,162,154,0.35)]",
-                      )}
+                      className="flex items-start gap-2.5 text-[13px] leading-snug text-ras-muted"
                     >
                       <PricingFeatureIcon included={feature.included} />
                       <span>{feature.label}</span>
@@ -121,7 +160,7 @@ export function PricingPlanCards({
                     href={upgradeHref}
                     className="mt-8 flex h-10 w-full items-center justify-center rounded-lg bg-gold text-xs font-bold uppercase tracking-[0.06em] text-ras-cta transition-colors hover:bg-gold-light"
                   >
-                    Upgrade to {plan.code}
+                    {plan.isStartingGrade ? "Start at A-1" : `Fast Forward to ${plan.code}`}
                   </Link>
                 )}
               </li>

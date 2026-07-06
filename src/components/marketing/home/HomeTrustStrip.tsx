@@ -11,15 +11,15 @@ const TRUST_ICONS = [
 export function HomeTrustStrip() {
   return (
     <section
-      className="border-b border-[var(--color-border-muted)] bg-[var(--color-bg-soft)] py-8"
+      className="border-b border-[var(--color-border-muted)] bg-[var(--color-bg-soft)] py-8 sm:py-10"
       aria-label="Trust and compliance"
     >
       <div className="public-container">
-        <ul className="flex flex-col items-center gap-8 sm:grid sm:grid-cols-3 sm:items-start sm:gap-6">
+        <ul className="grid grid-cols-1 gap-8 sm:grid-cols-3 sm:gap-6">
           {HOME_TRUST_ITEMS.map((item, index) => (
             <li
               key={item.title}
-              className="flex max-w-xs items-start gap-4 sm:max-w-none"
+              className="flex flex-col items-center gap-3 px-2 text-center"
             >
               <Image
                 src={TRUST_ICONS[index]}
@@ -29,7 +29,7 @@ export function HomeTrustStrip() {
                 className="h-7 w-6 shrink-0 object-contain"
                 aria-hidden
               />
-              <div className="text-center sm:text-left">
+              <div>
                 <p className="ras-section-eyebrow tracking-[0.1em]">{item.title}</p>
                 {item.subtitle ? (
                   <p className="mt-1 text-sm text-[var(--color-text-muted)]">

@@ -11,15 +11,12 @@ export function SafetyVerifyOverview() {
     >
       <div className="public-container">
         <MarketingSectionLabel>Overview</MarketingSectionLabel>
-        <h2 className="mt-4 text-3xl font-extrabold tracking-tight text-ras-text sm:text-[2.25rem]">
+        <h2 className="ras-marketing-section-title mt-3 max-w-2xl">
           What We Verify
         </h2>
         <ul className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {SAFETY_VERIFY_CARDS.map((card) => (
-            <li
-              key={card.title}
-              className="flex min-h-[10.5rem] flex-col gap-2 rounded-[10px] border border-ras-gold-subtle bg-ras-card p-7"
-            >
+            <li key={card.title} className="ras-marketing-icon-card">
               <Image
                 src={card.icon}
                 alt=""
@@ -28,12 +25,10 @@ export function SafetyVerifyOverview() {
                 className="h-11 w-11 shrink-0 object-contain"
                 aria-hidden
               />
-              <h3 className="pt-2 text-base font-bold tracking-tight text-ras-text">
+              <h3 className="pt-2 text-base font-bold tracking-[-0.02em] text-ras-heading">
                 {card.title}
               </h3>
-              <p className="text-sm leading-relaxed text-ras-soft">
-                {card.description}
-              </p>
+              <p className="text-sm leading-[1.45] text-ras-warm">{card.description}</p>
             </li>
           ))}
         </ul>

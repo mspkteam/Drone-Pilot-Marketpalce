@@ -24,12 +24,14 @@ describe("public access", () => {
     }
   });
 
-  it("defaults to three marketing pages", () => {
+  it("defaults to all primary marketing nav pages", () => {
     assert.deepEqual(getUnlockedPublicPaths(), DEFAULT_UNLOCKED_PUBLIC_PATHS);
     assert.equal(isPublicMarketingPathAllowed("/"), true);
     assert.equal(isPublicMarketingPathAllowed("/for-clients"), true);
+    assert.equal(isPublicMarketingPathAllowed("/for-pilots"), true);
     assert.equal(isPublicMarketingPathAllowed("/how-it-works"), true);
-    assert.equal(isPublicMarketingPathAllowed("/pricing"), false);
+    assert.equal(isPublicMarketingPathAllowed("/pricing"), true);
+    assert.equal(isPublicMarketingPathAllowed("/safety"), true);
     assert.equal(isPublicMarketingPathAllowed("/pilots"), false);
   });
 

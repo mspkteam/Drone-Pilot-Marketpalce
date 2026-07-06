@@ -1,10 +1,10 @@
-import { PRICING_PLANS } from "@/lib/marketing/pricing-content";
-import { TIER_CODE_TO_PRICING_PLAN_CODE } from "@/lib/membership/pricing-tier-codes";
+import {
+  getFastForwardFeeUsd,
+  totalAtSignupUsd,
+} from "@/lib/membership/pilot-membership-catalog";
 
 function priceYearlyForTier(tierCode: string): number {
-  const pricingCode = TIER_CODE_TO_PRICING_PLAN_CODE[tierCode];
-  const plan = PRICING_PLANS.find((entry) => entry.code === pricingCode);
-  return (plan?.priceMonthly ?? 0) * 12;
+  return totalAtSignupUsd(getFastForwardFeeUsd(tierCode));
 }
 
 /** Canonical A-1 … A-6 pilot membership tier definitions (seed + tests). */
@@ -28,7 +28,7 @@ export const MEMBERSHIP_TIER_DEFINITIONS = [
   {
     code: "A2_JUNIOR_FLIGHT_OFFICER",
     slug: "a2-junior-flight-officer",
-    name: "A-2 Junior Flight Officer",
+    name: "A-2 Jr. Flight Officer",
     priceYearly: priceYearlyForTier("A2_JUNIOR_FLIGHT_OFFICER"),
     jobVisibilityDelayHours: 36,
     canViewJobs: true,
@@ -59,8 +59,8 @@ export const MEMBERSHIP_TIER_DEFINITIONS = [
   {
     code: "A4_SENIOR_FLIGHT_OFFICER",
     slug: "a4-senior-flight-officer",
-    name: "A-4 Senior Flight Officer",
-    priceYearly: 189.98,
+    name: "A-4 Sr. Flight Officer",
+    priceYearly: priceYearlyForTier("A4_SENIOR_FLIGHT_OFFICER"),
     jobVisibilityDelayHours: 12,
     canViewJobs: true,
     canApply: true,

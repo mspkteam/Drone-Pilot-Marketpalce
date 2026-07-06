@@ -5,11 +5,11 @@ export function SafetyOperationsCta() {
       aria-label="Safe operations"
     >
       <div className="public-container">
-        <div className="rounded-[12px] border border-[rgba(216,179,57,0.16)] bg-ras-card-warm p-10 sm:p-14">
-          <h2 className="max-w-3xl text-2xl font-extrabold tracking-tight text-ras-text sm:text-3xl">
+        <div className="ras-safety-operations-panel">
+          <h2 className="max-w-[42rem] text-[1.875rem] font-bold leading-tight tracking-tight text-ras-heading">
             Pilots Stay Responsible for Safe Operations
           </h2>
-          <p className="mt-4 max-w-3xl text-base leading-[1.7] text-ras-muted">
+          <p className="mt-4 max-w-[42rem] text-base leading-relaxed text-ras-warm">
             Pilots are expected to follow applicable laws, safety rules, airspace
             restrictions, and project requirements at all times.
           </p>

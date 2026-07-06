@@ -20,14 +20,14 @@ export function HomeCapabilities() {
             <ul className="mt-8 space-y-8 sm:mt-10 sm:space-y-10">
               {HOME_CAPABILITIES.map((item, index) => (
                 <li key={item.title} className="flex items-start gap-4 sm:gap-5">
-                  <div className="figma-home-capability-icon" aria-hidden>
-                    <Image
-                      src={CAPABILITY_ICONS[index]}
-                      alt=""
-                      width={20}
-                      height={20}
-                    />
-                  </div>
+                  <Image
+                    src={CAPABILITY_ICONS[index]}
+                    alt=""
+                    width={40}
+                    height={40}
+                    className="h-10 w-10 shrink-0 object-contain"
+                    aria-hidden
+                  />
                   <div className="min-w-0 flex-1">
                     <h3 className="text-xs font-bold uppercase tracking-[0.1em] text-[var(--color-home-btn-light)] break-words">
                       {item.title}

@@ -1,4 +1,4 @@
-/** For Pilots page copy — Figma frame 323:4399 */
+/** For Pilots page copy — Figma frame 808:42998 */
 
 import { forClientsAssets } from "@/lib/marketing/for-clients-assets";
 
@@ -20,7 +20,7 @@ export const PILOT_WHY_JOIN_CARDS = [
   },
   {
     title: "Build Reputation",
-    description: "Earn badges, wings, and rank upgrades.",
+    description: "Earn badges, wings, and grade advancement.",
     icon: pilotWhyJoinIcons[1],
   },
   {
@@ -40,10 +40,11 @@ export const PILOT_WHY_JOIN_CARDS = [
   },
   {
     title: "Aviation-Style Profile",
-    description: "Professional pilot cards with epaulettes.",
+    description: "Professional profile with awards displayed.",
     icon: pilotWhyJoinIcons[5],
   },
 ] as const;
+
 export const PILOT_ONBOARDING_STEPS = [
   {
     number: "01",
@@ -75,25 +76,33 @@ export const PILOT_ONBOARDING_STEPS = [
 export const PILOT_PROFILE_MOCK = {
   initials: "JS",
   name: "John Smith",
-  branch: "North America Branch",
+  branch: "North America Wing",
   rank: "A-3 PROFESSIONAL",
   tags: ["Silver Wings", "Inspection Badge", "4.9 Rating", "240 Flight Hours"],
 } as const;
+
+export const PILOT_MEMBERSHIP_INTRO =
+  "Remote Air Service member grades are awarded automatically with active membership, for grades between A-2 and A-6, provided the member is in good standing." as const;
 
 export const PILOT_MEMBERSHIP_PREVIEW = [
   {
     code: "A-1",
     title: "Student",
-    subtitle: "New to drone work",
+    subtitle: "NEW MEMBER",
   },
   {
     code: "A-2",
     title: "Jr. Flight Officer",
-    subtitle: "Active freelance pilots",
+    subtitle: "SIX MONTHS",
   },
   {
     code: "A-3",
     title: "Flight Officer",
-    subtitle: "Top-level professionals",
+    subtitle: "ONE YEAR",
   },
 ] as const;
+
+export const PILOT_REPUTATION_COPY = {
+  title: "Leadership and Command potential",
+  body: "Accept invite-only appointed positions like flight, squardon, and group commander, as well as administration positions.",
+} as const;

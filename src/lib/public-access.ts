@@ -13,13 +13,16 @@ export const ALWAYS_UNLOCKED_PUBLIC_PREFIXES = [
 ] as const;
 
 /**
- * Marketing pages visible today (Week 1 kickoff — 3 public pages).
+ * Marketing pages visible today (primary header nav — all six routes live).
  * Unlock more weekly by editing this list or the env var above.
  */
 export const DEFAULT_UNLOCKED_PUBLIC_PATHS = [
   "/",
   "/for-clients",
+  "/for-pilots",
   "/how-it-works",
+  "/pricing",
+  "/safety",
 ] as const;
 
 function normalizePublicPath(pathname: string): string {

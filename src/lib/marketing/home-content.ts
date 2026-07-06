@@ -3,7 +3,7 @@
 export const HOME_TRUST_ITEMS = [
   {
     title: "100% Background Checked",
-    subtitle: null,
+    subtitle: "Verified Pilot Screening",
   },
   {
     title: "FAA Part 107 Status",
@@ -98,7 +98,7 @@ export const HOME_PILOT_RANKS = [
   },
   {
     code: "A-2",
-    name: "Junior Flight Officer",
+    name: "Jr. Flight Officer",
     subtitle: "100+ HOURS",
     badge: "a2",
     elite: false,
@@ -112,7 +112,7 @@ export const HOME_PILOT_RANKS = [
   },
   {
     code: "A-4",
-    name: "Senior Flight Officer",
+    name: "Sr. Flight Officer",
     subtitle: "1000+ HOURS",
     badge: "a4",
     elite: false,

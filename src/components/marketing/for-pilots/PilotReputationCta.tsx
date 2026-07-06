@@ -1,23 +1,24 @@
 import Link from "next/link";
+import { brandClasses } from "@/lib/design/brand";
+import { PILOT_REPUTATION_COPY } from "@/lib/marketing/for-pilots-content";
 
 export function PilotReputationCta() {
   return (
     <section
-      className="figma-marketing-section pt-0"
+      className="figma-pilot-section figma-marketing-section"
       aria-label="Reputation system"
     >
-      <div className="public-container">
-        <div className="rounded-[14px] border border-[rgba(216,179,57,0.16)] bg-ras-section p-10 sm:p-14">
-          <h2 className="text-2xl font-extrabold tracking-tight text-ras-text sm:text-3xl">
-            Reputation System
+      <div className="public-container px-[var(--dashboard-padding-mobile)] sm:px-0">
+        <div className="max-w-[42rem] px-4 sm:px-0 lg:px-[3.5625rem]">
+          <h2 className="text-[1.875rem] font-bold leading-tight tracking-tight text-ras-heading sm:text-3xl">
+            {PILOT_REPUTATION_COPY.title}
           </h2>
-          <p className="mt-4 max-w-[45rem] text-[15px] leading-[1.7] text-ras-muted">
-            Earn badges, wings, and rank upgrades based on activity, experience,
-            performance, and verified flight history.
+          <p className="mt-4 text-base leading-relaxed text-ras-warm">
+            {PILOT_REPUTATION_COPY.body}
           </p>
           <Link
             href="/how-it-works"
-            className="mt-6 inline-flex h-11 items-center justify-center rounded-lg bg-gold px-6 text-sm font-bold text-ras-cta transition-colors hover:bg-gold-light"
+            className={`${brandClasses.btnHomeMuted} ras-btn-home-muted--compact mt-6`}
           >
             Explore Reputation System
           </Link>

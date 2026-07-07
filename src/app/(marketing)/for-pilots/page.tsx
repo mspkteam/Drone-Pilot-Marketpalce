@@ -1,9 +1,8 @@
-import { MarketingWaitlistSection } from "@/components/marketing/figma/MarketingWaitlistSection";
+import { MarketingDualPathCta } from "@/components/marketing/figma/MarketingDualPathCta";
 import { PilotMembershipPreview } from "@/components/marketing/for-pilots/PilotMembershipPreview";
 import { PilotOnboarding } from "@/components/marketing/for-pilots/PilotOnboarding";
 import { PilotPageHero } from "@/components/marketing/for-pilots/PilotPageHero";
 import { PilotProfileSection } from "@/components/marketing/for-pilots/PilotProfileSection";
-import { PilotReputationCta } from "@/components/marketing/for-pilots/PilotReputationCta";
 import { PilotWhyJoin } from "@/components/marketing/for-pilots/PilotWhyJoin";
 
 export const metadata = {
@@ -20,8 +19,10 @@ export default function ForPilotsPage() {
       <PilotOnboarding />
       <PilotProfileSection />
       <PilotMembershipPreview />
-      <PilotReputationCta />
-      <MarketingWaitlistSection source="for-pilots" roleInterest="pilot" />
+      <MarketingDualPathCta
+        title="Join the Professional Pilot Network"
+        ariaLabel="Hire or apply"
+      />
     </div>
   );
 }

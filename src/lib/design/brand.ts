@@ -22,6 +22,9 @@ export const brandClasses = {
   badgeSuccess: "ras-badge ras-badge--success",
   badgeDanger: "ras-badge ras-badge--danger",
   badgeMuted: "ras-badge ras-badge--muted",
+  marketingHeaderNavLink: "ras-marketing-header-nav-link",
+  marketingHeaderLogin: "ras-marketing-header-login",
+  marketingHeaderCta: "ras-marketing-header-cta",
 } as const;
 
 export const brandText = {

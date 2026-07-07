@@ -24,7 +24,7 @@ export const MILESTONE_DEFINITIONS: readonly MilestoneDefinition[] = [
     status: "in_progress",
     summary: "Client posting, projects, bids, find pilots, dashboard, messages, disputes, and profile.",
     lockedMessage:
-      "This section is part of Milestone 1 — Client. Week 1 is in progress.",
+      "This section is part of Milestone 1 — Client. Client dashboard features are available during Week 1.",
   },
   {
     number: 2,

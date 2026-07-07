@@ -63,11 +63,6 @@ export const PILOT_ONBOARDING_STEPS = [
   },
   {
     number: "04",
-    title: "Choose Membership",
-    description: "Select your pilot subscription tier.",
-  },
-  {
-    number: "05",
     title: "Access Projects",
     description: "View opportunities at your tier level.",
   },
@@ -76,9 +71,11 @@ export const PILOT_ONBOARDING_STEPS = [
 export const PILOT_PROFILE_MOCK = {
   initials: "JS",
   name: "John Smith",
-  branch: "North America Wing",
-  rank: "A-3 PROFESSIONAL",
-  tags: ["Silver Wings", "Inspection Badge", "4.9 Rating", "240 Flight Hours"],
+  wing: "Texas Wing",
+  rank: "A-3 FLIGHT OFFICER",
+  averageRating: 4.9,
+  reviewCount: 12,
+  tags: ["Silver Wings", "Inspection Badge", "240 Flight Hours"],
 } as const;
 
 export const PILOT_MEMBERSHIP_INTRO =
@@ -101,8 +98,3 @@ export const PILOT_MEMBERSHIP_PREVIEW = [
     subtitle: "ONE YEAR",
   },
 ] as const;
-
-export const PILOT_REPUTATION_COPY = {
-  title: "Leadership and Command potential",
-  body: "Accept invite-only appointed positions like flight, squardon, and group commander, as well as administration positions.",
-} as const;

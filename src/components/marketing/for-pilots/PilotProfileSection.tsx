@@ -1,5 +1,6 @@
 import { MarketingSectionLabel } from "@/components/marketing/figma/MarketingSectionLabel";
 import { PILOT_PROFILE_MOCK } from "@/lib/marketing/for-pilots-content";
+import { getPublicPilotRatingTag } from "@/lib/reviews/review";
 
 function LocationPin() {
   return (
@@ -23,6 +24,10 @@ function LocationPin() {
 
 export function PilotProfileSection() {
   const pilot = PILOT_PROFILE_MOCK;
+  const profileTags = [
+    ...pilot.tags,
+    getPublicPilotRatingTag(pilot.reviewCount, pilot.averageRating),
+  ];
 
   return (
     <section
@@ -53,7 +58,7 @@ export function PilotProfileSection() {
                   </p>
                   <p className="mt-1 flex items-center gap-1 text-xs text-ras-warm">
                     <LocationPin />
-                    {pilot.branch}
+                    {pilot.wing}
                   </p>
                 </div>
               </div>
@@ -62,7 +67,7 @@ export function PilotProfileSection() {
               </span>
             </div>
             <ul className="mt-4 flex flex-wrap gap-2">
-              {pilot.tags.map((tag) => (
+              {profileTags.map((tag) => (
                 <li
                   key={tag}
                   className="rounded-full border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.04)] px-2.5 py-1 text-[11px] text-ras-muted"

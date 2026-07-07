@@ -5,7 +5,7 @@ import { HomeHeroDual } from "@/components/marketing/home/HomeHeroDual";
 import { HomeRankProgression } from "@/components/marketing/home/HomeRankProgression";
 import { HomeSopSection } from "@/components/marketing/home/HomeSopSection";
 import { HomeTrustStrip } from "@/components/marketing/home/HomeTrustStrip";
-import { HomeWaitlistSection } from "@/components/marketing/home/HomeWaitlistSection";
+import { HomePathCta } from "@/components/marketing/home/HomePathCta";
 
 export const metadata = {
   title: "Drone Pilot Marketplace — Hire pilots or join the network",
@@ -23,7 +23,7 @@ export default function HomePage() {
       <HomeRankProgression />
       <HomeCaptainsClub />
       <HomeCapabilities />
-      <HomeWaitlistSection />
+      <HomePathCta />
     </>
   );
 }

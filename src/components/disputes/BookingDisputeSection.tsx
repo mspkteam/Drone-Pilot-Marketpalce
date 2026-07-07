@@ -19,12 +19,15 @@ type BookingDisputeSectionProps = {
   bookingId: string;
   bookingStatus: BookingStatus;
   actor: "client" | "pilot";
+  /** Themed layout for client disputes detail — no duplicate header/reason shell */
+  embedded?: boolean;
 };
 
 export function BookingDisputeSection({
   bookingId,
   bookingStatus,
   actor,
+  embedded = false,
 }: BookingDisputeSectionProps) {
   const apiBase = `/api/${actor}/bookings`;
   const entriesApi = `/api/${actor}/disputes`;
@@ -125,13 +128,192 @@ export function BookingDisputeSection({
   }
 
   if (loading) {
-    return (
+    return embedded ? (
+      <p className="client-disputes-muted">Loading dispute thread…</p>
+    ) : (
       <p className="text-sm text-muted-foreground">Loading dispute…</p>
     );
   }
 
   if (!showSection) {
     return null;
+  }
+
+  if (embedded) {
+    return (
+      <div className="client-disputes-dispute-section">
+        {error ? (
+          <p className="client-disputes-dispute-error" role="alert">
+            {error}
+          </p>
+        ) : null}
+
+        {!dispute && canOpen ? (
+          <>
+            <p className="client-disputes-dispute-intro">
+              Open a dispute to flag payment or delivery issues on this booking.
+              Both parties can add notes and evidence; moderators review and an
+              admin resolves with payout or refund.
+            </p>
+            {showOpenForm ? (
+              <>
+                <div className="client-disputes-dispute-field">
+                  <label className="client-disputes-dispute-label" htmlFor="dispute-reason">
+                    Reason for dispute
+                  </label>
+                  <textarea
+                    id="dispute-reason"
+                    className="client-disputes-dispute-textarea"
+                    rows={4}
+                    value={openReason}
+                    onChange={(e) => setOpenReason(e.target.value)}
+                    placeholder="Describe the issue in detail…"
+                  />
+                </div>
+                <div className="client-disputes-dispute-actions">
+                  <button
+                    type="button"
+                    className="client-disputes-dispute-btn-primary"
+                    disabled={submitting || openReason.trim().length < 10}
+                    onClick={() => void openDispute()}
+                  >
+                    Submit dispute
+                  </button>
+                  <button
+                    type="button"
+                    className="client-disputes-dispute-btn-secondary"
+                    onClick={() => setShowOpenForm(false)}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </>
+            ) : (
+              <div className="client-disputes-dispute-actions">
+                <button
+                  type="button"
+                  className="client-disputes-dispute-btn-primary"
+                  onClick={() => setShowOpenForm(true)}
+                >
+                  Open dispute
+                </button>
+              </div>
+            )}
+          </>
+        ) : null}
+
+        {dispute ? (
+          <>
+            {dispute.resolutionType ? (
+              <div className="client-disputes-resolution">
+                <strong>Resolution</strong>
+                {getDisputeResolutionLabel(dispute.resolutionType)}
+                {dispute.resolutionAmount != null
+                  ? ` — $${dispute.resolutionAmount.toFixed(2)} to pilot`
+                  : null}
+                {dispute.resolutionNotes ? (
+                  <>
+                    <br />
+                    {dispute.resolutionNotes}
+                  </>
+                ) : null}
+              </div>
+            ) : null}
+
+            <ul className="client-disputes-dispute-entries">
+              {dispute.entries.map((entry) => (
+                <li
+                  key={entry.id}
+                  className={cn(
+                    "client-disputes-dispute-entry",
+                    entry.authorRole === actor &&
+                      "client-disputes-dispute-entry--self",
+                  )}
+                >
+                  <div className="client-disputes-dispute-entry-meta">
+                    <span className="client-disputes-dispute-entry-author">
+                      {entry.authorLabel}
+                    </span>
+                    <span>{getDisputeEntryTypeLabel(entry.entryType)}</span>
+                    <span>{new Date(entry.createdAt).toLocaleString()}</span>
+                  </div>
+                  <p className="client-disputes-dispute-entry-body">{entry.body}</p>
+                  {entry.attachmentUrl ? (
+                    <a
+                      href={entry.attachmentUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="client-disputes-dispute-entry-link"
+                    >
+                      {entry.attachmentUrl}
+                    </a>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
+
+            {dispute.canAddEntry ? (
+              <div className="client-disputes-dispute-form">
+                <div className="client-disputes-dispute-field">
+                  <label className="client-disputes-dispute-label" htmlFor="entry-type">
+                    Entry type
+                  </label>
+                  <select
+                    id="entry-type"
+                    className="client-disputes-dispute-select"
+                    value={entryType}
+                    onChange={(e) =>
+                      setEntryType(e.target.value as DisputeEntryType)
+                    }
+                  >
+                    <option value="comment">Comment</option>
+                    <option value="note">Note</option>
+                    <option value="evidence">Evidence (URL)</option>
+                  </select>
+                </div>
+                <div className="client-disputes-dispute-field">
+                  <label className="client-disputes-dispute-label" htmlFor="entry-body">
+                    Message
+                  </label>
+                  <textarea
+                    id="entry-body"
+                    className="client-disputes-dispute-textarea"
+                    rows={3}
+                    value={entryBody}
+                    onChange={(e) => setEntryBody(e.target.value)}
+                  />
+                </div>
+                {entryType === "evidence" ? (
+                  <div className="client-disputes-dispute-field">
+                    <label className="client-disputes-dispute-label" htmlFor="evidence-url">
+                      Evidence URL
+                    </label>
+                    <input
+                      id="evidence-url"
+                      type="url"
+                      className="client-disputes-dispute-input"
+                      value={evidenceUrl}
+                      onChange={(e) => setEvidenceUrl(e.target.value)}
+                      placeholder="https://…"
+                    />
+                  </div>
+                ) : null}
+                <div className="client-disputes-dispute-actions">
+                  <button
+                    type="button"
+                    className="client-disputes-dispute-btn-primary"
+                    disabled={submitting || entryBody.trim().length < 2}
+                    onClick={() => void addEntry()}
+                  >
+                    Add to dispute
+                  </button>
+                </div>
+              </div>
+            ) : null}
+          </>
+        ) : null}
+      </div>
+    );
   }
 
   return (

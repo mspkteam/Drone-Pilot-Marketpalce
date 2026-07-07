@@ -10,9 +10,9 @@ export const metadata = {
 
 export default function TermsPage() {
   return (
-    <main className="terms-page">
+    <>
       <TermsHero />
       <TermsContent />
-    </main>
+    </>
   );
 }

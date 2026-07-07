@@ -215,44 +215,76 @@
   color: var(--color-text-soft);
 }
 
-.client-settings-shell .client-settings-toggle {
+.client-settings-shell .client-settings-toggle-wrap {
   position: relative;
+  display: inline-flex;
   flex-shrink: 0;
-  width: 2.75rem;
-  height: 1.5rem;
-  margin: 0;
-  border: 1px solid rgba(244, 241, 234, 0.08);
-  border-radius: 9999px;
-  background: var(--color-card);
-  padding: 0;
   cursor: pointer;
-  transition: background-color 0.2s ease;
 }
 
-.client-settings-shell .client-settings-toggle:disabled {
+.client-settings-shell .client-settings-toggle-input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  margin: 0;
+}
+
+.client-settings-shell .client-settings-toggle-input:disabled + .client-settings-toggle-track {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-.client-settings-toggle-thumb {
+.client-settings-shell .client-settings-toggle-wrap:has(.client-settings-toggle-input:disabled) {
+  cursor: not-allowed;
+}
+
+.client-settings-shell .client-settings-toggle-track {
+  position: relative;
+  display: block;
+  width: 2.75rem;
+  height: 1.5rem;
+  border: 1px solid rgba(244, 241, 234, 0.08);
+  border-radius: 9999px;
+  background: var(--color-card);
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.client-settings-shell .client-settings-toggle-track::after {
+  content: "";
   position: absolute;
   top: 0.125rem;
   left: 0.125rem;
   width: 1.125rem;
   height: 1.125rem;
   border-radius: 50%;
-  background: var(--color-text);
-  transition: transform 0.2s ease, background-color 0.2s ease;
+  background: var(--color-text-soft);
+  transition:
+    transform 0.2s ease,
+    background-color 0.2s ease;
 }
 
-.client-settings-toggle--on {
-  background: var(--color-gold);
-  border-color: rgba(216, 179, 57, 0.45);
+.client-settings-shell
+  .client-settings-toggle-input:checked
+  + .client-settings-toggle-track {
+  background: #d8b339;
+  border-color: rgba(216, 179, 57, 0.55);
 }
 
-.client-settings-toggle--on .client-settings-toggle-thumb {
+.client-settings-shell
+  .client-settings-toggle-input:checked
+  + .client-settings-toggle-track::after {
   transform: translateX(1.25rem);
-  background: var(--color-bg-deeper);
+  background: #110c09;
+}
+
+.client-settings-shell
+  .client-settings-toggle-input:focus-visible
+  + .client-settings-toggle-track {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(216, 179, 57, 0.28);
 }
 
 .client-settings-inbox-meta {

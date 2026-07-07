@@ -4,10 +4,11 @@
  */
 
 export const homeAssets = {
-  /** Group 24 — header (97:2656) */
-  logo: "/marketing/logo.png",
-  /** Group 24 (1) — footer (97:2429) */
-  logoFooter: "/marketing/logo-footer.png",
+  /** Group 250 — primary RAS seal (header, footer, dashboard) */
+  logo: "/marketing/Group 250.png",
+  logoFooter: "/marketing/Group 250.png",
+  /** image 2 (2) — site favicon */
+  favicon: "/marketing/image 2 (2).png",
 
   /** hero-drone.jpg — Client Pathway (97:2226) */
   heroDrone: "/marketing/hero-drone.jpg",

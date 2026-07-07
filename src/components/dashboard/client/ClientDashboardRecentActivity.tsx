@@ -1,9 +1,29 @@
+import {
+  AppIcon,
+  Circle,
+  CircleCheck,
+  FileText,
+  MessageSquare,
+  Upload,
+  type LucideIcon,
+} from "@/components/icons";
 import { ClientDashboardCard } from "@/components/dashboard/client/ClientDashboardCard";
 import type { ClientActivityItem } from "@/lib/client/dashboard-overview";
 
 type ClientDashboardRecentActivityProps = {
   activity: ClientActivityItem[];
 };
+
+function activityIcon(item: ClientActivityItem): LucideIcon {
+  const action = item.action.toLowerCase();
+
+  if (action.includes("message")) return MessageSquare;
+  if (action.includes("upload")) return Upload;
+  if (action.includes("completed")) return CircleCheck;
+  if (action.includes("proposal") || action.includes("quote")) return FileText;
+
+  return Circle;
+}
 
 export function ClientDashboardRecentActivity({
   activity,
@@ -23,7 +43,12 @@ export function ClientDashboardRecentActivity({
         <ul className="client-dashboard-activity-list">
           {activity.map((item) => (
             <li key={item.id} className="client-dashboard-activity-item">
-              <span className="client-dashboard-activity-dot" aria-hidden />
+              <span className="client-dashboard-activity-icon-wrap" aria-hidden>
+                <AppIcon
+                  icon={activityIcon(item)}
+                  className="client-dashboard-activity-icon"
+                />
+              </span>
               <div className="client-dashboard-activity-copy">
                 <p className="client-dashboard-activity-main">
                   <span className="client-dashboard-activity-actor">{item.actor}</span>{" "}

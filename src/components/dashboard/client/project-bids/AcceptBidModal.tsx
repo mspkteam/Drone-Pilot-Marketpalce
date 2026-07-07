@@ -21,15 +21,15 @@ export function AcceptBidModal({ bid, onCancel, onConfirm }: AcceptBidModalProps
         className="client-project-bids-modal"
         role="dialog"
         aria-modal="true"
-        aria-labelledby="accept-bid-title"
+        aria-labelledby="hire-pilot-title"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 id="accept-bid-title" className="client-project-bids-modal-title">
-          Accept this bid?
+        <h2 id="hire-pilot-title" className="client-project-bids-modal-title">
+          Hire this pilot?
         </h2>
         <p className="client-project-bids-modal-text">
           This will assign <strong>{bid.name}</strong> to your project and create
-          a booking at {bid.bidAmount}. Other pending bids will be declined
+          a booking at {bid.bidAmount}. Other pending quotes will be declined
           automatically.
         </p>
         <div className="client-project-bids-modal-actions">
@@ -45,7 +45,7 @@ export function AcceptBidModal({ bid, onCancel, onConfirm }: AcceptBidModalProps
             className="client-project-bids-btn-gold"
             onClick={onConfirm}
           >
-            Confirm Accept
+            Confirm Hire
           </button>
         </div>
       </div>

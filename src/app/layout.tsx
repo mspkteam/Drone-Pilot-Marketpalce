@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Geist_Mono } from "next/font/google";
 import { SessionProvider } from "@/components/providers/SessionProvider";
 import { SupportChatWidgetLoader } from "@/components/support/SupportChatWidgetLoader";
+import { homeAssets } from "@/lib/marketing/home-assets";
 import "./globals.css";
 
 const inter = Inter({
@@ -16,11 +17,15 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Drone Pilot Marketplace",
-    template: "%s | Drone Pilot Marketplace",
+    default: "Remote Air Service",
+    template: "%s | Remote Air Service",
   },
   description:
     "Connect licensed drone pilots with clients for aerial video, surveys, inspections, and professional drone services.",
+  icons: {
+    icon: homeAssets.favicon,
+    apple: homeAssets.favicon,
+  },
 };
 
 export default function RootLayout({

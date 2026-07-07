@@ -13,8 +13,8 @@ type LogoProps = {
 export function Logo({ variant = "dark", className, size = "header" }: LogoProps) {
   const dimensions =
     size === "footer"
-      ? { width: 77, height: 79, className: "h-[4.9rem] w-[4.8rem]" }
-      : { width: 50, height: 52, className: "h-[3.25rem] w-[3.15rem]" };
+      ? { width: 80, height: 80, className: "h-20 w-20" }
+      : { width: 52, height: 52, className: "h-[3.25rem] w-[3.25rem]" };
 
   return (
     <Link

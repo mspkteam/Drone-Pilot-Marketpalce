@@ -38,12 +38,18 @@ export function PilotMembershipPreview() {
             </li>
           ))}
         </ul>
-        <div className="mt-12 text-center">
+        <div className="mt-12 flex flex-col items-center justify-center gap-4 sm:flex-row">
           <Link
             href="/pricing"
-            className={`${brandClasses.btnHomeGold} ras-btn-home-gold--sentence`}
+            className={`${brandClasses.btnHomeGold} ras-btn-home-gold--sentence w-full max-w-xs sm:w-auto sm:max-w-none`}
           >
             View All Pilot Plans
+          </Link>
+          <Link
+            href="/reputation"
+            className={`${brandClasses.btnHomeMuted} ras-btn-home-muted--compact w-full max-w-xs sm:w-auto sm:max-w-none`}
+          >
+            Explore Reputation System
           </Link>
         </div>
       </div>

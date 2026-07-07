@@ -31,6 +31,26 @@ export function isMarketingNavActive(
 
 export const marketingFooterNav = [
   {
+    title: "Company",
+    items: [
+      { label: "About", href: "/about" },
+      { label: "Contact", href: "/contact" },
+      { label: "Resources", href: "/resources" },
+      { label: "How It Works", href: "/how-it-works" },
+      { label: "Pilot Screening", href: "/safety#safety-overview" },
+    ],
+  },
+  {
+    title: "For Pilots",
+    items: [
+      { label: "Join as Pilot", href: "/for-pilots" },
+      { label: "Pricing", href: "/pricing" },
+      { label: "Reputation", href: "/reputation" },
+      { label: "Captain's Club", href: "/captains-club" },
+      { label: "Find Pilots", href: "/pilots" },
+    ],
+  },
+  {
     title: "Regions",
     items: [
       { label: "North America", href: "/pilots?region=North%20America" },
@@ -42,13 +62,8 @@ export const marketingFooterNav = [
     items: [
       { label: "Privacy Policy", href: "/privacy" },
       { label: "Terms of Service", href: "/terms" },
-    ],
-  },
-  {
-    title: "Compliance",
-    items: [
+      { label: "Cookie Policy", href: "/cookies" },
       { label: "Safety Standards", href: "/safety" },
-      { label: "Pilot Screening", href: "/safety#screening" },
     ],
   },
 ] as const;

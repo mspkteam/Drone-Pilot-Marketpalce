@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Logo } from "@/components/layout/Logo";
+import { brandClasses } from "@/lib/design/brand";
 import { getDashboardHomeForRole } from "@/lib/auth/permissions";
 import { getVisibleMarketingNav, isMarketingNavActive } from "@/lib/navigation/marketing";
 import { cn } from "@/lib/utils";
@@ -25,7 +26,7 @@ function HeaderAuthActions({
 
   const layoutClass = stacked
     ? "flex w-full flex-col gap-2 [&_a]:w-full [&_button]:w-full"
-    : "mt-[20px] flex items-center gap-4";
+    : "ras-marketing-header-actions";
 
   if (status === "loading") {
     return (
@@ -70,14 +71,14 @@ function HeaderAuthActions({
       <Link
         href="/login"
         onClick={onNavigate}
-        className="text-xs font-medium uppercase tracking-[0.12em] text-ras-text transition-colors hover:text-gold"
+        className={brandClasses.marketingHeaderLogin}
       >
         Log in
       </Link>
       <Link
         href="/register"
         onClick={onNavigate}
-        className="inline-flex h-7 items-center rounded-md bg-gold px-6 text-xs font-bold uppercase tracking-[0.12em] text-ras-waitlist transition-colors hover:bg-gold-light"
+        className={brandClasses.marketingHeaderCta}
       >
         Get Started
       </Link>
@@ -119,10 +120,8 @@ function NavLink({
     <Link
       href={href}
       className={cn(
-        "mt-[20px] border-b-2 pb-1.5 text-xs font-bold uppercase tracking-[0.12em] transition-colors",
-        active
-          ? "border-gold text-gold"
-          : "border-transparent text-ras-warm hover:text-ras-text",
+        brandClasses.marketingHeaderNavLink,
+        active && "ras-marketing-header-nav-link--active",
       )}
     >
       {label}
@@ -141,7 +140,7 @@ export function MarketingHeader() {
       <div className="public-container flex h-20 items-center justify-between gap-6">
         <Logo />
         <nav
-          className="hidden items-center gap-8 lg:flex"
+          className="ras-marketing-header-nav hidden lg:flex"
           aria-label="Main navigation"
         >
           {visibleNav.map((item) => (

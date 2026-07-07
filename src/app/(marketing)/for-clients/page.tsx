@@ -3,7 +3,7 @@ import { ClientHowItWorks } from "@/components/marketing/for-clients/ClientHowIt
 import { ClientPageHero } from "@/components/marketing/for-clients/ClientPageHero";
 import { ClientSafetyCta } from "@/components/marketing/for-clients/ClientSafetyCta";
 import { ClientWhoItsFor } from "@/components/marketing/for-clients/ClientWhoItsFor";
-import { MarketingWaitlistSection } from "@/components/marketing/figma/MarketingWaitlistSection";
+import { MarketingDualPathCta } from "@/components/marketing/figma/MarketingDualPathCta";
 
 export const metadata = {
   title: "For Clients — Hire verified drone pilots",
@@ -19,7 +19,10 @@ export default function ForClientsPage() {
       <ClientHowItWorks />
       <ClientBenefits />
       <ClientSafetyCta />
-      <MarketingWaitlistSection source="for-clients" roleInterest="client" />
+      <MarketingDualPathCta
+        title="A Safer Way to Hire Drone Pilots"
+        ariaLabel="Hire or apply"
+      />
     </div>
   );
 }

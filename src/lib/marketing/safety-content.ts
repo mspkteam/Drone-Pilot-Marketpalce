@@ -55,31 +55,26 @@ export const SAFETY_CONFIDENCE_CHECKLIST = [
 export const SAFETY_WORKFLOW_STEPS = [
   {
     number: "01",
-    title: "Pilot submits details",
-    description: "Application reviewed by admin.",
-  },
-  {
-    number: "02",
-    title: "Admin reviews account",
-    description: "Verifications confirmed.",
-  },
-  {
-    number: "03",
     title: "Client posts project",
     description: "Scope is documented up front.",
   },
   {
-    number: "04",
+    number: "02",
+    title: "Pilot submits details",
+    description: "Application reviewed by admin.",
+  },
+  {
+    number: "03",
     title: "Pilot confirms requirements",
     description: "Airspace and conditions checked.",
   },
   {
-    number: "05",
+    number: "04",
     title: "Project completed safely",
     description: "Flight performed to spec.",
   },
   {
-    number: "06",
+    number: "05",
     title: "Client reviews work",
     description: "Feedback builds reputation.",
   },

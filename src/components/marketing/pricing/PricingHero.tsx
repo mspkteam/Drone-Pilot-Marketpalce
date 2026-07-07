@@ -18,7 +18,7 @@ export function PricingHero() {
             Pilot <span className="ras-hero-title-accent">Membership</span>
           </h1>
           <p className={`${brandClasses.heroBody} mt-6 max-w-xl text-base sm:text-lg`}>
-            $99.99/year membership for every approved pilot, plus optional one-time
+            Members only! $99.99/year membership fee, plus optional one-time
             Fast Forward grades that unlock earlier job visibility and higher limits.
           </p>
           <Link

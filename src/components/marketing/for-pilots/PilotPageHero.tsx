@@ -15,10 +15,8 @@ export function PilotPageHero() {
             For Pilots
           </span>
           <h1 className={`${brandClasses.heroTitle} mt-6 text-[1.875rem] leading-[1.08] sm:text-5xl lg:text-[3.75rem] lg:leading-[1.05]`}>
-            Grow Your Drone Pilot Career with
-            <span className="ras-hero-title-split">
-              <span className="ras-hero-title-accent">Remote Air Service</span>
-            </span>
+            Grow Your Drone Pilot Career with{" "}
+            <span className="ras-hero-title-accent">Remote Air Service</span>
           </h1>
           <p className={`${brandClasses.heroBody} mt-6 max-w-[42rem] text-base sm:text-lg`}>
             Join a professional aviation-style network where approved drone pilots

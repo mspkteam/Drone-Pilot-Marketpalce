@@ -22,7 +22,9 @@ function sampleBid(
     initials: "AR",
     name: "Alex Rivera",
     verified: true,
+    reviewCount: 10,
     rating: "4.8",
+    ratingLabel: "4.8 Rating",
     completedProjects: "5 completed projects",
     bidAmount: "$1,200",
     deliveryDays: 3,
@@ -94,6 +96,7 @@ describe("client project bids", () => {
     assert.equal(mapped.applicationId, "app-99");
     assert.equal(mapped.bidAmount, "$1,200");
     assert.equal(mapped.status, "Pending Review");
+    assert.equal(mapped.rating, "4.8");
     assert.ok(mapped.highlights.length > 0);
 
     const shortlisted = mapOfferToProjectBid({
@@ -101,6 +104,17 @@ describe("client project bids", () => {
       shortlistedAt: new Date().toISOString(),
     });
     assert.equal(shortlisted.status, "Shortlisted");
+
+    const buildingHistory = mapOfferToProjectBid({
+      ...sampleOffer,
+      pilot: {
+        ...sampleOffer.pilot,
+        reviewCount: 3,
+        averageRating: 4.9,
+      },
+    });
+    assert.equal(buildingHistory.rating, null);
+    assert.equal(buildingHistory.ratingLabel, "Building Review History");
   });
 
   it("applies shortlist state to submitted bids only", () => {

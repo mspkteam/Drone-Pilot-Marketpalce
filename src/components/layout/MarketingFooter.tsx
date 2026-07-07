@@ -17,8 +17,8 @@ export function MarketingFooter() {
   return (
     <footer className="border-t border-[var(--color-border-muted)] bg-[var(--color-bg-soft)] text-sidebar-foreground">
       <div className="public-container py-16">
-        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
-          <div>
+        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-5 lg:items-start">
+          <div className="min-w-0 sm:col-span-2 lg:col-span-1">
             <Logo variant="light" size="footer" />
             <p className="mt-6 max-w-xs text-base leading-relaxed text-ras-warm">
               Aviation-grade drone operations for the modern enterprise.
@@ -60,7 +60,7 @@ export function MarketingFooter() {
           </div>
 
           {footerColumns.map((column) => (
-            <div key={column.title}>
+            <div key={column.title} className="min-w-0">
               <h3 className="text-xs font-bold uppercase tracking-[0.12em] text-ras-text">
                 {column.title}
               </h3>
@@ -76,14 +76,6 @@ export function MarketingFooter() {
                   </li>
                 ))}
               </ul>
-              {column.title === "Compliance" && showContact ? (
-                <Link
-                  href="/contact"
-                  className="ras-btn-primary mt-5 inline-flex min-h-10 px-5 text-xs uppercase tracking-[0.12em]"
-                >
-                  Talk to Support
-                </Link>
-              ) : null}
             </div>
           ))}
         </div>

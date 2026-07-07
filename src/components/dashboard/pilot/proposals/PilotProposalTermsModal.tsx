@@ -2,7 +2,7 @@
 
 import { PostProjectTermsAcknowledgment } from "@/components/dashboard/client/post-project/PostProjectTermsAcknowledgment";
 import { TermsLegalBody } from "@/components/marketing/terms/TermsLegalBody";
-import { TERMS_INTRO, TERMS_LAST_UPDATED } from "@/lib/marketing/terms-content";
+import { TERMS_EFFECTIVE_DATE, TERMS_INTRO } from "@/lib/marketing/terms-content";
 
 type PilotProposalTermsModalProps = {
   open: boolean;
@@ -54,7 +54,7 @@ export function PilotProposalTermsModal({
             </h2>
           </div>
           <p className="client-post-project-terms-modal-date">
-            Effective Date: {TERMS_LAST_UPDATED}
+            Effective Date: {TERMS_EFFECTIVE_DATE}
           </p>
         </header>
 

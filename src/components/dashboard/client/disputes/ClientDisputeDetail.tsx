@@ -23,6 +23,14 @@ function formatAmount(amount: number, currency: string): string {
   }
 }
 
+function formatDisputeDate(iso: string): string {
+  return new Date(iso).toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
 export function ClientDisputeDetail({ dispute }: ClientDisputeDetailProps) {
   const bookingStatus = dispute.booking.status as BookingStatus;
 
@@ -37,10 +45,22 @@ export function ClientDisputeDetail({ dispute }: ClientDisputeDetailProps) {
           <DisputeStatusBadge status={dispute.status} />
         </div>
         <p className="client-disputes-subtitle">
-          Pilot: {dispute.booking.pilot.displayName} ·{" "}
-          {formatAmount(dispute.booking.agreedAmount, dispute.booking.currency)}
+          Review evidence, follow moderator updates, and track the resolution for
+          this booking.
         </p>
       </header>
+
+      <div className="client-disputes-summary-bar" role="status">
+        <span>
+          Pilot: <strong>{dispute.booking.pilot.displayName}</strong>
+          {" · "}
+          {formatAmount(dispute.booking.agreedAmount, dispute.booking.currency)}
+          {" · "}
+          Opened {formatDisputeDate(dispute.createdAt)}
+          {" · "}
+          {dispute.entryCount} {dispute.entryCount === 1 ? "entry" : "entries"}
+        </span>
+      </div>
 
       <section className="client-disputes-panel client-disputes-summary">
         <h2 className="client-disputes-panel-title">Summary</h2>
@@ -51,8 +71,10 @@ export function ClientDisputeDetail({ dispute }: ClientDisputeDetailProps) {
             <dd>{dispute.openedByRole === "client" ? "You" : "Pilot"}</dd>
           </div>
           <div>
-            <dt>Entries</dt>
-            <dd>{dispute.entryCount}</dd>
+            <dt>Status</dt>
+            <dd>
+              <DisputeStatusBadge status={dispute.status} />
+            </dd>
           </div>
           <div>
             <dt>Booking</dt>
@@ -73,7 +95,10 @@ export function ClientDisputeDetail({ dispute }: ClientDisputeDetailProps) {
           ) : null}
         </dl>
         {dispute.resolutionNotes ? (
-          <p className="client-disputes-muted">{dispute.resolutionNotes}</p>
+          <div className="client-disputes-resolution">
+            <strong>Moderator notes</strong>
+            {dispute.resolutionNotes}
+          </div>
         ) : null}
       </section>
 
@@ -83,6 +108,7 @@ export function ClientDisputeDetail({ dispute }: ClientDisputeDetailProps) {
           bookingId={dispute.bookingId}
           bookingStatus={bookingStatus}
           actor="client"
+          embedded
         />
       </section>
     </div>

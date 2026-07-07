@@ -12,16 +12,17 @@ export function ClientSettingsToggle({
   disabled,
 }: ClientSettingsToggleProps) {
   return (
-    <button
-      id={id}
-      type="button"
-      role="switch"
-      aria-checked={checked}
-      disabled={disabled}
-      className={`client-settings-toggle${checked ? " client-settings-toggle--on" : ""}`}
-      onClick={() => onChange(!checked)}
-    >
-      <span className="client-settings-toggle-thumb" aria-hidden />
-    </button>
+    <label className="client-settings-toggle-wrap" htmlFor={id}>
+      <input
+        id={id}
+        type="checkbox"
+        role="switch"
+        className="client-settings-toggle-input"
+        checked={checked}
+        disabled={disabled}
+        onChange={(event) => onChange(event.target.checked)}
+      />
+      <span className="client-settings-toggle-track" aria-hidden />
+    </label>
   );
 }

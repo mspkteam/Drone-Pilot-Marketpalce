@@ -14,7 +14,7 @@ export function PilotOnboarding() {
             From Application to First Flight
           </h2>
         </div>
-        <ol className="figma-client-steps-scroll -mx-[var(--dashboard-padding-mobile)] mt-10 flex snap-x snap-mandatory gap-5 overflow-x-auto px-[var(--dashboard-padding-mobile)] pb-4 pt-6 sm:mx-0 sm:px-0 lg:mt-14 lg:grid lg:grid-cols-5 lg:overflow-visible lg:snap-none">
+        <ol className="figma-client-steps-scroll -mx-[var(--dashboard-padding-mobile)] mt-10 flex snap-x snap-mandatory gap-5 overflow-x-auto px-[var(--dashboard-padding-mobile)] pb-4 pt-6 sm:mx-0 sm:px-0 lg:mt-14 lg:grid lg:grid-cols-4 lg:overflow-visible lg:snap-none">
           {PILOT_ONBOARDING_STEPS.map((step) => (
             <li
               key={step.number}

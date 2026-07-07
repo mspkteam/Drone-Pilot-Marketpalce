@@ -70,22 +70,25 @@ export function ClientDisputesList() {
         </p>
       </header>
 
-      <div className="client-disputes-filters" role="tablist" aria-label="Filter disputes">
-        {FILTERS.map((f) => (
-          <button
-            key={f.value}
-            type="button"
-            role="tab"
-            aria-selected={filter === f.value}
-            onClick={() => setFilter(f.value)}
-            className={cn(
-              "client-disputes-filter",
-              filter === f.value && "client-disputes-filter--active",
-            )}
-          >
-            {f.label}
-          </button>
-        ))}
+      <div className="client-disputes-filters-wrap">
+        <div className="client-disputes-filters" role="tablist" aria-label="Filter disputes">
+          {FILTERS.map((f) => (
+            <button
+              key={f.value}
+              type="button"
+              role="tab"
+              aria-selected={filter === f.value}
+              onClick={() => setFilter(f.value)}
+              className={cn(
+                "client-disputes-filter",
+                filter === f.value && "client-disputes-filter--active",
+              )}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
+        <div className="client-disputes-filters-divider" aria-hidden />
       </div>
 
       {error ? (

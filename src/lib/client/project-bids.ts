@@ -1,5 +1,9 @@
 import type { ApplicationStatus } from "@/types/application";
 import type { ClientJobApplicationDto } from "@/types/booking";
+import {
+  getPublicPilotRatingTag,
+  MIN_REVIEWS_FOR_PUBLIC_RATING,
+} from "@/lib/reviews/public-rating";
 
 export type ClientBidStatus =
   | "Pending Review"
@@ -22,7 +26,9 @@ export type ClientProjectBid = {
   initials: string;
   name: string;
   verified: boolean;
-  rating: string;
+  reviewCount: number;
+  rating: string | null;
+  ratingLabel: string;
   completedProjects: string;
   bidAmount: string;
   deliveryDays: number | null;
@@ -55,6 +61,17 @@ export const CLIENT_PROJECT_BID_TABS: readonly {
   { id: "accepted", label: "Accepted" },
   { id: "declined", label: "Declined" },
 ] as const;
+
+export const CLIENT_PROJECT_BIDS_COPY = {
+  title: "Project Quotes",
+  subtitle: "Compare pilot offers before making your decision.",
+  emptyProjectsTitle: "No projects to review",
+  emptyProjectsText:
+    "Post a project and submit it for approval to start receiving quotes.",
+  emptyBidsTitle: "No quotes found",
+  emptyBidsText:
+    "Pilots can submit quotes once your project is approved and open on the marketplace.",
+} as const;
 
 export const CLIENT_PROJECT_BIDS_ROUTES = {
   hub: (jobId?: string) =>
@@ -155,12 +172,13 @@ export function mapOfferToProjectBid(
   offer: ClientJobApplicationDto,
 ): ClientProjectBid {
   const shortlisted = Boolean(offer.shortlistedAt);
+  const reviewCount = offer.pilot.reviewCount ?? 0;
+  const averageRating = offer.pilot.averageRating ?? null;
+  const ratingLabel = getPublicPilotRatingTag(reviewCount, averageRating);
   const rating =
-    offer.pilot.averageRating != null
-      ? offer.pilot.averageRating.toFixed(1)
-      : offer.pilot.reviewCount
-        ? "—"
-        : "New";
+    reviewCount >= MIN_REVIEWS_FOR_PUBLIC_RATING && averageRating != null
+      ? averageRating.toFixed(1)
+      : null;
 
   const completed = offer.pilot.completedBookings ?? 0;
   const applicationStatus = offer.status as ApplicationStatus;
@@ -173,7 +191,9 @@ export function mapOfferToProjectBid(
     initials: initialsFromName(offer.pilot.displayName),
     name: offer.pilot.displayName,
     verified: offer.pilot.verified ?? false,
+    reviewCount,
     rating,
+    ratingLabel,
     completedProjects:
       completed === 1
         ? "1 completed project"

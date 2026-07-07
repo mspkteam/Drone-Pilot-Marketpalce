@@ -2,12 +2,10 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import {
-  CLIENT_PROJECT_BID_TABS,
+  CLIENT_PROJECT_BIDS_COPY,
   CLIENT_PROJECT_BIDS_ROUTES,
-  filterClientProjectBids,
-  type ClientBidTabId,
   type ClientProjectBid,
   type ClientProjectBidSummary,
   type ClientProjectJobOption,
@@ -35,7 +33,6 @@ export function ClientProjectBids({
 }: ClientProjectBidsProps) {
   const router = useRouter();
   const [bids, setBids] = useState<ClientProjectBid[]>(() => [...initialBids]);
-  const [activeTab, setActiveTab] = useState<ClientBidTabId>("all");
   const [pendingAccept, setPendingAccept] = useState<ClientProjectBid | null>(
     null,
   );
@@ -43,13 +40,7 @@ export function ClientProjectBids({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
 
-  const filteredBids = useMemo(
-    () => filterClientProjectBids(bids, activeTab),
-    [bids, activeTab],
-  );
-
   const hasAcceptedBid = bids.some((bid) => bid.status === "Accepted");
-  const bidCount = bids.length;
   const bookingsUnlocked = isMilestoneUnlocked(3);
 
   function handleJobChange(jobId: string) {
@@ -87,7 +78,7 @@ export function ClientProjectBids({
         ),
       );
       setSuccessMessage(
-        json.shortlisted ? "Bid shortlisted." : "Bid removed from shortlist.",
+        json.shortlisted ? "Quote shortlisted." : "Quote removed from shortlist.",
       );
       router.refresh();
     } catch {
@@ -111,7 +102,7 @@ export function ClientProjectBids({
       );
       const json = await res.json();
       if (!res.ok) {
-        setErrorMessage(json.error ?? "Failed to decline bid.");
+        setErrorMessage(json.error ?? "Failed to decline quote.");
         return;
       }
 
@@ -126,10 +117,10 @@ export function ClientProjectBids({
             : bid,
         ),
       );
-      setSuccessMessage("Bid declined.");
+      setSuccessMessage("Quote declined.");
       router.refresh();
     } catch {
-      setErrorMessage("Failed to decline bid.");
+      setErrorMessage("Failed to decline quote.");
     } finally {
       setBusyId(null);
     }
@@ -149,7 +140,7 @@ export function ClientProjectBids({
       );
       const json = await res.json();
       if (!res.ok) {
-        setErrorMessage(json.error ?? "Failed to accept bid.");
+        setErrorMessage(json.error ?? "Failed to hire pilot.");
         setPendingAccept(null);
         return;
       }
@@ -187,7 +178,7 @@ export function ClientProjectBids({
       );
       router.refresh();
     } catch {
-      setErrorMessage("Failed to accept bid.");
+      setErrorMessage("Failed to hire pilot.");
       setPendingAccept(null);
     } finally {
       setBusyId(null);
@@ -198,16 +189,18 @@ export function ClientProjectBids({
     return (
       <div className="client-project-bids-page">
         <header className="client-project-bids-header">
-          <h1 className="client-project-bids-title">Project Quotes</h1>
+          <h1 className="client-project-bids-title">{CLIENT_PROJECT_BIDS_COPY.title}</h1>
           <p className="client-project-bids-subtitle">
-            Compare pilot bids before hiring the right operator.
+            {CLIENT_PROJECT_BIDS_COPY.subtitle}
           </p>
         </header>
 
         <div className="client-project-bids-empty" role="status">
-          <p className="client-project-bids-empty-title">No projects to review</p>
+          <p className="client-project-bids-empty-title">
+            {CLIENT_PROJECT_BIDS_COPY.emptyProjectsTitle}
+          </p>
           <p className="client-project-bids-empty-text">
-            Post a project and submit it for approval to start receiving bids.
+            {CLIENT_PROJECT_BIDS_COPY.emptyProjectsText}
           </p>
           <Link href="/dashboard/client/jobs/new" className="client-my-projects-empty-cta">
             Post a Project
@@ -220,9 +213,9 @@ export function ClientProjectBids({
   return (
     <div className="client-project-bids-page">
       <header className="client-project-bids-header">
-        <h1 className="client-project-bids-title">Project Quotes</h1>
+        <h1 className="client-project-bids-title">{CLIENT_PROJECT_BIDS_COPY.title}</h1>
         <p className="client-project-bids-subtitle">
-          Compare pilot bids before hiring the right operator.
+          {CLIENT_PROJECT_BIDS_COPY.subtitle}
         </p>
       </header>
 
@@ -237,7 +230,7 @@ export function ClientProjectBids({
             {jobOptions.map((job) => (
               <option key={job.id} value={job.id}>
                 {job.title} ({job.bidCount}{" "}
-                {job.bidCount === 1 ? "bid" : "bids"})
+                {job.bidCount === 1 ? "quote" : "quotes"})
               </option>
             ))}
           </select>
@@ -251,8 +244,6 @@ export function ClientProjectBids({
           {summary.location}
           {" · "}
           {summary.postedLabel}
-          {" · "}
-          {bidCount} {bidCount === 1 ? "bid" : "bids"} received
         </span>
       </div>
 
@@ -287,43 +278,18 @@ export function ClientProjectBids({
         </p>
       ) : null}
 
-      <div className="client-project-bids-tabs-wrap">
-        <div
-          className="client-project-bids-tabs"
-          role="tablist"
-          aria-label="Filter bids by status"
-        >
-          {CLIENT_PROJECT_BID_TABS.map((tab) => {
-            const selected = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                type="button"
-                role="tab"
-                aria-selected={selected}
-                className={`client-project-bids-tab${selected ? " client-project-bids-tab--active" : ""}`}
-                onClick={() => setActiveTab(tab.id)}
-              >
-                {tab.label}
-              </button>
-            );
-          })}
-        </div>
-        <div className="client-project-bids-tabs-divider" aria-hidden />
-      </div>
-
-      {filteredBids.length === 0 ? (
+      {bids.length === 0 ? (
         <div className="client-project-bids-empty" role="status">
-          <p className="client-project-bids-empty-title">No bids found</p>
+          <p className="client-project-bids-empty-title">
+            {CLIENT_PROJECT_BIDS_COPY.emptyBidsTitle}
+          </p>
           <p className="client-project-bids-empty-text">
-            {bidCount === 0
-              ? "Pilots can bid once your project is approved and open on the marketplace."
-              : "Bids matching this status will appear here."}
+            {CLIENT_PROJECT_BIDS_COPY.emptyBidsText}
           </p>
         </div>
       ) : (
         <div className="client-project-bids-list">
-          {filteredBids.map((bid) => (
+          {bids.map((bid) => (
             <ClientProjectBidCard
               key={bid.id}
               bid={bid}

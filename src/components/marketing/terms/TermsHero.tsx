@@ -1,25 +1,34 @@
-import { TERMS_INTRO, TERMS_LAST_UPDATED } from "@/lib/marketing/terms-content";
+import { TERMS_EFFECTIVE_DATE } from "@/lib/marketing/terms-content";
 
 export function TermsHero() {
   return (
-    <section className="terms-hero">
-      <div className="terms-hero-glow" aria-hidden />
-      <div className="public-container terms-hero-inner">
-        <span className="terms-hero-badge">
-          <span className="terms-hero-badge-dot" aria-hidden />
-          Legal
-        </span>
-        <h1 className="terms-hero-title">
-          Terms & <span className="terms-hero-title-accent">Conditions</span>
-        </h1>
-        <div className="terms-hero-intro">
-          {TERMS_INTRO.map((parts, index) => (
-            <p key={index} className="terms-hero-intro-paragraph">
-              {parts.map((part) => part.text).join("")}
-            </p>
-          ))}
+    <section className="figma-terms-hero relative overflow-hidden border-b border-[rgba(218,176,65,0.12)]">
+      <div
+        className="pointer-events-none absolute -right-32 top-0 h-[35rem] w-[37.5rem] rounded-[9rem] bg-[rgba(156,118,38,0.18)] blur-[200px]"
+        aria-hidden
+      />
+      <div
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_78%_35%,rgba(156,118,38,0.22),transparent_42%)]"
+        aria-hidden
+      />
+      <div className="public-container relative py-24 sm:py-28 lg:py-32">
+        <div className="max-w-3xl">
+          <span className="inline-flex items-center gap-2 rounded-full border border-[rgba(216,179,57,0.35)] bg-[rgba(216,179,57,0.06)] px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-gold">
+            <span className="h-1.5 w-1.5 rounded-full bg-gold" aria-hidden />
+            Legal
+          </span>
+          <h1 className="mt-6 text-4xl font-extrabold leading-[1.05] tracking-tight text-ras-text sm:text-5xl lg:text-[3.5rem] lg:leading-[1.05]">
+            Terms &{" "}
+            <span className="text-gold">Conditions</span>
+          </h1>
+          <p className="mt-6 max-w-xl text-base leading-[1.7] text-ras-muted sm:text-lg">
+            These terms govern access to and use of the Remote Air Service
+            platform, marketplace, and related services.
+          </p>
+          <p className="mt-4 text-sm text-ras-dim">
+            Effective date: {TERMS_EFFECTIVE_DATE}
+          </p>
         </div>
-        <p className="terms-hero-updated">Last updated: {TERMS_LAST_UPDATED}</p>
       </div>
     </section>
   );

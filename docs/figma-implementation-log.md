@@ -11,7 +11,20 @@ Workflow: [`FIGMA_IMPLEMENTATION_WORKFLOW.md`](FIGMA_IMPLEMENTATION_WORKFLOW.md)
 
 | Screens implemented | Missing modules logged | Last updated |
 |--------------------|------------------------|--------------|
-| 12 | 9 | 2026-07-06 |
+| 16 | 7 | 2026-07-07 |
+
+---
+
+## QA — Full marketing site unlock (2026-07-07)
+
+| Field | Value |
+|-------|--------|
+| **Date** | 2026-07-07 |
+| **Routes unlocked** | `/about`, `/contact`, `/terms`, `/privacy`, `/cookies`, `/resources`, `/pilots`, `/captains-club`, `/reputation`, `/waitlist` |
+| **New page** | `/reputation` — hero, pillars, grade CTA, gold dual-path CTA |
+| **Contact** | `ContactForm` wired to `POST /api/contact` |
+| **For Pilots** | Reputation CTA → `/reputation` |
+| **Public access** | All marketing routes in `DEFAULT_UNLOCKED_PUBLIC_PATHS` |
 
 ---
 

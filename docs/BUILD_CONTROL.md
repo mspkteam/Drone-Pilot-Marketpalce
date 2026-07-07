@@ -307,7 +307,7 @@ Master build control table for tracking modules, status, and sprint alignment. U
 | M314 | Rule-Driven Wings/Awards Engine | Hour/cert/contract rules + admin award | Not Started | P2 | — | M15 | — | Senior/Master wings criteria |
 | M315 | Certificate & ID Card Module | Digital cert free; ID mailed after 30 approved days | Not Started | P2 | — | M22, M297 | — | Templates TBD |
 | M316 | Instructor Add-On Module | $199.99/yr; min A-4; student 20% off membership | Not Started | P2 | — | M297 | — | Ceremonial promotion later |
-| M317 | Captain's Club Public Page | Alphabetical public list of active A-6 Captains | Not Started | P1 | — | M05, M17 | — | New marketing route |
+| M317 | Captain's Club Public Page | Alphabetical public list of active A-6 Captains | Done | P1 | — | M05, M17 | — | `/captains-club` unlocked |
 | M318 | Squadron Vote Dispute Escalation | 100-vote leadership escalation path | Not Started | P3 | — | M23 | — | Post-MVP mediation |
 | M319 | Remote Rescue Future Roadmap | Document only — late 2027 | Not Started | P3 | — | — | — | **Do not implement** |
 | M320 | Figma Re-Alignment Post Source Docs | Reconcile updated Figma with membership/commission rules | Not Started | P2 | — | M294, M297 | — | After doc alignment |

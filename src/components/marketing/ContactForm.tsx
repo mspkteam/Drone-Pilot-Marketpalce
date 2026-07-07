@@ -52,11 +52,39 @@ export function ContactForm() {
   const [role, setRole] = useState("client");
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setSubmitted(true);
+    setLoading(true);
+    setError(null);
+
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fullName,
+          email,
+          phone,
+          role,
+          subject,
+          message,
+        }),
+      });
+      const data = (await res.json()) as { error?: string };
+      if (!res.ok) {
+        setError(data.error ?? "Could not send message.");
+        return;
+      }
+      setSubmitted(true);
+    } catch {
+      setError("Could not send message. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   if (submitted) {
@@ -69,17 +97,13 @@ export function ContactForm() {
           Thanks for reaching out. We&apos;ll respond to {email} within 1–2
           business days.
         </p>
-        <p className="mt-3 text-xs text-ras-soft">
-          Phase 1: message captured in UI only — email integration pending
-          (M17-Contact).
-        </p>
       </div>
     );
   }
 
   return (
     <form
-      onSubmit={handleSubmit}
+      onSubmit={(e) => void handleSubmit(e)}
       className="rounded-[14px] border border-[rgba(216,179,57,0.15)] bg-surface p-5 sm:p-6"
     >
       <div className="grid gap-4 sm:grid-cols-2">
@@ -162,11 +186,18 @@ export function ContactForm() {
         </ContactField>
       </div>
 
+      {error ? (
+        <p className="mt-4 text-sm font-medium text-red-400" role="alert">
+          {error}
+        </p>
+      ) : null}
+
       <button
         type="submit"
-        className="mt-6 flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-gold text-sm font-bold text-ras-cta transition-colors hover:bg-gold-light"
+        disabled={loading}
+        className="mt-6 flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-gold text-sm font-bold text-ras-cta transition-colors hover:bg-gold-light disabled:cursor-not-allowed disabled:opacity-60"
       >
-        Send Message
+        {loading ? "Sending…" : "Send Message"}
         <ArrowIcon className="h-4 w-4" />
       </button>
     </form>

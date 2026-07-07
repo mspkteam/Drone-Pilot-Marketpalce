@@ -17,7 +17,7 @@ export function PilotReputationCta() {
             {PILOT_REPUTATION_COPY.body}
           </p>
           <Link
-            href="/how-it-works"
+            href="/reputation"
             className={`${brandClasses.btnHomeMuted} ras-btn-home-muted--compact mt-6`}
           >
             Explore Reputation System

@@ -10,11 +10,12 @@
 export const ALWAYS_UNLOCKED_PUBLIC_PREFIXES = [
   "/login",
   "/register",
+  "/waitlist",
 ] as const;
 
 /**
- * Marketing pages visible today (primary header nav — all six routes live).
- * Unlock more weekly by editing this list or the env var above.
+ * Marketing pages visible on production (full public marketing site).
+ * Prefix matching unlocks nested routes (e.g. `/resources` → `/resources/[slug]`, `/pilots` → `/pilots/[id]`).
  */
 export const DEFAULT_UNLOCKED_PUBLIC_PATHS = [
   "/",
@@ -23,6 +24,15 @@ export const DEFAULT_UNLOCKED_PUBLIC_PATHS = [
   "/how-it-works",
   "/pricing",
   "/safety",
+  "/about",
+  "/contact",
+  "/terms",
+  "/privacy",
+  "/cookies",
+  "/resources",
+  "/pilots",
+  "/captains-club",
+  "/reputation",
 ] as const;
 
 function normalizePublicPath(pathname: string): string {

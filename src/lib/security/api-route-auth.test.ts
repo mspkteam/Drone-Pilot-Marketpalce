@@ -10,6 +10,7 @@ const PUBLIC_API_SUFFIXES = [
   "auth/register/route.ts",
   "auth/[...nextauth]/route.ts",
   "waitlist/route.ts",
+  "contact/route.ts",
 ] as const;
 
 const AUTH_GUARD_PATTERNS = [

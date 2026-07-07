@@ -24,7 +24,7 @@ describe("public access", () => {
     }
   });
 
-  it("defaults to all primary marketing nav pages", () => {
+  it("defaults to full public marketing site", () => {
     assert.deepEqual(getUnlockedPublicPaths(), DEFAULT_UNLOCKED_PUBLIC_PATHS);
     assert.equal(isPublicMarketingPathAllowed("/"), true);
     assert.equal(isPublicMarketingPathAllowed("/for-clients"), true);
@@ -32,17 +32,31 @@ describe("public access", () => {
     assert.equal(isPublicMarketingPathAllowed("/how-it-works"), true);
     assert.equal(isPublicMarketingPathAllowed("/pricing"), true);
     assert.equal(isPublicMarketingPathAllowed("/safety"), true);
-    assert.equal(isPublicMarketingPathAllowed("/pilots"), false);
+    assert.equal(isPublicMarketingPathAllowed("/about"), true);
+    assert.equal(isPublicMarketingPathAllowed("/contact"), true);
+    assert.equal(isPublicMarketingPathAllowed("/terms"), true);
+    assert.equal(isPublicMarketingPathAllowed("/privacy"), true);
+    assert.equal(isPublicMarketingPathAllowed("/cookies"), true);
+    assert.equal(isPublicMarketingPathAllowed("/resources"), true);
+    assert.equal(isPublicMarketingPathAllowed("/resources/pilot-onboarding"), true);
+    assert.equal(isPublicMarketingPathAllowed("/pilots"), true);
+    assert.equal(isPublicMarketingPathAllowed("/pilots/demo-id"), true);
+    assert.equal(isPublicMarketingPathAllowed("/captains-club"), true);
+    assert.equal(isPublicMarketingPathAllowed("/reputation"), true);
+    assert.equal(isPublicMarketingPathAllowed("/dashboard/client"), false);
   });
 
   it("always allows auth routes", () => {
     assert.equal(isPublicMarketingPathAllowed("/login"), true);
     assert.equal(isPublicMarketingPathAllowed("/register"), true);
+    assert.equal(isPublicMarketingPathAllowed("/waitlist"), true);
   });
 
   it("respects NEXT_PUBLIC_UNLOCKED_PUBLIC_PATHS override", () => {
     process.env.NEXT_PUBLIC_UNLOCKED_PUBLIC_PATHS = "/,/pricing,/pilots";
     assert.equal(isPublicMarketingPathAllowed("/pricing"), true);
+    assert.equal(isPublicMarketingPathAllowed("/pilots"), true);
     assert.equal(isPublicMarketingPathAllowed("/for-clients"), false);
+    assert.equal(isPublicMarketingPathAllowed("/about"), false);
   });
 });

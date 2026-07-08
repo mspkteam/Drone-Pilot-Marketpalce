@@ -1,2 +1,4 @@
-# Standalone waitlist app — deployed as its own Vercel project (root: waitlist-landing/)
+# Standalone waitlist app — separate Vercel project (ras-waitlist-landing)
+/waitlist-landing
+waitlist-landing/**
 waitlist-landing

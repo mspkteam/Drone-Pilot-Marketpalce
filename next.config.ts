@@ -1,6 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  typescript: {
+    tsconfigPath: "tsconfig.build.json",
+  },
   serverExternalPackages: [
     "@prisma/adapter-neon",
     "@prisma/adapter-better-sqlite3",

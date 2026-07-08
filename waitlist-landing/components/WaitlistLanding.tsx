@@ -52,8 +52,8 @@ export function WaitlistLanding({ source, logoUrl }: WaitlistLandingProps) {
         <Image
           src={logoUrl}
           alt="Remote Air Service"
-          width={88}
-          height={88}
+          width={128}
+          height={128}
           className="waitlist-landing-logo"
           priority
         />

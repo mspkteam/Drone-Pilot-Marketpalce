@@ -4,18 +4,17 @@ import Image from "next/image";
 import { useState } from "react";
 
 type WaitlistLandingProps = {
-  apiBaseUrl: string;
   source: string;
   logoUrl: string;
 };
 
-export function WaitlistLanding({ apiBaseUrl, source, logoUrl }: WaitlistLandingProps) {
+export function WaitlistLanding({ source, logoUrl }: WaitlistLandingProps) {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
-  const endpoint = `${apiBaseUrl.replace(/\/$/, "")}/api/waitlist`;
+  const endpoint = "/api/waitlist";
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();

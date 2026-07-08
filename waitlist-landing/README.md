@@ -4,16 +4,30 @@ Pre-launch landing page for a **separate Vercel project** and custom domain. Sub
 
 ## Deploy on Vercel
 
-1. In Vercel, **Add New Project** → import this repo.
-2. Set **Root Directory** to `waitlist-landing`.
+**Use a separate Vercel project** — do not link this folder to `drone-pilot-marketpalce` (the main app runs Prisma on build and will fail here).
+
+### Dashboard
+
+1. **Add New Project** → import this repo (same repo as the marketplace is fine).
+2. Set **Root Directory** to `waitlist-landing` (type the path manually if the picker only shows the repo name).
 3. Add environment variables:
-   - `NEXT_PUBLIC_WAITLIST_API_URL` — marketplace origin, e.g. `https://drone-pilot-marketplace.vercel.app`
+
+### CLI (from `waitlist-landing/`)
+
+```bash
+npx vercel project add ras-waitlist-landing   # once
+npx vercel link --yes --project ras-waitlist-landing
+npx vercel --prod
+```
+
+4. Add environment variables:
+   - `WAITLIST_API_URL` — marketplace origin (server proxy; recommended), e.g. `https://drone-pilot-marketplace.vercel.app`
    - `NEXT_PUBLIC_WAITLIST_SOURCE` — your landing domain, e.g. `join.remoteairservice.com`
 4. Attach your custom domain to this project.
 
 ## Marketplace API (main deployment)
 
-On the **main** Vercel project, set:
+On the **main** Vercel project, set (optional if using the landing proxy — only needed for direct cross-origin POST):
 
 ```env
 WAITLIST_ALLOWED_ORIGINS=https://join.remoteairservice.com,https://your-landing.vercel.app

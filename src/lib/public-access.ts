@@ -11,6 +11,7 @@ export const ALWAYS_UNLOCKED_PUBLIC_PREFIXES = [
   "/login",
   "/register",
   "/waitlist",
+  "/launch",
 ] as const;
 
 /**

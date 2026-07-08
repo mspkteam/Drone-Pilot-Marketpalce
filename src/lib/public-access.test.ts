@@ -50,6 +50,7 @@ describe("public access", () => {
     assert.equal(isPublicMarketingPathAllowed("/login"), true);
     assert.equal(isPublicMarketingPathAllowed("/register"), true);
     assert.equal(isPublicMarketingPathAllowed("/waitlist"), true);
+    assert.equal(isPublicMarketingPathAllowed("/launch"), true);
   });
 
   it("respects NEXT_PUBLIC_UNLOCKED_PUBLIC_PATHS override", () => {

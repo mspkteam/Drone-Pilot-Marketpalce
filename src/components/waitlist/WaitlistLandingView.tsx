@@ -1,23 +1,30 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
-import type { WaitlistRoleInterest } from "@/types/waitlist";
+import { homeAssets } from "@/lib/marketing/home-assets";
 
-type MarketingWaitlistSectionProps = {
+type WaitlistLandingViewProps = {
+  /** Tracks signup source in WaitlistEntry.source (e.g. launch-landing, waitlist.vercel.app). */
   source?: string;
-  id?: string;
-  roleInterest?: WaitlistRoleInterest;
+  /** Cross-origin API for standalone Vercel deploy; defaults to same-origin /api/waitlist. */
+  apiBaseUrl?: string;
+  logoSrc?: string;
 };
 
-export function MarketingWaitlistSection({
-  source = "marketing",
-  id = "waitlist",
-  roleInterest = "both",
-}: MarketingWaitlistSectionProps) {
+export function WaitlistLandingView({
+  source = "launch-landing",
+  apiBaseUrl,
+  logoSrc = homeAssets.logo,
+}: WaitlistLandingViewProps) {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+
+  const endpoint = apiBaseUrl
+    ? `${apiBaseUrl.replace(/\/$/, "")}/api/waitlist`
+    : "/api/waitlist";
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -25,12 +32,12 @@ export function MarketingWaitlistSection({
     setError(null);
 
     try {
-      const res = await fetch("/api/waitlist", {
+      const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email,
-          roleInterest,
+          roleInterest: "both",
           source,
         }),
       });
@@ -48,20 +55,25 @@ export function MarketingWaitlistSection({
   }
 
   return (
-    <section
-      id={id}
-      className="figma-home-waitlist"
-      aria-label="Join the waitlist"
-    >
-      <div className="figma-waitlist-inner public-container">
-        <div className="figma-waitlist-stack">
-          <h2 className="figma-waitlist-title w-full text-center">
-            Join the Waitlist
-          </h2>
-          <p className="figma-waitlist-body w-full text-center">
+    <div className="waitlist-landing-page">
+      <div className="waitlist-landing-glow" aria-hidden />
+
+      <div className="waitlist-landing-inner">
+        <Image
+          src={logoSrc}
+          alt="Remote Air Service"
+          width={88}
+          height={88}
+          className="waitlist-landing-logo"
+          priority
+        />
+
+        <section className="waitlist-landing-panel" aria-label="Join the waitlist">
+          <h1 className="figma-waitlist-title">Join the Waitlist</h1>
+          <p className="figma-waitlist-body">
             We are currently accepting a limited number of both enterprise clients
-            and pilots interested in “Fast Forwarding” through grades A-3 and above.
-            Join the waitlist for priority access to the marketplace.
+            and pilots interested in &ldquo;Fast Forwarding&rdquo; through grades A-3
+            and above. Join the waitlist for priority access to the marketplace.
           </p>
 
           {success ? (
@@ -74,11 +86,11 @@ export function MarketingWaitlistSection({
               onSubmit={(e) => void handleSubmit(e)}
               className="figma-waitlist-form"
             >
-              <label className="sr-only" htmlFor={`${id}-email`}>
+              <label className="sr-only" htmlFor="waitlist-landing-email">
                 Email address
               </label>
               <input
-                id={`${id}-email`}
+                id="waitlist-landing-email"
                 type="email"
                 required
                 autoComplete="email"
@@ -98,15 +110,16 @@ export function MarketingWaitlistSection({
           )}
 
           {error ? (
-            <p
-              className="w-full text-center text-sm font-medium text-[var(--color-waitlist-heading)]"
-              role="alert"
-            >
+            <p className="waitlist-landing-error" role="alert">
               {error}
             </p>
           ) : null}
-        </div>
+        </section>
+
+        <p className="waitlist-landing-footnote">
+          Remote Air Service · Pre-launch priority access
+        </p>
       </div>
-    </section>
+    </div>
   );
 }

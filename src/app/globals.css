@@ -1227,6 +1227,71 @@ a.dashboard-card:hover {
   color: var(--color-waitlist-heading);
 }
 
+/* Full-page pre-launch waitlist landing (/launch + standalone deploy) */
+.waitlist-landing-page {
+  position: relative;
+  display: flex;
+  min-height: 100dvh;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: var(--color-waitlist-bg);
+  padding: 2.5rem 1.25rem;
+}
+
+.waitlist-landing-glow {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  opacity: 0.2;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 1440 531.39' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none'%3E%3Crect width='100%25' height='100%25' fill='url(%23grad)'/%3E%3Cdefs%3E%3CradialGradient id='grad' gradientUnits='userSpaceOnUse' cx='0' cy='0' r='10' gradientTransform='matrix(193.46 0 0 71.392 -64080 -23647)'%3E%3Cstop stop-color='rgba(0,0,0,1)' offset='0.009304'/%3E%3Cstop stop-color='rgba(0,0,0,0)' offset='0.009304'/%3E%3C/radialGradient%3E%3C/defs%3E%3C/svg%3E");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+
+.waitlist-landing-inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  width: 100%;
+  max-width: 44rem;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  text-align: center;
+}
+
+.waitlist-landing-logo {
+  width: 5.5rem;
+  height: auto;
+}
+
+.waitlist-landing-panel {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.93125rem;
+}
+
+.waitlist-landing-error {
+  width: 100%;
+  text-align: center;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-waitlist-heading);
+}
+
+.waitlist-landing-footnote {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-waitlist-body);
+}
+
 /* Home — split client / pilot banner (legacy interim) */
 .home-split-banner {
   position: relative;

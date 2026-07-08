@@ -1,6 +1,7 @@
 import type { WaitlistEntry } from "@/generated/prisma/client";
 import { prisma } from "@/lib/db";
 import { sendTransactionalEmail } from "@/lib/notifications/email";
+import { appendWaitlistToSheet } from "@/lib/waitlist/sheets";
 import type {
   WaitlistEntryDto,
   WaitlistRoleInterest,
@@ -46,11 +47,9 @@ export function validateWaitlistInput(body: {
     return { ok: false, error: "A valid email address is required." };
   }
 
-  const roleInterest = body.roleInterest;
-  if (
-    !roleInterest ||
-    !WAITLIST_ROLE_INTERESTS.includes(roleInterest as WaitlistRoleInterest)
-  ) {
+  const roleInterestRaw = body.roleInterest?.trim();
+  const roleInterest = roleInterestRaw || "both";
+  if (!WAITLIST_ROLE_INTERESTS.includes(roleInterest as WaitlistRoleInterest)) {
     return { ok: false, error: "Please select how you plan to use the platform." };
   }
 
@@ -125,6 +124,15 @@ export async function joinWaitlist(input: {
       to: input.email,
       subject: "You're on the Drone Pilot Marketplace waitlist",
       text: `Thanks for joining! We'll notify you when we expand in your area. Interest: ${input.roleInterest}.`,
+    });
+
+    void appendWaitlistToSheet({
+      email: entry.email,
+      name: entry.name,
+      roleInterest: entry.roleInterest,
+      region: entry.region,
+      source: entry.source,
+      createdAt: entry.createdAt.toISOString(),
     });
   }
 

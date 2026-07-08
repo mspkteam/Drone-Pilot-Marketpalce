@@ -10,7 +10,10 @@ type WaitlistSheetRow = {
 /** Optional live Google Sheet sync via Apps Script web app URL. */
 export async function appendWaitlistToSheet(row: WaitlistSheetRow): Promise<void> {
   const url = process.env.WAITLIST_SHEETS_WEBHOOK_URL?.trim();
-  if (!url) return;
+  if (!url) {
+    console.warn("[waitlist] WAITLIST_SHEETS_WEBHOOK_URL is not set — skipping sheet sync.");
+    return;
+  }
 
   try {
     // Form-encoded payload survives Google's redirect chain more reliably than raw JSON.
@@ -18,14 +21,21 @@ export async function appendWaitlistToSheet(row: WaitlistSheetRow): Promise<void
       payload: JSON.stringify(row),
     });
 
-    await fetch(url, {
+    const response = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: body.toString(),
       redirect: "follow",
       signal: AbortSignal.timeout(8000),
     });
-  } catch {
-    // Non-blocking — DB remains source of truth.
+
+    if (!response.ok) {
+      const text = await response.text().catch(() => "");
+      console.error(
+        `[waitlist] Sheet webhook failed (${response.status}): ${text.slice(0, 200)}`,
+      );
+    }
+  } catch (error) {
+    console.error("[waitlist] Sheet webhook error:", error);
   }
 }

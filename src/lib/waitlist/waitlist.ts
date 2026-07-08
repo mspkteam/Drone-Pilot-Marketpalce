@@ -120,13 +120,13 @@ export async function joinWaitlist(input: {
       });
 
   if (!existing || existing.status !== "subscribed") {
-    void sendTransactionalEmail({
+    await sendTransactionalEmail({
       to: input.email,
       subject: "You're on the Drone Pilot Marketplace waitlist",
       text: `Thanks for joining! We'll notify you when we expand in your area. Interest: ${input.roleInterest}.`,
-    });
+    }).catch(() => undefined);
 
-    void appendWaitlistToSheet({
+    await appendWaitlistToSheet({
       email: entry.email,
       name: entry.name,
       roleInterest: entry.roleInterest,

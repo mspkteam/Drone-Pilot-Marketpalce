@@ -43,18 +43,52 @@ WAITLIST_SHEETS_WEBHOOK_URL=https://script.google.com/macros/s/.../exec
 
 ```javascript
 function doPost(e) {
-  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-  const data = JSON.parse(e.postData.contents);
-  sheet.appendRow([
-    data.email || "",
-    data.name || "",
-    data.roleInterest || "",
-    data.region || "",
-    data.source || "",
-    data.createdAt || new Date().toISOString(),
-  ]);
-  return ContentService.createTextOutput(JSON.stringify({ ok: true }))
+  try {
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    let data;
+
+    if (e && e.postData && e.postData.contents) {
+      data = JSON.parse(e.postData.contents);
+    } else if (e && e.parameter && e.parameter.payload) {
+      data = JSON.parse(e.parameter.payload);
+    } else {
+      return jsonResponse({ ok: false, error: "No payload received" });
+    }
+
+    sheet.appendRow([
+      data.email || "",
+      data.name || "",
+      data.roleInterest || "",
+      data.region || "",
+      data.source || "",
+      data.createdAt || new Date().toISOString(),
+    ]);
+
+    return jsonResponse({ ok: true });
+  } catch (err) {
+    return jsonResponse({ ok: false, error: String(err) });
+  }
+}
+
+function jsonResponse(obj) {
+  return ContentService.createTextOutput(JSON.stringify(obj))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+/** Run this from the editor to test — do NOT click Run on doPost directly. */
+function testSheetAppend() {
+  doPost({
+    postData: {
+      contents: JSON.stringify({
+        email: "manual-test@example.com",
+        name: "",
+        roleInterest: "both",
+        region: "",
+        source: "apps-script-test",
+        createdAt: new Date().toISOString(),
+      }),
+    },
+  });
 }
 ```
 

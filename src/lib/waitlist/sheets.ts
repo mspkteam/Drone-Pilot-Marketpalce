@@ -13,10 +13,16 @@ export async function appendWaitlistToSheet(row: WaitlistSheetRow): Promise<void
   if (!url) return;
 
   try {
+    // Form-encoded payload survives Google's redirect chain more reliably than raw JSON.
+    const body = new URLSearchParams({
+      payload: JSON.stringify(row),
+    });
+
     await fetch(url, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(row),
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: body.toString(),
+      redirect: "follow",
       signal: AbortSignal.timeout(8000),
     });
   } catch {

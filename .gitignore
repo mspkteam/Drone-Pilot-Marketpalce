@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules
+/waitlist-landing/node_modules
 /.pnp
 .pnp.*
 .yarn/*

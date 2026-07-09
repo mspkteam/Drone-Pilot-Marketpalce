@@ -6,10 +6,14 @@ const prisma = createPrismaClient();
 
 async function main() {
   const dryRun = process.argv.includes("--dry-run");
-  const webhook = process.env.WAITLIST_SHEETS_WEBHOOK_URL?.trim();
+  const webhook =
+    process.env.WAITLIST_MAKE_WEBHOOK_URL?.trim() ||
+    process.env.WAITLIST_SHEETS_WEBHOOK_URL?.trim();
 
   if (!webhook) {
-    console.error("Set WAITLIST_SHEETS_WEBHOOK_URL in .env (Neon DATABASE_URL required too).");
+    console.error(
+      "Set WAITLIST_MAKE_WEBHOOK_URL (or WAITLIST_SHEETS_WEBHOOK_URL) in .env.",
+    );
     process.exit(1);
   }
 
@@ -48,7 +52,7 @@ async function main() {
       console.error(`✗ ${entry.email} — ${result.error ?? "unknown error"}`);
     }
 
-    // Gentle pacing for Apps Script rate limits
+    // Gentle pacing for automation rate limits
     await new Promise((resolve) => setTimeout(resolve, 300));
   }
 

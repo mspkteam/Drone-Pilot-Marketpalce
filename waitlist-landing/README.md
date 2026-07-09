@@ -31,82 +31,66 @@ On the **main** Vercel project, set (optional if using the landing proxy — onl
 
 ```env
 WAITLIST_ALLOWED_ORIGINS=https://join.remoteairservice.com,https://your-landing.vercel.app
-WAITLIST_SHEETS_WEBHOOK_URL=https://script.google.com/macros/s/.../exec
+WAITLIST_MAKE_WEBHOOK_URL=https://hook.us1.make.com/xxxxxxxx
 ```
 
 `WAITLIST_ALLOWED_ORIGINS` must include every landing origin so the browser can POST cross-origin.
 
-## Google Sheet (live tracking)
+## Google Sheet via Make.com (recommended)
 
-1. Create a Google Sheet with columns: `Email`, `Name`, `Role`, `Region`, `Source`, `Created At`.
-2. Extensions → Apps Script → paste:
+Each new waitlist signup POSTs JSON to your Make webhook; Make appends a row to Google Sheets.
 
-```javascript
-function doPost(e) {
-  try {
-    const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-    let data;
+### 1. Google Sheet
 
-    if (e && e.postData && e.postData.contents) {
-      data = JSON.parse(e.postData.contents);
-    } else if (e && e.parameter && e.parameter.payload) {
-      data = JSON.parse(e.parameter.payload);
-    } else {
-      return jsonResponse({ ok: false, error: "No payload received" });
-    }
+Create a sheet with row 1 headers:
 
-    sheet.appendRow([
-      data.email || "",
-      data.name || "",
-      data.roleInterest || "",
-      data.region || "",
-      data.source || "",
-      data.createdAt || new Date().toISOString(),
-    ]);
+`Email` · `Name` · `Role` · `Region` · `Source` · `Created At`
 
-    return jsonResponse({ ok: true });
-  } catch (err) {
-    return jsonResponse({ ok: false, error: String(err) });
-  }
-}
+### 2. Make scenario
 
-function jsonResponse(obj) {
-  return ContentService.createTextOutput(JSON.stringify(obj))
-    .setMimeType(ContentService.MimeType.JSON);
-}
+1. [make.com](https://www.make.com) → **Create a new scenario**
+2. **Module 1 — Webhooks → Custom webhook**
+   - Add item structure (or run once and use automatic detection):
+     - `email` (text)
+     - `name` (text)
+     - `roleInterest` (text)
+     - `region` (text)
+     - `source` (text)
+     - `createdAt` (text)
+   - Copy the webhook URL (e.g. `https://hook.us1.make.com/...`)
+3. **Module 2 — Google Sheets → Add a row**
+   - Connect your Google account
+   - Select the spreadsheet and sheet
+   - Map columns from the webhook bundle:
+     - Email ← `email`
+     - Name ← `name`
+     - Role ← `roleInterest`
+     - Region ← `region`
+     - Source ← `source`
+     - Created At ← `createdAt`
+4. **Save** → turn the scenario **ON**
 
-/** Run this from the editor to test — do NOT click Run on doPost directly. */
-function testSheetAppend() {
-  doPost({
-    postData: {
-      contents: JSON.stringify({
-        email: "manual-test@example.com",
-        name: "",
-        roleInterest: "both",
-        region: "",
-        source: "apps-script-test",
-        createdAt: new Date().toISOString(),
-      }),
-    },
-  });
-}
+### 3. Vercel (marketplace project)
+
+```env
+WAITLIST_MAKE_WEBHOOK_URL=https://hook.us1.make.com/your-hook-id
 ```
 
-3. Deploy → **New deployment** (or edit → **New version**)
-   - Type: **Web app**
-   - Execute as: **Me**
-   - Who has access: **Anyone** ← required for Vercel to POST (not “Only myself”)
-4. Copy the `/exec` URL into `WAITLIST_SHEETS_WEBHOOK_URL` on the **marketplace** Vercel project → **Redeploy production**.
+Redeploy **production** after saving.
 
-**Verify public access:** open the `/exec` URL in an incognito window. If you see Google Sign-in, redeploy with **Anyone**.
+### 4. Test
 
-**Backfill existing Neon signups** (after webhook returns 200):
+Submit a **new email** on the waitlist landing. A row should appear in the sheet within seconds.
+
+### 5. Backfill existing Neon signups
 
 ```bash
-# .env needs DATABASE_URL + WAITLIST_SHEETS_WEBHOOK_URL
-npm run waitlist:backfill-sheet
+# .env needs DATABASE_URL + WAITLIST_MAKE_WEBHOOK_URL
 npm run waitlist:backfill-sheet -- --dry-run
+npm run waitlist:backfill-sheet
 ```
+
+> **Legacy:** `WAITLIST_SHEETS_WEBHOOK_URL` still works for Google Apps Script web apps (form-encoded payload).
 
 Admins can also view all signups at `/dashboard/admin/waitlist` in the marketplace app.
 

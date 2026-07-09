@@ -1,4 +1,4 @@
-type WaitlistSheetRow = {
+export type WaitlistSheetRow = {
   email: string;
   name: string | null;
   roleInterest: string;
@@ -7,29 +7,45 @@ type WaitlistSheetRow = {
   createdAt: string;
 };
 
-/** Optional live Google Sheet sync via Apps Script web app URL. */
+export function resolveWaitlistSheetWebhookUrl(): string | null {
+  return (
+    process.env.WAITLIST_MAKE_WEBHOOK_URL?.trim() ||
+    process.env.WAITLIST_SHEETS_WEBHOOK_URL?.trim() ||
+    null
+  );
+}
+
+/** Make (Integromat) hooks accept JSON; legacy Google Apps Script uses form payload. */
+export function isMakeWebhookUrl(url: string): boolean {
+  return /(?:^https?:\/\/)?(?:hook\.[a-z0-9-]+\.)?make\.com\b/i.test(url);
+}
+
+/** Sync a waitlist row to Google Sheets via Make.com or legacy Apps Script webhook. */
 export async function appendWaitlistToSheet(
   row: WaitlistSheetRow,
 ): Promise<{ ok: boolean; status?: number; error?: string }> {
-  const url = process.env.WAITLIST_SHEETS_WEBHOOK_URL?.trim();
+  const url = resolveWaitlistSheetWebhookUrl();
   if (!url) {
-    const error = "WAITLIST_SHEETS_WEBHOOK_URL is not set";
+    const error =
+      "WAITLIST_MAKE_WEBHOOK_URL (or WAITLIST_SHEETS_WEBHOOK_URL) is not set";
     console.warn(`[waitlist] ${error} — skipping sheet sync.`);
     return { ok: false, error };
   }
 
   try {
-    // Form-encoded payload survives Google's redirect chain more reliably than raw JSON.
-    const body = new URLSearchParams({
-      payload: JSON.stringify(row),
-    });
-
+    const useMake = isMakeWebhookUrl(url);
     const response = await fetch(url, {
       method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: body.toString(),
+      headers: {
+        "Content-Type": useMake
+          ? "application/json"
+          : "application/x-www-form-urlencoded",
+      },
+      body: useMake
+        ? JSON.stringify(row)
+        : new URLSearchParams({ payload: JSON.stringify(row) }).toString(),
       redirect: "follow",
-      signal: AbortSignal.timeout(8000),
+      signal: AbortSignal.timeout(10000),
     });
 
     if (!response.ok) {

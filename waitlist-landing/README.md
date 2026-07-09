@@ -92,8 +92,21 @@ function testSheetAppend() {
 }
 ```
 
-3. Deploy → New deployment → Web app → Anyone can access.
-4. Copy the web app URL into `WAITLIST_SHEETS_WEBHOOK_URL` on the **marketplace** project.
+3. Deploy → **New deployment** (or edit → **New version**)
+   - Type: **Web app**
+   - Execute as: **Me**
+   - Who has access: **Anyone** ← required for Vercel to POST (not “Only myself”)
+4. Copy the `/exec` URL into `WAITLIST_SHEETS_WEBHOOK_URL` on the **marketplace** Vercel project → **Redeploy production**.
+
+**Verify public access:** open the `/exec` URL in an incognito window. If you see Google Sign-in, redeploy with **Anyone**.
+
+**Backfill existing Neon signups** (after webhook returns 200):
+
+```bash
+# .env needs DATABASE_URL + WAITLIST_SHEETS_WEBHOOK_URL
+npm run waitlist:backfill-sheet
+npm run waitlist:backfill-sheet -- --dry-run
+```
 
 Admins can also view all signups at `/dashboard/admin/waitlist` in the marketplace app.
 

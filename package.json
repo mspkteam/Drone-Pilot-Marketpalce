@@ -18,7 +18,8 @@
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
     "db:seed": "prisma db seed",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "waitlist:backfill-sheet": "tsx scripts/backfill-waitlist-sheet.ts"
   },
   "prisma": {
     "seed": "npx tsx prisma/seed.ts"

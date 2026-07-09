@@ -8,11 +8,14 @@ type WaitlistSheetRow = {
 };
 
 /** Optional live Google Sheet sync via Apps Script web app URL. */
-export async function appendWaitlistToSheet(row: WaitlistSheetRow): Promise<void> {
+export async function appendWaitlistToSheet(
+  row: WaitlistSheetRow,
+): Promise<{ ok: boolean; status?: number; error?: string }> {
   const url = process.env.WAITLIST_SHEETS_WEBHOOK_URL?.trim();
   if (!url) {
-    console.warn("[waitlist] WAITLIST_SHEETS_WEBHOOK_URL is not set — skipping sheet sync.");
-    return;
+    const error = "WAITLIST_SHEETS_WEBHOOK_URL is not set";
+    console.warn(`[waitlist] ${error} — skipping sheet sync.`);
+    return { ok: false, error };
   }
 
   try {
@@ -31,11 +34,15 @@ export async function appendWaitlistToSheet(row: WaitlistSheetRow): Promise<void
 
     if (!response.ok) {
       const text = await response.text().catch(() => "");
-      console.error(
-        `[waitlist] Sheet webhook failed (${response.status}): ${text.slice(0, 200)}`,
-      );
+      const error = `Sheet webhook failed (${response.status}): ${text.slice(0, 200)}`;
+      console.error(`[waitlist] ${error}`);
+      return { ok: false, status: response.status, error };
     }
+
+    return { ok: true, status: response.status };
   } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
     console.error("[waitlist] Sheet webhook error:", error);
+    return { ok: false, error: message };
   }
 }

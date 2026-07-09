@@ -39,6 +39,7 @@ export async function POST(request: Request) {
         {
           entry: result.entry,
           alreadySubscribed: result.alreadySubscribed,
+          sheetSynced: result.sheetSynced,
         },
         { status: result.alreadySubscribed ? 200 : 201 },
       ),

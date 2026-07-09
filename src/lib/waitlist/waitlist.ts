@@ -84,7 +84,12 @@ export async function joinWaitlist(input: {
   roleInterest: WaitlistRoleInterest;
   region: string | null;
   source: string | null;
-}): Promise<{ ok: true; entry: WaitlistEntryDto; alreadySubscribed: boolean }> {
+}): Promise<{
+  ok: true;
+  entry: WaitlistEntryDto;
+  alreadySubscribed: boolean;
+  sheetSynced: boolean;
+}> {
   const existing = await prisma.waitlistEntry.findUnique({
     where: { email: input.email },
   });
@@ -94,6 +99,7 @@ export async function joinWaitlist(input: {
       ok: true,
       entry: toWaitlistEntryDto(existing),
       alreadySubscribed: true,
+      sheetSynced: false,
     };
   }
 
@@ -126,7 +132,7 @@ export async function joinWaitlist(input: {
       text: `Thanks for joining! We'll notify you when we expand in your area. Interest: ${input.roleInterest}.`,
     }).catch(() => undefined);
 
-    await appendWaitlistToSheet({
+    const sheetResult = await appendWaitlistToSheet({
       email: entry.email,
       name: entry.name,
       roleInterest: entry.roleInterest,
@@ -134,15 +140,22 @@ export async function joinWaitlist(input: {
       source: entry.source,
       createdAt: entry.createdAt.toISOString(),
     });
+
+    return {
+      ok: true,
+      entry: toWaitlistEntryDto(entry),
+      alreadySubscribed: false,
+      sheetSynced: sheetResult.ok,
+    };
   }
 
   return {
     ok: true,
     entry: toWaitlistEntryDto(entry),
     alreadySubscribed: false,
+    sheetSynced: false,
   };
 }
-
 export async function listWaitlistForAdmin(
   filter?: WaitlistRoleInterest | "all",
 ): Promise<WaitlistEntryDto[]> {

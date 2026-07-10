@@ -88,50 +88,73 @@ export const HOME_SOP_STEPS = [
   },
 ] as const;
 
+/** Grade benefits CTA — pricing page documents A-1…A-6 tiers and Fast Forward. */
+export const HOME_GRADE_BENEFITS_HREF = "/pricing" as const;
+
 export const HOME_PILOT_RANKS = [
   {
     code: "A-1",
     name: "Student",
-    subtitle: "0–100 HOURS",
+    displayTitle: "STUDENT",
+    subtitle: "0-100 HOURS",
     badge: "a1",
     elite: false,
+    divider: "line",
+    dashCount: 0,
   },
   {
     code: "A-2",
     name: "Jr. Flight Officer",
+    displayTitle: "JR FLIGHT OFFICER",
     subtitle: "100+ HOURS",
     badge: "a2",
     elite: false,
+    divider: "dashes",
+    dashCount: 1,
   },
   {
     code: "A-3",
     name: "Flight Officer",
+    displayTitle: "FLIGHT OFFICER",
     subtitle: "500+ HOURS",
     badge: "a3",
     elite: false,
+    divider: "dashes",
+    dashCount: 2,
   },
   {
     code: "A-4",
     name: "Sr. Flight Officer",
+    displayTitle: "SR FLIGHT OFFICER",
     subtitle: "1000+ HOURS",
     badge: "a4",
     elite: false,
+    divider: "dashes",
+    dashCount: 3,
   },
   {
     code: "A-5",
     name: "First Officer",
+    displayTitle: "FIRST OFFICER",
     subtitle: "COMMAND GRADE",
     badge: "a5",
     elite: false,
+    divider: "dashes",
+    dashCount: 4,
   },
   {
     code: "A-6",
     name: "Captain",
+    displayTitle: "CAPTAIN",
     subtitle: "MASTER OPERATIONS",
     badge: "a6",
     elite: true,
+    divider: "dashes",
+    dashCount: 5,
   },
 ] as const;
+
+export type HomePilotRank = (typeof HOME_PILOT_RANKS)[number];
 
 export const HOME_CAPABILITIES = [
   {

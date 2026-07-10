@@ -42,14 +42,7 @@ export async function appendWaitlistToSheet(
           : "application/x-www-form-urlencoded",
       },
       body: useMake
-        ? JSON.stringify({
-            email: row.email,
-            name: row.name ?? "",
-            roleInterest: row.roleInterest,
-            region: row.region ?? "",
-            source: row.source ?? "",
-            createdAt: row.createdAt,
-          })
+        ? JSON.stringify(row)
         : new URLSearchParams({ payload: JSON.stringify(row) }).toString(),
       redirect: "follow",
       signal: AbortSignal.timeout(10000),

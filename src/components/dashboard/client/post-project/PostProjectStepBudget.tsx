@@ -6,6 +6,7 @@ import {
   type PostProjectQuoteType,
   type PostProjectTravelExpenses,
 } from "@/lib/client/post-project";
+import { PostProjectDateField } from "@/components/dashboard/client/post-project/PostProjectDateField";
 import { cn } from "@/lib/utils";
 
 type PostProjectStepBudgetProps = {
@@ -101,12 +102,9 @@ export function PostProjectStepBudget({ form, onChange }: PostProjectStepBudgetP
 
       <label className="client-post-project-field client-post-project-field--full">
         <span className="client-post-project-field-label">Project Deadline</span>
-        <input
-          type="text"
-          className="client-post-project-input"
-          placeholder="dd/mm/yyyy"
+        <PostProjectDateField
           value={form.deadline}
-          onChange={(e) => onChange({ deadline: e.target.value })}
+          onChange={(deadline) => onChange({ deadline })}
         />
       </label>
 

@@ -4,6 +4,7 @@ import {
   formatDeliveryDays,
   type ClientProjectBid,
 } from "@/lib/client/project-bids";
+import { isPublicPilotProfileEnabled } from "@/lib/public-access";
 import {
   ClockIcon,
   MessageIcon,
@@ -38,6 +39,7 @@ export function ClientProjectBidCard({
     bid.applicationStatus === "submitted" &&
     !isAccepted &&
     !isDeclined;
+  const showProfileLink = isPublicPilotProfileEnabled();
 
   let hireLabel = "Hire Pilot";
   if (isAccepted) hireLabel = "Hired";
@@ -122,12 +124,14 @@ export function ClientProjectBidCard({
             <MessageIcon />
             Message
           </Link>
-          <Link
-            href={CLIENT_PROJECT_BIDS_ROUTES.pilotProfile(bid.pilotProfileId)}
-            className="client-project-bids-btn-dark"
-          >
-            View Profile
-          </Link>
+          {showProfileLink ? (
+            <Link
+              href={CLIENT_PROJECT_BIDS_ROUTES.pilotProfile(bid.pilotProfileId)}
+              className="client-project-bids-btn-dark"
+            >
+              View Profile
+            </Link>
+          ) : null}
           <button
             type="button"
             className="client-project-bids-btn-gold"

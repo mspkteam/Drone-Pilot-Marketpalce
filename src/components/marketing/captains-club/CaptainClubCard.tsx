@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getCaptainBadgeLabel } from "@/lib/pilot/captains-club";
+import { isPublicPilotProfileEnabled } from "@/lib/public-access";
 import type { CaptainClubPilot } from "@/types/captains-club";
 
 type CaptainClubCardProps = {
@@ -7,6 +8,8 @@ type CaptainClubCardProps = {
 };
 
 export function CaptainClubCard({ captain }: CaptainClubCardProps) {
+  const showProfileLink = isPublicPilotProfileEnabled();
+
   return (
     <article className="captains-club-card">
       <div className="captains-club-card-head">
@@ -49,9 +52,11 @@ export function CaptainClubCard({ captain }: CaptainClubCardProps) {
         </p>
       )}
 
-      <Link href={captain.profileHref} className="captains-club-card-link">
-        View Profile →
-      </Link>
+      {showProfileLink ? (
+        <Link href={captain.profileHref} className="captains-club-card-link">
+          View Profile →
+        </Link>
+      ) : null}
     </article>
   );
 }

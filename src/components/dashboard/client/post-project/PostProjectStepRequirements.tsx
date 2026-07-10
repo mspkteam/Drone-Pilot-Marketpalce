@@ -3,6 +3,7 @@ import {
   type PostProjectDeliverable,
   type PostProjectFormState,
 } from "@/lib/client/post-project";
+import { PostProjectDateField } from "@/components/dashboard/client/post-project/PostProjectDateField";
 import { cn } from "@/lib/utils";
 
 type PostProjectStepRequirementsProps = {
@@ -67,12 +68,9 @@ export function PostProjectStepRequirements({
           <span className="client-post-project-field-label">
             When does the work need to completed?
           </span>
-          <input
-            type="text"
-            className="client-post-project-input"
-            placeholder="dd/mm/yyyy"
+          <PostProjectDateField
             value={form.completionDate}
-            onChange={(e) => onChange({ completionDate: e.target.value })}
+            onChange={(completionDate) => onChange({ completionDate })}
           />
         </label>
         <label className="client-post-project-field">

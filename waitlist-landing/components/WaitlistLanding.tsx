@@ -2,6 +2,10 @@
 
 import Image from "next/image";
 import { useState } from "react";
+import {
+  getTurnstileSiteKey,
+  TurnstileField,
+} from "./TurnstileField";
 
 type WaitlistLandingProps = {
   source: string;
@@ -13,6 +17,8 @@ export function WaitlistLanding({ source, logoUrl }: WaitlistLandingProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const turnstileEnabled = Boolean(getTurnstileSiteKey());
 
   const endpoint = "/api/waitlist";
 
@@ -29,6 +35,7 @@ export function WaitlistLanding({ source, logoUrl }: WaitlistLandingProps) {
           email,
           roleInterest: "both",
           source,
+          captchaToken,
         }),
       });
       const data = await res.json();
@@ -86,7 +93,11 @@ export function WaitlistLanding({ source, logoUrl }: WaitlistLandingProps) {
                 onChange={(e) => setEmail(e.target.value)}
                 className="waitlist-input"
               />
-              <button type="submit" disabled={loading} className="waitlist-submit">
+              <TurnstileField
+                className="waitlist-turnstile"
+                onTokenChange={setCaptchaToken}
+              />
+              <button type="submit" disabled={loading || (turnstileEnabled && !captchaToken)} className="waitlist-submit">
                 {loading ? "Joining…" : "Join the waitlist"}
               </button>
             </form>

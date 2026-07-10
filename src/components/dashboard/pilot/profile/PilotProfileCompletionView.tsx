@@ -18,6 +18,7 @@ import {
   toggleServiceChip,
 } from "@/lib/pilot/pilot-profile-service-chips";
 import { getProfileStatusLabel } from "@/lib/pilot/status";
+import { isPublicPilotProfileEnabled } from "@/lib/public-access";
 import type { PilotProfileDto } from "@/types/pilot";
 
 type PilotProfileCompletionViewProps = {
@@ -148,7 +149,9 @@ export function PilotProfileCompletionView({
   );
 
   const previewHref =
-    profile?.status === "approved" && profile.isPublic
+    isPublicPilotProfileEnabled() &&
+    profile?.status === "approved" &&
+    profile.isPublic
       ? `/pilots/${profile.id}`
       : null;
 

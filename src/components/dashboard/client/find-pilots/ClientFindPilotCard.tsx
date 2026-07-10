@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ClientFindPilot } from "@/lib/client/find-pilots";
+import { isPublicPilotProfileEnabled } from "@/lib/public-access";
 import {
   ClockIcon,
   PinIcon,
@@ -12,6 +13,8 @@ type ClientFindPilotCardProps = {
 };
 
 export function ClientFindPilotCard({ pilot }: ClientFindPilotCardProps) {
+  const showProfileLink = isPublicPilotProfileEnabled();
+
   return (
     <article className="client-find-pilots-card">
       <div className="client-find-pilots-card-top">
@@ -60,9 +63,11 @@ export function ClientFindPilotCard({ pilot }: ClientFindPilotCardProps) {
 
       <div className="client-find-pilots-footer">
         <p className="client-find-pilots-price">{pilot.priceLabel}</p>
-        <Link href={pilot.profileHref} className="client-find-pilots-profile-btn">
-          View profile
-        </Link>
+        {showProfileLink ? (
+          <Link href={pilot.profileHref} className="client-find-pilots-profile-btn">
+            View profile
+          </Link>
+        ) : null}
       </div>
     </article>
   );

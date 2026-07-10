@@ -10,6 +10,7 @@ import {
   CLIENT_DASHBOARD_ROUTES,
   type ClientRecommendedPilot,
 } from "@/lib/client/dashboard-overview";
+import { isPublicPilotProfileEnabled } from "@/lib/public-access";
 
 type ClientDashboardRecommendedPilotsProps = {
   pilots: ClientRecommendedPilot[];
@@ -18,6 +19,8 @@ type ClientDashboardRecommendedPilotsProps = {
 export function ClientDashboardRecommendedPilots({
   pilots,
 }: ClientDashboardRecommendedPilotsProps) {
+  const showProfileLink = isPublicPilotProfileEnabled();
+
   return (
     <section className="client-dashboard-pilots-section" aria-label="Recommended pilots">
       <header className="client-dashboard-pilots-header">
@@ -95,10 +98,12 @@ export function ClientDashboardRecommendedPilots({
                     {pilot.priceAmount}
                   </span>
                 </p>
-                <Link href={pilot.profileHref} className="client-dashboard-pilot-link">
-                  View profile
-                  <AppIcon icon={ArrowUpRight} className="client-dashboard-pilot-link-icon" />
-                </Link>
+                {showProfileLink ? (
+                  <Link href={pilot.profileHref} className="client-dashboard-pilot-link">
+                    View profile
+                    <AppIcon icon={ArrowUpRight} className="client-dashboard-pilot-link-icon" />
+                  </Link>
+                ) : null}
               </div>
             </article>
           ))}

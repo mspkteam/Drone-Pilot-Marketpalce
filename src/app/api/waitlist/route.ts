@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getClientIp, verifyTurnstileToken } from "@/lib/security/turnstile";
 import { waitlistCorsHeaders } from "@/lib/waitlist/cors";
 import { joinWaitlist, validateWaitlistInput } from "@/lib/waitlist/waitlist";
 
@@ -22,6 +23,17 @@ export async function POST(request: Request) {
       return withCors(
         request,
         NextResponse.json({ error: validated.error }, { status: 400 }),
+      );
+    }
+
+    const captcha = await verifyTurnstileToken(
+      typeof body.captchaToken === "string" ? body.captchaToken : null,
+      getClientIp(request),
+    );
+    if (!captcha.ok) {
+      return withCors(
+        request,
+        NextResponse.json({ error: captcha.error }, { status: 400 }),
       );
     }
 

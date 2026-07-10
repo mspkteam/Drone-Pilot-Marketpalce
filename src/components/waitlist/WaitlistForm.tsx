@@ -6,6 +6,10 @@ import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { FormField, inputClassName } from "@/components/ui/FormField";
 import { getWaitlistRoleLabel } from "@/lib/waitlist/status";
+import {
+  getTurnstileSiteKey,
+  TurnstileField,
+} from "@/components/waitlist/TurnstileField";
 import type { WaitlistRoleInterest } from "@/types/waitlist";
 import { WAITLIST_ROLE_INTERESTS } from "@/types/waitlist";
 
@@ -21,6 +25,8 @@ export function WaitlistForm() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [alreadySubscribed, setAlreadySubscribed] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const turnstileEnabled = Boolean(getTurnstileSiteKey());
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -37,6 +43,7 @@ export function WaitlistForm() {
           roleInterest,
           region: region || null,
           source: sourceParam,
+          captchaToken,
         }),
       });
       const data = await res.json();
@@ -148,7 +155,13 @@ export function WaitlistForm() {
           </p>
         ) : null}
 
-        <Button type="submit" disabled={loading} className="w-full sm:w-auto">
+        <TurnstileField onTokenChange={setCaptchaToken} />
+
+        <Button
+          type="submit"
+          disabled={loading || (turnstileEnabled && !captchaToken)}
+          className="w-full sm:w-auto"
+        >
           {loading ? "Joining…" : "Join waitlist"}
         </Button>
       </form>

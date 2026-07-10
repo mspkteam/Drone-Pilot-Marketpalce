@@ -63,7 +63,7 @@ export function PilotProfileSection() {
                 </div>
               </div>
               <span className="shrink-0 rounded-full border border-[rgba(216,179,57,0.35)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-gold">
-                {pilot.rank}
+                {pilot.gradeCode} / {pilot.rankTitle}
               </span>
             </div>
             <ul className="mt-4 flex flex-wrap gap-2">

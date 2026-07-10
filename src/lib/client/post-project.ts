@@ -1,4 +1,5 @@
 import type { JobCategoryId } from "@/types/job";
+import { formatIsoDateForDisplay } from "@/lib/format/date";
 import {
   POST_PROJECT_DELIVERABLES,
   POST_PROJECT_PRIORITIES,
@@ -124,8 +125,8 @@ export function formatPostProjectBudget(form: PostProjectFormState): string {
 }
 
 export function formatPostProjectDeadline(form: PostProjectFormState): string {
-  if (form.deadline.trim()) return form.deadline;
-  if (form.completionDate.trim()) return form.completionDate;
+  if (form.deadline.trim()) return formatIsoDateForDisplay(form.deadline);
+  if (form.completionDate.trim()) return formatIsoDateForDisplay(form.completionDate);
   return "Flexible";
 }
 
@@ -178,7 +179,9 @@ export function postProjectToJobPayload(form: PostProjectFormState) {
   const meta = [
     form.quoteType ? `Quote type: ${form.quoteType.replace("_", " ")}` : null,
     form.priority ? `Priority: ${form.priority}` : null,
-    form.completionDate ? `Completion target: ${form.completionDate}` : null,
+    form.completionDate
+      ? `Completion target: ${formatIsoDateForDisplay(form.completionDate)}`
+      : null,
     form.locations.length > 1
       ? `Additional locations: ${form.locations.length - 1}`
       : null,

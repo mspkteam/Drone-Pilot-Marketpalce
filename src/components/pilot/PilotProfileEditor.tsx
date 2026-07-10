@@ -12,6 +12,7 @@ import {
 import { Button } from "@/components/ui/Button";
 import type { PilotProfileDto } from "@/types/pilot";
 import { getProfileStatusLabel } from "@/lib/pilot/status";
+import { isPublicPilotProfileEnabled } from "@/lib/public-access";
 
 type PilotProfileEditorProps = {
   profile: PilotProfileDto;
@@ -74,7 +75,7 @@ export function PilotProfileEditor({ profile }: PilotProfileEditorProps) {
         {profile.status === "approved" ? (
           <p className="text-sm text-muted-foreground">
             Your profile is approved for marketplace activity.
-            {profile.isPublic ? (
+            {profile.isPublic && isPublicPilotProfileEnabled() ? (
               <>
                 {" "}
                 <Link

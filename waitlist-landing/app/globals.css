@@ -147,10 +147,18 @@ body {
 @media (min-width: 480px) {
   .waitlist-form {
     flex-direction: row;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: center;
     max-width: 38.5rem;
   }
+}
+
+.waitlist-turnstile {
+  display: flex;
+  width: 100%;
+  flex-basis: 100%;
+  justify-content: center;
 }
 
 .waitlist-input {

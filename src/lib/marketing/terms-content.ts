@@ -510,7 +510,25 @@ export const TERMS_SECTIONS: TermsSection[] = [
         type: "paragraph",
         parts: [
           {
-            text: "Any attempt to avoid Platform fees or protections through off-platform arrangements may result in: immediate account suspension; permanent account termination; cancellation of pending transactions; forfeiture of promotional benefits; refusal of future Platform services. Remote Air Service reserves the right to pursue any additional remedies available under applicable law.",
+            text: "Any attempt to avoid Platform fees or protections through off-platform arrangements may result in:",
+          },
+        ],
+      },
+      {
+        type: "bullets",
+        items: [
+          "Immediate account suspension",
+          "Permanent account termination",
+          "Cancellation of pending transactions",
+          "Forfeiture of promotional benefits",
+          "Refusal of future Platform services",
+        ],
+      },
+      {
+        type: "paragraph",
+        parts: [
+          {
+            text: "Remote Air Service reserves the right to pursue any additional remedies available under applicable law.",
           },
         ],
       },
@@ -557,10 +575,19 @@ export const TERMS_SECTIONS: TermsSection[] = [
       },
       {
         type: "paragraph",
-        parts: [
-          {
-            text: "Such actions may include: account suspension; account restriction; permanent account termination; refusal of future services; cancellation of pending transactions; removal of reviews or ratings obtained through prohibited conduct; withholding of payouts pending investigation; recovery of damages, fees, costs, or losses permitted by applicable law.",
-          },
+        parts: [{ text: "Such actions may include:" }],
+      },
+      {
+        type: "bullets",
+        items: [
+          "Account suspension",
+          "Account restriction",
+          "Permanent account termination",
+          "Refusal of future services",
+          "Cancellation of pending transactions",
+          "Removal of reviews or ratings obtained through prohibited conduct",
+          "Withholding of payouts pending investigation",
+          "Recovery of damages, fees, costs, or losses permitted by applicable law",
         ],
       },
       {
@@ -589,7 +616,27 @@ export const TERMS_SECTIONS: TermsSection[] = [
         type: "paragraph",
         parts: [
           {
-            text: "If Remote Air Service determines that users are circumventing Platform services, we may: suspend accounts; restrict account functionality; remove reviews; cancel projects; withhold payouts pending investigation; permanently terminate accounts; refuse future service. These actions may be applied to individual users, companies, related accounts, or affiliated entities at our sole discretion.",
+            text: "If Remote Air Service determines that users are circumventing Platform services, we may:",
+          },
+        ],
+      },
+      {
+        type: "bullets",
+        items: [
+          "Suspend accounts",
+          "Restrict account functionality",
+          "Remove reviews",
+          "Cancel projects",
+          "Withhold payouts pending investigation",
+          "Permanently terminate accounts",
+          "Refuse future service",
+        ],
+      },
+      {
+        type: "paragraph",
+        parts: [
+          {
+            text: "These actions may be applied to individual users, companies, related accounts, or affiliated entities at our sole discretion.",
           },
         ],
       },
@@ -611,7 +658,26 @@ export const TERMS_SECTIONS: TermsSection[] = [
         type: "paragraph",
         parts: [
           {
-            text: "If a Client and Provider choose to conduct business outside the Platform: Remote Air Service cannot verify the transaction; Remote Air Service cannot guarantee project performance; Remote Air Service cannot provide payment protection; Remote Air Service cannot provide dispute resolution; Remote Air Service cannot provide refunds; Remote Air Service cannot enforce project terms. All risks associated with off-platform transactions are assumed entirely by the participating parties.",
+            text: "If a Client and Provider choose to conduct business outside the Platform:",
+          },
+        ],
+      },
+      {
+        type: "bullets",
+        items: [
+          "Remote Air Service cannot verify the transaction",
+          "Remote Air Service cannot guarantee project performance",
+          "Remote Air Service cannot provide payment protection",
+          "Remote Air Service cannot provide dispute resolution",
+          "Remote Air Service cannot provide refunds",
+          "Remote Air Service cannot enforce project terms",
+        ],
+      },
+      {
+        type: "paragraph",
+        parts: [
+          {
+            text: "All risks associated with off-platform transactions are assumed entirely by the participating parties.",
           },
         ],
       },

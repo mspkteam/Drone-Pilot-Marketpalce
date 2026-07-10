@@ -23,6 +23,7 @@ npx vercel --prod
 4. Add environment variables:
    - `WAITLIST_API_URL` — marketplace origin (server proxy; recommended), e.g. `https://drone-pilot-marketplace.vercel.app`
    - `NEXT_PUBLIC_WAITLIST_SOURCE` — your landing domain, e.g. `join.remoteairservice.com`
+   - `NEXT_PUBLIC_TURNSTILE_SITE_KEY` — Cloudflare Turnstile site key (spam protection)
 4. Attach your custom domain to this project.
 
 ## Marketplace API (main deployment)
@@ -77,6 +78,23 @@ WAITLIST_MAKE_WEBHOOK_URL=https://hook.us1.make.com/your-hook-id
 ```
 
 Redeploy **production** after saving.
+
+### Cloudflare Turnstile (spam protection)
+
+1. [Cloudflare Dashboard](https://dash.cloudflare.com/) → **Turnstile** → **Add site**
+2. Add your domains (e.g. `join.remoteairservice.com`, `ras-waitlist-landing.vercel.app`, marketplace `/launch` host)
+3. Copy **Site key** and **Secret key**
+4. **Marketplace** Vercel project:
+   ```env
+   NEXT_PUBLIC_TURNSTILE_SITE_KEY=0x4AAAAAAA...
+   TURNSTILE_SECRET_KEY=0x4AAAAAAA...
+   ```
+5. **Waitlist landing** Vercel project (site key only — verification runs on marketplace API):
+   ```env
+   NEXT_PUBLIC_TURNSTILE_SITE_KEY=0x4AAAAAAA...
+   ```
+
+Until keys are set, forms work without CAPTCHA (backward compatible).
 
 ### 4. Test
 

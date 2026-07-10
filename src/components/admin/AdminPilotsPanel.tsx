@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import { PilotStatusBadge } from "@/components/pilot/PilotStatusBadge";
 import { Button } from "@/components/ui/Button";
 import { approvalStatusFilterTabs } from "@/lib/ui/status-filter-tabs";
+import { isPublicPilotProfileEnabled } from "@/lib/public-access";
 import type { AdminPilotDto } from "@/types/admin";
 import type { PilotProfileStatus } from "@/types/pilot";
 import { cn } from "@/lib/utils";
@@ -134,7 +135,7 @@ export function AdminPilotsPanel() {
               </div>
               <div className="flex flex-wrap items-center gap-2">
                 <PilotStatusBadge status={p.status} />
-                {p.status === "approved" ? (
+                {p.status === "approved" && isPublicPilotProfileEnabled() ? (
                   <Link
                     href={`/pilots/${p.id}`}
                     className="text-sm text-gold-dark hover:text-gold"

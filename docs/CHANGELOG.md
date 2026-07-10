@@ -334,6 +334,16 @@ Initial project control documentation and planning foundation for Drone Pilot Ma
 
 ---
 
+## [0.26.1] — 2026-07-10
+
+### Added
+
+- **Waitlist CAPTCHA** — Cloudflare Turnstile on `/launch`, `/waitlist`, and standalone waitlist landing
+  - Server verification on `POST /api/waitlist` when `TURNSTILE_SECRET_KEY` is set
+  - Env: `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`
+
+---
+
 ## [0.26.0] — 2026-06-03
 
 ### Added

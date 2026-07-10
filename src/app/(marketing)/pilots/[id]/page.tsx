@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PublicPageContainer } from "@/components/layout/PublicPageContainer";
 import { PublicPilotProfile } from "@/components/pilots/PublicPilotProfile";
+import { isPublicPilotProfileEnabled } from "@/lib/public-access";
 import { getPublicPilotById } from "@/lib/pilot/public";
 
 type PageProps = {
@@ -9,6 +10,10 @@ type PageProps = {
 };
 
 export async function generateMetadata({ params }: PageProps) {
+  if (!isPublicPilotProfileEnabled()) {
+    return { title: "Pilot not found" };
+  }
+
   const { id } = await params;
   const pilot = await getPublicPilotById(id);
   if (!pilot) return { title: "Pilot not found" };
@@ -19,6 +24,10 @@ export async function generateMetadata({ params }: PageProps) {
 }
 
 export default async function PublicPilotProfilePage({ params }: PageProps) {
+  if (!isPublicPilotProfileEnabled()) {
+    notFound();
+  }
+
   const { id } = await params;
   const pilot = await getPublicPilotById(id);
 

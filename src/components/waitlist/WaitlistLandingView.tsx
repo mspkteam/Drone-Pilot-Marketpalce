@@ -2,6 +2,10 @@
 
 import Image from "next/image";
 import { useState } from "react";
+import {
+  getTurnstileSiteKey,
+  TurnstileField,
+} from "@/components/waitlist/TurnstileField";
 import { homeAssets } from "@/lib/marketing/home-assets";
 
 type WaitlistLandingViewProps = {
@@ -21,6 +25,8 @@ export function WaitlistLandingView({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const turnstileEnabled = Boolean(getTurnstileSiteKey());
 
   const endpoint = apiBaseUrl
     ? `${apiBaseUrl.replace(/\/$/, "")}/api/waitlist`
@@ -39,6 +45,7 @@ export function WaitlistLandingView({
           email,
           roleInterest: "both",
           source,
+          captchaToken,
         }),
       });
       const data = await res.json();
@@ -99,9 +106,13 @@ export function WaitlistLandingView({
                 onChange={(e) => setEmail(e.target.value)}
                 className="figma-waitlist-input"
               />
+              <TurnstileField
+                className="waitlist-turnstile"
+                onTokenChange={setCaptchaToken}
+              />
               <button
                 type="submit"
-                disabled={loading}
+                disabled={loading || (turnstileEnabled && !captchaToken)}
                 className="figma-waitlist-submit"
               >
                 {loading ? "Joining…" : "Join the waitlist"}

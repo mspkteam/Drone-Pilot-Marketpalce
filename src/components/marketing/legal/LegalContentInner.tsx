@@ -6,16 +6,15 @@ type LegalContentInnerProps = {
 };
 
 /**
- * Centered 1063px policy/legal body column.
- * Sits directly in the section (not inside public-container).
- * Hero/banner on the same page should keep public-container at 1280px.
+ * Policy/legal body column — same width and horizontal padding as marketing heroes
+ * (`public-container` / 1280px canvas).
  */
 export function LegalContentInner({
   children,
   className,
 }: LegalContentInnerProps) {
   return (
-    <div className={cn("legal-content-inner", className)}>
+    <div className={cn("public-container", className)}>
       {children}
     </div>
   );

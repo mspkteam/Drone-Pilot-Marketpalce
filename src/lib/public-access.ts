@@ -6,6 +6,8 @@
  * Example: "/", "/for-clients", "/how-it-works"
  */
 
+import { ACTIVE_MILESTONE } from "@/lib/milestones";
+
 /** Always reachable — auth and static assets are excluded from the marketing matcher. */
 export const ALWAYS_UNLOCKED_PUBLIC_PREFIXES = [
   "/login",
@@ -16,7 +18,8 @@ export const ALWAYS_UNLOCKED_PUBLIC_PREFIXES = [
 
 /**
  * Marketing pages visible on production (full public marketing site).
- * Prefix matching unlocks nested routes (e.g. `/resources` → `/resources/[slug]`, `/pilots` → `/pilots/[id]`).
+ * Prefix matching unlocks nested routes (e.g. `/resources` → `/resources/[slug]`).
+ * `/pilots/[id]` profiles are gated separately via `isPublicPilotProfileEnabled()`.
  */
 export const DEFAULT_UNLOCKED_PUBLIC_PATHS = [
   "/",
@@ -73,8 +76,24 @@ export function isAlwaysUnlockedPublicPath(pathname: string): boolean {
 export function isPublicMarketingPathAllowed(pathname: string): boolean {
   if (isAlwaysUnlockedPublicPath(pathname)) return true;
 
+  if (isPublicPilotProfilePath(pathname) && !isPublicPilotProfileEnabled()) {
+    return false;
+  }
+
   const unlocked = getUnlockedPublicPaths();
   return unlocked.some((prefix) => pathMatchesPrefix(pathname, prefix));
+}
+
+/** `/pilots/[id]` detail pages (not the `/pilots` directory). */
+export function isPublicPilotProfilePath(pathname: string): boolean {
+  const normalized = normalizePublicPath(pathname);
+  if (normalized === "/pilots") return false;
+  return normalized.startsWith("/pilots/");
+}
+
+/** Hidden during Milestone 1 (Client); unlocks from Pilot milestone week onward. */
+export function isPublicPilotProfileEnabled(): boolean {
+  return ACTIVE_MILESTONE >= 3;
 }
 
 export function isMarketingNavHrefVisible(href: string): boolean {

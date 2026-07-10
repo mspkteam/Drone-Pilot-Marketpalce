@@ -5,6 +5,7 @@ import {
   formatPilotRateRange,
   serviceLabel,
 } from "@/lib/pilot/format";
+import { isPublicPilotProfileEnabled } from "@/lib/public-access";
 import type { PublicPilotListItemDto } from "@/types/public-pilot";
 
 export function PublicPilotCard({ pilot }: { pilot: PublicPilotListItemDto }) {
@@ -14,12 +15,10 @@ export function PublicPilotCard({ pilot }: { pilot: PublicPilotListItemDto }) {
     pilot.locationCountry,
   );
   const rate = formatPilotRateRange(pilot.hourlyRateMin, pilot.hourlyRateMax);
+  const profileEnabled = isPublicPilotProfileEnabled();
 
-  return (
-    <Link
-      href={`/pilots/${pilot.id}`}
-      className="flex flex-col rounded-lg border border-border bg-surface-elevated p-6 transition-colors hover:border-gold/40"
-    >
+  const content = (
+    <>
       <div className="flex items-start justify-between gap-3">
         <div>
           <h2 className="text-lg font-semibold">{pilot.displayName}</h2>
@@ -48,6 +47,20 @@ export function PublicPilotCard({ pilot }: { pilot: PublicPilotListItemDto }) {
       {rate ? (
         <p className="mt-3 text-sm font-medium text-gold-dark">{rate}</p>
       ) : null}
+    </>
+  );
+
+  const className = `flex flex-col rounded-lg border border-border bg-surface-elevated p-6${
+    profileEnabled ? " transition-colors hover:border-gold/40" : ""
+  }`;
+
+  if (!profileEnabled) {
+    return <article className={className}>{content}</article>;
+  }
+
+  return (
+    <Link href={`/pilots/${pilot.id}`} className={className}>
+      {content}
     </Link>
   );
 }

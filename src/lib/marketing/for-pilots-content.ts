@@ -72,10 +72,11 @@ export const PILOT_PROFILE_MOCK = {
   initials: "JS",
   name: "John Smith",
   wing: "Texas Wing",
-  rank: "A-3 FLIGHT OFFICER",
+  gradeCode: "A-3",
+  rankTitle: "FLIGHT OFFICER",
   averageRating: 4.9,
   reviewCount: 12,
-  tags: ["Silver Wings", "Inspection Badge", "240 Flight Hours"],
+  tags: ["Silver Aviator Wings", "Inspection Badge", "240 Flight Hours"],
 } as const;
 
 export const PILOT_MEMBERSHIP_INTRO =

@@ -4,6 +4,7 @@ import {
   DEFAULT_UNLOCKED_PUBLIC_PATHS,
   getUnlockedPublicPaths,
   isPublicMarketingPathAllowed,
+  isPublicPilotProfileEnabled,
 } from "./public-access";
 
 const ENV_KEY = "NEXT_PUBLIC_UNLOCKED_PUBLIC_PATHS";
@@ -40,10 +41,16 @@ describe("public access", () => {
     assert.equal(isPublicMarketingPathAllowed("/resources"), true);
     assert.equal(isPublicMarketingPathAllowed("/resources/pilot-onboarding"), true);
     assert.equal(isPublicMarketingPathAllowed("/pilots"), true);
-    assert.equal(isPublicMarketingPathAllowed("/pilots/demo-id"), true);
+    assert.equal(isPublicMarketingPathAllowed("/pilots/demo-id"), false);
     assert.equal(isPublicMarketingPathAllowed("/captains-club"), true);
     assert.equal(isPublicMarketingPathAllowed("/reputation"), true);
     assert.equal(isPublicMarketingPathAllowed("/dashboard/client"), false);
+  });
+
+  it("hides public pilot profiles during milestone 1", () => {
+    assert.equal(isPublicPilotProfileEnabled(), false);
+    assert.equal(isPublicMarketingPathAllowed("/pilots"), true);
+    assert.equal(isPublicMarketingPathAllowed("/pilots/demo-id"), false);
   });
 
   it("always allows auth routes", () => {

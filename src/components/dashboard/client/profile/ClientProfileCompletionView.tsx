@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { AvatarFrameEditor } from "@/components/dashboard/shared/profile/AvatarFrameEditor";
 import { ProfileStrengthPanel } from "@/components/dashboard/shared/profile/ProfileStrengthPanel";
 import {
   clientDtoToFormState,
@@ -87,6 +88,7 @@ export function ClientProfileCompletionView({
 }: ClientProfileCompletionViewProps) {
   const router = useRouter();
   const logoInputRef = useRef<HTMLInputElement>(null);
+  const objectUrlRef = useRef<string | null>(null);
 
   const [form, setForm] = useState<ClientFormState>(() =>
     profile ? clientDtoToFormState(profile) : emptyClientFormState,
@@ -94,9 +96,59 @@ export function ClientProfileCompletionView({
   const [extras, setExtras] = useState<ClientUiExtras>(() =>
     buildClientExtras(profile, accountEmail),
   );
+  const [editorSrc, setEditorSrc] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    return () => {
+      if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current);
+    };
+  }, []);
+
+  function releaseObjectUrl() {
+    if (objectUrlRef.current) {
+      URL.revokeObjectURL(objectUrlRef.current);
+      objectUrlRef.current = null;
+    }
+  }
+
+  function openFilePicker() {
+    logoInputRef.current?.click();
+  }
+
+  function handleFileSelected(file: File) {
+    releaseObjectUrl();
+    const url = URL.createObjectURL(file);
+    objectUrlRef.current = url;
+    setEditorSrc(url);
+  }
+
+  function handleAvatarClick() {
+    if (extras.logoPreview) {
+      setEditorSrc(extras.logoPreview);
+    } else {
+      openFilePicker();
+    }
+  }
+
+  function handleEditorSave(dataUrl: string) {
+    setEditorSrc(null);
+    releaseObjectUrl();
+    patchExtras({ logoPreview: dataUrl });
+  }
+
+  function handleEditorCancel() {
+    setEditorSrc(null);
+    releaseObjectUrl();
+  }
+
+  function handleRemoveLogo() {
+    releaseObjectUrl();
+    patchExtras({ logoPreview: null });
+    if (logoInputRef.current) logoInputRef.current.value = "";
+  }
 
   const canEdit = !profile || profile.status !== "suspended";
   const needsOnboarding = !profile?.onboardingCompletedAt;
@@ -202,22 +254,45 @@ export function ClientProfileCompletionView({
           <section className="profile-onboarding-section">
             <h2 className="profile-onboarding-section-title">CLIENT IDENTITY</h2>
             <div className="profile-onboarding-identity-grid">
-              <button
-                type="button"
-                className="profile-onboarding-avatar-btn"
-                onClick={() => logoInputRef.current?.click()}
-                disabled={!canEdit || loading}
-              >
+              <div className="profile-onboarding-avatar-cell">
+                <button
+                  type="button"
+                  className="profile-onboarding-avatar-btn"
+                  onClick={handleAvatarClick}
+                  disabled={!canEdit || loading}
+                  aria-label={extras.logoPreview ? "Adjust logo" : "Upload logo"}
+                >
+                  {extras.logoPreview ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={extras.logoPreview} alt="" />
+                  ) : (
+                    <>
+                      <CameraIcon />
+                      <span className="profile-onboarding-avatar-label">UPLOAD</span>
+                    </>
+                  )}
+                </button>
                 {extras.logoPreview ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={extras.logoPreview} alt="" />
-                ) : (
-                  <>
-                    <CameraIcon />
-                    <span className="profile-onboarding-avatar-label">UPLOAD</span>
-                  </>
-                )}
-              </button>
+                  <div className="profile-onboarding-avatar-actions">
+                    <button
+                      type="button"
+                      className="profile-onboarding-avatar-action"
+                      onClick={openFilePicker}
+                      disabled={!canEdit || loading}
+                    >
+                      Change
+                    </button>
+                    <button
+                      type="button"
+                      className="profile-onboarding-avatar-action profile-onboarding-avatar-action--danger"
+                      onClick={handleRemoveLogo}
+                      disabled={!canEdit || loading}
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ) : null}
+              </div>
               <input
                 ref={logoInputRef}
                 type="file"
@@ -225,7 +300,8 @@ export function ClientProfileCompletionView({
                 className="profile-onboarding-hidden-input"
                 onChange={(e) => {
                   const file = e.target.files?.[0];
-                  if (file) patchExtras({ logoPreview: URL.createObjectURL(file) });
+                  if (file) handleFileSelected(file);
+                  e.target.value = "";
                 }}
               />
 
@@ -431,20 +507,20 @@ export function ClientProfileCompletionView({
       </div>
 
       <div className="profile-onboarding-actions">
-        <button
-          type="button"
-          className="profile-onboarding-btn-outline"
-          disabled
-          title="Public client profiles are not available yet"
-        >
-          Preview Client Profile
-        </button>
         {canEdit ? (
           <button type="submit" className="profile-onboarding-btn-gold" disabled={loading}>
             {loading ? "Saving…" : "Save Profile"}
           </button>
         ) : null}
       </div>
+
+      {editorSrc ? (
+        <AvatarFrameEditor
+          src={editorSrc}
+          onCancel={handleEditorCancel}
+          onSave={handleEditorSave}
+        />
+      ) : null}
     </form>
   );
 }

@@ -33,6 +33,7 @@ export const clientNavGroups: readonly DashboardNavGroup[] = [
     label: "Account",
     items: [
       { label: "Messages", href: "/dashboard/client/messages", icon: "messages" },
+      { label: "Profile", href: "/dashboard/client/profile", icon: "profile" },
       {
         label: "Billing",
         href: "/dashboard/client/payments",

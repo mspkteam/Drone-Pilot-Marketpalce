@@ -423,3 +423,129 @@
 .profile-onboarding-hidden-input {
   display: none;
 }
+
+.profile-onboarding-avatar-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.profile-onboarding-avatar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.profile-onboarding-avatar-action {
+  padding: 0.15rem 0.35rem;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.profile-onboarding-avatar-action:hover:not(:disabled) {
+  color: var(--color-gold);
+}
+
+.profile-onboarding-avatar-action--danger:hover:not(:disabled) {
+  color: #f87171;
+}
+
+.profile-onboarding-avatar-action:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Avatar frame editor */
+.avatar-editor-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(6, 8, 12, 0.72);
+  backdrop-filter: blur(2px);
+}
+
+.avatar-editor-modal {
+  width: 100%;
+  max-width: 22rem;
+  padding: 1.5rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(244, 241, 234, 0.12);
+  background: var(--color-bg-deeper);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+}
+
+.avatar-editor-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.avatar-editor-hint {
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.avatar-editor-frame {
+  position: relative;
+  margin: 1.1rem auto 0;
+  overflow: hidden;
+  border-radius: 9999px;
+  background: #05070b;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.avatar-editor-frame:active {
+  cursor: grabbing;
+}
+
+.avatar-editor-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  max-width: none;
+  pointer-events: none;
+}
+
+.avatar-editor-mask {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  box-shadow: inset 0 0 0 2px rgba(216, 179, 57, 0.55);
+  pointer-events: none;
+}
+
+.avatar-editor-zoom {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 1.1rem;
+  color: var(--color-text-muted);
+}
+
+.avatar-editor-zoom input[type="range"] {
+  flex: 1;
+  accent-color: var(--color-gold);
+  cursor: pointer;
+}
+
+.avatar-editor-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 1.35rem;
+}

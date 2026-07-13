@@ -1,4 +1,5 @@
 import type { DashboardRankCardData, DashboardShellUser } from "@/types/dashboard-nav";
+import { parseClientProfilePreferences } from "@/lib/client/preferences";
 import { HOME_PILOT_RANKS } from "@/lib/marketing/home-content";
 import { TIER_CODE_TO_PRICING_PLAN_CODE } from "@/lib/marketing/pricing-pilot-context";
 
@@ -18,6 +19,7 @@ function initialsFromLabel(label: string): string {
 type ClientProfileShellInput = {
   contactName: string;
   companyName: string | null;
+  preferencesJson?: string | null;
 };
 
 export function buildClientShellUser(
@@ -30,9 +32,15 @@ export function buildClientShellUser(
     sessionUser.email?.split("@")[0] ||
     "Client";
 
+  const avatarUrl =
+    profile?.preferencesJson !== undefined
+      ? parseClientProfilePreferences(profile?.preferencesJson).logoPath ?? null
+      : null;
+
   return buildDashboardUser(sessionUser, {
     displayName,
     roleSubtitle: "Client account",
+    avatarUrl,
   });
 }
 
@@ -41,6 +49,7 @@ export function buildDashboardUser(
   options?: {
     displayName?: string | null;
     roleSubtitle?: string;
+    avatarUrl?: string | null;
   },
 ): DashboardShellUser {
   const email = sessionUser.email ?? "Account";
@@ -64,7 +73,12 @@ export function buildDashboardUser(
             ? "Moderator account"
             : "Admin account");
 
-  return { displayName, subtitle: roleSubtitle, initials };
+  return {
+    displayName,
+    subtitle: roleSubtitle,
+    initials,
+    avatarUrl: options?.avatarUrl ?? null,
+  };
 }
 
 export function rankLabelForTier(tierCode?: string | null): string {

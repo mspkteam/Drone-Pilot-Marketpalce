@@ -51,6 +51,7 @@ export type DashboardShellUser = {
   displayName: string;
   subtitle: string;
   initials: string;
+  avatarUrl?: string | null;
 };
 
 export type DashboardRankCardData = {

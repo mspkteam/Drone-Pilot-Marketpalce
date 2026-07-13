@@ -188,7 +188,9 @@ export function ClientAccountSettings() {
       <header className="client-settings-header">
         <h1 className="client-settings-title">Account settings</h1>
         <p className="client-settings-subtitle">
-          Manage your profile and how we contact you.
+          Manage your account, billing, and notifications. Your name, company,
+          logo, and marketplace details live on the{" "}
+          <Link href="/dashboard/client/profile">Profile</Link> page.
         </p>
       </header>
 
@@ -205,47 +207,9 @@ export function ClientAccountSettings() {
 
       <form className="client-settings-form" onSubmit={(e) => void handleSave(e)}>
         <section className="client-settings-card">
-          <h2 className="client-settings-card-title">Profile information</h2>
-
-          <div className="client-settings-field-grid">
-            <label className="client-settings-field">
-              <span className="client-settings-label">Full name</span>
-              <input
-                className="client-settings-input"
-                value={profileForm.contactName}
-                onChange={(e) => updateForm({ contactName: e.target.value })}
-                required
-                minLength={2}
-              />
-            </label>
-
-            <label className="client-settings-field">
-              <span className="client-settings-label">Email</span>
-              <input
-                className="client-settings-input client-settings-input--readonly"
-                value={account.email}
-                readOnly
-                aria-readonly="true"
-              />
-            </label>
-          </div>
-
-          <label className="client-settings-field client-settings-field--full">
-            <span className="client-settings-label">Phone</span>
-            <input
-              className="client-settings-input"
-              type="tel"
-              value={profileForm.phone}
-              onChange={(e) => updateForm({ phone: e.target.value })}
-              placeholder="+1 (555) 123-4567"
-            />
-          </label>
-        </section>
-
-        <section className="client-settings-card">
-          <h2 className="client-settings-card-title">Company &amp; billing</h2>
+          <h2 className="client-settings-card-title">Billing &amp; invoicing</h2>
           <p className="client-settings-card-hint">
-            Optional company and billing address used for invoices.
+            Company name and billing address used on your invoices and receipts.
           </p>
 
           <label className="client-settings-field client-settings-field--full">
@@ -301,11 +265,6 @@ export function ClientAccountSettings() {
               />
             </label>
           </div>
-
-          <p className="client-settings-inline-link">
-            Full marketplace profile editor on the{" "}
-            <Link href="/dashboard/client/profile">Profile</Link> page.
-          </p>
         </section>
 
         <section className="client-settings-card">

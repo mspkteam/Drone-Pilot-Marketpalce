@@ -47,11 +47,6 @@ export function TermsContent() {
             <p className="terms-legal-paragraph">{TERMS_CLOSING}</p>
           </div>
         </article>
-        <div className="terms-content-actions">
-          <Link href="/" className="ras-btn-primary terms-back-home">
-            Back Home
-          </Link>
-        </div>
       </LegalContentInner>
     </section>
   );

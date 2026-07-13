@@ -106,7 +106,7 @@ export const HOME_PILOT_RANKS = [
     code: "A-2",
     name: "Jr. Flight Officer",
     displayTitle: "JR FLIGHT OFFICER",
-    subtitle: "6 MONTH MEMBER",
+    subtitle: "6 MONTHS MEMBER",
     badge: "a2",
     elite: false,
     progressLabel: "A3 - A2",

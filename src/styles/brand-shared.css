@@ -332,14 +332,19 @@
   outline-offset: 2px;
 }
 
+/*
+ * Display is controlled by Tailwind's responsive `hidden` / `lg:flex`
+ * utilities on the elements themselves. These rules only provide
+ * alignment and spacing when the elements are shown (lg and up).
+ * Do NOT set `display` here: brand-shared.css is unlayered and would
+ * override Tailwind's layered `hidden` utility, breaking mobile layout.
+ */
 .ras-marketing-header-actions {
-  display: flex;
   align-items: center;
   gap: 1rem;
 }
 
 .ras-marketing-header-nav {
-  display: flex;
   align-items: center;
   gap: 2rem;
 }

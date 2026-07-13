@@ -9,21 +9,21 @@ type PilotRankCardProps = {
 };
 
 function RankProgressDivider({
-  divider,
-  dashCount,
+  progressLabel,
+  progressPercent,
 }: {
-  divider: HomePilotRank["divider"];
-  dashCount: number;
+  progressLabel: string;
+  progressPercent: number;
 }) {
-  if (divider === "line") {
-    return <div className="figma-home-rank-divider-line" aria-hidden />;
-  }
-
   return (
-    <div className="figma-home-rank-dashes" aria-hidden>
-      {Array.from({ length: dashCount }).map((_, index) => (
-        <span key={index} className="figma-home-rank-dash" />
-      ))}
+    <div className="figma-home-rank-progress">
+      <span className="figma-home-rank-progress-label">{progressLabel}</span>
+      <div className="figma-home-rank-progress-track" aria-hidden>
+        <span
+          className="figma-home-rank-progress-fill"
+          style={{ width: `${progressPercent}%` }}
+        />
+      </div>
     </div>
   );
 }
@@ -51,7 +51,10 @@ export function PilotRankCard({ rank, badgeSrc, className }: PilotRankCardProps)
         />
         <p className="figma-home-rank-code">{rank.code}</p>
         <p className="figma-home-rank-name">{rank.displayTitle}</p>
-        <RankProgressDivider divider={rank.divider} dashCount={rank.dashCount} />
+        <RankProgressDivider
+          progressLabel={rank.progressLabel}
+          progressPercent={rank.progressPercent}
+        />
         <p className="figma-home-rank-subtitle">{rank.subtitle}</p>
       </div>
     </article>

@@ -137,10 +137,12 @@ export function MarketingHeader() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-[var(--color-border-muted)] bg-[var(--color-bg)]/95 backdrop-blur-md">
-      <div className="public-container flex h-20 items-center justify-between gap-6">
-        <Logo />
+      <div className="public-container grid h-20 grid-cols-[1fr_auto_1fr] items-center gap-6">
+        <div className="flex items-center justify-self-start">
+          <Logo />
+        </div>
         <nav
-          className="ras-marketing-header-nav hidden lg:flex"
+          className="ras-marketing-header-nav hidden justify-center lg:flex"
           aria-label="Main navigation"
         >
           {visibleNav.map((item) => (
@@ -152,38 +154,40 @@ export function MarketingHeader() {
             />
           ))}
         </nav>
-        <HeaderAuthActions className="hidden lg:flex" />
-        <button
-          type="button"
-          className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-ras-border-muted lg:hidden"
-          aria-expanded={open}
-          aria-label={open ? "Close menu" : "Open menu"}
-          onClick={() => setOpen(!open)}
-        >
-          <svg
-            className="h-5 w-5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            aria-hidden
+        <div className="flex items-center justify-self-end">
+          <HeaderAuthActions className="hidden lg:flex" />
+          <button
+            type="button"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-ras-border-muted lg:hidden"
+            aria-expanded={open}
+            aria-label={open ? "Close menu" : "Open menu"}
+            onClick={() => setOpen(!open)}
           >
-            {open ? (
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            ) : (
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 6h16M4 12h16M4 18h16"
-              />
-            )}
-          </svg>
-        </button>
+            <svg
+              className="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              aria-hidden
+            >
+              {open ? (
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              ) : (
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
+              )}
+            </svg>
+          </button>
+        </div>
       </div>
       <div
         className={cn(

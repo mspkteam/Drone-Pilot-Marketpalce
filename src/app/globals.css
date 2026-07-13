@@ -585,26 +585,41 @@ a.dashboard-card:hover {
   color: var(--color-home-btn-light);
 }
 
-.figma-home-rank-divider-line {
-  width: 100%;
-  height: 1px;
-  margin-top: 0.75rem;
-  background: var(--color-border-muted);
-}
-
-.figma-home-rank-dashes {
+.figma-home-rank-progress {
   display: flex;
-  justify-content: center;
-  gap: 0.25rem;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
   width: 100%;
   margin-top: 0.75rem;
 }
 
-.figma-home-rank-dash {
-  display: block;
-  width: 1rem;
-  height: 0.25rem;
-  flex-shrink: 0;
+.figma-home-rank-progress-label {
+  font-size: 0.625rem;
+  line-height: 1.2;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #d0c5af;
+}
+
+.figma-home-rank-progress-track {
+  position: relative;
+  width: 100%;
+  height: 2px;
+  border-radius: 9999px;
+  background: var(--color-border-muted);
+  overflow: hidden;
+}
+
+.figma-home-rank-progress-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  min-width: 2px;
+  max-width: 100%;
+  border-radius: 9999px;
   background: var(--color-home-btn-gold);
 }
 

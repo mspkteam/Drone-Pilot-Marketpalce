@@ -99,8 +99,7 @@ export const HOME_PILOT_RANKS = [
     subtitle: "INITIAL GRADE",
     badge: "a1",
     elite: false,
-    progressLabel: "A2 - A1",
-    progressPercent: 21,
+    barCount: 1,
   },
   {
     code: "A-2",
@@ -109,8 +108,7 @@ export const HOME_PILOT_RANKS = [
     subtitle: "6 MONTHS MEMBER",
     badge: "a2",
     elite: false,
-    progressLabel: "A3 - A2",
-    progressPercent: 51,
+    barCount: 2,
   },
   {
     code: "A-3",
@@ -119,8 +117,7 @@ export const HOME_PILOT_RANKS = [
     subtitle: "1 YEAR MEMBER",
     badge: "a3",
     elite: false,
-    progressLabel: "A4 - A3",
-    progressPercent: 63,
+    barCount: 3,
   },
   {
     code: "A-4",
@@ -129,8 +126,7 @@ export const HOME_PILOT_RANKS = [
     subtitle: "18 MONTHS MEMBER",
     badge: "a4",
     elite: false,
-    progressLabel: "A5 - A4",
-    progressPercent: 74,
+    barCount: 4,
   },
   {
     code: "A-5",
@@ -139,8 +135,7 @@ export const HOME_PILOT_RANKS = [
     subtitle: "2 YEARS MEMBER",
     badge: "a5",
     elite: false,
-    progressLabel: "A6 - A5",
-    progressPercent: 92,
+    barCount: 5,
   },
   {
     code: "A-6",
@@ -149,8 +144,7 @@ export const HOME_PILOT_RANKS = [
     subtitle: "3 YEARS MEMBER",
     badge: "a6",
     elite: true,
-    progressLabel: "A6",
-    progressPercent: 100,
+    barCount: 6,
   },
 ] as const;
 

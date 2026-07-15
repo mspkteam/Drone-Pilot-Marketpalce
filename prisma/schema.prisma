@@ -271,6 +271,22 @@ model ModeratorPermissionRecord {
   @@index([preset])
 }
 
+/** Append-only history of Super Admin permission map changes (M284). */
+model ModeratorPermissionAuditLog {
+  id             String   @id @default(cuid())
+  targetUserId   String
+  actorUserId    String
+  previousPreset String
+  newPreset      String
+  previousJson   String
+  newJson        String
+  createdAt      DateTime @default(now())
+
+  @@index([targetUserId])
+  @@index([actorUserId])
+  @@index([createdAt])
+}
+
 model CmsArticleRecord {
   id              String    @id @default(cuid())
   title           String

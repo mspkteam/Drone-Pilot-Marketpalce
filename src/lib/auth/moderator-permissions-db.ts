@@ -50,19 +50,35 @@ export async function saveModeratorPermissionsToDb(
     preset === "custom"
       ? config.permissions
       : buildPresetPermissions(preset);
+  const newJson = JSON.stringify(permissions);
+
+  const existing = await prisma.moderatorPermissionRecord.findUnique({
+    where: { userId: config.userId },
+  });
 
   const record = await prisma.moderatorPermissionRecord.upsert({
     where: { userId: config.userId },
     create: {
       userId: config.userId,
       preset,
-      permissionsJson: JSON.stringify(permissions),
+      permissionsJson: newJson,
       updatedByUserId: updatedBy,
     },
     update: {
       preset,
-      permissionsJson: JSON.stringify(permissions),
+      permissionsJson: newJson,
       updatedByUserId: updatedBy,
+    },
+  });
+
+  await prisma.moderatorPermissionAuditLog.create({
+    data: {
+      targetUserId: config.userId,
+      actorUserId: updatedBy,
+      previousPreset: existing?.preset ?? "none",
+      newPreset: preset,
+      previousJson: existing?.permissionsJson ?? "{}",
+      newJson,
     },
   });
 

@@ -8,19 +8,6 @@ function growthSubtext(current: number, previous: number): string {
   return pct >= 0 ? `+${pct}%` : `${pct}%`;
 }
 
-function buildMockStats(): AdminBadgeStatsDto {
-  return {
-    totalBadges: 32,
-    awarded30d: 1204,
-    awarded30dSubtext: "+18%",
-    mostEarnedTitle: "First Bid",
-    mostEarnedSubtext: "2,840 pilots",
-    rarestTitle: "Founding Aviator",
-    rarestSubtext: "36 holders",
-    usingMockStats: true,
-  };
-}
-
 export async function getBadgeStatsForAdmin(
   definitions: WingDefinitionDto[],
 ): Promise<AdminBadgeStatsDto> {
@@ -70,6 +57,6 @@ export async function getBadgeStatsForAdmin(
     rarestSubtext: rarest
       ? `${rarest.awardedCount.toLocaleString()} holders`
       : "—",
-    usingMockStats: totalAwards < 2,
+    usingMockStats: false,
   };
 }

@@ -2,20 +2,31 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { VerificationDocumentLink } from "@/components/verification/VerificationDocumentLink";
-import { VerificationStatusBadge } from "@/components/verification/VerificationStatusBadge";
-import { Button } from "@/components/ui/Button";
-import { FormField, inputClassName } from "@/components/ui/FormField";
 import { getVerificationTypeLabel } from "@/lib/verification/status";
 import { approvalStatusFilterTabs } from "@/lib/ui/status-filter-tabs";
 import type { AdminVerificationDto } from "@/types/verification";
 import type { VerificationStatus } from "@/types/verification";
-import { cn } from "@/lib/utils";
 
 const FILTERS = approvalStatusFilterTabs({
   pending: "pending",
   approved: "approved",
   rejected: "rejected",
 });
+
+function statusToneClass(status: VerificationStatus): string {
+  if (status === "approved") return "admin-verifications-status--success";
+  if (status === "rejected" || status === "expired") {
+    return "admin-verifications-status--danger";
+  }
+  return "admin-verifications-status--pending";
+}
+
+function statusLabel(status: VerificationStatus): string {
+  if (status === "pending") return "Pending";
+  if (status === "approved") return "Approved";
+  if (status === "rejected") return "Rejected";
+  return "Expired";
+}
 
 export function AdminVerificationsPanel() {
   const [filter, setFilter] = useState<VerificationStatus | "all">("pending");
@@ -100,127 +111,141 @@ export function AdminVerificationsPanel() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="dashboard-filter-bar">
-        {FILTERS.map((f) => (
-          <button
-            key={f.value}
-            type="button"
-            onClick={() => setFilter(f.value)}
-            className={cn(
-              "filter-pill", filter === f.value && "filter-pill-active"
-            )}
-          >
-            {f.label}
-          </button>
-        ))}
-        <Button type="button" variant="ghost" size="sm" onClick={() => void load()}>
+    <div className="admin-verifications-queue">
+      <div className="admin-verifications-toolbar">
+        <div
+          className="admin-verifications-filters"
+          role="tablist"
+          aria-label="Verification status filters"
+        >
+          {FILTERS.map((f) => (
+            <button
+              key={f.value}
+              type="button"
+              role="tab"
+              aria-selected={filter === f.value}
+              className={`admin-verifications-filter${
+                filter === f.value ? " admin-verifications-filter--active" : ""
+              }`}
+              onClick={() => setFilter(f.value)}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
+        <button
+          type="button"
+          className="admin-verifications-btn-outline"
+          onClick={() => void load()}
+        >
           Refresh
-        </Button>
+        </button>
       </div>
 
       {error ? (
-        <p className="text-sm text-destructive" role="alert">
+        <p className="admin-verifications-error" role="alert">
           {error}
         </p>
       ) : null}
 
       {loading ? (
-        <p className="text-sm text-muted-foreground">Loading verifications…</p>
+        <p className="admin-verifications-empty">Loading verifications…</p>
       ) : verifications.length === 0 ? (
-        <p className="empty-state">
+        <p className="admin-verifications-empty">
           No verifications in this queue.
         </p>
       ) : (
-        <ul className="list-panel">
+        <ul className="admin-verifications-list">
           {verifications.map((v) => (
-            <li key={v.id} className="space-y-3 p-4">
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                <div>
-                  <p className="font-medium">
-                    {getVerificationTypeLabel(v.type)} · {v.pilot.displayName}
+            <li key={v.id} className="admin-verifications-card">
+              <div className="admin-verifications-card-top">
+                <div className="admin-verifications-card-copy">
+                  <p className="admin-verifications-card-title">
+                    {getVerificationTypeLabel(v.type)}
+                    <span className="admin-verifications-card-sep">·</span>
+                    {v.pilot.displayName}
                   </p>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="admin-verifications-card-meta">
                     {v.pilot.email} · License {v.pilot.licenseNumber}
                   </p>
-                  <div className="mt-1">
+                  <div className="admin-verifications-doc">
                     <VerificationDocumentLink
                       verification={v}
                       audience="admin"
                     />
                   </div>
                   {v.notes ? (
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      Notes: {v.notes}
-                    </p>
+                    <p className="admin-verifications-notes">Notes: {v.notes}</p>
                   ) : null}
-                  <p className="mt-1 text-xs text-muted-foreground">
+                  <p className="admin-verifications-submitted">
                     Submitted {new Date(v.submittedAt).toLocaleString()}
                   </p>
                 </div>
-                <VerificationStatusBadge status={v.status} />
+                <span
+                  className={`admin-verifications-status ${statusToneClass(v.status)}`}
+                >
+                  {statusLabel(v.status)}
+                </span>
               </div>
 
               {v.status === "pending" ? (
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
-                  <Button
+                <div className="admin-verifications-card-actions">
+                  <button
                     type="button"
-                    size="sm"
+                    className="admin-verifications-btn-primary"
                     disabled={actingId === v.id}
                     onClick={() => void approve(v.id)}
                   >
-                    Approve
-                  </Button>
+                    {actingId === v.id && rejectId !== v.id
+                      ? "Approving…"
+                      : "Approve"}
+                  </button>
                   {rejectId === v.id ? (
-                    <div className="flex flex-1 flex-col gap-2 sm:flex-row sm:items-end">
-                      <FormField
-                        label="Rejection reason"
-                        htmlFor={`reject-${v.id}`}
-                        className="flex-1"
-                      >
+                    <div className="admin-verifications-reject-row">
+                      <label className="admin-verifications-field">
+                        <span className="admin-verifications-field-label">
+                          Rejection reason
+                        </span>
                         <input
                           id={`reject-${v.id}`}
                           type="text"
-                          className={inputClassName}
+                          className="admin-verifications-input"
                           value={rejectReason}
                           onChange={(e) => setRejectReason(e.target.value)}
                           placeholder="Required if rejecting"
                         />
-                      </FormField>
-                      <Button
+                      </label>
+                      <button
                         type="button"
-                        size="sm"
-                        variant="ghost"
+                        className="admin-verifications-btn-danger"
                         disabled={actingId === v.id}
                         onClick={() => void reject(v.id)}
                       >
                         Confirm reject
-                      </Button>
-                      <Button
+                      </button>
+                      <button
                         type="button"
-                        size="sm"
-                        variant="ghost"
+                        className="admin-verifications-btn-outline"
                         onClick={() => {
                           setRejectId(null);
                           setRejectReason("");
                         }}
                       >
                         Cancel
-                      </Button>
+                      </button>
                     </div>
                   ) : (
-                    <Button
+                    <button
                       type="button"
-                      size="sm"
-                      variant="ghost"
+                      className="admin-verifications-btn-outline"
                       onClick={() => setRejectId(v.id)}
                     >
                       Reject
-                    </Button>
+                    </button>
                   )}
                 </div>
               ) : v.rejectionReason ? (
-                <p className="text-sm text-destructive">
+                <p className="admin-verifications-rejected">
                   Rejected: {v.rejectionReason}
                 </p>
               ) : null}

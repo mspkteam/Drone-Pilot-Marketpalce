@@ -30,7 +30,7 @@
 
 .pilot-portfolio-header {
   margin-bottom: 1.75rem;
-  border: 1px solid rgba(244, 241, 234, 0.08);
+  border: 1px solid var(--dashboard-card-border);
   border-radius: 0.625rem;
   background: var(--color-card-warm);
   padding: 1.625rem;
@@ -58,7 +58,7 @@
   justify-content: space-between;
   gap: 1rem;
   margin-bottom: 2rem;
-  border: 1px solid rgba(244, 241, 234, 0.08);
+  border: 1px solid var(--dashboard-card-border);
   border-radius: 0.5rem;
   background: var(--color-card-warm);
   padding: 1.25rem 1.5rem;
@@ -121,7 +121,7 @@
   display: flex;
   min-height: 20rem;
   flex-direction: column;
-  border: 1px solid rgba(244, 241, 234, 0.08);
+  border: 1px solid var(--dashboard-card-border);
   border-radius: 0.75rem;
   background: var(--color-card-warm);
   padding: 1.25rem;
@@ -140,7 +140,7 @@
   align-items: center;
   justify-content: center;
   height: 11.25rem;
-  border: 1px solid rgba(244, 241, 234, 0.04);
+  border: 1px solid var(--color-surface-wash);
   border-radius: 0.4375rem;
   background: var(--color-bg-deeper);
   overflow: hidden;
@@ -206,7 +206,7 @@
 .pilot-portfolio-modal {
   width: 100%;
   max-width: 28rem;
-  border: 1px solid rgba(244, 241, 234, 0.1);
+  border: 1px solid var(--dashboard-card-border);
   border-radius: 0.625rem;
   background: var(--color-card-warm);
   padding: 1.5rem;
@@ -248,7 +248,7 @@
 .pilot-portfolio-input,
 .pilot-portfolio-textarea {
   width: 100%;
-  border: 1px solid rgba(244, 241, 234, 0.12);
+  border: 1px solid var(--color-border-strong);
   border-radius: 0.4375rem;
   background: var(--color-bg-deeper);
   padding: 0.625rem 0.75rem;

@@ -120,8 +120,8 @@ export function AdminTierPlansPortal() {
             <p className="admin-ops-eyebrow">SUBSCRIPTION MANAGEMENT</p>
             <h1 className="admin-subscriptions-hero-title">Subscriptions</h1>
             <p className="admin-subscriptions-hero-desc">
-              Six tiers from Recruit to Ace. Edit pricing, features and commission
-              rates without redeploying.
+              Manage A-1–A-6 membership and Fast Forward upgrades. Edit plan copy,
+              features, and visibility delays from one place.
             </p>
           </div>
           <div className="admin-subscriptions-hero-actions">

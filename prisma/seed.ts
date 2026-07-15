@@ -20,6 +20,7 @@ const SEED_PASSWORD = "Demo123!";
 
 const users = [
   { email: "admin@dronepilot.local", role: "super_admin" },
+  { email: "ops@dronepilot.local", role: "admin" },
   { email: "moderator@dronepilot.local", role: "moderator" },
   { email: "pilot@dronepilot.local", role: "pilot" },
   { email: "client@dronepilot.local", role: "client" },
@@ -55,17 +56,18 @@ async function main() {
       },
     });
 
-    if (user.role === "moderator") {
+    if (user.role === "moderator" || user.role === "admin") {
+      const preset = user.role === "admin" ? "full" : "limited";
       await prisma.moderatorPermissionRecord.upsert({
         where: { userId: record.id },
         create: {
           userId: record.id,
-          preset: "limited",
-          permissionsJson: JSON.stringify(buildPresetPermissions("limited")),
+          preset,
+          permissionsJson: JSON.stringify(buildPresetPermissions(preset)),
         },
         update: {
-          preset: "limited",
-          permissionsJson: JSON.stringify(buildPresetPermissions("limited")),
+          preset,
+          permissionsJson: JSON.stringify(buildPresetPermissions(preset)),
         },
       });
     }

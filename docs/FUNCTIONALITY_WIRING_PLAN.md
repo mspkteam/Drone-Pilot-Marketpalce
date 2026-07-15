@@ -190,19 +190,19 @@ Client posts project
 |----------------|--------|------------|-------|----------|
 | Operations dashboard | **WIRED** | Prisma stats | Minor polish only | Done |
 | Reports & analytics | **WIRED** | Prisma payments/bookings | — | Done |
-| Fleet & personnel | **PARTIAL** | `personnel-directory.ts` mock roster when empty | M221+ | P2 |
-| Job approval queue | **PARTIAL** | Prisma pending jobs; **MOCK_ROWS when empty** | Remove mock in prod wiring | P1 |
+| Fleet & personnel | **WIRED** | Real roster; Super Admin create/delete Admin/Moderator | — | Done |
+| Job approval queue | **WIRED** | Prisma pending jobs; no mock rows | Grade visibility at marketplace read | Done |
 | Messages tracking | **WIRED** | Read-only conversation list | — | Done |
 | Support chat | **WIRED** | Real support API + redesigned UI | — | Done |
-| Dispute center | **PARTIAL** | Prisma disputes; mock stats when empty | M23 | P2 |
-| Subscriptions / tier plans | **PARTIAL** | Prisma plans; mock churn stats | M91 later | P2 |
-| Commissions ledger | **PARTIAL** | Prisma commissions; `usingMockLedger` fallback | M12 | P2 |
-| Certificate engine | **PARTIAL** | DB templates; `MOCK_CERTIFICATE_TEMPLATES` when empty | M22 | Later |
-| Badges & wings | **PARTIAL** | DB wings; `MOCK_BADGE_CARDS` when empty | M15 | Later |
-| Uniform shop admin | **PARTIAL** | DB products/orders; mock inventory/orders when empty | M26, M258 | Later |
-| CMS collections | **PREVIEW** | `cms-store.ts` in-memory | M259–M265 | Later |
-| Platform configuration | **PREVIEW** | `configuration-data.ts`; save = preview modal only | M270–M274 | Later |
-| Moderator permissions | **PREVIEW** | `moderator-permissions-store.ts` in-memory; PATCH preview API | M281–M287 | Later |
+| Dispute center | **WIRED** | Prisma disputes; honest empty stats; Squadron Vote post-MVP | — | Done |
+| Subscriptions / tier plans | **WIRED** | Prisma plans; Stripe enroll later | M91 later | Done (MVP) |
+| Commissions ledger | **WIRED** | Prisma commissions; 15% default | — | Done |
+| Certificate engine | **WIRED** | DB templates; zero KPIs when empty | — | Done |
+| Badges & wings | **WIRED** | DB wings; zero KPIs when empty | — | Done |
+| Uniform shop admin | **WIRED** | DB products/orders; zero KPIs when empty | Stripe pay later | Done (MVP) |
+| CMS collections | **WIRED** | Prisma + public `/resources` | — | Done |
+| Platform configuration | **WIRED** | Persist JSON; `defaultCommissionRate` consumed | — | Done |
+| Staff permissions | **WIRED** | Prisma maps + API guards + audit log | Super Admin only UI | Done |
 | Users / pilots / verifications | **WIRED** | Prisma + admin APIs | — | Done |
 | Payments admin | **WIRED** | Prisma payments | — | Done |
 
@@ -210,9 +210,8 @@ Client posts project
 
 | Store | File | API prefix |
 |-------|------|------------|
-| CMS articles/resources | `src/lib/cms/cms-store.ts` | `/api/admin/cms/*` |
-| Platform config | `src/lib/admin/configuration-data.ts` | `/api/admin/configuration` |
-| Moderator permissions | `src/lib/auth/moderator-permissions-store.ts` | `/api/admin/permissions/*` |
+| _(removed)_ | Moderator permissions now DB | `/api/admin/permissions/*` |
+| _(removed)_ | CMS now DB via `cms-repository` | `/api/admin/cms/*` |
 
 ---
 
@@ -252,8 +251,9 @@ Client posts project
 | Bid accepted/declined emails | **NOT STARTED** (M57, M99) |
 | Job unlock alerts | **NOT STARTED** (M92) |
 | Message push / real-time | **NOT STARTED** (M64) |
-| Moderator permissions DB + API enforcement | **PREVIEW** — client/layout guards only (M281–M287) |
-| Action-level API permission checks | **NOT STARTED** (M287) |
+| Moderator permissions DB + API enforcement | **WIRED** — Prisma maps, layout/route guards, `requireAdminPermission` |
+| Action-level API permission checks | **WIRED** — mutating admin routes use `requireAdminPermission` |
+| Permission change audit log | **WIRED** — `ModeratorPermissionAuditLog` on each PATCH |
 
 ---
 

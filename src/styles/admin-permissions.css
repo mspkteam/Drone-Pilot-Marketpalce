@@ -28,7 +28,7 @@
   position: relative;
   overflow: hidden;
   min-height: 9.375rem;
-  border: 1px solid rgba(244, 241, 234, 0.08);
+  border: 1px solid var(--dashboard-card-border);
   border-radius: 0.5rem;
   background: var(--color-card-warm);
   padding: 1.75rem;
@@ -59,6 +59,89 @@
   font-size: 0.9375rem;
   line-height: 1.6;
   color: var(--color-text-muted);
+}
+
+.admin-perms-hero-counts {
+  margin: 0.875rem 0 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-gold-soft);
+}
+
+.admin-perms-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.admin-perms-list-head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 0.875rem;
+}
+
+.admin-perms-list-head .admin-perms-panel-title {
+  margin: 0;
+}
+
+.admin-perms-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+.admin-perms-filter-chip {
+  border: 1px solid var(--color-border-strong);
+  border-radius: 0.3125rem;
+  background: transparent;
+  color: var(--color-text-soft);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.35rem 0.625rem;
+  cursor: pointer;
+}
+
+.admin-perms-filter-chip--active {
+  border-color: rgba(216, 179, 57, 0.55);
+  background: rgba(216, 179, 57, 0.12);
+  color: var(--color-gold);
+}
+
+.admin-perms-role-pill--admin {
+  border-color: rgba(96, 165, 250, 0.45);
+  color: #93c5fd;
+}
+
+.admin-perms-role-pill--moderator {
+  border-color: rgba(216, 179, 57, 0.35);
+  color: var(--color-gold);
+}
+
+.admin-perms-btn-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.5rem;
+  padding: 0 1.1rem;
+  border-radius: 0.4375rem;
+  border: 1px solid rgba(244, 241, 234, 0.18);
+  background: transparent;
+  color: var(--color-text);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.admin-perms-btn-outline:hover {
+  border-color: rgba(216, 179, 57, 0.45);
+  color: var(--color-gold);
 }
 
 .admin-perms-btn-save {
@@ -115,7 +198,7 @@
 
 .admin-perms-list-panel,
 .admin-perms-detail-panel {
-  border: 1px solid rgba(244, 241, 234, 0.08);
+  border: 1px solid var(--dashboard-card-border);
   border-radius: 0.5rem;
   background: var(--color-card-warm);
   padding: 1rem;
@@ -143,7 +226,7 @@
 .admin-perms-moderator-card {
   width: 100%;
   text-align: left;
-  border: 1px solid rgba(244, 241, 234, 0.08);
+  border: 1px solid var(--dashboard-card-border);
   border-radius: 0.375rem;
   background: var(--color-bg-deeper);
   padding: 0.875rem;
@@ -192,6 +275,25 @@
   margin-top: 0.5rem;
 }
 
+.admin-perms-role-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.1rem 0.45rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(216, 179, 57, 0.35);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-gold);
+}
+
+.admin-perms-empty-inline {
+  margin: 0.75rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--color-text-soft);
+}
+
 .admin-perms-status {
   font-size: 0.6875rem;
   text-transform: uppercase;
@@ -232,7 +334,7 @@
 
 .admin-perms-preset-card {
   text-align: left;
-  border: 1px solid rgba(244, 241, 234, 0.08);
+  border: 1px solid var(--dashboard-card-border);
   border-radius: 0.375rem;
   background: var(--color-card-warm-alt);
   padding: 0.875rem;
@@ -271,7 +373,7 @@
 }
 
 .admin-perms-module-card {
-  border: 1px solid rgba(244, 241, 234, 0.08);
+  border: 1px solid var(--dashboard-card-border);
   border-radius: 0.375rem;
   background: var(--color-card-warm-alt);
   padding: 0.875rem;
@@ -300,10 +402,26 @@
   gap: 0.75rem;
 }
 
+.admin-perms-action-copy {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
 .admin-perms-action-label {
+  display: block;
   font-size: 0.75rem;
   font-weight: 600;
   color: var(--color-text);
+  line-height: 1.35;
+}
+
+.admin-perms-danger-flag {
+  margin-left: 0.35rem;
+  font-size: 0.625rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-danger-soft);
 }
 
 .admin-perms-action-helper {
@@ -321,11 +439,20 @@
   flex-shrink: 0;
   width: 2.5rem;
   height: 1.375rem;
-  border: 1px solid rgba(244, 241, 234, 0.12);
+  border: 1px solid var(--color-border-strong);
   border-radius: 999px;
   background: var(--color-bg-deeper);
   padding: 0.125rem;
   cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease,
+    opacity 0.15s ease;
+}
+
+.admin-perms-toggle:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
 .admin-perms-toggle--on {
@@ -339,7 +466,9 @@
   height: 1rem;
   border-radius: 999px;
   background: var(--color-text-soft);
-  transition: transform 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    background 0.15s ease;
 }
 
 .admin-perms-toggle--on .admin-perms-toggle-thumb {
@@ -359,7 +488,7 @@
 
 .admin-perms-modal {
   width: min(100%, 28rem);
-  border: 1px solid rgba(244, 241, 234, 0.1);
+  border: 1px solid var(--dashboard-card-border);
   border-radius: 0.5rem;
   background: var(--color-card-warm);
   padding: 1.25rem;
@@ -396,7 +525,7 @@
 }
 
 .admin-perms-modal-btn--ghost {
-  border: 1px solid rgba(244, 241, 234, 0.12);
+  border: 1px solid var(--color-border-strong);
   background: transparent;
   color: var(--color-text);
 }
@@ -416,7 +545,7 @@
 
 .admin-perms-restricted-card {
   width: min(100%, 28rem);
-  border: 1px solid rgba(244, 241, 234, 0.08);
+  border: 1px solid var(--dashboard-card-border);
   border-radius: 0.5rem;
   background: var(--color-card-warm);
   padding: 1.5rem;

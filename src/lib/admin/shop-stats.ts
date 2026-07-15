@@ -8,18 +8,6 @@ function growthSubtext(current: number, previous: number): string {
   return pct >= 0 ? `+${pct}%` : `${pct}%`;
 }
 
-function buildMockStats(): AdminShopStatsDto {
-  return {
-    revenue30d: 28420,
-    revenue30dSubtext: "+22%",
-    orders30d: 184,
-    lowStockSkus: 3,
-    lowStockSubtext: "needs reorder",
-    avgOrderValue: 154,
-    usingMockStats: true,
-  };
-}
-
 export async function getShopStatsForAdmin(): Promise<AdminShopStatsDto> {
   const now = new Date();
   const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
@@ -30,7 +18,6 @@ export async function getShopStatsForAdmin(): Promise<AdminShopStatsDto> {
     paidOrdersPrev30d,
     ordersPlaced30d,
     lowStockVariants,
-    totalPaidOrders,
   ] = await Promise.all([
     prisma.uniformOrder.findMany({
       where: {
@@ -55,14 +42,7 @@ export async function getShopStatsForAdmin(): Promise<AdminShopStatsDto> {
         stockQuantity: { gt: 0, lte: LOW_STOCK_THRESHOLD },
       },
     }),
-    prisma.uniformOrder.count({
-      where: { paymentStatus: "paid" },
-    }),
   ]);
-
-  if (totalPaidOrders === 0 && ordersPlaced30d === 0) {
-    return buildMockStats();
-  }
 
   const revenue30d = paidOrders30d.reduce((sum, order) => sum + order.total, 0);
   const revenuePrev30d = paidOrdersPrev30d.reduce(
@@ -81,7 +61,7 @@ export async function getShopStatsForAdmin(): Promise<AdminShopStatsDto> {
     lowStockSkus: lowStockVariants,
     lowStockSubtext: lowStockVariants > 0 ? "needs reorder" : "healthy",
     avgOrderValue,
-    usingMockStats: totalPaidOrders < 2,
+    usingMockStats: false,
   };
 }
 
@@ -93,6 +73,6 @@ export async function getFulfillmentPercent(): Promise<number> {
     }),
   ]);
 
-  if (activeTotal === 0) return 82;
+  if (activeTotal === 0) return 0;
   return Math.round((delivered / activeTotal) * 100);
 }

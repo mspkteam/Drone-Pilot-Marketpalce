@@ -11,6 +11,11 @@ import type {
 import type { UserRole } from "@/types/roles";
 import { isAdminRole } from "@/types/roles";
 
+/** Roles whose access is governed by permission maps (not Super Admin). */
+export function usesStaffPermissionMap(role: UserRole): boolean {
+  return role === "moderator" || role === "admin";
+}
+
 export const PERMISSION_MODULES: PermissionModuleDef[] = [
   {
     key: "dashboard",
@@ -235,6 +240,7 @@ export const MOCK_MODERATOR_SEEDS: ModeratorPermissionListItem[] = [
     email: "hana@example.com",
     status: "active",
     preset: "full",
+    role: "moderator",
     isMock: true,
   },
   {
@@ -243,6 +249,7 @@ export const MOCK_MODERATOR_SEEDS: ModeratorPermissionListItem[] = [
     email: "elara@example.com",
     status: "active",
     preset: "limited",
+    role: "moderator",
     isMock: true,
   },
   {
@@ -251,6 +258,7 @@ export const MOCK_MODERATOR_SEEDS: ModeratorPermissionListItem[] = [
     email: "quinn@example.com",
     status: "active",
     preset: "custom",
+    role: "admin",
     isMock: true,
   },
 ];
@@ -328,10 +336,6 @@ export function getDefaultModeratorPermissions(
   };
 }
 
-function seedMockStoreIfNeeded(): void {
-  // Legacy no-op — permissions are persisted in Prisma.
-}
-
 /** @deprecated Use getModeratorPermissionsFromDb in server code. */
 export function getModeratorPermissions(userId: string): ModeratorPermissionConfig {
   return getDefaultModeratorPermissions(userId, "full");
@@ -370,7 +374,7 @@ export function canAccessModule(
   config?: ModeratorPermissionConfig | null,
 ): boolean {
   if (role === "super_admin") return true;
-  if (!isAdminRole(role) || role !== "moderator" || !userId) return false;
+  if (!usesStaffPermissionMap(role) || !userId) return false;
 
   const permissions = config ?? getModeratorPermissions(userId);
   return permissions.permissions[moduleKey]?.view === true;
@@ -384,7 +388,7 @@ export function canPerformAction(
   config?: ModeratorPermissionConfig | null,
 ): boolean {
   if (role === "super_admin") return true;
-  if (!isAdminRole(role) || role !== "moderator" || !userId) return false;
+  if (!usesStaffPermissionMap(role) || !userId) return false;
 
   const permissions = config ?? getModeratorPermissions(userId);
   const modulePerms = permissions.permissions[moduleKey];
@@ -451,7 +455,8 @@ export function filterAdminNavForPermissions(
       items: [...group.items],
     }));
   }
-  if (role !== "moderator" || !userId) {
+
+  if (!usesStaffPermissionMap(role) || !userId) {
     return navGroups
       .map((group) => ({
         ...group,

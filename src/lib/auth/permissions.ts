@@ -42,11 +42,18 @@ export function getRequiredAdminRole(pathname: string): UserRole | null {
   return null;
 }
 
+/**
+ * Role hierarchy for admin surfaces:
+ * super_admin > admin > moderator
+ */
 export function roleMeetsRequirement(
   userRole: UserRole,
   required: UserRole,
 ): boolean {
   if (required === "super_admin") return userRole === "super_admin";
+  if (required === "admin") {
+    return userRole === "admin" || userRole === "super_admin";
+  }
   if (required === "moderator") return isAdminRole(userRole);
   return userRole === required;
 }

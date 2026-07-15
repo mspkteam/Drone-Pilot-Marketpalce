@@ -45,7 +45,7 @@
 
 .pilot-subscription-hero {
   overflow: hidden;
-  border: 1px solid rgba(244, 241, 234, 0.08);
+  border: 1px solid var(--dashboard-card-border);
   border-radius: 0.625rem;
   background: var(--color-card-warm);
   padding: 1.5rem 1.75rem;
@@ -75,7 +75,7 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 1rem 2rem;
-  border: 1px solid rgba(244, 241, 234, 0.08);
+  border: 1px solid var(--dashboard-card-border);
   border-radius: 0.625rem;
   background: var(--color-card-warm-alt);
   padding: 1.25rem 1.5rem;
@@ -323,7 +323,7 @@
   justify-content: space-between;
   gap: 0.75rem;
   margin-top: 0.75rem;
-  border: 1px solid rgba(244, 241, 234, 0.08);
+  border: 1px solid var(--dashboard-card-border);
   border-radius: 0.5rem;
   background: rgba(0, 0, 0, 0.18);
   padding: 0.625rem 0.75rem;
@@ -383,7 +383,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 1rem 2rem;
-  border: 1px solid rgba(244, 241, 234, 0.08);
+  border: 1px solid var(--dashboard-card-border);
   border-radius: 0.625rem;
   background: var(--color-card-warm-alt);
   padding: 1.25rem 1.5rem;
@@ -428,7 +428,7 @@
 .pilot-subscription-captains {
   display: grid;
   gap: 1.25rem;
-  border: 1px solid rgba(244, 241, 234, 0.08);
+  border: 1px solid var(--dashboard-card-border);
   border-radius: 0.625rem;
   background: var(--color-card-warm);
   padding: 1.375rem 1.5rem;
@@ -559,7 +559,7 @@
 
 .pilot-subscription-empty-banner {
   margin: 0 0 1.25rem;
-  border: 1px solid rgba(244, 241, 234, 0.08);
+  border: 1px solid var(--dashboard-card-border);
   border-radius: 0.625rem;
   background: var(--color-card-warm-alt);
   padding: 1rem 1.125rem;
@@ -649,7 +649,7 @@
 }
 
 .pilot-subscription-panel {
-  border: 1px solid rgba(244, 241, 234, 0.08);
+  border: 1px solid var(--dashboard-card-border);
   border-radius: 0.75rem;
   background: var(--color-card-warm);
   padding: 1.375rem 1.5rem;

@@ -30,7 +30,7 @@
 
 .pilot-shop-header {
   margin-bottom: 2rem;
-  border: 1px solid rgba(244, 241, 234, 0.08);
+  border: 1px solid var(--dashboard-card-border);
   border-radius: 0.625rem;
   background: var(--color-card-warm);
   padding: 1.625rem;
@@ -89,7 +89,7 @@
   display: flex;
   min-height: 22.5rem;
   flex-direction: column;
-  border: 1px solid rgba(244, 241, 234, 0.08);
+  border: 1px solid var(--dashboard-card-border);
   border-radius: 0.5rem;
   background: var(--color-card-warm-alt);
   padding: 1rem;
@@ -125,7 +125,7 @@
   display: inline-flex;
   width: fit-content;
   margin-top: 1rem;
-  border: 1px solid rgba(244, 241, 234, 0.08);
+  border: 1px solid var(--dashboard-card-border);
   border-radius: 0.1875rem;
   background: var(--color-bg-section);
   padding: 0.3125rem 0.5rem;
@@ -189,7 +189,7 @@
   position: sticky;
   top: 1rem;
   overflow: hidden;
-  border: 1px solid rgba(244, 241, 234, 0.08);
+  border: 1px solid var(--dashboard-card-border);
   border-radius: 0.375rem;
   background: var(--color-card-warm);
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
@@ -213,7 +213,7 @@
 .pilot-shop-cart-head {
   margin: 0;
   padding: 1.125rem;
-  border-bottom: 1px solid rgba(244, 241, 234, 0.06);
+  border-bottom: 1px solid var(--color-border-divider);
   font-size: 0.9375rem;
   font-weight: 700;
   letter-spacing: 0.06em;
@@ -238,7 +238,7 @@
   justify-content: space-between;
   gap: 0.75rem;
   padding: 0.875rem 1.125rem;
-  border-bottom: 1px solid rgba(244, 241, 234, 0.06);
+  border-bottom: 1px solid var(--color-border-divider);
 }
 
 .pilot-shop-cart-item-name {
@@ -261,7 +261,7 @@
 
 .pilot-shop-cart-qty {
   width: 2.5rem;
-  border: 1px solid rgba(244, 241, 234, 0.12);
+  border: 1px solid var(--color-border-strong);
   border-radius: 0.25rem;
   background: var(--color-panel);
   padding: 0.125rem 0.25rem;
@@ -334,7 +334,7 @@
 
 .pilot-shop-checkout-form {
   padding: 0 1.125rem 1.125rem;
-  border-top: 1px solid rgba(244, 241, 234, 0.06);
+  border-top: 1px solid var(--color-border-divider);
 }
 
 .pilot-shop-checkout-form-title {
@@ -357,7 +357,7 @@
 }
 
 .pilot-shop-field input {
-  border: 1px solid rgba(244, 241, 234, 0.12);
+  border: 1px solid var(--color-border-strong);
   border-radius: 0.375rem;
   background: var(--color-panel);
   padding: 0.625rem 0.75rem;
@@ -397,7 +397,7 @@
 }
 
 .pilot-shop-cancel-btn {
-  border: 1px solid rgba(244, 241, 234, 0.12);
+  border: 1px solid var(--color-border-strong);
   background: transparent;
   color: var(--color-text-muted);
 }

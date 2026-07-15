@@ -36,6 +36,7 @@ export const ROLE_DASHBOARD_PATH: Record<
   client: "/dashboard/client",
   pilot: "/dashboard/pilot",
   moderator: "/dashboard/admin",
+  admin: "/dashboard/admin",
   super_admin: "/dashboard/admin",
 };
 

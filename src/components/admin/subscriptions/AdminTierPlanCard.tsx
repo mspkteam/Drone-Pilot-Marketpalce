@@ -18,10 +18,11 @@ export function AdminTierPlanCard({
   onManageFeatures,
 }: AdminTierPlanCardProps) {
   const rankSrc = plan.rankKey ? homeAssets.ranks[plan.rankKey] : null;
+  const yearly = plan.priceYearly > 0 ? plan.priceYearly : plan.priceMonthly;
   const priceLabel =
     plan.currency === "USD"
-      ? `$${plan.priceMonthly.toLocaleString()}`
-      : `${plan.currency} ${plan.priceMonthly.toLocaleString()}`;
+      ? `$${yearly.toLocaleString(undefined, { minimumFractionDigits: yearly % 1 ? 2 : 0, maximumFractionDigits: 2 })}`
+      : `${plan.currency} ${yearly.toLocaleString()}`;
 
   return (
     <article
@@ -64,7 +65,7 @@ export function AdminTierPlanCard({
 
       <p className="admin-subscriptions-tier-price">
         <span className="admin-subscriptions-tier-price-value">{priceLabel}</span>
-        <span className="admin-subscriptions-tier-price-unit">/month</span>
+        <span className="admin-subscriptions-tier-price-unit">/year</span>
       </p>
 
       <p className="admin-subscriptions-tier-desc">{plan.description}</p>

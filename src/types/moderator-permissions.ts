@@ -82,6 +82,7 @@ export type ModeratorPermissionListItem = {
   email: string;
   status: string;
   preset: PermissionPreset;
+  role: "admin" | "moderator";
   isMock?: boolean;
 };
 

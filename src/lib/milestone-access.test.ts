@@ -38,8 +38,8 @@ afterEach(() => {
 });
 
 describe("milestone access", () => {
-  it("defaults to milestone 1", () => {
-    assert.equal(getActiveMilestone(), 1);
+  it("defaults to milestone 2", () => {
+    assert.equal(getActiveMilestone(), 2);
   });
 
   it("respects NEXT_PUBLIC_MILESTONE_ACTIVE override", () => {
@@ -51,7 +51,7 @@ describe("milestone access", () => {
 
   it("ignores invalid milestone env values", () => {
     process.env.MILESTONE_ACTIVE = "99";
-    assert.equal(getActiveMilestone(), 1);
+    assert.equal(getActiveMilestone(), 2);
   });
 
   it("treats marketing paths as public", () => {
@@ -60,15 +60,15 @@ describe("milestone access", () => {
     assert.equal(isPublicDashboardPath("/dashboard/client"), false);
   });
 
-  it("unlocks week 1 client routes at milestone 1", () => {
+  it("unlocks week 1 client routes at milestone 2", () => {
     const access = evaluateMilestoneAccess("/dashboard/client/jobs", "client");
     assert.equal(access.allowed, true);
     assert.equal(access.match?.rule.featureKey, "client.my-projects");
   });
 
-  it("locks admin routes at milestone 1", () => {
+  it("unlocks admin routes at milestone 2", () => {
     const access = evaluateMilestoneAccess("/dashboard/admin", "moderator");
-    assert.equal(access.allowed, false);
+    assert.equal(access.allowed, true);
     assert.equal(access.requiredMilestone, 2);
   });
 
@@ -79,7 +79,7 @@ describe("milestone access", () => {
     assert.equal(access.requiredMilestone, 2);
   });
 
-  it("locks pilot marketplace at milestone 1", () => {
+  it("locks pilot marketplace at milestone 2", () => {
     const access = evaluateMilestoneAccess("/dashboard/pilot/jobs", "pilot");
     assert.equal(access.allowed, false);
     assert.equal(access.requiredMilestone, 3);
@@ -110,7 +110,7 @@ describe("milestone access", () => {
 
   it("marks locked nav hrefs for future milestones", () => {
     assert.equal(isNavHrefLocked("/dashboard/pilot/jobs"), true);
-    assert.equal(isNavHrefLocked("/dashboard/admin"), true);
+    assert.equal(isNavHrefLocked("/dashboard/admin"), false);
     assert.equal(isNavHrefLocked("/dashboard/client/jobs"), false);
   });
 

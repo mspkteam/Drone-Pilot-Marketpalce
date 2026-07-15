@@ -1,11 +1,13 @@
 import { notFound, redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { AdminJobReview } from "@/components/admin/AdminJobReview";
-import { PageHeader } from "@/components/layout/PageHeader";
+import { DashboardPageLayout } from "@/components/dashboard";
 import { getJobForAdmin } from "@/lib/jobs/admin";
 import { isAdminRole, type UserRole } from "@/types/roles";
+import "@/styles/admin-dashboard.css";
+import "@/styles/admin-job-approval.css";
 
-export const metadata = { title: "Review job" };
+export const metadata = { title: "Review mission" };
 
 type PageProps = {
   params: Promise<{ id: string }>;
@@ -25,11 +27,8 @@ export default async function AdminJobReviewPage({ params }: PageProps) {
   }
 
   return (
-    <>
-      <PageHeader title="Review job" description="Moderate this job posting." />
-      <div className="mt-8 max-w-3xl">
-        <AdminJobReview job={job} />
-      </div>
-    </>
+    <DashboardPageLayout className="admin-job-approval-shell">
+      <AdminJobReview job={job} />
+    </DashboardPageLayout>
   );
 }

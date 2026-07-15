@@ -2,7 +2,7 @@ import { PrismaClient } from "@/generated/prisma/client";
 import { createPrismaClient } from "@/lib/create-prisma-client";
 
 /** Bump when Prisma schema changes so dev HMR does not keep an old client. */
-const PRISMA_CLIENT_SCHEMA_VERSION = 32;
+const PRISMA_CLIENT_SCHEMA_VERSION = 33;
 
 const globalForPrisma = globalThis as unknown as {
   prisma?: PrismaClient;
@@ -37,6 +37,15 @@ function isStalePrismaClient(client: PrismaClient): boolean {
     uniformProductVariant?: unknown;
     uniformOrder?: unknown;
     uniformOrderItem?: unknown;
+    supportChat?: unknown;
+    supportChatMessage?: unknown;
+    moderatorPermissionRecord?: unknown;
+    moderatorPermissionAuditLog?: unknown;
+    cmsArticleRecord?: unknown;
+    cmsResourceRecord?: unknown;
+    platformSetting?: unknown;
+    operatingRegion?: unknown;
+    squadronBallot?: unknown;
   };
   return (
     typeof c.pilotProfile === "undefined" ||
@@ -67,6 +76,7 @@ function isStalePrismaClient(client: PrismaClient): boolean {
     typeof c.supportChat === "undefined" ||
     typeof c.supportChatMessage === "undefined" ||
     typeof c.moderatorPermissionRecord === "undefined" ||
+    typeof c.moderatorPermissionAuditLog === "undefined" ||
     typeof c.cmsArticleRecord === "undefined" ||
     typeof c.cmsResourceRecord === "undefined" ||
     typeof c.platformSetting === "undefined" ||

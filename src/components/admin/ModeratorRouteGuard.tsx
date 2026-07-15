@@ -5,6 +5,7 @@ import { ModeratorAccessRestricted } from "@/components/admin/ModeratorAccessRes
 import {
   canAccessAdminPathWithPermissions,
   getModuleKeyForAdminPath,
+  usesStaffPermissionMap,
 } from "@/lib/auth/moderator-permissions";
 import type { ModeratorPermissionConfig } from "@/types/moderator-permissions";
 import type { UserRole } from "@/types/roles";
@@ -28,7 +29,7 @@ export function ModeratorRouteGuard({
     return children;
   }
 
-  if (role !== "moderator" || !userId) {
+  if (!usesStaffPermissionMap(role) || !userId) {
     return children;
   }
 
@@ -50,7 +51,7 @@ export function ModeratorRouteGuard({
       : "this area";
     return (
       <ModeratorAccessRestricted
-        message={`Your admin has disabled access to ${moduleLabel}.`}
+        message={`Your Super Admin has disabled access to ${moduleLabel}.`}
       />
     );
   }

@@ -1,14 +1,38 @@
 /**
- * Remote Air Service — unified dashboard theme (matches home / marketing).
- * Applied to all client, pilot, admin, and moderator dashboards via .dashboard-app.
+ * Remote Air Service — unified dashboard theme
+ * Visual source of truth: Homepage, Hire Pilots, Join as Pilot,
+ * How It Works, Pricing, Safety (globals.css :root + brand-shared.css).
+ *
+ * Applied under .dashboard-app for client, pilot, admin, and moderator.
  */
 
 .dashboard-app {
   background: var(--color-bg-soft);
   color: var(--color-text-muted);
+  font-family: var(--font-sans), system-ui, sans-serif;
 }
 
-/* ——— Shared hero panels (client / pilot / admin) ——— */
+.dashboard-app .dashboard-page {
+  width: 100%;
+  min-width: 0;
+  gap: var(--brand-section-gap);
+}
+
+@media (min-width: 640px) {
+  .dashboard-app .dashboard-page {
+    gap: var(--brand-section-gap-lg);
+  }
+}
+
+.dashboard-app .dashboard-canvas {
+  width: 100%;
+  max-width: var(--dashboard-content-width);
+  min-width: 0;
+}
+
+/* ——— Page heroes / headers ——— */
+.dashboard-app [class$="-hero"],
+.dashboard-app [class*="-hero "],
 .dashboard-app .client-dashboard-welcome,
 .dashboard-app .admin-ops-hero,
 .dashboard-app .pilot-dashboard-hero,
@@ -19,11 +43,32 @@
 .dashboard-app .admin-personnel-hero,
 .dashboard-app .admin-job-approval-hero,
 .dashboard-app .admin-dispute-hero,
-.dashboard-app .admin-config-hero,
 .dashboard-app .admin-cms-hero,
 .dashboard-app .admin-badges-hero,
 .dashboard-app .admin-shop-hero,
-.dashboard-app .admin-subscriptions-hero {
+.dashboard-app .admin-subscriptions-hero,
+.dashboard-app .admin-certificates-hero,
+.dashboard-app .admin-messages-hero,
+.dashboard-app .admin-support-hero,
+.dashboard-app .admin-verifications-hero,
+.dashboard-app .admin-squadron-hero,
+.dashboard-app .admin-regions-hero,
+.dashboard-app .client-billing-hero,
+.dashboard-app .client-settings-hero,
+.dashboard-app .client-disputes-hero,
+.dashboard-app .client-find-pilots-hero,
+.dashboard-app .client-messages-hero,
+.dashboard-app .pilot-locked-hero,
+.dashboard-app .pilot-marketplace-hero,
+.dashboard-app .pilot-proposals-hero,
+.dashboard-app .pilot-payments-hero,
+.dashboard-app .pilot-portfolio-hero,
+.dashboard-app .pilot-reviews-hero,
+.dashboard-app .pilot-shop-hero,
+.dashboard-app .pilot-subscription-hero,
+.dashboard-app .pilot-support-hero,
+.dashboard-app .pilot-settings-hero,
+.dashboard-app .pilot-verifications-hero {
   position: relative;
   overflow: hidden;
   border: 1px solid var(--dashboard-card-border);
@@ -32,16 +77,11 @@
   box-shadow: var(--shadow-card);
 }
 
+.dashboard-app [class$="-hero-glow"],
+.dashboard-app [class*="-hero-glow"],
 .dashboard-app .client-dashboard-welcome-glow,
 .dashboard-app .admin-ops-hero-glow,
-.dashboard-app .pilot-dashboard-hero-glow,
-.dashboard-app .admin-config-hero-glow,
-.dashboard-app .admin-perms-hero-glow,
-.dashboard-app .admin-reports-hero-glow,
-.dashboard-app .admin-commissions-hero-glow,
-.dashboard-app .admin-personnel-hero-glow,
-.dashboard-app .admin-job-approval-hero-glow,
-.dashboard-app .admin-dispute-hero-glow {
+.dashboard-app .pilot-dashboard-hero-glow {
   pointer-events: none;
   position: absolute;
   inset: 0;
@@ -52,56 +92,59 @@
   );
 }
 
-/* ——— Shared typography (home/marketing alignment) ——— */
+/* ——— Typography hierarchy (marketing-aligned) ——— */
+.dashboard-app [class$="-eyebrow"],
+.dashboard-app [class*="-eyebrow"],
 .dashboard-app .client-dashboard-pill,
 .dashboard-app .pilot-dashboard-badge--gold,
 .dashboard-app .admin-ops-eyebrow,
 .dashboard-app .pilot-dashboard-eyebrow,
-.dashboard-app .admin-ops-eyebrow,
-.dashboard-app .admin-config-hero .admin-ops-eyebrow,
-.dashboard-app .admin-perms-hero .admin-ops-eyebrow,
-.dashboard-app .admin-reports-hero .admin-ops-eyebrow,
-.dashboard-app .admin-commissions-hero .admin-ops-eyebrow,
-.dashboard-app .admin-personnel-hero .admin-ops-eyebrow,
-.dashboard-app .admin-job-approval-hero .admin-ops-eyebrow,
-.dashboard-app .admin-dispute-hero .admin-ops-eyebrow {
-  font-size: 0.6875rem;
+.dashboard-app .dashboard-section-eyebrow {
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--color-gold);
 }
 
+.dashboard-app [class$="-hero-title"],
+.dashboard-app [class*="-hero-title"],
 .dashboard-app .client-dashboard-welcome-title,
 .dashboard-app .admin-ops-hero-title,
 .dashboard-app .pilot-dashboard-hero-title,
-.dashboard-app .admin-config-hero-title,
-.dashboard-app .admin-perms-hero-title,
-.dashboard-app .admin-reports-hero-title,
-.dashboard-app .admin-commissions-hero-title,
-.dashboard-app .admin-personnel-hero-title,
-.dashboard-app .admin-job-approval-hero-title,
-.dashboard-app .admin-dispute-hero-title {
+.dashboard-app .dashboard-section-title {
   color: var(--color-text-heading);
-  font-weight: 800;
-  line-height: 1.12;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
 }
 
+.dashboard-app [class$="-hero-desc"],
+.dashboard-app [class*="-hero-desc"],
+.dashboard-app [class$="-hero-subtitle"],
 .dashboard-app .client-dashboard-welcome-subtitle,
 .dashboard-app .admin-ops-hero-desc,
-.dashboard-app .pilot-dashboard-hero-desc,
-.dashboard-app .admin-config-hero-desc,
-.dashboard-app .admin-perms-hero-desc,
-.dashboard-app .admin-reports-hero-desc,
-.dashboard-app .admin-commissions-hero-desc,
-.dashboard-app .admin-personnel-hero-desc,
-.dashboard-app .admin-job-approval-hero-desc,
-.dashboard-app .admin-dispute-hero-desc {
+.dashboard-app .pilot-dashboard-hero-desc {
   color: var(--color-text-warm);
   line-height: 1.6;
+  font-size: 0.9375rem;
 }
 
-/* ——— Unified buttons inside dashboards ——— */
+.dashboard-app [class$="-panel-title"],
+.dashboard-app [class$="-section-title"],
+.dashboard-app [class*="-section-title"] {
+  color: var(--color-gold);
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* ——— Primary / secondary buttons ——— */
+.dashboard-app [class*="btn-primary"],
+.dashboard-app [class*="btn-export"],
+.dashboard-app [class*="btn-save"],
+.dashboard-app [class*="btn-run"],
 .dashboard-app .admin-ops-btn-primary,
 .dashboard-app .client-dashboard-btn-primary,
 .dashboard-app .pilot-dashboard-btn-primary,
@@ -109,67 +152,99 @@
 .dashboard-app .admin-personnel-btn-export,
 .dashboard-app .admin-reports-btn-export,
 .dashboard-app .admin-config-btn-save,
-.dashboard-app .admin-perms-btn-save {
+.dashboard-app .admin-perms-btn-save,
+.dashboard-app .ras-btn-primary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  min-height: 2.5rem;
   border-radius: var(--radius);
   border: 1px solid rgba(216, 179, 57, 0.35);
   background: var(--color-gold);
   color: var(--color-cta-dark);
-  font-weight: 700;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1;
   transition:
     background-color 0.2s ease,
     border-color 0.2s ease,
     color 0.2s ease;
 }
 
-.dashboard-app .admin-ops-btn-primary:hover,
-.dashboard-app .client-dashboard-btn-primary:hover,
-.dashboard-app .pilot-dashboard-btn-primary:hover,
-.dashboard-app .admin-commissions-btn-run:hover,
-.dashboard-app .admin-personnel-btn-export:hover,
-.dashboard-app .admin-reports-btn-export:hover,
-.dashboard-app .admin-config-btn-save:hover,
-.dashboard-app .admin-perms-btn-save:hover {
+.dashboard-app [class*="btn-primary"]:hover,
+.dashboard-app [class*="btn-export"]:hover,
+.dashboard-app [class*="btn-save"]:hover,
+.dashboard-app [class*="btn-run"]:hover,
+.dashboard-app .ras-btn-primary:hover {
   background: var(--color-gold-soft);
   color: var(--color-cta-dark);
 }
 
+.dashboard-app [class*="btn-outline"],
+.dashboard-app [class*="btn-ghost"],
+.dashboard-app [class*="btn-secondary"],
 .dashboard-app .admin-ops-btn-outline,
 .dashboard-app .client-dashboard-btn-outline,
 .dashboard-app .pilot-dashboard-btn-outline,
 .dashboard-app .admin-personnel-btn-outline,
 .dashboard-app .admin-commissions-ledger-btn,
-.dashboard-app .admin-job-approval-btn-review {
+.dashboard-app .admin-job-approval-btn--ghost,
+.dashboard-app .admin-job-approval-btn-review,
+.dashboard-app .admin-perms-btn-outline,
+.dashboard-app .ras-btn-outline {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  min-height: 2.5rem;
   border-radius: var(--radius);
   border: 1px solid var(--color-border-gold);
   background: transparent;
   color: var(--color-gold);
+  font-size: 0.875rem;
   font-weight: 600;
+  line-height: 1;
   transition:
     background-color 0.2s ease,
     border-color 0.2s ease,
     color 0.2s ease;
 }
 
-.dashboard-app .admin-ops-btn-outline:hover,
-.dashboard-app .client-dashboard-btn-outline:hover,
-.dashboard-app .pilot-dashboard-btn-outline:hover,
-.dashboard-app .admin-personnel-btn-outline:hover,
-.dashboard-app .admin-commissions-ledger-btn:hover,
-.dashboard-app .admin-job-approval-btn-review:hover {
+.dashboard-app [class*="btn-outline"]:hover,
+.dashboard-app [class*="btn-ghost"]:hover,
+.dashboard-app [class*="btn-secondary"]:hover,
+.dashboard-app .ras-btn-outline:hover {
   border-color: var(--color-gold);
   background: rgba(216, 179, 57, 0.1);
   color: var(--color-gold-soft);
 }
 
-/* ——— Unified cards / panels ——— */
+.dashboard-app [class*="btn-danger"],
+.dashboard-app .ras-btn-danger {
+  border-radius: var(--radius);
+  min-height: 2.5rem;
+  border: 1px solid rgba(239, 68, 68, 0.45);
+  background: var(--color-danger-muted);
+  color: var(--color-danger-soft);
+  font-weight: 600;
+}
+
+/* ——— Cards / panels / tables wrappers ——— */
+.dashboard-app [class$="-stat-card"],
+.dashboard-app [class*="-stat-card"],
+.dashboard-app .premium-card,
+.dashboard-app .dashboard-card,
+.dashboard-app .stat-card,
+.dashboard-app .list-panel,
+.dashboard-app [class$="-table-wrap"],
+.dashboard-app [class*="-filters"],
+.dashboard-app [class*="-queue-panel"],
+.dashboard-app [class*="-chart-card"] {
+  border-color: var(--dashboard-card-border);
+  border-radius: var(--radius-card);
+}
+
 .dashboard-app .client-dashboard-stat-card,
 .dashboard-app .admin-ops-stat-card,
 .dashboard-app .pilot-dashboard-stat-card,
@@ -182,10 +257,10 @@
 .dashboard-app .admin-perms-module-card,
 .dashboard-app .admin-perms-moderator-card,
 .dashboard-app .admin-cms-collection-card,
-.dashboard-app .admin-shop-inventory-row,
 .dashboard-app .admin-badge-card,
 .dashboard-app .premium-card,
-.dashboard-app .dashboard-card {
+.dashboard-app .dashboard-card,
+.dashboard-app .stat-card {
   border: 1px solid var(--dashboard-card-border);
   border-radius: var(--radius-card);
   background: var(--color-card-warm);
@@ -200,7 +275,177 @@
   border-color: rgba(216, 179, 57, 0.22);
 }
 
-/* ——— Sidebar / nav (home header alignment) ——— */
+/* Stat label / value rhythm */
+.dashboard-app [class$="-stat-label"],
+.dashboard-app [class*="-stat-label"] {
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text-soft);
+}
+
+.dashboard-app [class$="-stat-value"],
+.dashboard-app [class*="-stat-value"] {
+  font-size: clamp(1.5rem, 2vw, 1.875rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--color-text-heading);
+  line-height: 1.15;
+}
+
+/* ——— Forms / inputs ——— */
+.dashboard-app input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]),
+.dashboard-app select,
+.dashboard-app textarea {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  background: var(--color-input-bg);
+  color: var(--color-text);
+  font-size: 0.875rem;
+  font-family: inherit;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.dashboard-app input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):focus,
+.dashboard-app select:focus,
+.dashboard-app textarea:focus {
+  outline: none;
+  border-color: var(--color-border-gold);
+  box-shadow: 0 0 0 2px rgba(216, 179, 57, 0.18);
+}
+
+.dashboard-app input::placeholder,
+.dashboard-app textarea::placeholder {
+  color: var(--color-text-soft);
+}
+
+.dashboard-app label,
+.dashboard-app [class$="-field-label"],
+.dashboard-app [class*="-field-label"] {
+  color: var(--color-text-soft);
+}
+
+.dashboard-app [class$="-field-label"],
+.dashboard-app [class*="-field-label"] {
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* ——— Tables ——— */
+.dashboard-app table thead th {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-soft);
+  border-bottom: 1px solid var(--dashboard-card-border);
+}
+
+.dashboard-app table tbody td {
+  border-bottom: 1px solid var(--color-border-divider);
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+
+.dashboard-app table tbody tr:hover td {
+  background: var(--color-surface-wash);
+}
+
+/* ——— Filters / chips / tabs ——— */
+.dashboard-app [class*="filter-chip"],
+.dashboard-app [class*="filter-pill"],
+.dashboard-app [class*="status-pill"],
+.dashboard-app [class*="-tab"]:not([class*="table"]),
+.dashboard-app .filter-pill {
+  border-radius: var(--radius-control);
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text-soft);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.dashboard-app [class*="filter-chip--active"],
+.dashboard-app [class*="filter-pill--active"],
+.dashboard-app [class*="status-pill--active"],
+.dashboard-app [class*="-tab--active"],
+.dashboard-app [class*="-chip--active"],
+.dashboard-app .filter-pill-active {
+  border-color: var(--color-border-gold);
+  background: rgba(216, 179, 57, 0.12);
+  color: var(--color-gold);
+}
+
+/* ——— Status badges ——— */
+.dashboard-app [class*="status--success"],
+.dashboard-app [class*="status--settled"],
+.dashboard-app [class*="status--active"],
+.dashboard-app [class*="status--approved"],
+.dashboard-app [class*="badge--verified"],
+.dashboard-app .status-badge-success {
+  color: var(--color-success-bright);
+}
+
+.dashboard-app [class*="status--danger"],
+.dashboard-app [class*="status--rejected"],
+.dashboard-app [class*="status--failed"],
+.dashboard-app [class*="status--held"],
+.dashboard-app .status-badge-error {
+  color: var(--color-danger-soft);
+}
+
+.dashboard-app [class*="status--warning"],
+.dashboard-app [class*="status--pending"],
+.dashboard-app .status-badge-warning {
+  color: var(--color-gold-soft);
+}
+
+.dashboard-app .admin-ops-stat-sub--success,
+.dashboard-app .admin-reports-stat-sub--success,
+.dashboard-app .admin-commissions-stat-sub--success,
+.dashboard-app .pilot-dashboard-activity-icon--success {
+  color: var(--color-success-bright);
+}
+
+/* ——— Modals ———
+   Only the dialog shell (class ends with `-modal`), never child
+   classes like `…-modal-title` / `…-modal-select` / `…-modal-actions`. */
+.dashboard-app [class*="modal-backdrop"] {
+  background: rgba(0, 0, 0, 0.72);
+}
+
+.dashboard-app [class$="-modal"],
+.dashboard-app [class*="-modal "] {
+  border: 1px solid var(--dashboard-card-border);
+  border-radius: var(--radius-card);
+  background: var(--color-card-warm);
+  box-shadow: var(--shadow-card);
+  color: var(--color-text);
+}
+
+.dashboard-app [class$="-modal-title"],
+.dashboard-app [class*="-modal-title"] {
+  color: var(--color-text-heading);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.dashboard-app [class$="-modal-copy"],
+.dashboard-app [class*="-modal-copy"],
+.dashboard-app [class$="-modal-text"],
+.dashboard-app [class*="-modal-text"] {
+  color: var(--color-text-warm);
+  line-height: 1.55;
+}
+
+/* ——— Sidebar / topbar (shell) ——— */
 .dashboard-app .dashboard-sidebar {
   border-right-color: var(--color-border-muted);
   background: var(--color-bg);
@@ -213,6 +458,10 @@
 
 .dashboard-app .dashboard-nav-group-label {
   color: var(--color-text-soft);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
 }
 
 .dashboard-app .dashboard-nav-item--active {
@@ -226,7 +475,7 @@
   background: var(--color-card);
 }
 
-/* ——— Tables & filters ——— */
+/* ——— Tables & filters containers ——— */
 .dashboard-app .admin-commissions-table-wrap,
 .dashboard-app .admin-commissions-filters,
 .dashboard-app .admin-personnel-table-wrap,
@@ -239,53 +488,28 @@
   background: var(--color-card-warm);
 }
 
-.dashboard-app .admin-commissions-filters input,
-.dashboard-app .admin-commissions-filters select,
-.dashboard-app .admin-personnel-filters input,
-.dashboard-app .admin-personnel-filters select,
-.dashboard-app .admin-job-approval-filters input,
-.dashboard-app .admin-job-approval-filters select,
-.dashboard-app .admin-dispute-filters input,
-.dashboard-app .admin-dispute-filters select {
-  border: 1px solid var(--color-border);
-  border-radius: calc(var(--radius) - 2px);
-  background: var(--color-input-bg);
-  color: var(--color-text);
+/* ——— Pagination ——— */
+.dashboard-app [class*="page-btn"],
+.dashboard-app [class*="pagination"] button {
+  border: 1px solid var(--dashboard-card-border);
+  border-radius: var(--radius-control);
+  background: var(--color-panel);
+  color: var(--color-text-muted);
+  min-height: 2rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
 }
 
-.dashboard-app .admin-commissions-filters input::placeholder,
-.dashboard-app .admin-personnel-filters input::placeholder {
-  color: var(--color-text-soft);
+.dashboard-app [class*="page-btn--active"],
+.dashboard-app [class*="pagination"] button[aria-current="page"] {
+  border-color: var(--color-border-gold);
+  background: var(--color-gold);
+  color: var(--color-cta-dark);
 }
 
-/* ——— Status colors (site-wide) ——— */
-.dashboard-app .admin-ops-stat-sub--success,
-.dashboard-app .admin-reports-stat-sub--success,
-.dashboard-app .admin-commissions-stat-sub--success,
-.dashboard-app .pilot-dashboard-activity-icon--success {
-  color: var(--color-success-bright);
-}
-
-.dashboard-app .admin-commissions-status--settled,
-.dashboard-app .admin-personnel-status--success,
-.dashboard-app .pilot-dashboard-badge--verified {
-  color: var(--color-success-bright);
-  border-color: rgba(34, 197, 94, 0.45);
-}
-
-.dashboard-app .admin-commissions-status--held,
-.dashboard-app .admin-dispute-status--danger,
-.dashboard-app .admin-personnel-status--danger {
-  color: var(--color-danger-soft);
-}
-
-/* ——— Page canvas ——— */
-.dashboard-app .dashboard-page {
-  width: 100%;
-  min-width: 0;
-}
-
-.dashboard-app .dashboard-canvas {
-  width: 100%;
-  min-width: 0;
+/* Soften accidental SaaS blues in dashboard chrome */
+.dashboard-app .text-blue-400,
+.dashboard-app .text-blue-300,
+.dashboard-app .text-sky-400 {
+  color: var(--color-gold-soft) !important;
 }

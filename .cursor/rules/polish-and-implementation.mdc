@@ -14,7 +14,7 @@ alwaysApply: true
 
 **Do not implement unless asked:** Stripe, Stripe Connect, SMTP/production email, M19 SEO, M20 launch QA, Remote Rescue (M319).
 
-**Current default:** Client My Projects + Project Bids wiring (Milestone 1).
+**Current default:** Milestone 2 (Admin & Moderator) **complete**. Next unlock: Milestone 3 — Pilot (when signed off).
 
 ## When implementing a priority
 

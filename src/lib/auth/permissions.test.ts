@@ -21,6 +21,7 @@ describe("auth permissions", () => {
     assert.equal(canAccessDashboard("client", "pilot"), false);
     assert.equal(canAccessDashboard("pilot", "pilot"), true);
     assert.equal(canAccessDashboard("moderator", "admin"), true);
+    assert.equal(canAccessDashboard("admin", "admin"), true);
     assert.equal(canAccessDashboard("super_admin", "admin"), true);
     assert.equal(canAccessDashboard("pilot", "admin"), false);
   });
@@ -31,16 +32,26 @@ describe("auth permissions", () => {
       false,
     );
     assert.equal(
+      canAccessAdminPath("admin", "/dashboard/admin/permissions"),
+      false,
+    );
+    assert.equal(
       canAccessAdminPath("super_admin", "/dashboard/admin/permissions"),
       true,
     );
     assert.equal(canAccessAdminPath("moderator", "/dashboard/admin/jobs"), true);
+    assert.equal(canAccessAdminPath("admin", "/dashboard/admin/jobs"), true);
   });
 
   it("evaluates role hierarchy for admin requirements", () => {
     assert.equal(roleMeetsRequirement("super_admin", "super_admin"), true);
+    assert.equal(roleMeetsRequirement("admin", "super_admin"), false);
     assert.equal(roleMeetsRequirement("moderator", "super_admin"), false);
+    assert.equal(roleMeetsRequirement("super_admin", "admin"), true);
+    assert.equal(roleMeetsRequirement("admin", "admin"), true);
+    assert.equal(roleMeetsRequirement("moderator", "admin"), false);
     assert.equal(roleMeetsRequirement("moderator", "moderator"), true);
+    assert.equal(roleMeetsRequirement("admin", "moderator"), true);
     assert.equal(roleMeetsRequirement("super_admin", "moderator"), true);
   });
 

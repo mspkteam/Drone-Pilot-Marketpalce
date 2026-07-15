@@ -42,6 +42,10 @@ export function AdminJobApprovalQueue({ initialData }: AdminJobApprovalQueueProp
   const [submitting, setSubmitting] = useState(false);
   const [modalError, setModalError] = useState<string | null>(null);
   const [filterOpen, setFilterOpen] = useState(false);
+  const [actionNotice, setActionNotice] = useState<{
+    mode: "approve" | "reject";
+    title: string;
+  } | null>(null);
 
   const filteredRows = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
@@ -145,6 +149,10 @@ export function AdminJobApprovalQueue({ initialData }: AdminJobApprovalQueueProp
       }),
     );
 
+    setActionNotice({
+      mode: modal.mode,
+      title: modal.row.title,
+    });
     setModal({ open: false, mode: "approve", row: null });
     void refreshQueue();
   }
@@ -180,9 +188,38 @@ export function AdminJobApprovalQueue({ initialData }: AdminJobApprovalQueueProp
         ))}
       </section>
 
+      {actionNotice ? (
+        <div
+          className={`admin-job-approval-notice admin-job-approval-notice--${actionNotice.mode}`}
+          role="status"
+        >
+          <div>
+            <p className="admin-job-approval-notice-title">
+              {actionNotice.mode === "approve"
+                ? "Mission approved"
+                : "Mission rejected"}
+            </p>
+            <p className="admin-job-approval-notice-copy">
+              {actionNotice.title}
+              {actionNotice.mode === "approve"
+                ? " — now Open. Grade visibility delays are active; A-1 cannot bid."
+                : " — client notified. They can edit and resubmit."}
+            </p>
+          </div>
+          <button
+            type="button"
+            className="admin-job-approval-notice-dismiss"
+            onClick={() => setActionNotice(null)}
+            aria-label="Dismiss notice"
+          >
+            Dismiss
+          </button>
+        </div>
+      ) : null}
+
       <section className="admin-job-approval-panel" aria-label="Pending missions">
         <div className="admin-job-approval-panel-head">
-          <h2 className="admin-job-approval-panel-title">PENDING MISSIONS</h2>
+          <h2 className="admin-job-approval-panel-title">Pending missions</h2>
           <div className="admin-job-approval-panel-tools">
             <div className="admin-job-approval-filter-wrap">
               <button
@@ -250,7 +287,12 @@ export function AdminJobApprovalQueue({ initialData }: AdminJobApprovalQueueProp
         </label>
 
         <ul className="admin-job-approval-mission-list">
-          {pageRows.map((row) => (
+          {pageRows.length === 0 ? (
+            <li className="admin-job-approval-empty">
+              No pending missions match this filter.
+            </li>
+          ) : (
+            pageRows.map((row) => (
             <li
               key={row.id}
               className={`admin-job-approval-mission-row${
@@ -294,7 +336,10 @@ export function AdminJobApprovalQueue({ initialData }: AdminJobApprovalQueueProp
               </div>
               <div className="admin-job-approval-mission-actions">
                 {canReview ? (
-                  <Link href={row.reviewHref} className="admin-job-approval-btn-review">
+                  <Link
+                    href={row.reviewHref}
+                    className="admin-job-approval-btn admin-job-approval-btn--ghost"
+                  >
                     <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
                       <circle cx="7" cy="7" r="2.25" stroke="currentColor" strokeWidth="1.1" />
                       <path
@@ -303,31 +348,32 @@ export function AdminJobApprovalQueue({ initialData }: AdminJobApprovalQueueProp
                         strokeWidth="1.1"
                       />
                     </svg>
-                    REVIEW
+                    Review
                   </Link>
                 ) : null}
                 {canReject ? (
                   <button
                     type="button"
-                    className="admin-job-approval-btn-reject"
+                    className="admin-job-approval-btn admin-job-approval-btn--reject"
                     aria-label={`Reject ${row.missionId}`}
                     onClick={() => openModal("reject", row)}
                   >
-                    ×
+                    Reject
                   </button>
                 ) : null}
                 {canApprove ? (
                   <button
                     type="button"
-                    className="admin-job-approval-btn-approve"
+                    className="admin-job-approval-btn admin-job-approval-btn--approve"
                     onClick={() => openModal("approve", row)}
                   >
-                    APPROVE
+                    Approve
                   </button>
                 ) : null}
               </div>
             </li>
-          ))}
+            ))
+          )}
         </ul>
 
         <div className="admin-job-approval-panel-footer">
@@ -359,11 +405,14 @@ export function AdminJobApprovalQueue({ initialData }: AdminJobApprovalQueueProp
         open={modal.open}
         mode={modal.mode}
         missionTitle={modal.row?.title ?? ""}
+        missionId={modal.row?.missionId}
         submitting={submitting}
         error={modalError}
         onCancel={() => {
-          setModal({ open: false, mode: "approve", row: null });
-          setModalError(null);
+          if (!submitting) {
+            setModal({ open: false, mode: "approve", row: null });
+            setModalError(null);
+          }
         }}
         onConfirm={handleConfirm}
       />

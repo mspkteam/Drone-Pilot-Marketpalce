@@ -4,6 +4,7 @@ import {
   isValidSupportStatus,
   listSupportChatsForAdmin,
 } from "@/lib/support/support";
+import { isFullAdminRole } from "@/types/roles";
 
 export async function GET(request: Request) {
   const authResult = await requireAdminModuleView("support");
@@ -27,6 +28,6 @@ export async function GET(request: Request) {
 
   return NextResponse.json({
     chats,
-    canReply: authResult.role === "super_admin",
+    canReply: isFullAdminRole(authResult.role),
   });
 }

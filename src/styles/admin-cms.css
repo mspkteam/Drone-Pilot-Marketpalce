@@ -27,7 +27,7 @@
   position: relative;
   overflow: hidden;
   min-height: 9.375rem;
-  border: 1px solid rgba(244, 241, 234, 0.08);
+  border: 1px solid var(--dashboard-card-border);
   border-radius: 0.5rem;
   background: var(--color-card-warm);
   padding: 1.75rem;
@@ -105,7 +105,7 @@ a.admin-cms-btn-outline {
   justify-content: center;
   min-height: 2.5rem;
   padding: 0 1.25rem;
-  border: 1px solid rgba(244, 241, 234, 0.12);
+  border: 1px solid var(--color-border-strong);
   border-radius: 0.375rem;
   background: transparent;
   font-size: 0.8125rem;
@@ -204,7 +204,7 @@ a.admin-cms-btn-outline {
 }
 
 .admin-cms-collection-card {
-  border: 1px solid rgba(244, 241, 234, 0.08);
+  border: 1px solid var(--dashboard-card-border);
   border-radius: 0.5rem;
   background: var(--color-card-warm);
   padding: 1.75rem;
@@ -253,7 +253,7 @@ a.admin-cms-btn-outline {
 .admin-cms-filter-select {
   min-height: 2.5rem;
   padding: 0.375rem 0.75rem;
-  border: 1px solid rgba(244, 241, 234, 0.1);
+  border: 1px solid var(--dashboard-card-border);
   border-radius: 0.375rem;
   background: var(--color-bg-deeper);
   color: var(--color-text);
@@ -279,7 +279,7 @@ a.admin-cms-btn-outline {
 
 /* Table */
 .admin-cms-table-panel {
-  border: 1px solid rgba(244, 241, 234, 0.08);
+  border: 1px solid var(--dashboard-card-border);
   border-radius: 0.5rem;
   background: var(--color-card-warm);
   padding: 1.25rem;
@@ -298,7 +298,7 @@ a.admin-cms-btn-outline {
 
 .admin-cms-table th {
   padding: 0.75rem 0.875rem;
-  border-bottom: 1px solid rgba(244, 241, 234, 0.08);
+  border-bottom: 1px solid var(--dashboard-card-border);
   text-align: left;
   font-size: 0.625rem;
   font-weight: 700;
@@ -309,7 +309,7 @@ a.admin-cms-btn-outline {
 
 .admin-cms-table td {
   padding: 0.875rem;
-  border-bottom: 1px solid rgba(244, 241, 234, 0.06);
+  border-bottom: 1px solid var(--color-border-divider);
   vertical-align: top;
   color: var(--color-text);
 }
@@ -389,8 +389,8 @@ a.admin-cms-btn-outline {
 }
 
 .admin-cms-status--archived {
-  border: 1px solid rgba(244, 241, 234, 0.12);
-  background: rgba(244, 241, 234, 0.04);
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-surface-wash);
   color: var(--color-text-soft);
 }
 
@@ -425,7 +425,7 @@ a.admin-cms-btn-outline {
 
 .admin-cms-editor-card,
 .admin-cms-sidebar-card {
-  border: 1px solid rgba(244, 241, 234, 0.08);
+  border: 1px solid var(--dashboard-card-border);
   border-radius: 0.5rem;
   background: var(--color-card-warm);
   padding: 1.25rem 1.5rem;
@@ -466,7 +466,7 @@ a.admin-cms-btn-outline {
   width: 100%;
   min-height: 2.5rem;
   padding: 0.5rem 0.75rem;
-  border: 1px solid rgba(244, 241, 234, 0.1);
+  border: 1px solid var(--dashboard-card-border);
   border-radius: 0.375rem;
   background: var(--color-bg-deeper);
   color: var(--color-text);

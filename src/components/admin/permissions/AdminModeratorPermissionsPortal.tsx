@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { AdminPersonnelInviteModal } from "@/components/dashboard/admin/personnel/AdminPersonnelInviteModal";
 import { AdminPermissionSaveModal } from "@/components/admin/permissions/AdminPermissionSaveModal";
 import { buildPresetPermissions, presetLabel } from "@/lib/auth/moderator-permissions";
 import type {
@@ -23,12 +24,12 @@ const PRESET_OPTIONS: Array<{
     key: "full",
     title: "Full Access",
     description:
-      "Moderator can access every operational module and all allowed moderator actions.",
+      "Staff can access every operational module and allowed actions.",
   },
   {
     key: "limited",
     title: "Limited Access",
-    description: "Moderator can access core review queues only.",
+    description: "Staff can access core review queues only.",
   },
   {
     key: "custom",
@@ -45,21 +46,38 @@ function clonePermissionMap(map: ModeratorPermissionMap): ModeratorPermissionMap
   return next;
 }
 
+function roleBadgeLabel(role: "admin" | "moderator"): string {
+  return role === "admin" ? "Admin" : "Moderator";
+}
+
 type AdminModeratorPermissionsPortalProps = {
   canManage: boolean;
+  /** Server-rendered staff list so Super Admin always sees Admins/Moderators. */
+  initialData?: AdminPermissionsEngineDto | null;
 };
 
 export function AdminModeratorPermissionsPortal({
   canManage,
+  initialData = null,
 }: AdminModeratorPermissionsPortalProps) {
-  const [data, setData] = useState<AdminPermissionsEngineDto | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState<AdminPermissionsEngineDto | null>(
+    initialData,
+  );
+  const [loading, setLoading] = useState(!initialData && canManage);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [draft, setDraft] = useState<ModeratorPermissionConfig | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(
+    initialData?.selectedUserId ?? null,
+  );
+  const [draft, setDraft] = useState<ModeratorPermissionConfig | null>(
+    initialData?.config ?? null,
+  );
   const [showSaveConfirm, setShowSaveConfirm] = useState(false);
+  const [showAddUser, setShowAddUser] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [staffFilter, setStaffFilter] = useState<"all" | "admin" | "moderator">(
+    "all",
+  );
 
   const load = useCallback(async (userId?: string | null) => {
     setLoading(true);
@@ -72,7 +90,6 @@ export function AdminModeratorPermissionsPortal({
       };
       if (!res.ok) {
         setError(json.error ?? "Failed to load permissions.");
-        setData(null);
         return;
       }
       setData(json);
@@ -80,22 +97,32 @@ export function AdminModeratorPermissionsPortal({
       setDraft(json.config);
     } catch {
       setError("Failed to load permissions.");
-      setData(null);
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
+    if (!canManage) return;
+    if (initialData) return;
     void load();
-  }, [load]);
+  }, [canManage, initialData, load]);
 
-  const selectedModerator = useMemo<ModeratorPermissionListItem | null>(() => {
+  const staffList = data?.moderators ?? [];
+  const filteredStaff = useMemo(() => {
+    if (staffFilter === "all") return staffList;
+    return staffList.filter((mod) => mod.role === staffFilter);
+  }, [staffList, staffFilter]);
+
+  const adminCount = staffList.filter((m) => m.role === "admin").length;
+  const moderatorCount = staffList.filter((m) => m.role === "moderator").length;
+
+  const selectedStaff = useMemo<ModeratorPermissionListItem | null>(() => {
     if (!data || !selectedId) return null;
     return data.moderators.find((mod) => mod.id === selectedId) ?? null;
   }, [data, selectedId]);
 
-  function handleSelectModerator(mod: ModeratorPermissionListItem) {
+  function handleSelectStaff(mod: ModeratorPermissionListItem) {
     setSelectedId(mod.id);
     setNotice(null);
     void load(mod.id);
@@ -104,7 +131,9 @@ export function AdminModeratorPermissionsPortal({
   function handlePresetChange(preset: PermissionPreset) {
     if (!draft) return;
     const permissions =
-      preset === "custom" ? clonePermissionMap(draft.permissions) : buildPresetPermissions(preset);
+      preset === "custom"
+        ? clonePermissionMap(draft.permissions)
+        : buildPresetPermissions(preset);
     setDraft({
       ...draft,
       preset,
@@ -145,14 +174,17 @@ export function AdminModeratorPermissionsPortal({
     if (!draft || !selectedId) return;
     setSaving(true);
     try {
-      const res = await fetch(`/api/admin/permissions/${encodeURIComponent(selectedId)}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          preset: draft.preset,
-          permissions: draft.permissions,
-        }),
-      });
+      const res = await fetch(
+        `/api/admin/permissions/${encodeURIComponent(selectedId)}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            preset: draft.preset,
+            permissions: draft.permissions,
+          }),
+        },
+      );
       const json = (await res.json()) as {
         config?: ModeratorPermissionConfig;
         message?: string;
@@ -163,7 +195,7 @@ export function AdminModeratorPermissionsPortal({
         return;
       }
       if (json.config) setDraft(json.config);
-      setNotice(json.message ?? "Moderator permissions saved.");
+      setNotice(json.message ?? "Permissions saved.");
       setShowSaveConfirm(false);
       void load(selectedId);
     } catch {
@@ -173,36 +205,62 @@ export function AdminModeratorPermissionsPortal({
     }
   }
 
+  if (!canManage) {
+    return (
+      <div className="admin-perms-restricted">
+        <div className="admin-perms-restricted-card">
+          <p className="admin-perms-restricted-eyebrow">SUPER ADMIN ONLY</p>
+          <h1 className="admin-perms-restricted-title">Staff Permissions</h1>
+          <p className="admin-perms-restricted-message">
+            Only Super Admin can add Admins/Moderators and limit their access.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   if (loading && !data) {
-    return <p className="admin-perms-loading">Loading moderator permissions…</p>;
+    return <p className="admin-perms-loading">Loading staff permissions…</p>;
   }
 
   return (
     <div className="admin-perms-page">
       <section
         className="admin-perms-hero admin-ops-bracket-card"
-        aria-label="Moderator permissions"
+        aria-label="Staff permissions"
       >
         <div className="admin-ops-hero-glow" aria-hidden />
         <div className="admin-perms-hero-inner">
           <div className="admin-perms-hero-copy">
             <p className="admin-ops-eyebrow">ACCESS CONTROL</p>
-            <h1 className="admin-perms-hero-title">Moderator Permissions</h1>
+            <h1 className="admin-perms-hero-title">Staff Permissions</h1>
             <p className="admin-perms-hero-desc">
-              Give moderators full operational access by default, then limit specific pages
-              or actions when needed.
+              Limit which admin pages and actions each Admin or Moderator can
+              use. Super Admin accounts are not listed here — they always have
+              full access.
+            </p>
+            <p className="admin-perms-hero-counts">
+              {adminCount} Admin{adminCount === 1 ? "" : "s"} · {moderatorCount}{" "}
+              Moderator{moderatorCount === 1 ? "" : "s"}
             </p>
           </div>
-          {canManage ? (
+          <div className="admin-perms-hero-actions">
+            <button
+              type="button"
+              className="admin-perms-btn-outline"
+              onClick={() => setShowAddUser(true)}
+            >
+              Add Admin / Moderator
+            </button>
             <button
               type="button"
               className="admin-perms-btn-save"
               onClick={() => setShowSaveConfirm(true)}
-              disabled={!draft || !selectedId}
+              disabled={!draft || !selectedId || saving}
             >
               Save Permissions
             </button>
-          ) : null}
+          </div>
         </div>
       </section>
 
@@ -219,10 +277,38 @@ export function AdminModeratorPermissionsPortal({
       ) : null}
 
       <div className="admin-perms-layout">
-        <aside className="admin-perms-list-panel" aria-label="Moderator list">
-          <h2 className="admin-perms-panel-title">MODERATORS</h2>
+        <aside className="admin-perms-list-panel" aria-label="Staff list">
+          <div className="admin-perms-list-head">
+            <h2 className="admin-perms-panel-title">STAFF ACCOUNTS</h2>
+            <div
+              className="admin-perms-filter-row"
+              role="tablist"
+              aria-label="Filter by role"
+            >
+              {(
+                [
+                  ["all", "All"],
+                  ["admin", "Admins"],
+                  ["moderator", "Mods"],
+                ] as const
+              ).map(([key, label]) => (
+                <button
+                  key={key}
+                  type="button"
+                  role="tab"
+                  aria-selected={staffFilter === key}
+                  className={`admin-perms-filter-chip${
+                    staffFilter === key ? " admin-perms-filter-chip--active" : ""
+                  }`}
+                  onClick={() => setStaffFilter(key)}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
           <ul className="admin-perms-moderator-list">
-            {data?.moderators.map((mod) => {
+            {filteredStaff.map((mod) => {
               const active = mod.id === selectedId;
               return (
                 <li key={mod.id}>
@@ -231,7 +317,7 @@ export function AdminModeratorPermissionsPortal({
                     className={`admin-perms-moderator-card${
                       active ? " admin-perms-moderator-card--active" : ""
                     }`}
-                    onClick={() => handleSelectModerator(mod)}
+                    onClick={() => handleSelectStaff(mod)}
                   >
                     <div className="admin-perms-moderator-top">
                       <span className="admin-perms-moderator-name">{mod.name}</span>
@@ -241,6 +327,11 @@ export function AdminModeratorPermissionsPortal({
                     </div>
                     <span className="admin-perms-moderator-email">{mod.email}</span>
                     <div className="admin-perms-moderator-meta">
+                      <span
+                        className={`admin-perms-role-pill admin-perms-role-pill--${mod.role}`}
+                      >
+                        {roleBadgeLabel(mod.role)}
+                      </span>
                       <span className="admin-perms-status">{mod.status}</span>
                     </div>
                   </button>
@@ -248,15 +339,27 @@ export function AdminModeratorPermissionsPortal({
               );
             })}
           </ul>
+          {staffList.length === 0 ? (
+            <p className="admin-perms-empty-inline">
+              No Admin or Moderator accounts yet. Use{" "}
+              <strong>Add Admin / Moderator</strong> to create one.
+            </p>
+          ) : filteredStaff.length === 0 ? (
+            <p className="admin-perms-empty-inline">
+              No accounts match this filter.
+            </p>
+          ) : null}
         </aside>
 
         <div className="admin-perms-detail-panel">
-          {selectedModerator && draft ? (
+          {selectedStaff && draft ? (
             <>
               <div className="admin-perms-detail-head">
                 <div>
-                  <h2 className="admin-perms-detail-title">{selectedModerator.name}</h2>
-                  <p className="admin-perms-detail-sub">{selectedModerator.email}</p>
+                  <h2 className="admin-perms-detail-title">{selectedStaff.name}</h2>
+                  <p className="admin-perms-detail-sub">
+                    {selectedStaff.email} · {roleBadgeLabel(selectedStaff.role)}
+                  </p>
                 </div>
               </div>
 
@@ -276,7 +379,9 @@ export function AdminModeratorPermissionsPortal({
                       disabled={!canManage}
                     >
                       <span className="admin-perms-preset-title">{option.title}</span>
-                      <span className="admin-perms-preset-desc">{option.description}</span>
+                      <span className="admin-perms-preset-desc">
+                        {option.description}
+                      </span>
                     </button>
                   ))}
                 </div>
@@ -300,17 +405,27 @@ export function AdminModeratorPermissionsPortal({
               </section>
             </>
           ) : (
-            <p className="admin-perms-empty">Select a moderator to manage permissions.</p>
+            <p className="admin-perms-empty">
+              Select an Admin or Moderator to manage permissions.
+            </p>
           )}
         </div>
       </div>
 
       <AdminPermissionSaveModal
         open={showSaveConfirm}
-        moderatorName={selectedModerator?.name ?? "this moderator"}
+        moderatorName={selectedStaff?.name ?? "this user"}
         saving={saving}
         onCancel={() => setShowSaveConfirm(false)}
         onConfirm={() => void handleSaveConfirm()}
+      />
+
+      <AdminPersonnelInviteModal
+        open={showAddUser}
+        onClose={() => {
+          setShowAddUser(false);
+          void load(selectedId);
+        }}
       />
     </div>
   );
@@ -318,7 +433,7 @@ export function AdminModeratorPermissionsPortal({
 
 type ModulePermissionCardProps = {
   moduleDef: PermissionModuleDef;
-  permissions: ModeratorPermissionMap[PermissionModuleKey] | undefined;
+  permissions: Partial<Record<PermissionActionKey, boolean>> | undefined;
   canManage: boolean;
   onToggle: (actionKey: PermissionActionKey, enabled: boolean) => void;
 };
@@ -335,17 +450,21 @@ function ModulePermissionCard({
       <ul className="admin-perms-action-list">
         {moduleDef.actions.map((action) => {
           const enabled = permissions?.[action.key] === true;
-          const toggleId = `${moduleDef.key}-${action.key}`;
           return (
             <li key={action.key} className="admin-perms-action-row">
               <div className="admin-perms-action-copy">
-                <label htmlFor={toggleId} className="admin-perms-action-label">
+                <span className="admin-perms-action-label">
                   {action.label}
-                </label>
+                  {action.dangerous ? (
+                    <span className="admin-perms-danger-flag"> High risk</span>
+                  ) : null}
+                </span>
                 {action.helperText ? (
                   <p
                     className={`admin-perms-action-helper${
-                      action.dangerous ? " admin-perms-action-helper--danger" : ""
+                      action.dangerous
+                        ? " admin-perms-action-helper--danger"
+                        : ""
                     }`}
                   >
                     {action.helperText}
@@ -353,18 +472,17 @@ function ModulePermissionCard({
                 ) : null}
               </div>
               <button
-                id={toggleId}
                 type="button"
                 role="switch"
                 aria-checked={enabled}
-                className={`admin-perms-toggle${enabled ? " admin-perms-toggle--on" : ""}`}
-                onClick={() => onToggle(action.key, !enabled)}
+                aria-label={action.label}
+                className={`admin-perms-toggle${
+                  enabled ? " admin-perms-toggle--on" : ""
+                }`}
                 disabled={!canManage}
+                onClick={() => onToggle(action.key, !enabled)}
               >
                 <span className="admin-perms-toggle-thumb" aria-hidden />
-                <span className="sr-only">
-                  {enabled ? "Allowed" : "Restricted"} — {action.label}
-                </span>
               </button>
             </li>
           );

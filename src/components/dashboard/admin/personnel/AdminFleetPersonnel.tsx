@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { AdminPersonnelInviteModal } from "@/components/dashboard/admin/personnel/AdminPersonnelInviteModal";
 import { useModeratorPermissions } from "@/contexts/ModeratorPermissionsContext";
 import {
@@ -14,6 +15,8 @@ const PAGE_SIZE = 6;
 
 type AdminFleetPersonnelProps = {
   data: PersonnelDirectoryData;
+  /** Super Admin only — create/delete Admin and Moderator accounts. */
+  canManageManagementUsers?: boolean;
 };
 
 function rowsToCsv(rows: PersonnelRow[]): string {
@@ -42,20 +45,31 @@ function StatusBadge({ row }: { row: PersonnelRow }) {
   );
 }
 
-export function AdminFleetPersonnel({ data }: AdminFleetPersonnelProps) {
+export function AdminFleetPersonnel({
+  data,
+  canManageManagementUsers = false,
+}: AdminFleetPersonnelProps) {
+  const router = useRouter();
   const { canPerform } = useModeratorPermissions();
   const canExport = canPerform("users", "export");
-  const canInvite = canPerform("users", "invite");
+  const canInvite = canManageManagementUsers;
 
   const [roleFilter, setRoleFilter] = useState<string>("All roles");
   const [regionFilter, setRegionFilter] = useState<string>("Global");
   const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(1);
   const [inviteOpen, setInviteOpen] = useState(false);
+  const [rows, setRows] = useState(data.rows);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setRows(data.rows);
+  }, [data.rows]);
 
   const filteredRows = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
-    return data.rows.filter((row) => {
+    return rows.filter((row) => {
       const roleMatch =
         roleFilter === "All roles" || row.roleFilter === roleFilter;
       const regionMatch =
@@ -67,7 +81,7 @@ export function AdminFleetPersonnel({ data }: AdminFleetPersonnelProps) {
         .toLowerCase()
         .includes(query);
     });
-  }, [data.rows, roleFilter, regionFilter, searchQuery]);
+  }, [rows, roleFilter, regionFilter, searchQuery]);
 
   const totalPages = Math.max(1, Math.ceil(filteredRows.length / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
@@ -89,6 +103,33 @@ export function AdminFleetPersonnel({ data }: AdminFleetPersonnelProps) {
     anchor.click();
     URL.revokeObjectURL(url);
   }, [filteredRows]);
+
+  async function handleDelete(row: PersonnelRow) {
+    if (!canManageManagementUsers || !row.isManagementUser) return;
+    const confirmed = window.confirm(
+      `Delete ${row.roleLabel} account "${row.name}" (${row.displayId})? This cannot be undone.`,
+    );
+    if (!confirmed) return;
+
+    setActionError(null);
+    setDeletingId(row.id);
+    try {
+      const res = await fetch(`/api/admin/management-users/${row.id}`, {
+        method: "DELETE",
+      });
+      const payload = (await res.json()) as { error?: string };
+      if (!res.ok) {
+        setActionError(payload.error ?? "Failed to delete user.");
+        return;
+      }
+      setRows((current) => current.filter((item) => item.id !== row.id));
+      router.refresh();
+    } catch {
+      setActionError("Failed to delete user.");
+    } finally {
+      setDeletingId(null);
+    }
+  }
 
   return (
     <div className="admin-personnel-page">
@@ -122,12 +163,18 @@ export function AdminFleetPersonnel({ data }: AdminFleetPersonnelProps) {
                 className="admin-personnel-btn-outline"
                 onClick={() => setInviteOpen(true)}
               >
-                Invite user
+                Add management user
               </button>
             ) : null}
           </div>
         </div>
       </section>
+
+      {actionError ? (
+        <p className="admin-personnel-banner-error" role="alert">
+          {actionError}
+        </p>
+      ) : null}
 
       <section
         className="admin-personnel-stats-grid"
@@ -219,7 +266,9 @@ export function AdminFleetPersonnel({ data }: AdminFleetPersonnelProps) {
                 <th>REGION</th>
                 <th>STATUS</th>
                 <th>JOINED</th>
-                <th>ACTIONS</th>
+                <th className="admin-personnel-th-actions" scope="col">
+                  ACTIONS
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -237,18 +286,45 @@ export function AdminFleetPersonnel({ data }: AdminFleetPersonnelProps) {
                     </td>
                     <td className="admin-personnel-joined">{row.joinedLabel}</td>
                     <td className="admin-personnel-actions">
-                      <Link href={row.viewHref} className="admin-personnel-action">
-                        VIEW
-                      </Link>
-                      {row.editHref ? (
-                        <Link href={row.editHref} className="admin-personnel-action">
-                          EDIT
+                      <div className="admin-personnel-actions-row">
+                        <Link
+                          href={row.viewHref}
+                          className="admin-personnel-action"
+                        >
+                          VIEW
                         </Link>
-                      ) : (
-                        <span className="admin-personnel-action admin-personnel-action--disabled">
-                          EDIT
-                        </span>
-                      )}
+                        {row.editHref ? (
+                          <Link
+                            href={row.editHref}
+                            className="admin-personnel-action"
+                          >
+                            EDIT
+                          </Link>
+                        ) : (
+                          <span className="admin-personnel-action admin-personnel-action--disabled">
+                            EDIT
+                          </span>
+                        )}
+                        {canManageManagementUsers ? (
+                          row.isManagementUser ? (
+                            <button
+                              type="button"
+                              className="admin-personnel-action admin-personnel-action--danger"
+                              disabled={deletingId === row.id}
+                              onClick={() => void handleDelete(row)}
+                            >
+                              {deletingId === row.id ? "…" : "DELETE"}
+                            </button>
+                          ) : (
+                            <span
+                              className="admin-personnel-action admin-personnel-action--placeholder"
+                              aria-hidden
+                            >
+                              DELETE
+                            </span>
+                          )
+                        ) : null}
+                      </div>
                     </td>
                   </tr>
                 ))

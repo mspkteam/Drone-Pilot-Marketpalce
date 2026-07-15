@@ -180,7 +180,7 @@ export function AdminCommissionsPortal() {
                 setShowPayoutModal(true);
               }}
             >
-              RUN PAYOUTS
+              Run Payouts
             </button>
           ) : null}
         </div>
@@ -248,7 +248,7 @@ export function AdminCommissionsPortal() {
       <section className="admin-commissions-ledger" aria-label="Transaction ledger">
         <div className="admin-commissions-ledger-head">
           <div>
-            <h2 className="admin-commissions-ledger-title">TRANSACTION LEDGER</h2>
+            <h2 className="admin-commissions-ledger-title">Transaction ledger</h2>
             <p className="admin-commissions-ledger-sub">
               Fixed {COMMISSION_PCT}% platform commission on completed missions
             </p>
@@ -261,7 +261,7 @@ export function AdminCommissionsPortal() {
                 onClick={handleExportCsv}
                 disabled={filteredRows.length === 0}
               >
-                EXPORT CSV
+                Export CSV
               </button>
             ) : null}
             <button
@@ -271,7 +271,7 @@ export function AdminCommissionsPortal() {
               }`}
               onClick={() => setShowFilters((value) => !value)}
             >
-              FILTER
+              {showFilters ? "Hide filters" : "Filters"}
             </button>
           </div>
         </div>

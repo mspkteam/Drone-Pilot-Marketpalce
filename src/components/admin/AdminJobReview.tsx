@@ -3,15 +3,29 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { JobStatusBadge } from "@/components/jobs/JobStatusBadge";
-import { Button } from "@/components/ui/Button";
-import { FormField, inputClassName } from "@/components/ui/FormField";
+import { AdminJobApprovalModal } from "@/components/dashboard/admin/job-approval/AdminJobApprovalModal";
+import { useModeratorPermissions } from "@/contexts/ModeratorPermissionsContext";
+import {
+  JOB_APPROVAL_VISIBILITY_STEPS,
+  JOB_REJECTION_NEXT_STEPS,
+} from "@/lib/admin/job-approval-next-steps";
+import { canApproveJob, canRejectJob } from "@/lib/jobs/status";
 import { JOB_CATEGORIES } from "@/types/job";
 import type { AdminJobDto } from "@/types/admin-job";
-import { canApproveJob, canRejectJob } from "@/lib/jobs/status";
 
 function categoryLabel(id: string) {
   return JOB_CATEGORIES.find((c) => c.id === id)?.label ?? id;
+}
+
+function formatBudget(job: AdminJobDto): string {
+  if (job.budgetMin == null && job.budgetMax == null) return "Not set";
+  const min = job.budgetMin != null ? `$${job.budgetMin.toLocaleString()}` : "—";
+  const max = job.budgetMax != null ? `$${job.budgetMax.toLocaleString()}` : "—";
+  return `${min} – ${max} ${job.currency}`;
+}
+
+function statusLabel(status: string): string {
+  return status.replace(/_/g, " ");
 }
 
 type AdminJobReviewProps = {
@@ -20,179 +34,263 @@ type AdminJobReviewProps = {
 
 export function AdminJobReview({ job }: AdminJobReviewProps) {
   const router = useRouter();
-  const [rejectReason, setRejectReason] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const { canPerform } = useModeratorPermissions();
+  const canApprove = canPerform("jobApproval", "approve");
+  const canReject = canPerform("jobApproval", "reject");
 
-  async function handleApprove() {
-    setError(null);
-    setSuccess(null);
-    setLoading(true);
-    const res = await fetch(`/api/admin/jobs/${job.id}/approve`, {
+  const [modalMode, setModalMode] = useState<"approve" | "reject" | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [modalError, setModalError] = useState<string | null>(null);
+  const [outcome, setOutcome] = useState<"approve" | "reject" | null>(null);
+  const [rejectionReason, setRejectionReason] = useState(job.rejectionReason);
+
+  const pending = canApproveJob(job.status) && canRejectJob(job.status);
+  const showApprove = pending && canApprove;
+  const showReject = pending && canReject;
+
+  async function handleConfirm(reason?: string) {
+    if (!modalMode) return;
+    setSubmitting(true);
+    setModalError(null);
+
+    const endpoint =
+      modalMode === "approve"
+        ? `/api/admin/jobs/${job.id}/approve`
+        : `/api/admin/jobs/${job.id}/reject`;
+
+    const res = await fetch(endpoint, {
       method: "POST",
+      headers:
+        modalMode === "reject"
+          ? { "Content-Type": "application/json" }
+          : undefined,
+      body:
+        modalMode === "reject"
+          ? JSON.stringify({ reason: reason ?? "" })
+          : undefined,
     });
     const data = await res.json();
-    setLoading(false);
+    setSubmitting(false);
+
     if (!res.ok) {
-      setError(data.error ?? "Failed to approve job.");
+      setModalError(data.error ?? "Action failed.");
       return;
     }
-    setSuccess("Job approved and is now open for pilots.");
-    router.refresh();
-  }
 
-  async function handleReject() {
-    setError(null);
-    setSuccess(null);
-    setLoading(true);
-    const res = await fetch(`/api/admin/jobs/${job.id}/reject`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ reason: rejectReason }),
-    });
-    const data = await res.json();
-    setLoading(false);
-    if (!res.ok) {
-      setError(data.error ?? "Failed to reject job.");
-      return;
+    if (modalMode === "reject") {
+      setRejectionReason(reason ?? null);
     }
-    setSuccess("Job rejected. Client can edit and resubmit.");
+    setOutcome(modalMode);
+    setModalMode(null);
     router.refresh();
   }
-
-  const showActions =
-    canApproveJob(job.status) && canRejectJob(job.status);
 
   return (
-    <div className="space-y-8">
-      <div className="flex flex-wrap items-center gap-3">
-        <JobStatusBadge status={job.status} />
-        <Link
-          href="/dashboard/admin/jobs"
-          className="text-sm text-muted-foreground hover:text-foreground"
-        >
-          ← Back to queue
-        </Link>
-      </div>
+    <div className="admin-job-approval-page">
+      <section
+        className="admin-job-approval-hero admin-ops-bracket-card"
+        aria-label="Mission review"
+      >
+        <div className="admin-ops-hero-glow" aria-hidden />
+        <div className="admin-job-approval-hero-copy">
+          <Link href="/dashboard/admin/jobs" className="admin-job-approval-back">
+            ← Back to Job Approval
+          </Link>
+          <p className="admin-ops-eyebrow">MISSION REVIEW</p>
+          <h1 className="admin-job-approval-hero-title">{job.title}</h1>
+          <p className="admin-job-approval-hero-desc">
+            Full brief for moderation. Approve only after checking location, budget,
+            requirements, and risk.
+          </p>
+          <div className="admin-job-approval-review-badges">
+            <span className="admin-job-approval-status-pill">
+              {statusLabel(outcome === "approve" ? "open" : outcome === "reject" ? "rejected" : job.status)}
+            </span>
+            <span className="admin-job-approval-mission-id">
+              {job.id.slice(0, 8).toUpperCase()}
+            </span>
+          </div>
+        </div>
+      </section>
 
-      {error ? (
-        <p
-          className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive"
-          role="alert"
-        >
-          {error}
-        </p>
-      ) : null}
-      {success ? (
-        <p
-          className="rounded-md border border-gold/30 bg-gold/10 px-3 py-2 text-sm text-gold-dark"
+      {outcome ? (
+        <section
+          className={`admin-job-approval-outcome admin-job-approval-outcome--${outcome}`}
           role="status"
         >
-          {success}
-        </p>
+          <h2 className="admin-job-approval-outcome-title">
+            {outcome === "approve" ? "Mission approved" : "Mission rejected"}
+          </h2>
+          <p className="admin-job-approval-outcome-copy">
+            {outcome === "approve"
+              ? "The posting is Open. Grade-based visibility delays now apply."
+              : "The client can edit and resubmit with your reason below."}
+          </p>
+          {outcome === "reject" && rejectionReason ? (
+            <p className="admin-job-approval-outcome-reason">
+              Reason sent to client: {rejectionReason}
+            </p>
+          ) : null}
+          <ol className="admin-job-approval-next-steps-list">
+            {(outcome === "approve"
+              ? JOB_APPROVAL_VISIBILITY_STEPS
+              : JOB_REJECTION_NEXT_STEPS
+            ).map((step) => (
+              <li key={step}>{step}</li>
+            ))}
+          </ol>
+          <Link
+            href="/dashboard/admin/jobs"
+            className="admin-job-approval-btn admin-job-approval-btn--approve"
+          >
+            Return to queue
+          </Link>
+        </section>
       ) : null}
 
-      <section className="rounded-lg border border-border p-6 space-y-4">
-        <h2 className="text-lg font-semibold">{job.title}</h2>
-        <p className="text-sm whitespace-pre-wrap">{job.description}</p>
-        <dl className="grid gap-3 text-sm sm:grid-cols-2">
-          <div>
-            <dt className="text-muted-foreground">Category</dt>
-            <dd className="font-medium">{categoryLabel(job.category)}</dd>
-          </div>
-          <div>
-            <dt className="text-muted-foreground">Location</dt>
-            <dd className="font-medium">{job.locationLabel}</dd>
-          </div>
-          <div>
-            <dt className="text-muted-foreground">Client</dt>
-            <dd className="font-medium">
-              {job.client.contactName}
-              {job.client.companyName ? ` (${job.client.companyName})` : ""}
-            </dd>
-          </div>
-          <div>
-            <dt className="text-muted-foreground">Client email</dt>
-            <dd className="font-medium">{job.client.email ?? "—"}</dd>
-          </div>
-          {(job.budgetMin != null || job.budgetMax != null) && (
+      <section className="admin-job-approval-panel" aria-label="Mission details">
+        <div className="admin-job-approval-panel-head">
+          <h2 className="admin-job-approval-panel-title">Mission brief</h2>
+        </div>
+        <div className="admin-job-approval-review-body">
+          <p className="admin-job-approval-review-desc">{job.description}</p>
+
+          <dl className="admin-job-approval-review-grid">
             <div>
-              <dt className="text-muted-foreground">Budget</dt>
-              <dd className="font-medium">
-                {job.budgetMin != null ? `$${job.budgetMin}` : "—"}
-                {job.budgetMax != null ? ` – $${job.budgetMax}` : ""}{" "}
-                {job.currency}
+              <dt>Category</dt>
+              <dd>{categoryLabel(job.category)}</dd>
+            </div>
+            <div>
+              <dt>Location</dt>
+              <dd>{job.locationLabel}</dd>
+            </div>
+            <div>
+              <dt>Client</dt>
+              <dd>
+                {job.client.contactName}
+                {job.client.companyName ? ` (${job.client.companyName})` : ""}
               </dd>
             </div>
-          )}
-          {job.scheduledDate ? (
             <div>
-              <dt className="text-muted-foreground">Preferred date</dt>
-              <dd className="font-medium">
-                {new Date(job.scheduledDate).toLocaleDateString()}
+              <dt>Client email</dt>
+              <dd>{job.client.email ?? "—"}</dd>
+            </div>
+            <div>
+              <dt>Budget</dt>
+              <dd className="admin-job-approval-budget">{formatBudget(job)}</dd>
+            </div>
+            <div>
+              <dt>Preferred date</dt>
+              <dd>
+                {job.scheduledDate
+                  ? new Date(job.scheduledDate).toLocaleDateString()
+                  : "Flexible / not set"}
               </dd>
+            </div>
+            <div>
+              <dt>Submitted</dt>
+              <dd>
+                {job.submittedAt
+                  ? new Date(job.submittedAt).toLocaleString()
+                  : "—"}
+              </dd>
+            </div>
+            <div>
+              <dt>Status</dt>
+              <dd>{statusLabel(job.status)}</dd>
+            </div>
+          </dl>
+
+          {job.requirements ? (
+            <div className="admin-job-approval-review-block">
+              <h3>Requirements</h3>
+              <p>{job.requirements}</p>
             </div>
           ) : null}
-        </dl>
-        {job.requirements ? (
-          <div>
-            <p className="text-sm font-medium text-muted-foreground">
-              Requirements
+
+          {job.rejectionReason && !outcome ? (
+            <p className="admin-job-approval-prior-reject">
+              Previous rejection: {job.rejectionReason}
             </p>
-            <p className="mt-1 text-sm whitespace-pre-wrap">
-              {job.requirements}
-            </p>
+          ) : null}
+        </div>
+
+        {pending && !outcome ? (
+          <div className="admin-job-approval-review-actions">
+            <div className="admin-job-approval-next-steps admin-job-approval-next-steps--inline">
+              <p className="admin-job-approval-next-steps-title">
+                Decide with next steps in mind
+              </p>
+              <p className="admin-job-approval-review-hint">
+                Approval starts grade visibility delays. Rejection returns the brief to
+                the client with your reason — they can fix and resubmit.
+              </p>
+            </div>
+            <div className="admin-job-approval-mission-actions">
+              {showReject ? (
+                <button
+                  type="button"
+                  className="admin-job-approval-btn admin-job-approval-btn--reject"
+                  onClick={() => {
+                    setModalError(null);
+                    setModalMode("reject");
+                  }}
+                >
+                  Reject
+                </button>
+              ) : null}
+              {showApprove ? (
+                <button
+                  type="button"
+                  className="admin-job-approval-btn admin-job-approval-btn--approve"
+                  onClick={() => {
+                    setModalError(null);
+                    setModalMode("approve");
+                  }}
+                >
+                  Approve
+                </button>
+              ) : null}
+              {!showApprove && !showReject ? (
+                <p className="admin-job-approval-review-hint">
+                  You do not have permission to approve or reject this mission.
+                </p>
+              ) : null}
+            </div>
           </div>
         ) : null}
-        {job.rejectionReason ? (
-          <p className="text-sm text-destructive">
-            Previous rejection: {job.rejectionReason}
-          </p>
+
+        {!pending && !outcome ? (
+          <div className="admin-job-approval-review-actions">
+            <p className="admin-job-approval-review-hint">
+              This mission has already been moderated. Open missions follow
+              grade-based visibility in the pilot marketplace.
+            </p>
+            <Link
+              href="/dashboard/admin/jobs"
+              className="admin-job-approval-btn admin-job-approval-btn--ghost"
+            >
+              Back to queue
+            </Link>
+          </div>
         ) : null}
       </section>
 
-      {showActions ? (
-        <section className="space-y-4 rounded-lg border border-gold/30 bg-gold/5 p-6">
-          <h3 className="font-semibold">Moderation</h3>
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <Button
-              type="button"
-              disabled={loading}
-              onClick={() => void handleApprove()}
-            >
-              {loading ? "Processing…" : "Approve job"}
-            </Button>
-          </div>
-          <FormField
-            label="Rejection reason"
-            htmlFor="rejectReason"
-            hint="Required if rejecting — client will see this message."
-          >
-            <textarea
-              id="rejectReason"
-              rows={3}
-              className={inputClassName}
-              value={rejectReason}
-              onChange={(e) => setRejectReason(e.target.value)}
-              disabled={loading}
-            />
-          </FormField>
-          <Button
-            type="button"
-            variant="outline"
-            disabled={loading}
-            onClick={() => void handleReject()}
-          >
-            Reject job
-          </Button>
-        </section>
-      ) : (
-        <p className="text-sm text-muted-foreground">
-          This job has already been moderated. Approved jobs are visible to
-          pilots with status <strong>open</strong> (M08 bidding).
-        </p>
-      )}
+      <AdminJobApprovalModal
+        open={modalMode !== null}
+        mode={modalMode ?? "approve"}
+        missionTitle={job.title}
+        missionId={job.id.slice(0, 8).toUpperCase()}
+        submitting={submitting}
+        error={modalError}
+        onCancel={() => {
+          if (!submitting) {
+            setModalMode(null);
+            setModalError(null);
+          }
+        }}
+        onConfirm={handleConfirm}
+      />
     </div>
   );
 }

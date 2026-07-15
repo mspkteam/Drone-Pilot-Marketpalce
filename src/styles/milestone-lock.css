@@ -101,7 +101,7 @@
   margin-top: 1.5rem;
   padding: 1.125rem 1.25rem;
   border-radius: calc(var(--radius-card) - 4px);
-  border: 1px solid rgba(244, 241, 234, 0.08);
+  border: 1px solid var(--dashboard-card-border);
   border-left: 3px solid rgba(216, 179, 57, 0.55);
   background: rgba(0, 0, 0, 0.22);
   text-align: left;
@@ -221,7 +221,7 @@
   width: 2rem;
   height: 2rem;
   border-radius: 9999px;
-  border: 1px solid rgba(244, 241, 234, 0.1);
+  border: 1px solid var(--dashboard-card-border);
   background: rgba(0, 0, 0, 0.25);
   color: var(--color-text-soft);
   transition:
@@ -230,7 +230,7 @@
 }
 
 .milestone-lock-modal-close:hover {
-  background: rgba(244, 241, 234, 0.06);
+  background: var(--color-border-divider);
   color: var(--color-text);
 }
 

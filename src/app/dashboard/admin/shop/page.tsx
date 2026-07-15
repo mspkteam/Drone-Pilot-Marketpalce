@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { AdminUniformShopPortal } from "@/components/admin/shop/AdminUniformShopPortal";
 import { DashboardPageLayout } from "@/components/dashboard";
-import { canPerform } from "@/lib/auth/moderator-permissions";
+import { canPerform, usesStaffPermissionMap } from "@/lib/auth/moderator-permissions";
 import { getModeratorPermissionsFromDb } from "@/lib/auth/moderator-permissions-db";
 import { isAdminRole, type UserRole } from "@/types/roles";
 import "@/styles/admin-dashboard.css";
@@ -17,10 +17,9 @@ export default async function AdminShopPage() {
     redirect("/login");
   }
 
-  const permissionConfig =
-    role === "moderator"
-      ? await getModeratorPermissionsFromDb(session.user.id)
-      : null;
+  const permissionConfig = usesStaffPermissionMap(role)
+    ? await getModeratorPermissionsFromDb(session.user.id)
+    : null;
   const canManageProducts =
     canPerform(role, session.user.id, "shop", "create", permissionConfig) ||
     canPerform(role, session.user.id, "shop", "manageInventory", permissionConfig);

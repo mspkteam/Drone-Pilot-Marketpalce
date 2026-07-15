@@ -69,9 +69,11 @@ export function buildDashboardUser(
         ? "Client account"
         : sessionUser.role === "super_admin"
           ? "Super admin"
-          : sessionUser.role === "moderator"
-            ? "Moderator account"
-            : "Admin account");
+          : sessionUser.role === "admin"
+            ? "Admin account"
+            : sessionUser.role === "moderator"
+              ? "Moderator account"
+              : "Admin account");
 
   return {
     displayName,
@@ -108,9 +110,11 @@ export function buildAdminRankCard(
   const callSign =
     role === "super_admin"
       ? "SUPER ADMIN"
-      : role === "moderator"
-        ? "MODERATOR"
-        : "ADMIN";
+      : role === "admin"
+        ? "ADMIN"
+        : role === "moderator"
+          ? "MODERATOR"
+          : "ADMIN";
 
   return {
     callSign,

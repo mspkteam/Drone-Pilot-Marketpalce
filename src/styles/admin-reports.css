@@ -27,7 +27,7 @@
   position: relative;
   overflow: hidden;
   min-height: 9.375rem;
-  border: 1px solid rgba(244, 241, 234, 0.08);
+  border: 1px solid var(--dashboard-card-border);
   border-radius: 0.5rem;
   background: var(--color-card-warm);
   padding: 1.75rem;
@@ -332,7 +332,7 @@
 .admin-reports-segment-footer {
   margin-top: 1.5rem;
   padding-top: 1.25rem;
-  border-top: 1px solid rgba(244, 241, 234, 0.08);
+  border-top: 1px solid var(--dashboard-card-border);
   text-align: center;
 }
 

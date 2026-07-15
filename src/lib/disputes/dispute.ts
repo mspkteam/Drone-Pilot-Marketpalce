@@ -109,7 +109,9 @@ function authorLabel(user: {
     );
   }
   if (isAdminRole(user.role as UserRole)) {
-    return user.role === "super_admin" ? "Admin" : "Moderator";
+    if (user.role === "super_admin") return "Super Admin";
+    if (user.role === "admin") return "Admin";
+    return "Moderator";
   }
   return user.email;
 }

@@ -5,7 +5,10 @@ import type {
   PersonnelStatCard,
   PersonnelStatusTone,
 } from "@/types/admin-personnel";
-import type { UserRole } from "@/types/roles";
+import {
+  isManagementUserRole,
+  type UserRole,
+} from "@/types/roles";
 
 const ELITE_TIER_CODES = new Set(["A5_FIRST_OFFICER", "A6_CAPTAIN"]);
 
@@ -65,7 +68,7 @@ function buildDisplayId(
   if (isEnterprise) {
     return `ENT-${userId.slice(-4).toUpperCase()}`;
   }
-  if (role === "moderator" || role === "super_admin") {
+  if (role === "moderator" || role === "admin" || role === "super_admin") {
     return `OPS-${userId.slice(-4).toUpperCase()}`;
   }
   const regionPrefix = userId.slice(0, 4).toUpperCase();
@@ -122,7 +125,7 @@ function viewHrefForRole(
 ): string {
   if (hasPilot) return "/dashboard/admin/pilots";
   if (hasClient) return "/dashboard/admin/clients";
-  if (role === "moderator" || role === "super_admin") {
+  if (role === "moderator" || role === "admin" || role === "super_admin") {
     return "/dashboard/admin/users";
   }
   return "/dashboard/admin/users";
@@ -176,6 +179,9 @@ async function buildRowsFromDatabase(
     let roleFilter = "Client";
 
     if (role === "super_admin") {
+      roleLabel = "Super Admin";
+      roleFilter = "Super Admin";
+    } else if (role === "admin") {
       roleLabel = "Admin";
       roleFilter = "Admin";
     } else if (role === "moderator") {
@@ -216,6 +222,7 @@ async function buildRowsFromDatabase(
       id: user.id,
       displayId: buildDisplayId(role, user.id, isEnterprise),
       name,
+      role,
       roleLabel,
       roleFilter,
       region,
@@ -225,6 +232,7 @@ async function buildRowsFromDatabase(
       joinedLabel: formatTimeAgo(createdAt),
       viewHref,
       editHref,
+      isManagementUser: isManagementUserRole(role),
     };
   });
 }
@@ -265,9 +273,14 @@ async function buildStats(): Promise<PersonnelStatCard[]> {
         createdAt: { gte: monthAgo },
       },
     }),
-    prisma.user.count({ where: { role: "moderator" } }),
     prisma.user.count({
-      where: { role: "moderator", status: "active" },
+      where: { role: { in: ["moderator", "admin", "super_admin"] } },
+    }),
+    prisma.user.count({
+      where: {
+        role: { in: ["moderator", "admin", "super_admin"] },
+        status: "active",
+      },
     }),
     prisma.pilotProfile.findMany({
       select: { locationCountry: true, locationRegion: true },
@@ -306,7 +319,7 @@ async function buildStats(): Promise<PersonnelStatCard[]> {
       subtextTone: newEnterpriseThisMonth > 0 ? "success" : "muted",
     },
     {
-      label: "ACTIVE MODERATORS",
+      label: "ACTIVE OPS STAFF",
       value: moderators.toLocaleString(),
       subtext: `online: ${activeModerators}`,
       subtextTone: "muted",

@@ -30,6 +30,7 @@ import {
   SUPPORT_REQUESTER_ROLES,
 } from "@/types/support";
 import type { UserRole } from "@/types/roles";
+import { isFullAdminRole } from "@/types/roles";
 import { isAdminRole } from "@/types/roles";
 
 function toMessageDto(m: SupportChatMessage): SupportChatMessageDto {
@@ -76,7 +77,7 @@ export function mapUserRoleToRequesterRole(
   role: UserRole | undefined,
 ): SupportRequesterRole | null {
   if (!role || role === "moderator") return null;
-  if (role === "super_admin") return "admin";
+  if (role === "super_admin" || role === "admin") return "admin";
   if (SUPPORT_REQUESTER_ROLES.includes(role as SupportRequesterRole)) {
     return role as SupportRequesterRole;
   }
@@ -119,7 +120,7 @@ async function notifyAdminsNewSupportChat(
   requesterName: string,
 ) {
   const admins = await prisma.user.findMany({
-    where: { role: { in: ["super_admin", "moderator"] }, status: "active" },
+    where: { role: { in: ["super_admin", "admin", "moderator"] }, status: "active" },
     select: { id: true },
   });
   for (const admin of admins) {
@@ -471,7 +472,7 @@ export async function getSupportChatForAdmin(
   });
   if (!chat) return null;
 
-  const canManage = viewerRole === "super_admin";
+  const canManage = isFullAdminRole(viewerRole);
 
   return {
     ...toChatDto(chat),

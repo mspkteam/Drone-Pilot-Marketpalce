@@ -229,28 +229,28 @@ flowchart LR
 
 | # | Work item | Current | Target | BUILD IDs |
 |---|-----------|---------|--------|-----------|
-| 2.1 | Job approval queue | 🔌 Prisma + mock empty state | Production path only; no demo rows in prod | M07, M28 |
-| 2.2 | Approve / reject → pilot visibility | ✅ API | Verify tier delay + notifications | M07, M46, M92 |
+| 2.1 | Job approval queue | ✅ Prisma only | Production path only; no demo rows in prod | M07, M28 |
+| 2.2 | Approve / reject → pilot visibility | ✅ API + grade delay at read time | Client notify on approve; pilot unlock notify later (M92) | M07, M46, M92 |
 | 2.3 | Operations dashboard | ✅ | Minor KPI accuracy | M13 |
 | 2.4 | Reports & analytics | ✅ | Validate commission / revenue charts | M34 |
-| 2.5 | Fleet & personnel | Mock fallback | Real roster only | M221 |
-| 2.6 | Dispute center | Partial | Remove mock stats; full resolve flow | M23, M31 |
-| 2.7 | Commissions ledger | Mock fallback | Live ledger; 15% rule verified | M12, M34 |
-| 2.8 | Moderator permissions | Preview store | Prisma persistence + API enforcement | M281–M287 |
-| 2.9 | CMS articles & resources | Preview store | Prisma models + public integration | M259–M266 |
-| 2.10 | Platform configuration | Preview modal | Persist fees, security, integrations | M270–M274 |
-| 2.11 | Certificates engine | Mock templates fallback | DB-only templates | M22, M35 |
-| 2.12 | Badges & wings | Mock cards fallback | DB-only definitions | M15, M36 |
-| 2.13 | Uniform shop admin | Mock inventory fallback | DB products/orders only | M26, M37 |
-| 2.14 | Subscriptions admin | Partial | Tier edit + enrollment accuracy | M33, M91 later |
+| 2.5 | Fleet & personnel | ✅ Real roster | Real roster only | M221 |
+| 2.6 | Dispute center | ✅ Honest stats + resolve APIs | Squadron Vote post-MVP | M23, M31 |
+| 2.7 | Commissions ledger | ✅ Live ledger (15%) | Live ledger; 15% rule verified | M12, M34 |
+| 2.8 | Staff permissions | ✅ Prisma + API enforcement + audit log | Admin + Moderator maps; Super Admin bypass | M281–M287 |
+| 2.9 | CMS articles & resources | ✅ Prisma + public resources | Prisma models + public integration | M259–M266 |
+| 2.10 | Platform configuration | ✅ Persisted JSON | `defaultCommissionRate` wired; other fields UI store | M270–M274 |
+| 2.11 | Certificates engine | ✅ DB templates; zero empty KPIs | DB-only templates | M22, M35 |
+| 2.12 | Badges & wings | ✅ DB definitions; zero empty KPIs | DB-only definitions | M15, M36 |
+| 2.13 | Uniform shop admin | ✅ DB products/orders; zero empty KPIs | DB products/orders only | M26, M37 |
+| 2.14 | Subscriptions admin | ✅ Plans persist | Stripe enroll later (M91) | M33, M91 later |
 | 2.15 | Support chat & messages tracking | ✅ | Regression only | M29–M30 |
-| 2.16 | Action-level API guards | Client-only | `canPerform()` on all admin mutations | M287 |
+| 2.16 | Action-level API guards | ✅ `requireAdminPermission` on mutations | `canPerform()` on all admin mutations | M287 |
 
 ### Moderator-specific deliverables
 
-- Sidebar filtered by persisted permissions (not in-memory defaults)
+- Sidebar filtered by persisted permissions (DB)
 - Route guard + API guard alignment
-- Audit log for permission changes (M284)
+- Audit log for permission changes (`ModeratorPermissionAuditLog`)
 - Job approval · disputes · reports · fleet — per preset (Full / Limited / Custom)
 
 ### Admin milestone demo script
@@ -462,7 +462,7 @@ sequenceDiagram
 | Milestone | Files / areas |
 |-----------|---------------|
 | M1 | `my-projects-mock.ts`, `project-bids-mock.ts`, `find-pilots-mock.ts`, `dashboard-overview-mock.ts`, `client-messages-mock.ts` |
-| M2 | `cms-store.ts`, `moderator-permissions-store.ts`, configuration preview, admin mock fallbacks in job/dispute/commission/shop engines |
+| M2 | Permission audit optional UI; pilot unlock notifications (M92); Stripe deferred |
 | M3 | `marketplace-mock.ts`, `proposals-mock.ts`, `active-contracts-mock.ts`, `locked-jobs-mock.ts`, `dashboard-overview-mock.ts`, `portfolio-mock.ts`, `pilot-messages-mock.ts` |
 | M4 | Any remaining `usingMock*` flags in components |
 | M5 | N/A — verification only |

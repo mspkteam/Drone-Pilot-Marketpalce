@@ -334,6 +334,47 @@ Initial project control documentation and planning foundation for Drone Pilot Ma
 
 ---
 
+## [0.27.1] — 2026-07-15
+
+### Changed
+
+- **Global dashboard visual consistency pass** — dashboards inherit marketing brand tokens
+  - `--dashboard-card-border` → marketing gold-subtle
+  - Shared `--brand-*` aliases + form/table/badge/button unification in `dashboard-theme.css`
+  - Hardcoded cream borders in dashboard CSS modules replaced with tokens
+  - Status badges / filter pills aligned (no SaaS blue)
+
+### Docs
+
+- `docs/dashboard-implementation-log.md` — Global Dashboard Visual Consistency Pass
+- `docs/BUILD_CONTROL.md` — M330–M332
+
+---
+
+## [0.27.0] — 2026-07-15
+
+### Added
+
+- **Milestone 2 completion — Admin & Moderator**
+  - `ModeratorPermissionAuditLog` append-only history on Super Admin permission saves
+  - Staff Permissions polish: Admin + Moderator list, toggle switches, Add Admin/Moderator modal styles
+  - Seed/management user: `ops@dronepilot.local` Admin role alongside Super Admin + Moderator
+
+### Changed
+
+- Shop / certificate / badge admin KPIs return real zeros (no fake empty-state numbers)
+- Dispute center stats no longer invent avg resolution / satisfaction when data is missing
+- Removed dead `moderator-permissions-store.ts`
+- Docs: `PLATFORM_MILESTONE_PLAN` + `FUNCTIONALITY_WIRING_PLAN` admin modules marked WIRED
+- Milestone 2 status → `complete` (active milestone remains 2 until Pilot unlock)
+
+### Docs
+
+- `docs/PLATFORM_MILESTONE_PLAN.md`
+- `docs/FUNCTIONALITY_WIRING_PLAN.md`
+
+---
+
 ## [0.26.1] — 2026-07-10
 
 ### Added

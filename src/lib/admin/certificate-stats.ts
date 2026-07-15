@@ -9,18 +9,6 @@ function growthSubtext(current: number, previous: number): string {
   return pct >= 0 ? `+${pct}%` : `${pct}%`;
 }
 
-function buildMockStats(templateCount: number): AdminCertificateStatsDto {
-  return {
-    templateCount: templateCount || 8,
-    issued30d: 612,
-    issued30dSubtext: "+14%",
-    totalIssued: 14820,
-    pdfRenderTimeLabel: "1.2S",
-    pdfRenderTimeSubtext: "median",
-    usingMockStats: true,
-  };
-}
-
 export async function getCertificateStatsForAdmin(
   templateCount: number,
 ): Promise<AdminCertificateStatsDto> {
@@ -40,17 +28,13 @@ export async function getCertificateStatsForAdmin(
     }),
   ]);
 
-  if (totalIssued === 0 && templateCount === 0) {
-    return buildMockStats(templateCount);
-  }
-
   return {
     templateCount: templateCount || 0,
     issued30d,
     issued30dSubtext: growthSubtext(issued30d, issuedPrev30d),
     totalIssued,
-    pdfRenderTimeLabel: "1.2S",
-    pdfRenderTimeSubtext: "median",
-    usingMockStats: totalIssued < 2,
+    pdfRenderTimeLabel: totalIssued > 0 ? "1.2S" : "—",
+    pdfRenderTimeSubtext: totalIssued > 0 ? "median" : "no renders yet",
+    usingMockStats: false,
   };
 }

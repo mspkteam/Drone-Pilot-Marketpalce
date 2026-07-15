@@ -1,4 +1,4 @@
-import { canPerformAction } from "@/lib/auth/moderator-permissions";
+import { canPerformAction, usesStaffPermissionMap } from "@/lib/auth/moderator-permissions";
 import { getModeratorPermissionsFromDb } from "@/lib/auth/moderator-permissions-db";
 import { requireAdminSession } from "@/lib/auth/require-admin";
 import type {
@@ -22,10 +22,9 @@ export async function requireAdminPermission(
     return authResult;
   }
 
-  const config =
-    authResult.role === "moderator"
-      ? await getModeratorPermissionsFromDb(authResult.userId)
-      : null;
+  const config = usesStaffPermissionMap(authResult.role)
+    ? await getModeratorPermissionsFromDb(authResult.userId)
+    : null;
 
   if (
     !canPerformAction(

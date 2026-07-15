@@ -3399,3 +3399,69 @@ Homepage changes type-check clean. Full `npm run build` blocked by pre-existing 
 ### Production build
 
 Passes after middleware fix (2026-06-02).
+
+---
+
+## Global Dashboard Visual Consistency Pass — 2026-07-15
+
+### Status
+Complete (shared theme + token normalization). Per-page pixel QA may still find residual overrides.
+
+### Marketing pages used as source of truth
+- Homepage (/)
+- Hire Pilots (/for-clients)
+- Join as Pilot (/for-pilots)
+- How It Works (/how-it-works)
+- Pricing (/pricing)
+- Safety (/safety)
+
+### Shared tokens reused / created
+- Reused marketing :root palette in globals.css
+- --dashboard-card-border now aliases --color-border-gold-subtle (marketing card edge)
+- Added --color-border-divider, --color-border-strong, --color-surface-wash, --radius-control
+- Added --brand-* aliases and --dashboard-content-width
+- Expanded src/styles/dashboard-theme.css as the dashboard unification layer
+
+### Typography
+- Eyebrows:  .75rem / 700 / 0.14em uppercase gold (.ras-section-eyebrow rhythm)
+- Page titles: weight 700, tracking -0.02em, heading color
+- Section labels: gold uppercase micro-caps
+- Body/description: warm muted #a39684 / --color-text-warm
+- Legacy .dashboard-section-eyebrow / .dashboard-section-title aligned
+
+### Color normalization
+- Replaced hundreds of hardcoded gba(244,241,234,*) borders in dashboard CSS with token vars
+- Removed SaaS blue from .status-badge-info (now gold muted)
+- Stat cards use warm card + gold-subtle border (no #1e1e1e gradient)
+
+### Button normalization
+- Primary: gold / CTA-dark, min-height 2.5rem, --radius, hover soft gold
+- Outline: gold border, transparent, soft gold hover wash
+- Danger: danger-muted / soft red
+- Filter pills: 8px radius controls (not full pills)
+
+### Card / form / table / badge consistency
+- Cards/panels: warm card + brand border + --radius-card
+- Inputs/selects/textareas: input-bg, 8px radius, gold focus ring
+- Tables: uppercase soft headers, divider rows, wash hover
+- Status badges: uppercase micro, success green / pending gold / danger red / neutral muted
+
+### Layout
+- Dashboard page gap uses --brand-section-gap (2rem / 2.5rem)
+- Canvas max-width remains 1280px via --dashboard-content-width
+- Shell sidebar/topbar already used marketing border-muted + gold active states
+
+### Files updated (primary)
+- src/app/globals.css
+- src/styles/dashboard-theme.css
+- All dashboard module CSS under src/styles/ (admin/client/pilot/profile/milestone)
+
+### Remaining inconsistencies
+- Some module CSS still set local padding/min-heights that differ slightly from marketing CTA sizes
+- Squadron Voting / Regions still thin modules — visual QA after content fill
+- Final Figma pixel alignment (M294) still open
+- Attribute-selector unification can miss unusually named classes; spot-check CMS/Shop/Messages
+- Marketing pages intentionally untouched except shared token defs
+
+### Production build
+Pending in this pass.

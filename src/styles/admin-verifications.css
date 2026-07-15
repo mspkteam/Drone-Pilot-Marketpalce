@@ -1,4 +1,4 @@
-/* Admin Pilot Verification — Figma 808:25258 */
+/* Admin Pilot Verification — aligned to marketing / admin ops theme */
 
 .admin-verifications-shell.dashboard-page {
   display: flex;
@@ -16,15 +16,21 @@
   min-width: 0;
 }
 
+@media (min-width: 768px) {
+  .admin-verifications-page {
+    gap: 1.75rem;
+  }
+}
+
 .admin-verifications-hero {
   position: relative;
   overflow: hidden;
   min-height: 9.375rem;
-  border: 1px solid rgba(244, 241, 234, 0.08);
-  border-radius: 0.5rem;
+  border: 1px solid var(--dashboard-card-border);
+  border-radius: var(--radius-card);
   background: var(--color-card-warm);
   padding: 1.75rem;
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+  box-shadow: var(--shadow-card);
 }
 
 .admin-verifications-hero-copy {
@@ -36,9 +42,10 @@
 .admin-verifications-hero-title {
   margin: 0.625rem 0 0;
   font-size: clamp(1.875rem, 2.8vw, 2.5rem);
-  font-weight: 800;
+  font-weight: 700;
+  letter-spacing: -0.02em;
   line-height: 1.12;
-  color: var(--color-text);
+  color: var(--color-text-heading);
 }
 
 .admin-verifications-hero-desc {
@@ -46,13 +53,13 @@
   max-width: 40rem;
   font-size: 0.9375rem;
   line-height: 1.6;
-  color: var(--color-text-muted);
+  color: var(--color-text-warm);
 }
 
 .admin-verifications-alert {
   margin: 0;
-  border: 1px solid rgba(216, 179, 57, 0.35);
-  border-radius: 0.375rem;
+  border: 1px solid var(--color-border-gold);
+  border-radius: var(--radius-control);
   background: rgba(216, 179, 57, 0.1);
   padding: 0.875rem 1rem;
   font-size: 0.875rem;
@@ -60,44 +67,337 @@
 }
 
 .admin-verifications-panel {
+  border: 1px solid var(--dashboard-card-border);
+  border-radius: var(--radius-card);
+  background: var(--color-card-warm);
   padding: 0;
   overflow: hidden;
 }
 
 .admin-verifications-panel-head {
-  padding: 1.25rem 1.625rem 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem 0;
 }
 
 .admin-verifications-panel-title {
   margin: 0;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  color: var(--color-text);
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-gold);
 }
 
 .admin-verifications-panel-sub {
   margin: 0.375rem 0 0;
   font-size: 0.8125rem;
-  color: var(--color-text-muted);
+  color: var(--color-text-warm);
 }
 
-.admin-verifications-panel .dashboard-filter-bar {
-  margin: 1rem 1.625rem 0;
-  border: 1px solid rgba(244, 241, 234, 0.08);
-  border-radius: 0.375rem;
-  background: #2a2a28;
-  padding: 0.5rem;
+.admin-verifications-queue {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem 1.5rem 1.5rem;
 }
 
-.admin-verifications-panel .list-panel {
-  margin: 1rem 1.625rem 1.625rem;
-  border: 1px solid rgba(244, 241, 234, 0.08);
-  border-radius: 0.375rem;
-  background: var(--color-card-warm-alt);
+.admin-verifications-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
 }
 
-.admin-verifications-panel .empty-state,
-.admin-verifications-panel .text-muted-foreground {
-  margin: 1rem 1.625rem 1.625rem;
+.admin-verifications-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.admin-verifications-filter {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.25rem;
+  padding: 0.375rem 0.875rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--color-text-soft);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.admin-verifications-filter:hover {
+  border-color: var(--color-border-gold);
+  color: var(--color-text);
+}
+
+.admin-verifications-filter--active {
+  border-color: var(--color-border-gold);
+  background: rgba(216, 179, 57, 0.12);
+  color: var(--color-gold);
+}
+
+.admin-verifications-btn-primary,
+.admin-verifications-btn-outline,
+.admin-verifications-btn-danger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.5rem;
+  padding: 0 1.25rem;
+  border-radius: var(--radius);
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.admin-verifications-btn-primary {
+  border: 1px solid rgba(216, 179, 57, 0.35);
+  background: var(--color-gold);
+  color: var(--color-cta-dark);
+}
+
+.admin-verifications-btn-primary:hover:not(:disabled) {
+  background: var(--color-gold-soft);
+}
+
+.admin-verifications-btn-outline {
+  border: 1px solid var(--color-border-gold);
+  background: transparent;
+  color: var(--color-gold);
+}
+
+.admin-verifications-btn-outline:hover:not(:disabled) {
+  background: rgba(216, 179, 57, 0.1);
+  color: var(--color-gold-soft);
+}
+
+.admin-verifications-btn-danger {
+  border: 1px solid rgba(239, 68, 68, 0.45);
+  background: var(--color-danger-muted);
+  color: var(--color-danger-soft);
+}
+
+.admin-verifications-btn-danger:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.2);
+}
+
+.admin-verifications-btn-primary:disabled,
+.admin-verifications-btn-outline:disabled,
+.admin-verifications-btn-danger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.admin-verifications-error {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  border-radius: var(--radius-control);
+  background: var(--color-danger-muted);
+  color: var(--color-danger-soft);
+  font-size: 0.8125rem;
+}
+
+.admin-verifications-empty {
+  margin: 0;
+  padding: 2rem 1rem;
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--color-text-soft);
+}
+
+.admin-verifications-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.admin-verifications-card {
+  border: 1px solid var(--dashboard-card-border);
+  border-radius: var(--radius-card);
+  background: var(--color-bg-deeper);
+  padding: 1.125rem 1.25rem;
+}
+
+.admin-verifications-card-top {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .admin-verifications-card-top {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+}
+
+.admin-verifications-card-copy {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.admin-verifications-card-title {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--color-text-heading);
+}
+
+.admin-verifications-card-sep {
+  margin: 0 0.4rem;
+  color: var(--color-text-soft);
+}
+
+.admin-verifications-card-meta,
+.admin-verifications-notes,
+.admin-verifications-submitted {
+  margin: 0.35rem 0 0;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--color-text-warm);
+}
+
+.admin-verifications-submitted {
+  font-size: 0.75rem;
+  color: var(--color-text-soft);
+}
+
+.admin-verifications-doc {
+  margin-top: 0.5rem;
+}
+
+.admin-verifications-doc a {
+  color: var(--color-gold);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.admin-verifications-doc a:hover {
+  color: var(--color-gold-soft);
+  text-decoration: underline;
+}
+
+.admin-verifications-doc span {
+  font-size: 0.8125rem;
+  color: var(--color-text-soft);
+}
+
+.admin-verifications-status {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  border-radius: var(--radius-control);
+  padding: 0.3rem 0.625rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.admin-verifications-status--success {
+  border: 1px solid rgba(34, 197, 94, 0.35);
+  background: rgba(34, 197, 94, 0.1);
+  color: var(--color-success-bright);
+}
+
+.admin-verifications-status--pending {
+  border: 1px solid rgba(216, 179, 57, 0.35);
+  background: rgba(216, 179, 57, 0.1);
+  color: var(--color-gold);
+}
+
+.admin-verifications-status--danger {
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--color-danger-soft);
+}
+
+.admin-verifications-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border-divider);
+}
+
+.admin-verifications-reject-row {
+  display: flex;
+  flex: 1 1 16rem;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.75rem;
+}
+
+.admin-verifications-field {
+  display: flex;
+  flex: 1 1 14rem;
+  flex-direction: column;
+  gap: 0.375rem;
+  min-width: 0;
+}
+
+.admin-verifications-field-label {
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-soft);
+}
+
+.admin-verifications-input {
+  width: 100%;
+  min-height: 2.5rem;
+  box-sizing: border-box;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  background: var(--color-input-bg);
+  padding: 0 0.875rem;
+  font-size: 0.875rem;
+  color: var(--color-text);
+}
+
+.admin-verifications-input::placeholder {
+  color: var(--color-text-soft);
+}
+
+.admin-verifications-input:focus {
+  outline: none;
+  border-color: var(--color-border-gold);
+  box-shadow: 0 0 0 2px rgba(216, 179, 57, 0.18);
+}
+
+.admin-verifications-rejected {
+  margin: 1rem 0 0;
+  padding-top: 0.875rem;
+  border-top: 1px solid var(--color-border-divider);
+  font-size: 0.8125rem;
+  color: var(--color-danger-soft);
 }

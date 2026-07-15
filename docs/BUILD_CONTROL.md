@@ -146,7 +146,7 @@ Master build control table for tracking modules, status, and sprint alignment. U
 | M153 | Account Deactivation Workflow | 30-day deactivate → reactivate → delete | Not Started | P1 | — | M02 | — | Modal records mock success only |
 | M154 | Deactivation Email Notifications | Notify on deactivate/reactivate/delete | Not Started | P2 | — | M153 | — | — |
 | M155 | Account Lifecycle Admin Audit | Admin log for deactivate/delete actions | Not Started | P2 | — | M153, M13 | — | — |
-| M156 | Admin Dashboard UI Pass | Aviation-grade restyle of admin/moderator shell + pages | In Progress | P1 | — | M13 | — | Operations, Reports, Users, Job Approval, Messages, Support Chat, Disputes done; remaining modules pending |
+| M156 | Admin Dashboard UI Pass | Aviation-grade restyle of admin/moderator shell + pages | Ready for Review | P1 | — | M13 | — | Covered by M330 global theme; spot-QA remaining admin modules |
 | M157 | Admin Reports Module | KPI/reporting page + export APIs | In Progress | P1 | — | M13 | — | `/dashboard/admin/reports` UI done |
 | M158 | Admin CMS — Help Articles | CRUD for in-dashboard help content | Not Started | P1 | — | M145, M13 | — | Replaces `help-articles.ts` seed |
 | M159 | Admin CMS — Resources | CRUD for public `/resources` articles | Not Started | P1 | — | M158, M13 | — | Replaces `resources-content.ts` seed |
@@ -320,6 +320,9 @@ Master build control table for tracking modules, status, and sprint alignment. U
 | M327 | How It Works Final Figma Alignment (808:46297) | Match `/how-it-works` tabs, steps, path CTA to Figma | In Progress | P1 | — | M17 | — | Header/footer preserved |
 | M328 | How It Works Mobile Visual QA | Final responsive sign-off for `/how-it-works` | Not Started | P2 | — | M327 | — | — |
 | M329 | Pilot Plans Route Polish | Ensure `/pricing` matches $99.99/yr + Fast Forward copy for path CTA | Done | P2 | — | M320, M327 | — | Marketing `/pricing` uses `pilot-membership-catalog` |
+| M330 | Global Dashboard Visual Consistency | Align client/pilot/admin/moderator dashboards to marketing brand tokens | Ready for Review | P1 | — | M156, M294 | — | Theme layer + border token migration 2026-07-15; remaining: per-page visual QA, M294 Figma handoff |
+| M331 | Dashboard Per-Page Visual QA | Spot-check CMS/Shop/Messages/Permissions/Forms at desktop/tablet/mobile | Not Started | P2 | — | M330 | — | Residual padding overrides may remain |
+| M332 | Dashboard Responsive Overflow Audit | Fix any remaining horizontal overflow / modal fit issues | Not Started | P2 | — | M330 | — | — |
 
 ## Priority legend
 

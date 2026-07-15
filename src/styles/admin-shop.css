@@ -33,7 +33,7 @@
   position: relative;
   overflow: hidden;
   min-height: 9.375rem;
-  border: 1px solid rgba(244, 241, 234, 0.08);
+  border: 1px solid var(--dashboard-card-border);
   border-radius: 0.5rem;
   background: var(--color-card-warm);
   padding: 1.75rem;
@@ -202,7 +202,7 @@
 }
 
 .admin-shop-panel {
-  border: 1px solid rgba(244, 241, 234, 0.08);
+  border: 1px solid var(--dashboard-card-border);
   border-radius: 0.5rem;
   background: var(--color-card-warm);
   padding: 1.625rem;
@@ -229,7 +229,7 @@
   min-height: 2rem;
   max-width: 9rem;
   padding: 0.25rem 0.625rem;
-  border: 1px solid rgba(244, 241, 234, 0.1);
+  border: 1px solid var(--dashboard-card-border);
   border-radius: 0.375rem;
   background: var(--color-panel);
   color: var(--color-text);
@@ -269,7 +269,7 @@
   align-items: center;
   gap: 1rem;
   width: 100%;
-  border: 1px solid rgba(244, 241, 234, 0.06);
+  border: 1px solid var(--color-border-divider);
   border-radius: 0.375rem;
   background: var(--color-card-warm-alt);
   padding: 1rem 1.125rem;
@@ -389,7 +389,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  border: 1px solid rgba(244, 241, 234, 0.06);
+  border: 1px solid var(--color-border-divider);
   border-radius: 0.375rem;
   background: var(--color-card-warm-alt);
   padding: 1.125rem;
@@ -423,7 +423,7 @@
   font-size: 0.625rem;
   font-weight: 700;
   letter-spacing: 0.06em;
-  border: 1px solid rgba(244, 241, 234, 0.12);
+  border: 1px solid var(--color-border-strong);
   color: var(--color-text-muted);
 }
 
@@ -448,7 +448,7 @@
 /* Fulfillment strip */
 .admin-shop-fulfillment {
   margin-top: 1.25rem;
-  border: 1px solid rgba(244, 241, 234, 0.06);
+  border: 1px solid var(--color-border-divider);
   border-radius: 0.375rem;
   background: var(--color-card-warm-alt);
   padding: 1rem;
@@ -521,7 +521,7 @@
   max-width: 34rem;
   max-height: min(90vh, 44rem);
   overflow: auto;
-  border: 1px solid rgba(244, 241, 234, 0.1);
+  border: 1px solid var(--dashboard-card-border);
   border-radius: 0.5rem;
   background: var(--color-card-warm);
   box-shadow: 0 24px 48px rgba(0, 0, 0, 0.5);
@@ -542,7 +542,7 @@
 
 .admin-shop-modal-head {
   padding: 1.25rem 1.5rem;
-  border-bottom: 1px solid rgba(244, 241, 234, 0.08);
+  border-bottom: 1px solid var(--dashboard-card-border);
 }
 
 .admin-shop-modal-title {
@@ -574,7 +574,7 @@
   width: 100%;
   min-height: 2.375rem;
   padding: 0.375rem 0.625rem;
-  border: 1px solid rgba(244, 241, 234, 0.1);
+  border: 1px solid var(--dashboard-card-border);
   border-radius: 0.375rem;
   background: var(--color-panel);
   color: var(--color-text);
@@ -628,7 +628,7 @@
   justify-content: flex-end;
   gap: 0.75rem;
   padding: 1rem 1.5rem 1.25rem;
-  border-top: 1px solid rgba(244, 241, 234, 0.08);
+  border-top: 1px solid var(--dashboard-card-border);
 }
 
 .admin-shop-btn-cancel,
@@ -642,7 +642,7 @@
 }
 
 .admin-shop-btn-cancel {
-  border: 1px solid rgba(244, 241, 234, 0.12);
+  border: 1px solid var(--color-border-strong);
   background: transparent;
   color: var(--color-text-muted);
 }

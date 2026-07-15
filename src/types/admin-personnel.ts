@@ -4,6 +4,7 @@ export type PersonnelRow = {
   id: string;
   displayId: string;
   name: string;
+  role: string;
   roleLabel: string;
   roleFilter: string;
   region: string;
@@ -13,6 +14,8 @@ export type PersonnelRow = {
   joinedLabel: string;
   viewHref: string;
   editHref: string | null;
+  /** Admin / Moderator — Super Admin may delete these. */
+  isManagementUser: boolean;
 };
 
 export type PersonnelStatCard = {

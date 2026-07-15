@@ -27,11 +27,11 @@
   position: relative;
   overflow: hidden;
   min-height: 9.375rem;
-  border: 1px solid rgba(244, 241, 234, 0.08);
-  border-radius: 0.5rem;
+  border: 1px solid var(--dashboard-card-border);
+  border-radius: var(--radius-card);
   background: var(--color-card-warm);
   padding: 1.75rem;
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+  box-shadow: var(--shadow-card);
 }
 
 .admin-commissions-hero-inner {
@@ -58,10 +58,11 @@
 
 .admin-commissions-hero-title {
   margin: 0.625rem 0 0;
-  font-size: clamp(1.875rem, 2.8vw, 2.625rem);
-  font-weight: 800;
+  font-size: clamp(1.875rem, 2.8vw, 2.5rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
   line-height: 1.12;
-  color: var(--color-text);
+  color: var(--color-text-heading);
 }
 
 .admin-commissions-hero-desc {
@@ -69,23 +70,23 @@
   max-width: 42rem;
   font-size: 0.9375rem;
   line-height: 1.6;
-  color: var(--color-text-muted);
+  color: var(--color-text-warm);
 }
 
 .admin-commissions-btn-run {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 2.75rem;
+  min-height: 2.5rem;
   min-width: 10.625rem;
   flex-shrink: 0;
   border: 1px solid rgba(216, 179, 57, 0.35);
-  border-radius: 0.375rem;
+  border-radius: var(--radius);
   background: var(--color-gold);
   padding: 0 1.5rem;
-  font-size: 0.8125rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: normal;
   color: var(--color-cta-dark);
   cursor: pointer;
   transition: background 0.15s;
@@ -124,9 +125,9 @@
   position: relative;
   overflow: hidden;
   min-height: 6.25rem;
-  border: 1px solid rgba(244, 241, 234, 0.08);
-  border-radius: 0.5rem;
-  background: var(--color-card-warm-alt);
+  border: 1px solid var(--dashboard-card-border);
+  border-radius: var(--radius-card);
+  background: var(--color-card-warm);
   padding: 1.25rem 1.375rem 1.25rem 1.5rem;
 }
 
@@ -184,10 +185,10 @@
 /* Ledger panel */
 .admin-commissions-ledger {
   overflow: hidden;
-  border: 1px solid rgba(244, 241, 234, 0.08);
-  border-radius: 0.5rem;
+  border: 1px solid var(--dashboard-card-border);
+  border-radius: var(--radius-card);
   background: var(--color-card-warm);
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+  box-shadow: var(--shadow-card);
 }
 
 .admin-commissions-ledger-head {
@@ -195,7 +196,7 @@
   flex-direction: column;
   gap: 1rem;
   padding: 1.5rem 1.75rem;
-  border-bottom: 1px solid rgba(244, 241, 234, 0.08);
+  border-bottom: 1px solid var(--dashboard-card-border);
 }
 
 @media (min-width: 768px) {
@@ -227,25 +228,27 @@
 }
 
 .admin-commissions-ledger-btn {
-  min-height: 2.25rem;
+  min-height: 2.5rem;
   padding: 0 1rem;
-  border: 1px solid rgba(244, 241, 234, 0.12);
-  border-radius: 0.375rem;
-  background: var(--color-panel);
-  font-size: 0.6875rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: var(--color-text);
+  border: 1px solid var(--color-border-gold);
+  border-radius: var(--radius);
+  background: transparent;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: normal;
+  color: var(--color-gold);
   cursor: pointer;
-  transition: border-color 0.15s;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
 }
 
 .admin-commissions-ledger-btn:hover {
-  border-color: rgba(216, 179, 57, 0.28);
+  background: rgba(216, 179, 57, 0.1);
+  color: var(--color-gold-soft);
 }
 
 .admin-commissions-ledger-btn--active {
-  border-color: rgba(216, 179, 57, 0.4);
+  border-color: rgba(216, 179, 57, 0.45);
+  background: rgba(216, 179, 57, 0.12);
   color: var(--color-gold-soft);
 }
 
@@ -254,7 +257,7 @@
   display: grid;
   gap: 0.75rem;
   padding: 1rem 1.75rem;
-  border-bottom: 1px solid rgba(244, 241, 234, 0.08);
+  border-bottom: 1px solid var(--dashboard-card-border);
   background: var(--color-panel);
 }
 
@@ -276,13 +279,19 @@
 .admin-commissions-filter-field input,
 .admin-commissions-filter-field select {
   width: 100%;
-  min-height: 2.25rem;
+  min-height: 2.5rem;
   padding: 0.375rem 0.625rem;
-  border: 1px solid rgba(244, 241, 234, 0.1);
-  border-radius: 0.375rem;
+  border: 1px solid var(--dashboard-card-border);
+  border-radius: var(--radius);
   background: var(--color-card-warm);
   color: var(--color-text);
   font-size: 0.8125rem;
+}
+
+.admin-commissions-filter-field input:focus,
+.admin-commissions-filter-field select:focus {
+  outline: none;
+  border-color: var(--color-border-gold);
 }
 
 /* Table */
@@ -298,7 +307,7 @@
 
 .admin-commissions-table th {
   padding: 0.875rem 1.75rem;
-  border-bottom: 1px solid rgba(244, 241, 234, 0.08);
+  border-bottom: 1px solid var(--dashboard-card-border);
   font-size: 0.6875rem;
   font-weight: 700;
   letter-spacing: 0.1em;
@@ -309,7 +318,7 @@
 
 .admin-commissions-table td {
   padding: 1.125rem 1.75rem;
-  border-bottom: 1px solid rgba(244, 241, 234, 0.04);
+  border-bottom: 1px solid var(--color-surface-wash);
   font-size: 0.875rem;
   color: var(--color-text-muted);
   vertical-align: middle;
@@ -382,7 +391,7 @@
 
 .admin-commissions-mobile-row {
   padding: 1rem 1.25rem;
-  border-bottom: 1px solid rgba(244, 241, 234, 0.04);
+  border-bottom: 1px solid var(--color-surface-wash);
 }
 
 .admin-commissions-mobile-top {
@@ -417,7 +426,7 @@
   flex-direction: column;
   gap: 0.75rem;
   padding: 1rem 1.75rem;
-  border-top: 1px solid rgba(244, 241, 234, 0.08);
+  border-top: 1px solid var(--dashboard-card-border);
 }
 
 @media (min-width: 768px) {
@@ -447,7 +456,7 @@
   min-width: 2rem;
   min-height: 2rem;
   padding: 0 0.5rem;
-  border: 1px solid rgba(244, 241, 234, 0.1);
+  border: 1px solid var(--dashboard-card-border);
   border-radius: 0.375rem;
   background: var(--color-panel);
   font-size: 0.6875rem;
@@ -482,15 +491,15 @@
 .admin-commissions-modal {
   width: 100%;
   max-width: 28rem;
-  border: 1px solid rgba(244, 241, 234, 0.1);
-  border-radius: 0.5rem;
+  border: 1px solid var(--dashboard-card-border);
+  border-radius: var(--radius-card);
   background: var(--color-card-warm);
-  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.5);
+  box-shadow: var(--shadow-card);
 }
 
 .admin-commissions-modal-head {
   padding: 1.25rem 1.5rem;
-  border-bottom: 1px solid rgba(244, 241, 234, 0.08);
+  border-bottom: 1px solid var(--dashboard-card-border);
 }
 
 .admin-commissions-modal-title {
@@ -512,7 +521,7 @@
   justify-content: flex-end;
   gap: 0.5rem;
   padding: 1rem 1.5rem 1.25rem;
-  border-top: 1px solid rgba(244, 241, 234, 0.08);
+  border-top: 1px solid var(--dashboard-card-border);
 }
 
 .admin-commissions-banner {

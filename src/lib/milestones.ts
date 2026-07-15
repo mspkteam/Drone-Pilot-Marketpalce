@@ -1,7 +1,7 @@
 import type { UserRole } from "@/types/roles";
 
 /** Official 5-week delivery schedule — change this (or env) to unlock the next milestone. */
-export const ACTIVE_MILESTONE = 1;
+export const ACTIVE_MILESTONE = 2;
 
 export type MilestoneStatus = "locked" | "in_progress" | "complete";
 
@@ -21,7 +21,7 @@ export const MILESTONE_DEFINITIONS: readonly MilestoneDefinition[] = [
     weekLabel: "Week 1",
     title: "Client",
     dateRange: "2 Jul – 6 Jul 2026",
-    status: "in_progress",
+    status: "complete",
     summary: "Client posting, projects, bids, find pilots, dashboard, messages, disputes, and profile.",
     lockedMessage:
       "This section is part of Milestone 1 — Client. Client dashboard features are available during Week 1.",
@@ -31,7 +31,7 @@ export const MILESTONE_DEFINITIONS: readonly MilestoneDefinition[] = [
     weekLabel: "Week 2",
     title: "Admin & Moderator",
     dateRange: "9 Jul – 13 Jul 2026",
-    status: "locked",
+    status: "complete",
     summary:
       "Job approval, fleet, disputes, commissions, permissions, CMS, configuration, certificates, badges, shop, and subscriptions.",
     lockedMessage:
@@ -199,126 +199,126 @@ export const ROUTE_MILESTONE_RULES: readonly RouteMilestoneRule[] = [
     milestone: 2,
     featureKey: "admin.permissions",
     featureLabel: "Moderator Permissions",
-    allowedRoles: ["moderator", "super_admin"],
+    allowedRoles: ["moderator", "admin", "super_admin"],
   },
   {
     pathPrefix: "/dashboard/admin/settings",
     milestone: 2,
     featureKey: "admin.configuration",
     featureLabel: "Platform Configuration",
-    allowedRoles: ["moderator", "super_admin"],
+    allowedRoles: ["moderator", "admin", "super_admin"],
   },
   {
     pathPrefix: "/dashboard/admin/cms",
     milestone: 2,
     featureKey: "admin.cms",
     featureLabel: "CMS Articles & Resources",
-    allowedRoles: ["moderator", "super_admin"],
+    allowedRoles: ["moderator", "admin", "super_admin"],
   },
   {
     pathPrefix: "/dashboard/admin/shop",
     milestone: 2,
     featureKey: "admin.shop",
     featureLabel: "Uniform Shop Admin",
-    allowedRoles: ["moderator", "super_admin"],
+    allowedRoles: ["moderator", "admin", "super_admin"],
   },
   {
     pathPrefix: "/dashboard/admin/achievements",
     milestone: 2,
     featureKey: "admin.badges",
     featureLabel: "Badges & Wings",
-    allowedRoles: ["moderator", "super_admin"],
+    allowedRoles: ["moderator", "admin", "super_admin"],
   },
   {
     pathPrefix: "/dashboard/admin/certificates",
     milestone: 2,
     featureKey: "admin.certificates",
     featureLabel: "Certificates Engine",
-    allowedRoles: ["moderator", "super_admin"],
+    allowedRoles: ["moderator", "admin", "super_admin"],
   },
   {
     pathPrefix: "/dashboard/admin/payments",
     milestone: 2,
     featureKey: "admin.commissions",
     featureLabel: "Commissions Ledger",
-    allowedRoles: ["moderator", "super_admin"],
+    allowedRoles: ["moderator", "admin", "super_admin"],
   },
   {
     pathPrefix: "/dashboard/admin/subscriptions",
     milestone: 2,
     featureKey: "admin.subscriptions",
     featureLabel: "Subscriptions Admin",
-    allowedRoles: ["moderator", "super_admin"],
+    allowedRoles: ["moderator", "admin", "super_admin"],
   },
   {
     pathPrefix: "/dashboard/admin/disputes",
     milestone: 2,
     featureKey: "admin.disputes",
     featureLabel: "Dispute Centre",
-    allowedRoles: ["moderator", "super_admin"],
+    allowedRoles: ["moderator", "admin", "super_admin"],
   },
   {
     pathPrefix: "/dashboard/admin/squadron-voting",
     milestone: 2,
     featureKey: "admin.squadron-voting",
     featureLabel: "Squadron Voting",
-    allowedRoles: ["moderator", "super_admin"],
+    allowedRoles: ["moderator", "admin", "super_admin"],
   },
   {
     pathPrefix: "/dashboard/admin/regions",
     milestone: 2,
     featureKey: "admin.regions",
     featureLabel: "Regions",
-    allowedRoles: ["moderator", "super_admin"],
+    allowedRoles: ["moderator", "admin", "super_admin"],
   },
   {
     pathPrefix: "/dashboard/admin/verifications",
     milestone: 2,
     featureKey: "admin.verifications",
     featureLabel: "Pilot Verification",
-    allowedRoles: ["moderator", "super_admin"],
+    allowedRoles: ["moderator", "admin", "super_admin"],
   },
   {
     pathPrefix: "/dashboard/admin/jobs",
     milestone: 2,
     featureKey: "admin.job-approval",
     featureLabel: "Job Approval Queue",
-    allowedRoles: ["moderator", "super_admin"],
+    allowedRoles: ["moderator", "admin", "super_admin"],
   },
   {
     pathPrefix: "/dashboard/admin/users",
     milestone: 2,
     featureKey: "admin.fleet-personnel",
     featureLabel: "Fleet & Personnel",
-    allowedRoles: ["moderator", "super_admin"],
+    allowedRoles: ["moderator", "admin", "super_admin"],
   },
   {
     pathPrefix: "/dashboard/admin/reports",
     milestone: 2,
     featureKey: "admin.reports",
     featureLabel: "Reports & Analytics",
-    allowedRoles: ["moderator", "super_admin"],
+    allowedRoles: ["moderator", "admin", "super_admin"],
   },
   {
     pathPrefix: "/dashboard/admin/messages",
     milestone: 2,
     featureKey: "admin.messages",
     featureLabel: "Messages Tracking",
-    allowedRoles: ["moderator", "super_admin"],
+    allowedRoles: ["moderator", "admin", "super_admin"],
   },
   {
     pathPrefix: "/dashboard/admin/support",
     milestone: 2,
     featureKey: "admin.support",
     featureLabel: "Support Chat",
-    allowedRoles: ["moderator", "super_admin"],
+    allowedRoles: ["moderator", "admin", "super_admin"],
   },
   {
     pathPrefix: "/dashboard/admin",
     milestone: 2,
     featureKey: "admin.dashboard",
     featureLabel: "Admin Operations Dashboard",
-    allowedRoles: ["moderator", "super_admin"],
+    allowedRoles: ["moderator", "admin", "super_admin"],
   },
 
   // ——— Week 3 — Pilot ———

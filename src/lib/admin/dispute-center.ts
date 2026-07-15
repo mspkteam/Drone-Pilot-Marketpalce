@@ -57,12 +57,33 @@ async function buildStats(): Promise<AdminDisputeStatCard[]> {
     );
   };
 
-  const avgCurrent = avgHours(resolvedLast30) ?? 38;
-  const avgPrevious = avgHours(resolvedPrev30) ?? avgCurrent + 6;
-  const delta = avgPrevious - avgCurrent;
+  const avgCurrent = avgHours(resolvedLast30);
+  const avgPrevious = avgHours(resolvedPrev30);
 
-  const satisfaction =
-    resolvedCount > 0 ? Math.min(99, 88 + Math.min(resolvedCount, 12)) : 94;
+  let resolutionValue = "—";
+  let resolutionSubtext = "No resolved cases in 30d";
+  if (avgCurrent != null) {
+    resolutionValue = `${avgCurrent}H`;
+    if (avgPrevious != null) {
+      const delta = avgPrevious - avgCurrent;
+      resolutionSubtext =
+        delta >= 0
+          ? `-${delta}h vs last month`
+          : `+${Math.abs(delta)}h vs last month`;
+    } else {
+      resolutionSubtext = "vs prior period —";
+    }
+  }
+
+  const closedDenom = resolvedCount + openCases;
+  const satisfactionValue =
+    closedDenom > 0
+      ? `${Math.round((resolvedCount / closedDenom) * 100)}%`
+      : "—";
+  const satisfactionSubtext =
+    resolvedCount > 0
+      ? `${resolvedCount} resolved total`
+      : "No resolved disputes yet";
 
   return [
     {
@@ -76,23 +97,20 @@ async function buildStats(): Promise<AdminDisputeStatCard[]> {
     },
     {
       label: "AVG. RESOLUTION",
-      value: `${avgCurrent}H`,
-      subtext:
-        delta >= 0
-          ? `-${delta}h vs last month`
-          : `+${Math.abs(delta)}h vs last month`,
+      value: resolutionValue,
+      subtext: resolutionSubtext,
       tone: "neutral",
     },
     {
       label: "SQUADRON VOTING",
       value: "0",
-      subtext: "awaiting decision",
+      subtext: "Post-MVP (not enabled)",
       tone: "warning",
     },
     {
       label: "SATISFACTION SCORE",
-      value: `${satisfaction}%`,
-      subtext: "+2%",
+      value: satisfactionValue,
+      subtext: satisfactionSubtext,
       tone: "success",
     },
   ];

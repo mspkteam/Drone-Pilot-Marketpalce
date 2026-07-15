@@ -28,7 +28,7 @@
   position: relative;
   overflow: hidden;
   min-height: 9.375rem;
-  border: 1px solid rgba(244, 241, 234, 0.08);
+  border: 1px solid var(--dashboard-card-border);
   border-radius: 0.5rem;
   background: var(--color-card-warm);
   padding: 1.75rem;
@@ -149,7 +149,7 @@
 }
 
 .admin-config-card {
-  border: 1px solid rgba(244, 241, 234, 0.08);
+  border: 1px solid var(--dashboard-card-border);
   border-radius: 0.5rem;
   background: var(--color-card-warm);
   padding: 1.5rem 1.625rem;
@@ -230,7 +230,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  border: 1px solid rgba(244, 241, 234, 0.06);
+  border: 1px solid var(--color-border-divider);
   border-radius: 0.375rem;
   background: var(--color-card-warm-alt);
   padding: 1rem 1.125rem;
@@ -388,7 +388,7 @@
   justify-content: space-between;
   gap: 1rem;
   padding: 0.875rem 0;
-  border-bottom: 1px solid rgba(244, 241, 234, 0.06);
+  border-bottom: 1px solid var(--color-border-divider);
 }
 
 .admin-config-template-row:last-child {
@@ -461,7 +461,7 @@
   height: 1.5rem;
   border-radius: 999px;
   background: var(--color-panel);
-  border: 1px solid rgba(244, 241, 234, 0.12);
+  border: 1px solid var(--color-border-strong);
   transition: background 0.15s;
 }
 
@@ -505,7 +505,7 @@
 }
 
 .admin-config-integration-card {
-  border: 1px solid rgba(244, 241, 234, 0.06);
+  border: 1px solid var(--color-border-divider);
   border-radius: 0.375rem;
   background: var(--color-card-warm-alt);
   padding: 0.875rem 1rem;
@@ -601,7 +601,7 @@
   justify-content: center;
   min-height: 2.5rem;
   padding: 0 1.25rem;
-  border: 1px solid rgba(244, 241, 234, 0.12);
+  border: 1px solid var(--color-border-strong);
   border-radius: 0.375rem;
   background: transparent;
   font-size: 0.8125rem;
@@ -625,7 +625,7 @@
 .admin-config-modal {
   width: 100%;
   max-width: 32rem;
-  border: 1px solid rgba(244, 241, 234, 0.1);
+  border: 1px solid var(--dashboard-card-border);
   border-radius: 0.5rem;
   background: var(--color-card-warm);
   box-shadow: 0 24px 48px rgba(0, 0, 0, 0.5);
@@ -633,7 +633,7 @@
 
 .admin-config-modal-head {
   padding: 1.25rem 1.5rem;
-  border-bottom: 1px solid rgba(244, 241, 234, 0.08);
+  border-bottom: 1px solid var(--dashboard-card-border);
 }
 
 .admin-config-modal-title {
@@ -670,7 +670,7 @@
 .admin-config-field textarea {
   width: 100%;
   padding: 0.5rem 0.75rem;
-  border: 1px solid rgba(244, 241, 234, 0.1);
+  border: 1px solid var(--dashboard-card-border);
   border-radius: 0.375rem;
   background: var(--color-bg-deeper);
   color: var(--color-text);
@@ -688,5 +688,5 @@
   justify-content: flex-end;
   gap: 0.75rem;
   padding: 1rem 1.5rem 1.25rem;
-  border-top: 1px solid rgba(244, 241, 234, 0.08);
+  border-top: 1px solid var(--dashboard-card-border);
 }

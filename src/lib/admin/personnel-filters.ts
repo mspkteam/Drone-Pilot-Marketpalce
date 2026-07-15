@@ -6,6 +6,7 @@ export const PERSONNEL_ROLE_FILTERS = [
   "Enterprise Client",
   "Moderator",
   "Admin",
+  "Super Admin",
   "Squadron Lead",
 ] as const;
 

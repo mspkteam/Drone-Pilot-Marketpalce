@@ -6,6 +6,8 @@ import { defineConfig } from "prisma/config";
 export const LOCAL_SQLITE_URL = "file:./prisma/dev.db";
 
 function isLocalSqliteEnabled(): boolean {
+  // Never use SQLite on Vercel (Preview/Production) — Neon must be configured.
+  if (process.env["VERCEL"]?.trim() === "1") return false;
   if (process.env["USE_NEON"]?.trim() === "1") return false;
   if (process.env["USE_LOCAL_DB"]?.trim() === "0") return false;
   if (process.env["USE_LOCAL_DB"]?.trim() === "1") return true;
@@ -39,6 +41,12 @@ function cliDatabaseUrl(): string {
     pooled?.startsWith("postgres://")
   ) {
     return pooled;
+  }
+
+  if (process.env["VERCEL"]?.trim() === "1") {
+    throw new Error(
+      "Vercel build requires DATABASE_URL (postgresql://…). Check Project → Settings → Environment Variables for Production and Preview.",
+    );
   }
 
   return LOCAL_SQLITE_URL;

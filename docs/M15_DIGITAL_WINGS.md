@@ -1,32 +1,57 @@
 # M15 — Digital Wings / Achievements
 
-**Version:** 0.24.0  
-**Depends on:** M05 (Pilot profiles), M09 (Bookings), M10 (Reviews), M14, M22
+**Version:** 0.27.3  
+**Depends on:** M05 (Pilot profiles), M09 (Bookings), M10 (Reviews), M11 (Membership), M14, M22
 
 ## Overview
 
-**Digital Wings** are milestone badges pilots earn on the marketplace. Admins define wings with optional **auto-assign rules**; the system awards wings when criteria are met. Wings appear on the pilot dashboard, public profile, and trigger in-app notifications.
+**Digital Wings** are milestone badges pilots earn on the marketplace. Admins define wings with **award conditions** backed by live platform data; the system awards wings when criteria are met. Wings appear on the pilot dashboard, public profile, and trigger in-app notifications.
+
+Admin UI: **Badges & Wings** (`/dashboard/admin/achievements`) — create/edit form exposes the full condition catalog (not free-text only).
 
 ## Data model
 
-- `WingDefinition` — catalog (code, title, description, category, auto rule, threshold)
+- `WingDefinition` — catalog (`code`, `title`, `description`, `category`, `autoRule`, `ruleParam`, `threshold`)
 - `PilotWing` — earned instance (unique per pilot + definition)
 
 Categories: `milestone` | `trust` | `community`
 
-## Auto-assign rules
+## Award conditions (site-backed)
 
-| Rule | Behavior |
-|------|----------|
-| `profile_approved` | Pilot profile status is approved |
-| `first_completed_booking` | ≥ 1 completed booking |
-| `completed_bookings_count` | Completed bookings ≥ `threshold` |
-| `five_star_reviews_count` | Published 5★ reviews ≥ `threshold` |
-| `approved_verification` | Approved verification of `ruleParam` type |
-| `has_certificate` | ≥ 1 platform certificate |
-| `manual_only` | Admin award only |
+| Rule | `ruleParam` | `threshold` | Behavior |
+|------|-------------|-------------|----------|
+| `manual_only` | — | — | Admin award only |
+| `profile_approved` | — | — | Pilot profile status is approved |
+| `active_membership` | — | — | Active or trialing `PilotSubscription` |
+| `membership_tier_min` | Tier code (`A2_JUNIOR_FLIGHT_OFFICER`, …) | — | Active grade ≥ required (A-1…A-6) |
+| `first_completed_booking` | — | — | ≥ 1 completed booking |
+| `completed_bookings_count` | — | N | Completed bookings ≥ N |
+| `job_applications_count` | — | N | Submitted proposals/bids ≥ N |
+| `five_star_reviews_count` | — | N | Published 5★ reviews ≥ N |
+| `average_rating_min` | — | tenths (45 = 4.5★) | Avg published rating ≥ target |
+| `approved_verification` | `license` \| `insurance` \| `identity` \| `other` | — | That verification type approved |
+| `approved_verifications_count` | — | N | Approved verifications (any type) ≥ N |
+| `has_certificate` | — | — | ≥ 1 platform certificate |
+| `certificates_count` | — | N | Certificates ≥ N |
+| `has_certificate_template` | Template **slug** | N (default 1) | Certificates from that template ≥ N |
 
-Hooks run after: booking completed, verification approved, certificate issued, pilot approved, client 5★ review.
+Catalog source of truth: `src/lib/wings/conditions.ts` (must stay in sync with `pilotMeetsAutoRule`).
+
+## Evaluation hooks
+
+`evaluateAndAssignWings(pilotProfileId)` runs after:
+
+- Booking completed
+- Verification approved
+- Certificate issued
+- Pilot profile approved
+- Client 5★ review published
+- Membership enroll / Fast Forward upgrade
+- Job application (bid) submitted
+
+## Certificates ↔ wings
+
+Certificate templates are issued manually. After issue, wing evaluation runs. To unlock a wing for a **specific** template, create a badge with condition **Specific certificate template** and paste the template slug (shown on edit in Certificates admin).
 
 ## APIs
 
@@ -41,7 +66,7 @@ Hooks run after: booking completed, verification approved, certificate issued, p
 ## UI
 
 - Pilot: `/dashboard/pilot/achievements` — earned wings grid
-- Admin: `/dashboard/admin/achievements` — definitions, manual award, recent awards
+- Admin: `/dashboard/admin/achievements` — definitions, conditions, manual award
 - Public: `/pilots/[id]` — wing badges alongside verifications
 
 ## Seed
@@ -51,6 +76,6 @@ Eight default wing definitions; `evaluateAndAssignWings` runs for demo pilot aft
 ## Smoke test
 
 1. `npm run db:push && npm run db:seed`
-2. `pilot@dronepilot.local` → **Digital Wings** — see Platform Pilot, Verified License, etc.
-3. `admin@dronepilot.local` → **Achievements / Wings** — manual award Community Champion
-4. View `/pilots/{pilotId}` — wings visible on public profile
+2. Admin → **Badges & Wings** → New Badge → enable auto-award → pick a condition (e.g. membership grade ≥ A-2)
+3. Enroll/upgrade a pilot to that grade → wing appears on Digital Wings
+4. Certificates → note template slug → badge with `has_certificate_template` → issue cert → wing unlocks

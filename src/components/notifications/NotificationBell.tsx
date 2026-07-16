@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { NotificationDto } from "@/types/notification";
 import { cn } from "@/lib/utils";
 
@@ -20,35 +20,74 @@ export function NotificationBell({
   const [notifications, setNotifications] = useState<NotificationDto[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(false);
+  const abortRef = useRef<AbortController | null>(null);
 
   const load = useCallback(async () => {
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+
     setLoading(true);
     try {
-      const res = await fetch("/api/notifications");
-      const data = await res.json();
-      if (!data.error) {
-        setNotifications(data.notifications ?? []);
-        setUnreadCount(data.unreadCount ?? 0);
+      const res = await fetch("/api/notifications", {
+        signal: controller.signal,
+        cache: "no-store",
+      });
+      if (!res.ok) return;
+
+      const data = (await res.json()) as {
+        error?: string;
+        notifications?: NotificationDto[];
+        unreadCount?: number;
+      };
+      if (data.error) return;
+
+      setNotifications(data.notifications ?? []);
+      setUnreadCount(data.unreadCount ?? 0);
+    } catch (error) {
+      // Network blips, HMR restarts, and unmount aborts are expected in dev.
+      if (error instanceof DOMException && error.name === "AbortError") return;
+      if (process.env.NODE_ENV === "development") {
+        console.warn("[NotificationBell] load failed:", error);
       }
     } finally {
-      setLoading(false);
+      if (abortRef.current === controller) {
+        setLoading(false);
+      }
     }
   }, []);
 
   useEffect(() => {
-    load();
-    const interval = setInterval(load, 60_000);
-    return () => clearInterval(interval);
+    void load();
+    const interval = setInterval(() => {
+      void load();
+    }, 60_000);
+    return () => {
+      clearInterval(interval);
+      abortRef.current?.abort();
+    };
   }, [load]);
 
   async function markRead(id: string) {
-    await fetch(`/api/notifications/${id}/read`, { method: "POST" });
-    load();
+    try {
+      await fetch(`/api/notifications/${id}/read`, { method: "POST" });
+      await load();
+    } catch (error) {
+      if (process.env.NODE_ENV === "development") {
+        console.warn("[NotificationBell] markRead failed:", error);
+      }
+    }
   }
 
   async function markAllRead() {
-    await fetch("/api/notifications", { method: "POST" });
-    load();
+    try {
+      await fetch("/api/notifications", { method: "POST" });
+      await load();
+    } catch (error) {
+      if (process.env.NODE_ENV === "development") {
+        console.warn("[NotificationBell] markAllRead failed:", error);
+      }
+    }
   }
 
   async function handleNotificationClick(n: NotificationDto) {
@@ -72,7 +111,7 @@ export function NotificationBell({
         aria-label={`Notifications${unreadCount > 0 ? `, ${unreadCount} unread` : ""}`}
         onClick={() => {
           setOpen((o) => !o);
-          if (!open) load();
+          if (!open) void load();
         }}
       >
         <svg
@@ -119,7 +158,7 @@ export function NotificationBell({
                 <button
                   type="button"
                   className="text-xs text-gold-dark hover:text-gold"
-                  onClick={markAllRead}
+                  onClick={() => void markAllRead()}
                 >
                   Mark all read
                 </button>

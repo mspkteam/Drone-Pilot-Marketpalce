@@ -415,14 +415,15 @@
 }
 
 /* ——— Modals ———
-   Only the dialog shell (class ends with `-modal`), never child
-   classes like `…-modal-title` / `…-modal-select` / `…-modal-actions`. */
+   CRITICAL: Never use broad class*=modal substring selectors — they paint
+   dialog chrome onto every child (title/body/actions/select) and break layout.
+   Shell chrome only on classes that END with -modal ([class$="-modal"]).
+   Enforced by src/lib/security/repo-security.test.ts. */
 .dashboard-app [class*="modal-backdrop"] {
   background: rgba(0, 0, 0, 0.72);
 }
 
-.dashboard-app [class$="-modal"],
-.dashboard-app [class*="-modal "] {
+.dashboard-app [class$="-modal"] {
   border: 1px solid var(--dashboard-card-border);
   border-radius: var(--radius-card);
   background: var(--color-card-warm);
@@ -430,17 +431,14 @@
   color: var(--color-text);
 }
 
-.dashboard-app [class$="-modal-title"],
-.dashboard-app [class*="-modal-title"] {
+.dashboard-app [class$="-modal-title"] {
   color: var(--color-text-heading);
   font-weight: 700;
   letter-spacing: -0.02em;
 }
 
 .dashboard-app [class$="-modal-copy"],
-.dashboard-app [class*="-modal-copy"],
-.dashboard-app [class$="-modal-text"],
-.dashboard-app [class*="-modal-text"] {
+.dashboard-app [class$="-modal-text"] {
   color: var(--color-text-warm);
   line-height: 1.55;
 }

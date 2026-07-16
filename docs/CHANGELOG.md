@@ -546,6 +546,21 @@ Initial project control documentation and planning foundation for Drone Pilot Ma
 
 ## [Unreleased]
 
+### Changed
+
+- Ops dashboard **Platform Growth** chart: hover/click weeks for tooltips, toggle series via legend, clickable week labels (same visual design).
+- Ops dashboard **System Integrity**: was static preview copy; now live DB probe latency, operational error rate (cancelled bookings + open disputes / 30-day activity), dynamic status subtitle + strip. Metrics are clickable for detail.
+
+### Fixed
+
+- Admin **Subscriptions** edit/features popups: layout broken by unscoped hero button flex + whole-dialog scroll. Now body-portal, sticky head/foot, scrollable body; theme modal selectors tightened; regression tests added.
+
+### Added
+
+- Badges & Wings **award condition catalog** (membership grade, active membership, bids count, average rating, verification counts, certificate template slug, etc.) with typed create/edit UI; engine + membership/bid hooks; certificate template slug guidance for wing rules.
+- Uniform Shop product create/edit **WooCommerce-style** editor (title, description, Product data tabs, Publish / image / category sidebar).
+- Reports & Analytics interactivity (stat select, chart hover/legend toggle, category select, expandable segmentation) without redesigning the page chrome.
+
 ### Planned
 - M18 Waitlist backend
 - M20 Launch prep

@@ -4,12 +4,19 @@ export type WingCategory = (typeof WING_CATEGORIES)[number];
 
 export const WING_AUTO_RULES = [
   "manual_only",
+  "profile_approved",
+  "active_membership",
+  "membership_tier_min",
   "first_completed_booking",
   "completed_bookings_count",
+  "job_applications_count",
   "five_star_reviews_count",
+  "average_rating_min",
   "approved_verification",
+  "approved_verifications_count",
   "has_certificate",
-  "profile_approved",
+  "certificates_count",
+  "has_certificate_template",
 ] as const;
 
 export type WingAutoRule = (typeof WING_AUTO_RULES)[number];

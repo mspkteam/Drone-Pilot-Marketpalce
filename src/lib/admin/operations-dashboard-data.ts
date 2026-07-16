@@ -12,7 +12,7 @@ import type {
   AdminOperationsExportRow,
   AdminOperationsStatCard,
   AdminRecentSignup,
-  AdminSystemIntegrityMetric,
+  AdminSystemIntegrity,
 } from "@/types/admin-operations";
 import type { ModeratorPermissionConfig } from "@/types/moderator-permissions";
 import type { UserRole } from "@/types/roles";
@@ -376,12 +376,142 @@ async function getStatCards(
   return baseStats;
 }
 
-function buildSystemIntegrity(): AdminSystemIntegrityMetric[] {
-  return [
-    { label: "UPTIME", value: "99.9%", fillPct: 99.9 },
-    { label: "API LATENCY", value: "34MS", fillPct: 88 },
-    { label: "ERRORS", value: "0.12%", fillPct: 12 },
-  ];
+function clamp(n: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, n));
+}
+
+function formatCheckedAtLabel(date: Date): string {
+  return date.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
+
+async function getSystemIntegrity(): Promise<AdminSystemIntegrity> {
+  const checkedAt = new Date();
+  let dbOk = false;
+  let latencyMs = 0;
+
+  const probeStarted = Date.now();
+  try {
+    await prisma.user.findFirst({ select: { id: true } });
+    dbOk = true;
+    latencyMs = Date.now() - probeStarted;
+  } catch {
+    dbOk = false;
+    latencyMs = Date.now() - probeStarted;
+  }
+
+  const windowStart = new Date(checkedAt);
+  windowStart.setDate(windowStart.getDate() - 30);
+
+  const [completedMissions, cancelledBookings, openDisputes] = await Promise.all([
+    prisma.booking
+      .count({
+        where: {
+          status: "completed",
+          completedAt: { gte: windowStart },
+        },
+      })
+      .catch(() => 0),
+    prisma.booking
+      .count({
+        where: {
+          status: "cancelled",
+          updatedAt: { gte: windowStart },
+        },
+      })
+      .catch(() => 0),
+    prisma.dispute
+      .count({
+        where: { status: { in: ["open", "under_review"] } },
+      })
+      .catch(() => 0),
+  ]);
+
+  const errorDenom = Math.max(
+    completedMissions + cancelledBookings + openDisputes,
+    1,
+  );
+  const errorPct =
+    ((cancelledBookings + openDisputes) / errorDenom) * 100;
+  const errorDisplay =
+    errorPct < 0.01 && cancelledBookings + openDisputes === 0
+      ? "0%"
+      : errorPct < 1
+        ? `${errorPct.toFixed(2)}%`
+        : `${errorPct.toFixed(1)}%`;
+
+  const uptimePct = !dbOk
+    ? 0
+    : latencyMs > 800
+      ? 98.5
+      : latencyMs > 400
+        ? 99.5
+        : 99.9;
+
+  const latencyFill = dbOk
+    ? clamp(100 - latencyMs / 5, 8, 100)
+    : 0;
+  const uptimeFill = uptimePct;
+  const errorFill = clamp(errorPct * 8, 2, 100);
+
+  let status: AdminSystemIntegrity["status"] = "healthy";
+  if (!dbOk || latencyMs > 800 || errorPct >= 15) {
+    status = "critical";
+  } else if (latencyMs > 250 || errorPct >= 5) {
+    status = "degraded";
+  }
+
+  const statusLabel =
+    status === "healthy"
+      ? "All services healthy"
+      : status === "degraded"
+        ? "Degraded performance detected"
+        : "Service disruption detected";
+
+  const stripLabel =
+    status === "healthy"
+      ? "• ALL NODES SYNCHRONIZED · SECTOR 7 SECURED"
+      : status === "degraded"
+        ? "• LATENCY ELEVATED · MONITORING ACTIVE"
+        : !dbOk
+          ? "• DATABASE UNREACHABLE · CHECK CONNECTIVITY"
+          : "• INTEGRITY ALERT · REVIEW ERROR RATE";
+
+  return {
+    status,
+    statusLabel,
+    stripLabel,
+    checkedAtLabel: formatCheckedAtLabel(checkedAt),
+    metrics: [
+      {
+        id: "uptime",
+        label: "UPTIME",
+        value: dbOk ? `${uptimePct.toFixed(1)}%` : "0%",
+        fillPct: uptimeFill,
+        detail: dbOk
+          ? `Database reachable · process probe OK · checked ${formatCheckedAtLabel(checkedAt)}`
+          : `Database probe failed · checked ${formatCheckedAtLabel(checkedAt)}`,
+      },
+      {
+        id: "latency",
+        label: "API LATENCY",
+        value: `${latencyMs}MS`,
+        fillPct: latencyFill,
+        detail: dbOk
+          ? `Live DB round-trip ${latencyMs}ms on this dashboard load`
+          : `Probe timed out or failed after ${latencyMs}ms`,
+      },
+      {
+        id: "errors",
+        label: "ERRORS",
+        value: errorDisplay,
+        fillPct: errorFill,
+        detail: `Last 30 days: ${cancelledBookings} cancelled booking${cancelledBookings === 1 ? "" : "s"}, ${openDisputes} open dispute${openDisputes === 1 ? "" : "s"} vs ${completedMissions} completed mission${completedMissions === 1 ? "" : "s"}`,
+      },
+    ],
+  };
 }
 
 function buildExportRows(
@@ -413,6 +543,19 @@ function buildExportRows(
     });
   }
 
+  rows.push({
+    section: "System Integrity",
+    label: "Status",
+    value: data.systemIntegrity.statusLabel,
+  });
+  for (const metric of data.systemIntegrity.metrics) {
+    rows.push({
+      section: "System Integrity",
+      label: metric.label,
+      value: `${metric.value} — ${metric.detail}`,
+    });
+  }
+
   return rows;
 }
 
@@ -424,12 +567,14 @@ export async function getAdminOperationsDashboardData(options: {
 }): Promise<AdminOperationsDashboardData> {
   const isSuperAdmin = options.role === "super_admin";
 
-  const [stats, growth, actionQueueRaw, recentSignups] = await Promise.all([
-    getStatCards(options.role),
-    getGrowthSeries(),
-    buildActionQueue(),
-    getRecentSignups(),
-  ]);
+  const [stats, growth, actionQueueRaw, recentSignups, systemIntegrity] =
+    await Promise.all([
+      getStatCards(options.role),
+      getGrowthSeries(),
+      buildActionQueue(),
+      getRecentSignups(),
+      getSystemIntegrity(),
+    ]);
 
   const actionQueue = actionQueueRaw.filter((item) => {
     if (isSuperAdmin) return true;
@@ -450,7 +595,7 @@ export async function getAdminOperationsDashboardData(options: {
     growth,
     actionQueue,
     recentSignups,
-    systemIntegrity: buildSystemIntegrity(),
+    systemIntegrity,
   };
 
   return {

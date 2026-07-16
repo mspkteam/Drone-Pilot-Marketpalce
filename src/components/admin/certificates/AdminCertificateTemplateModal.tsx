@@ -114,6 +114,34 @@ export function AdminCertificateTemplateModal({
                 rows={6}
               />
             </div>
+
+            <div className="admin-certificates-wing-hint" role="note">
+              <p className="admin-certificates-wing-hint-title">
+                Badge / wing assignment
+              </p>
+              <p className="admin-certificates-wing-hint-copy">
+                Issuing this certificate to a pilot re-runs wing evaluation.
+                Create badges with condition <strong>Has any platform certificate</strong>,{" "}
+                <strong>Platform certificates (count)</strong>, or{" "}
+                <strong>Specific certificate template</strong>
+                {mode === "edit" && template?.slug ? (
+                  <>
+                    {" "}
+                    using slug <code>{template.slug}</code>
+                  </>
+                ) : (
+                  <> (slug is generated from the template name on create)</>
+                )}
+                .
+              </p>
+            </div>
+
+            {mode === "edit" && template?.slug ? (
+              <div className="admin-certificates-field">
+                <label htmlFor="cert-tpl-slug">Template slug (for wing rules)</label>
+                <input id="cert-tpl-slug" value={template.slug} readOnly />
+              </div>
+            ) : null}
             {mode === "edit" ? (
               <label className="admin-certificates-check-row">
                 <input

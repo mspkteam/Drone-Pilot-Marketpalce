@@ -40,6 +40,63 @@ describe("repository security hygiene", () => {
       "Dashboard milestone rules should declare allowedRoles.",
     );
   });
+
+  it("does not use broad modal attribute selectors in dashboard theme", () => {
+    const theme = readFileSync(
+      join(ROOT, "src", "styles", "dashboard-theme.css"),
+      "utf8",
+    );
+    // Strip block comments so advisory text cannot false-positive.
+    const code = theme.replace(/\/\*[\s\S]*?\*\//g, "");
+
+    // Broad substring match paints chrome onto every …-modal-* child and
+    // breaks dialog layout (title/body/actions become nested cards).
+    assert.doesNotMatch(
+      code,
+      /\[class\*=["']modal["']\]/,
+      'Forbidden: [class*="modal"] in dashboard-theme.css',
+    );
+    assert.doesNotMatch(
+      code,
+      /\[class\*=["']-modal["']\]/,
+      'Forbidden: [class*="-modal"] in dashboard-theme.css — use [class$="-modal"]',
+    );
+    assert.doesNotMatch(
+      code,
+      /\[class\*=["']-modal /,
+      'Forbidden: [class*="-modal …"] — use [class$="-modal"] for shells only',
+    );
+
+    assert.match(
+      code,
+      /\[class\$=["']-modal["']\]/,
+      'Expected shell-only modal selector [class$="-modal"]',
+    );
+  });
+
+  it("scopes subscriptions hero button flex away from modal foot buttons", () => {
+    const css = readFileSync(
+      join(ROOT, "src", "styles", "admin-subscriptions.css"),
+      "utf8",
+    );
+
+    assert.match(
+      css,
+      /\.admin-subscriptions-hero-actions\s+\.admin-subscriptions-btn\s*\{[^}]*flex:\s*1\s+1\s+auto/s,
+      "Hero button flex must be scoped under .admin-subscriptions-hero-actions",
+    );
+
+    const unscopedFlex = [
+      ...css.matchAll(
+        /(?:^|\n)\.admin-subscriptions-btn\s*\{[^}]*flex:\s*1\s+1\s+auto/g,
+      ),
+    ];
+    assert.equal(
+      unscopedFlex.length,
+      0,
+      "Do not set flex: 1 1 auto on bare .admin-subscriptions-btn (breaks modal foot)",
+    );
+  });
 });
 
 describe("secret handling", () => {

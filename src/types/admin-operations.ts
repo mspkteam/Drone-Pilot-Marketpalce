@@ -31,10 +31,24 @@ export type AdminRecentSignup = {
   badge: "CLIENT" | "PILOT";
 };
 
+export type AdminSystemIntegrityStatus = "healthy" | "degraded" | "critical";
+
+export type AdminSystemIntegrityMetricId = "uptime" | "latency" | "errors";
+
 export type AdminSystemIntegrityMetric = {
+  id: AdminSystemIntegrityMetricId;
   label: string;
   value: string;
   fillPct: number;
+  detail: string;
+};
+
+export type AdminSystemIntegrity = {
+  status: AdminSystemIntegrityStatus;
+  statusLabel: string;
+  stripLabel: string;
+  checkedAtLabel: string;
+  metrics: AdminSystemIntegrityMetric[];
 };
 
 export type AdminOperationsExportRow = {
@@ -50,6 +64,6 @@ export type AdminOperationsDashboardData = {
   growth: AdminGrowthSeriesPoint[];
   actionQueue: AdminActionQueueItem[];
   recentSignups: AdminRecentSignup[];
-  systemIntegrity: AdminSystemIntegrityMetric[];
+  systemIntegrity: AdminSystemIntegrity;
   exportRows: AdminOperationsExportRow[];
 };

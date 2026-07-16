@@ -1,6 +1,7 @@
 import type { PilotWing, WingDefinition } from "@/generated/prisma/client";
 import { prisma } from "@/lib/db";
 import { notifyAsync, sendNotification } from "@/lib/notifications/notify";
+import { membershipTierRank } from "@/lib/wings/conditions";
 import type {
   AdminPilotWingDto,
   PilotWingDto,
@@ -330,6 +331,32 @@ async function pilotMeetsAutoRule(
       });
       return profile?.status === "approved";
     }
+    case "active_membership": {
+      const sub = await prisma.pilotSubscription.findFirst({
+        where: {
+          pilotProfileId,
+          status: { in: ["active", "trialing"] },
+        },
+        select: { id: true },
+      });
+      return Boolean(sub);
+    }
+    case "membership_tier_min": {
+      const requiredCode = def.ruleParam;
+      if (!requiredCode) return false;
+      const requiredRank = membershipTierRank(requiredCode);
+      if (requiredRank <= 0) return false;
+      const sub = await prisma.pilotSubscription.findFirst({
+        where: {
+          pilotProfileId,
+          status: { in: ["active", "trialing"] },
+        },
+        include: { subscriptionPlan: { select: { code: true } } },
+        orderBy: { createdAt: "desc" },
+      });
+      if (!sub) return false;
+      return membershipTierRank(sub.subscriptionPlan.code) >= requiredRank;
+    }
     case "first_completed_booking": {
       const count = await prisma.booking.count({
         where: { pilotProfileId, status: "completed" },
@@ -340,6 +367,13 @@ async function pilotMeetsAutoRule(
       const threshold = def.threshold ?? 1;
       const count = await prisma.booking.count({
         where: { pilotProfileId, status: "completed" },
+      });
+      return count >= threshold;
+    }
+    case "job_applications_count": {
+      const threshold = def.threshold ?? 1;
+      const count = await prisma.jobApplication.count({
+        where: { pilotProfileId },
       });
       return count >= threshold;
     }
@@ -354,6 +388,20 @@ async function pilotMeetsAutoRule(
       });
       return count >= threshold;
     }
+    case "average_rating_min": {
+      const tenths = def.threshold ?? 40;
+      const minRating = tenths / 10;
+      const agg = await prisma.review.aggregate({
+        where: {
+          targetPilotProfileId: pilotProfileId,
+          status: "published",
+        },
+        _avg: { rating: true },
+        _count: { _all: true },
+      });
+      if (!agg._count._all || agg._avg.rating == null) return false;
+      return agg._avg.rating >= minRating;
+    }
     case "approved_verification": {
       const type = def.ruleParam ?? "license";
       const row = await prisma.verification.findFirst({
@@ -365,11 +413,37 @@ async function pilotMeetsAutoRule(
       });
       return Boolean(row);
     }
+    case "approved_verifications_count": {
+      const threshold = def.threshold ?? 1;
+      const count = await prisma.verification.count({
+        where: { pilotProfileId, status: "approved" },
+      });
+      return count >= threshold;
+    }
     case "has_certificate": {
       const count = await prisma.pilotCertificate.count({
         where: { pilotProfileId },
       });
       return count >= 1;
+    }
+    case "certificates_count": {
+      const threshold = def.threshold ?? 1;
+      const count = await prisma.pilotCertificate.count({
+        where: { pilotProfileId },
+      });
+      return count >= threshold;
+    }
+    case "has_certificate_template": {
+      const slug = def.ruleParam?.trim();
+      if (!slug) return false;
+      const threshold = def.threshold ?? 1;
+      const count = await prisma.pilotCertificate.count({
+        where: {
+          pilotProfileId,
+          template: { slug },
+        },
+      });
+      return count >= threshold;
     }
     default:
       return false;

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { AdminOperationsActions } from "@/components/dashboard/admin/AdminOperationsActions";
-import { AdminPlatformGrowthChart } from "@/components/dashboard/admin/AdminPlatformGrowthChart";
+import { AdminPlatformGrowthPanel } from "@/components/dashboard/admin/AdminPlatformGrowthPanel";
+import { AdminSystemIntegrityPanel } from "@/components/dashboard/admin/AdminSystemIntegrityPanel";
 import type {
   AdminActionQueueItem,
   AdminOperationsDashboardData,
@@ -120,53 +121,9 @@ export function AdminOperationsDashboard({ data }: AdminOperationsDashboardProps
 
       <div className="admin-ops-main-grid">
         <div className="admin-ops-main-left">
-          <section className="admin-ops-panel admin-ops-panel--growth">
-            <div className="admin-ops-panel-head">
-              <div>
-                <h2 className="admin-ops-panel-title">PLATFORM GROWTH</h2>
-                <p className="admin-ops-panel-sub">
-                  Mission volume — last 90 days
-                </p>
-              </div>
-              <div className="admin-ops-legend">
-                <span className="admin-ops-legend-item">
-                  <span className="admin-ops-legend-dot admin-ops-legend-dot--gold" />
-                  Missions completed
-                </span>
-                <span className="admin-ops-legend-item">
-                  <span className="admin-ops-legend-dot admin-ops-legend-dot--green" />
-                  New officers onboarded
-                </span>
-              </div>
-            </div>
-            <AdminPlatformGrowthChart series={data.growth} />
-          </section>
+          <AdminPlatformGrowthPanel series={data.growth} />
 
-          <section className="admin-ops-panel">
-            <div className="admin-ops-panel-head">
-              <div>
-                <h2 className="admin-ops-panel-title">SYSTEM INTEGRITY</h2>
-                <p className="admin-ops-panel-sub">All services healthy</p>
-              </div>
-            </div>
-            <div className="admin-ops-integrity-grid">
-              {data.systemIntegrity.map((metric) => (
-                <div key={metric.label} className="admin-ops-integrity-metric">
-                  <p className="admin-ops-integrity-label">{metric.label}</p>
-                  <p className="admin-ops-integrity-value">{metric.value}</p>
-                  <div className="admin-ops-integrity-track">
-                    <span
-                      className="admin-ops-integrity-fill"
-                      style={{ width: `${metric.fillPct}%` }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-            <p className="admin-ops-integrity-strip">
-              • ALL NODES SYNCHRONIZED · SECTOR 7 SECURED
-            </p>
-          </section>
+          <AdminSystemIntegrityPanel data={data.systemIntegrity} />
         </div>
 
         <div className="admin-ops-main-right">

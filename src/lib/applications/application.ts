@@ -12,6 +12,7 @@ import {
 } from "@/lib/membership/membership";
 import { prisma } from "@/lib/db";
 import { triggerBidReceived } from "@/lib/notifications/triggers";
+import { evaluateAndAssignWings } from "@/lib/wings/wings";
 import type {
   ApplicationStatus,
   JobApplicationDto,
@@ -346,6 +347,7 @@ export async function createJobApplication(
     select: { displayName: true },
   });
   triggerBidReceived(jobId, job.title, pilot?.displayName ?? "A pilot");
+  await evaluateAndAssignWings(pilotProfileId);
 
   return { ok: true, application: toApplicationDto(application) };
 }

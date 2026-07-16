@@ -1,12 +1,13 @@
-import type { PilotSubscription, SubscriptionPlan } from "@/generated/prisma/client";
 import { getFastForwardFeeUsd } from "@/lib/membership/pilot-membership-catalog";
 import { toMembershipTierDto } from "@/lib/membership/membership";
 import { prisma } from "@/lib/db";
+import { evaluateAndAssignWings } from "@/lib/wings/wings";
 import type {
   PilotSubscriptionDto,
   SubscriptionStatus,
 } from "@/types/subscription";
 import type { MembershipTierDto } from "@/types/membership";
+import type { PilotSubscription, SubscriptionPlan } from "@/generated/prisma/client";
 
 const ACTIVE_STATUSES = ["trialing", "active"] as const;
 
@@ -102,6 +103,8 @@ export async function setPilotMembershipTier(
       include: { subscriptionPlan: true },
     });
 
+    await evaluateAndAssignWings(pilotProfileId);
+
     return {
       ok: true,
       subscription: toSubscriptionDto(sub),
@@ -135,6 +138,8 @@ export async function setPilotMembershipTier(
     data: { subscriptionPlanId: plan.id },
     include: { subscriptionPlan: true },
   });
+
+  await evaluateAndAssignWings(pilotProfileId);
 
   return {
     ok: true,

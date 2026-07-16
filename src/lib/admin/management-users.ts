@@ -81,7 +81,8 @@ export async function createManagementUser(
     },
   });
 
-  const preset = role === "admin" ? "full" : "limited";
+  // New moderators start with full operational access; Super Admin can set Limited later.
+  const preset = "full";
   await prisma.moderatorPermissionRecord.create({
     data: {
       userId: user.id,

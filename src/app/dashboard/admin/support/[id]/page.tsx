@@ -2,6 +2,11 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { AdminSupportChat } from "@/components/dashboard/admin/support/AdminSupportChat";
 import { DashboardPageLayout } from "@/components/dashboard";
+import {
+  canPerformAction,
+  usesStaffPermissionMap,
+} from "@/lib/auth/moderator-permissions";
+import { getModeratorPermissionsFromDb } from "@/lib/auth/moderator-permissions-db";
 import { isAdminRole, type UserRole } from "@/types/roles";
 import "@/styles/admin-dashboard.css";
 import "@/styles/admin-support-chat.css";
@@ -20,11 +25,20 @@ export default async function AdminSupportThreadPage({ params }: PageProps) {
   }
 
   const { id } = await params;
-  const readOnly = role === "moderator";
+  const permissionConfig = usesStaffPermissionMap(role)
+    ? await getModeratorPermissionsFromDb(session.user.id)
+    : null;
+  const canReply = canPerformAction(
+    role,
+    session.user.id,
+    "support",
+    "reply",
+    permissionConfig,
+  );
 
   return (
     <DashboardPageLayout className="admin-support-shell">
-      <AdminSupportChat readOnly={readOnly} initialChatId={id} />
+      <AdminSupportChat readOnly={!canReply} initialChatId={id} />
     </DashboardPageLayout>
   );
 }

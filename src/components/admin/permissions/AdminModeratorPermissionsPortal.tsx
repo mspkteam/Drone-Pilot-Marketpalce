@@ -24,12 +24,13 @@ const PRESET_OPTIONS: Array<{
     key: "full",
     title: "Full Access",
     description:
-      "Staff can access every operational module and allowed actions.",
+      "Default for moderators and admins — all operational modules (high-risk actions like payouts stay off).",
   },
   {
     key: "limited",
     title: "Limited Access",
-    description: "Staff can access core review queues only.",
+    description:
+      "Restrict to core review queues only. Use this when you intentionally lock a staff account down.",
   },
   {
     key: "custom",

@@ -57,17 +57,37 @@ async function main() {
     });
 
     if (user.role === "moderator" || user.role === "admin") {
-      const preset = user.role === "admin" ? "full" : "limited";
+      // Demo staff + new records get full operational access.
+      // "limited" is only kept when a Super Admin already set it on a non-demo account.
+      const existingPerm = await prisma.moderatorPermissionRecord.findUnique({
+        where: { userId: record.id },
+      });
+      const demoStaffEmails = new Set([
+        "moderator@dronepilot.local",
+        "ops@dronepilot.local",
+      ]);
+      const forceFull =
+        demoStaffEmails.has(user.email) ||
+        !existingPerm ||
+        existingPerm.preset === "full";
+      const preset = forceFull
+        ? "full"
+        : (existingPerm.preset as "full" | "limited" | "custom");
+      const permissionsJson =
+        preset === "custom" && existingPerm
+          ? existingPerm.permissionsJson
+          : JSON.stringify(buildPresetPermissions(preset));
+
       await prisma.moderatorPermissionRecord.upsert({
         where: { userId: record.id },
         create: {
           userId: record.id,
-          preset,
-          permissionsJson: JSON.stringify(buildPresetPermissions(preset)),
+          preset: "full",
+          permissionsJson: JSON.stringify(buildPresetPermissions("full")),
         },
         update: {
           preset,
-          permissionsJson: JSON.stringify(buildPresetPermissions(preset)),
+          permissionsJson,
         },
       });
     }

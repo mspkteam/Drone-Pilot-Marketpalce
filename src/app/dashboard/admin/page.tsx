@@ -3,6 +3,8 @@ import { auth } from "@/auth";
 import { AdminOperationsDashboard } from "@/components/dashboard/admin/AdminOperationsDashboard";
 import { DashboardPageLayout } from "@/components/dashboard";
 import { getAdminOperationsDashboardData } from "@/lib/admin/operations-dashboard-data";
+import { getModeratorPermissionsFromDb } from "@/lib/auth/moderator-permissions-db";
+import { usesStaffPermissionMap } from "@/lib/auth/moderator-permissions";
 import { buildDashboardUser } from "@/lib/dashboard/shell-user";
 import { isAdminRole, type UserRole } from "@/types/roles";
 import "@/styles/admin-dashboard.css";
@@ -25,9 +27,15 @@ export default async function AdminDashboardPage() {
           : "Admin account",
   });
 
+  const permissionConfig = usesStaffPermissionMap(role)
+    ? await getModeratorPermissionsFromDb(session.user.id)
+    : null;
+
   const data = await getAdminOperationsDashboardData({
     role,
     commanderName: user.displayName,
+    userId: session.user.id,
+    permissionConfig,
   });
 
   return (

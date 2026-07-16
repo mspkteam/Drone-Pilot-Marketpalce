@@ -6,7 +6,7 @@ import {
 import { requireAdminModuleView } from "@/lib/auth/require-admin-permission";
 
 export async function GET(request: Request) {
-  const authResult = await requireAdminModuleView("certificates");
+  const authResult = await requireAdminModuleView("verifications");
   if (!authResult.ok) {
     return NextResponse.json(
       { error: authResult.error },

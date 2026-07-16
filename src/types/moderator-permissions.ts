@@ -6,6 +6,7 @@ export const PERMISSION_MODULE_KEYS = [
   "reports",
   "users",
   "jobApproval",
+  "verifications",
   "messages",
   "support",
   "disputes",

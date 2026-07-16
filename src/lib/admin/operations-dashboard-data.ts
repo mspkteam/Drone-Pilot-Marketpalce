@@ -1,5 +1,9 @@
 import { listDisputesForAdmin } from "@/lib/disputes/dispute";
 import { prisma } from "@/lib/db";
+import {
+  canAccessModule,
+  getModuleKeyForAdminPath,
+} from "@/lib/auth/moderator-permissions";
 import { getVerificationTypeLabel } from "@/lib/verification/status";
 import type {
   AdminActionQueueItem,
@@ -10,6 +14,7 @@ import type {
   AdminRecentSignup,
   AdminSystemIntegrityMetric,
 } from "@/types/admin-operations";
+import type { ModeratorPermissionConfig } from "@/types/moderator-permissions";
 import type { UserRole } from "@/types/roles";
 
 const GROWTH_WEEKS = 13;
@@ -414,15 +419,29 @@ function buildExportRows(
 export async function getAdminOperationsDashboardData(options: {
   role: UserRole;
   commanderName: string;
+  userId?: string;
+  permissionConfig?: ModeratorPermissionConfig | null;
 }): Promise<AdminOperationsDashboardData> {
   const isSuperAdmin = options.role === "super_admin";
 
-  const [stats, growth, actionQueue, recentSignups] = await Promise.all([
+  const [stats, growth, actionQueueRaw, recentSignups] = await Promise.all([
     getStatCards(options.role),
     getGrowthSeries(),
     buildActionQueue(),
     getRecentSignups(),
   ]);
+
+  const actionQueue = actionQueueRaw.filter((item) => {
+    if (isSuperAdmin) return true;
+    const moduleKey = getModuleKeyForAdminPath(item.href);
+    if (!moduleKey) return true;
+    return canAccessModule(
+      options.role,
+      options.userId,
+      moduleKey,
+      options.permissionConfig,
+    );
+  });
 
   const partial = {
     commanderName: options.commanderName,

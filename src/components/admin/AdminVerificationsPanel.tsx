@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { VerificationDocumentLink } from "@/components/verification/VerificationDocumentLink";
+import { useModeratorPermissions } from "@/contexts/ModeratorPermissionsContext";
 import { getVerificationTypeLabel } from "@/lib/verification/status";
 import { approvalStatusFilterTabs } from "@/lib/ui/status-filter-tabs";
 import type { AdminVerificationDto } from "@/types/verification";
@@ -29,6 +30,9 @@ function statusLabel(status: VerificationStatus): string {
 }
 
 export function AdminVerificationsPanel() {
+  const { canPerform } = useModeratorPermissions();
+  const canApprove = canPerform("verifications", "approve");
+  const canReject = canPerform("verifications", "reject");
   const [filter, setFilter] = useState<VerificationStatus | "all">("pending");
   const [verifications, setVerifications] = useState<AdminVerificationDto[]>([]);
   const [loading, setLoading] = useState(true);
@@ -188,19 +192,22 @@ export function AdminVerificationsPanel() {
                 </span>
               </div>
 
-              {v.status === "pending" ? (
+              {v.status === "pending" && (canApprove || canReject) ? (
                 <div className="admin-verifications-card-actions">
-                  <button
-                    type="button"
-                    className="admin-verifications-btn-primary"
-                    disabled={actingId === v.id}
-                    onClick={() => void approve(v.id)}
-                  >
-                    {actingId === v.id && rejectId !== v.id
-                      ? "Approving…"
-                      : "Approve"}
-                  </button>
-                  {rejectId === v.id ? (
+                  {canApprove ? (
+                    <button
+                      type="button"
+                      className="admin-verifications-btn-primary"
+                      disabled={actingId === v.id}
+                      onClick={() => void approve(v.id)}
+                    >
+                      {actingId === v.id && rejectId !== v.id
+                        ? "Approving…"
+                        : "Approve"}
+                    </button>
+                  ) : null}
+                  {canReject ? (
+                    rejectId === v.id ? (
                     <div className="admin-verifications-reject-row">
                       <label className="admin-verifications-field">
                         <span className="admin-verifications-field-label">
@@ -242,7 +249,8 @@ export function AdminVerificationsPanel() {
                     >
                       Reject
                     </button>
-                  )}
+                  )
+                  ) : null}
                 </div>
               ) : v.rejectionReason ? (
                 <p className="admin-verifications-rejected">

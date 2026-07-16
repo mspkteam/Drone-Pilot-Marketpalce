@@ -5,7 +5,7 @@ import { requireAdminPermission } from "@/lib/auth/require-admin-permission";
 type RouteContext = { params: Promise<{ id: string }> };
 
 export async function POST(_request: Request, context: RouteContext) {
-  const authResult = await requireAdminPermission("certificates", "issue");
+  const authResult = await requireAdminPermission("verifications", "approve");
   if (!authResult.ok) {
     return NextResponse.json(
       { error: authResult.error },

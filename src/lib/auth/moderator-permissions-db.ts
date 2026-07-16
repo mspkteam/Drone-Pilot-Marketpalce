@@ -3,14 +3,21 @@ import {
   buildPresetPermissions,
   getDefaultModeratorPermissions,
 } from "@/lib/auth/moderator-permissions";
+import { PERMISSION_MODULE_KEYS } from "@/types/moderator-permissions";
 import type {
   ModeratorPermissionConfig,
   ModeratorPermissionMap,
+  ModulePermissions,
   PermissionPreset,
 } from "@/types/moderator-permissions";
 
 function parsePermissions(json: string): ModeratorPermissionMap {
-  return JSON.parse(json) as ModeratorPermissionMap;
+  const parsed = JSON.parse(json) as Partial<ModeratorPermissionMap>;
+  const map = {} as ModeratorPermissionMap;
+  for (const key of PERMISSION_MODULE_KEYS) {
+    map[key] = (parsed[key] ?? {}) as ModulePermissions;
+  }
+  return map;
 }
 
 function toConfig(record: {

@@ -51,6 +51,15 @@ export const PERMISSION_MODULES: PermissionModuleDef[] = [
     ],
   },
   {
+    key: "verifications",
+    label: "Remote Aviator Verification",
+    actions: [
+      { key: "view", label: "View" },
+      { key: "approve", label: "Approve" },
+      { key: "reject", label: "Reject" },
+    ],
+  },
+  {
     key: "messages",
     label: "Messages",
     actions: [
@@ -191,7 +200,7 @@ export const PERMISSION_MODULES: PermissionModuleDef[] = [
 ];
 
 const ADMIN_PATH_MODULE_ENTRIES: Array<[string, PermissionModuleKey]> = [
-  ["/dashboard/admin/verifications", "certificates"],
+  ["/dashboard/admin/verifications", "verifications"],
   ["/dashboard/admin/regions", "configuration"],
   ["/dashboard/admin/squadron-voting", "disputes"],
   ["/dashboard/admin/permissions", "configuration"],
@@ -209,6 +218,12 @@ const ADMIN_PATH_MODULE_ENTRIES: Array<[string, PermissionModuleKey]> = [
   ["/dashboard/admin/messages", "messages"],
   ["/dashboard/admin/jobs", "jobApproval"],
   ["/dashboard/admin/users", "users"],
+  ["/dashboard/admin/pilots", "users"],
+  ["/dashboard/admin/clients", "users"],
+  ["/dashboard/admin/applications", "users"],
+  ["/dashboard/admin/bookings", "users"],
+  ["/dashboard/admin/waitlist", "users"],
+  ["/dashboard/admin/reviews", "users"],
   ["/dashboard/admin/reports", "reports"],
   ["/dashboard/admin", "dashboard"],
 ];
@@ -217,7 +232,7 @@ const NAV_HREF_MODULE: Record<string, PermissionModuleKey> = {
   "/dashboard/admin": "dashboard",
   "/dashboard/admin/reports": "reports",
   "/dashboard/admin/users": "users",
-  "/dashboard/admin/verifications": "certificates",
+  "/dashboard/admin/verifications": "verifications",
   "/dashboard/admin/regions": "configuration",
   "/dashboard/admin/squadron-voting": "disputes",
   "/dashboard/admin/jobs": "jobApproval",
@@ -296,7 +311,17 @@ function enableAllOperational(map: ModeratorPermissionMap): void {
 function buildLimitedPreset(): ModeratorPermissionMap {
   const map = emptyPermissionMap();
   setModuleActions(map, "dashboard", { view: true });
-  setModuleActions(map, "jobApproval", { view: true, review: true });
+  setModuleActions(map, "jobApproval", {
+    view: true,
+    review: true,
+    approve: true,
+    reject: true,
+  });
+  setModuleActions(map, "verifications", {
+    view: true,
+    approve: true,
+    reject: true,
+  });
   setModuleActions(map, "disputes", { view: true, review: true, comment: true });
   setModuleActions(map, "support", { view: true });
   setModuleActions(map, "messages", { view: true });
@@ -391,8 +416,8 @@ export function canPerformAction(
   if (!usesStaffPermissionMap(role) || !userId) return false;
 
   const permissions = config ?? getModeratorPermissions(userId);
-  const modulePerms = permissions.permissions[moduleKey];
-  if (!modulePerms?.view) return false;
+  const modulePerms = permissions.permissions[moduleKey] ?? {};
+  if (!modulePerms.view) return false;
   return modulePerms[actionKey] === true;
 }
 

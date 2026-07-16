@@ -5,7 +5,7 @@ import { getVerificationDocumentForAccess } from "@/lib/verification/verificatio
 type RouteContext = { params: Promise<{ id: string }> };
 
 export async function GET(_request: Request, context: RouteContext) {
-  const authResult = await requireAdminModuleView("certificates");
+  const authResult = await requireAdminModuleView("verifications");
   if (!authResult.ok) {
     return NextResponse.json(
       { error: authResult.error },

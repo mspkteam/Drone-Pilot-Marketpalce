@@ -323,7 +323,11 @@ function buildLimitedPreset(): ModeratorPermissionMap {
     reject: true,
   });
   setModuleActions(map, "disputes", { view: true, review: true, comment: true });
-  setModuleActions(map, "support", { view: true });
+  setModuleActions(map, "support", {
+    view: true,
+    reply: true,
+    changeStatus: true,
+  });
   setModuleActions(map, "messages", { view: true });
   return map;
 }

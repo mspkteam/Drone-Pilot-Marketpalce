@@ -26,12 +26,28 @@ export function AdminCertificateLivePreview({
           <span className="admin-certificates-preview-bracket admin-certificates-preview-bracket--bl" />
           <span className="admin-certificates-preview-bracket admin-certificates-preview-bracket--br" />
           <span className="admin-certificates-preview-watermark" aria-hidden>
-            ✦
+            <svg viewBox="0 0 24 24" width="48" height="48" fill="none" aria-hidden>
+              <path
+                d="M12 3.5l2.2 4.5 5 .7-3.6 3.5.9 5.1L12 15.4 7.5 17.3l.9-5.1L4.8 8.7l5-.7L12 3.5z"
+                stroke="currentColor"
+                strokeWidth="1.2"
+                strokeLinejoin="round"
+              />
+            </svg>
           </span>
 
           <p className="admin-certificates-preview-brand">REMOTE AIR SERVICE</p>
           <p className="admin-certificates-preview-medal" aria-hidden>
-            ★
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" aria-hidden>
+              <path
+                d="M12 3.5l2.2 4.5 5 .7-3.6 3.5.9 5.1L12 15.4 7.5 17.3l.9-5.1L4.8 8.7l5-.7L12 3.5z"
+                stroke="currentColor"
+                strokeWidth="1.4"
+                strokeLinejoin="round"
+                fill="currentColor"
+                fillOpacity="0.2"
+              />
+            </svg>
           </p>
           {lineOne ? <p className="admin-certificates-preview-title">{lineOne}</p> : null}
           {lineTwo ? <p className="admin-certificates-preview-title">{lineTwo}</p> : null}

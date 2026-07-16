@@ -109,8 +109,8 @@ export function LoginForm() {
 
       <p className="mt-6 text-center text-sm text-muted-foreground">
         No account?{" "}
-        <Link href="/register" className="font-medium text-gold-dark hover:text-gold">
-          Register
+        <Link href="/waitlist" className="font-medium text-gold-dark hover:text-gold">
+          Join the waitlist
         </Link>
       </p>
     </div>

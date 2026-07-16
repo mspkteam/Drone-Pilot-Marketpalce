@@ -1,6 +1,6 @@
 "use client";
 
-import { iconGlyph } from "@/lib/admin/badge-display";
+import { BadgeWingIcon } from "@/components/admin/badges/BadgeWingIcon";
 import type { AdminBadgeCardDto } from "@/types/admin-badges";
 
 type AdminBadgeCardProps = {
@@ -60,7 +60,11 @@ export function AdminBadgeCard({
         className={`admin-badges-icon-block admin-badges-icon-block--${badge.rarity.toLowerCase()}`}
         aria-hidden
       >
-        <span className="admin-badges-icon-glyph">{iconGlyph(badge.iconType)}</span>
+        <BadgeWingIcon
+          type={badge.iconType}
+          className="admin-badges-icon-svg"
+          title={badge.title}
+        />
       </div>
 
       <div className="admin-badges-card-meta">

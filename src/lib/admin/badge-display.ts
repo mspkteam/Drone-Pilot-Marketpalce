@@ -57,6 +57,16 @@ export function deriveIconType(definition: WingDefinitionDto): BadgeIconType {
   if (mapped) return mapped;
 
   const label = definition.iconLabel ?? "";
+  if (
+    label === "trophy" ||
+    label === "star" ||
+    label === "lightning" ||
+    label === "medal" ||
+    label === "star-outline" ||
+    label === "award"
+  ) {
+    return label;
+  }
   if (label.includes("★") || label.includes("☆")) return "star";
   if (label.includes("⚡")) return "lightning";
   if (label.includes("🏆")) return "trophy";
@@ -67,24 +77,26 @@ export function deriveIconType(definition: WingDefinitionDto): BadgeIconType {
 }
 
 export function iconGlyph(iconType: BadgeIconType): string {
+  // Legacy text fallback for plain-text contexts (select options, exports).
   switch (iconType) {
     case "trophy":
-      return "🏆";
+      return "Trophy";
     case "star":
-      return "★";
+      return "Star";
     case "lightning":
-      return "⚡";
+      return "Lightning";
     case "medal":
-      return "🎖";
+      return "Medal";
     case "star-outline":
-      return "✦";
+      return "Outline star";
     case "award":
-      return "🏅";
+      return "Award";
   }
 }
 
+/** Persisted on WingDefinition.iconLabel — type key, not emoji. */
 export function iconLabelForType(iconType: BadgeIconType): string {
-  return iconGlyph(iconType);
+  return iconType;
 }
 
 function buildCriteria(definition: WingDefinitionDto): string {
@@ -120,7 +132,7 @@ export const MOCK_BADGE_CARDS: AdminBadgeCardDto[] = [
     title: "Golden Wings",
     description: "1,000+ flight hours",
     category: "milestone",
-    iconLabel: "🏆",
+    iconLabel: "trophy",
     autoRule: "manual_only",
     ruleParam: null,
     threshold: 1000,
@@ -140,7 +152,7 @@ export const MOCK_BADGE_CARDS: AdminBadgeCardDto[] = [
     title: "Night Operator",
     description: "25 night missions",
     category: "milestone",
-    iconLabel: "★",
+    iconLabel: "star",
     autoRule: "completed_bookings_count",
     ruleParam: null,
     threshold: 25,
@@ -160,7 +172,7 @@ export const MOCK_BADGE_CARDS: AdminBadgeCardDto[] = [
     title: "First Bid",
     description: "Submitted first mission bid",
     category: "milestone",
-    iconLabel: "⚡",
+    iconLabel: "lightning",
     autoRule: "first_completed_booking",
     ruleParam: null,
     threshold: 1,
@@ -180,7 +192,7 @@ export const MOCK_BADGE_CARDS: AdminBadgeCardDto[] = [
     title: "Squadron Lead",
     description: "Mentored 10 pilots",
     category: "community",
-    iconLabel: "🎖",
+    iconLabel: "medal",
     autoRule: "manual_only",
     ruleParam: null,
     threshold: 10,
@@ -200,7 +212,7 @@ export const MOCK_BADGE_CARDS: AdminBadgeCardDto[] = [
     title: "Perfect Streak",
     description: "100% rating · 50 missions",
     category: "milestone",
-    iconLabel: "✦",
+    iconLabel: "star-outline",
     autoRule: "five_star_reviews_count",
     ruleParam: null,
     threshold: 50,
@@ -220,7 +232,7 @@ export const MOCK_BADGE_CARDS: AdminBadgeCardDto[] = [
     title: "Founding Aviator",
     description: "Joined in launch month",
     category: "community",
-    iconLabel: "🏅",
+    iconLabel: "award",
     autoRule: "manual_only",
     ruleParam: null,
     threshold: null,

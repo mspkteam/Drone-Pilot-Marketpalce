@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { hashPassword } from "@/lib/auth/password";
+import {
+  isRegistrationEnabled,
+  REGISTRATION_CLOSED_MESSAGE,
+} from "@/lib/auth/registration-gate";
 import { validateRegisterInput } from "@/lib/auth/validation";
 import { triggerWelcome } from "@/lib/notifications/triggers";
 
@@ -8,6 +12,13 @@ export const runtime = "nodejs";
 
 export async function POST(request: Request) {
   try {
+    if (!isRegistrationEnabled()) {
+      return NextResponse.json(
+        { error: REGISTRATION_CLOSED_MESSAGE },
+        { status: 403 },
+      );
+    }
+
     const body = await request.json();
     const result = validateRegisterInput({
       email: body.email,

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { BadgeWingIcon } from "@/components/admin/badges/BadgeWingIcon";
 import { iconLabelForType } from "@/lib/admin/badge-display";
 import { getWingAutoRuleLabel } from "@/lib/wings/status";
 import type { AdminBadgeCardDto, BadgeFormInput, BadgeIconType, BadgeRarity } from "@/types/admin-badges";
@@ -172,17 +173,24 @@ export function AdminBadgeModal({
               </div>
               <div className="admin-badges-field">
                 <label htmlFor="badge-icon">Icon type</label>
-                <select
-                  id="badge-icon"
-                  value={iconType}
-                  onChange={(event) => setIconType(event.target.value as BadgeIconType)}
-                >
+                <div className="admin-badges-icon-picker">
                   {ICON_TYPES.map((value) => (
-                    <option key={value} value={value}>
-                      {iconLabelForType(value)} {value}
-                    </option>
+                    <button
+                      key={value}
+                      type="button"
+                      id={value === iconType ? "badge-icon" : undefined}
+                      className={`admin-badges-icon-option${
+                        iconType === value ? " admin-badges-icon-option--active" : ""
+                      }`}
+                      onClick={() => setIconType(value)}
+                      aria-pressed={iconType === value}
+                      title={iconLabelForType(value)}
+                    >
+                      <BadgeWingIcon type={value} className="admin-badges-icon-option-svg" />
+                      <span>{value}</span>
+                    </button>
                   ))}
-                </select>
+                </div>
               </div>
             </div>
 

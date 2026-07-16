@@ -1,3 +1,4 @@
+import { BadgeWingIcon, resolveBadgeIconType } from "@/components/admin/badges/BadgeWingIcon";
 import { getWingCategoryLabel } from "@/lib/wings/status";
 import type { WingCategory } from "@/types/wing";
 import { cn } from "@/lib/utils";
@@ -23,6 +24,8 @@ export function WingBadge({
   size = "sm",
   className,
 }: WingBadgeProps) {
+  const iconType = resolveBadgeIconType(iconLabel);
+
   return (
     <span
       title={`${title} · ${getWingCategoryLabel(category)}`}
@@ -33,17 +36,18 @@ export function WingBadge({
         className,
       )}
     >
-      {iconLabel ? (
-        <span
-          className={cn(
-            "inline-flex shrink-0 items-center justify-center rounded-full bg-background/60 font-semibold",
-            size === "sm" ? "size-5 text-[10px]" : "size-6 text-xs",
-          )}
-          aria-hidden
-        >
-          {iconLabel}
-        </span>
-      ) : null}
+      <span
+        className={cn(
+          "inline-flex shrink-0 items-center justify-center rounded-full bg-background/60 text-current",
+          size === "sm" ? "size-5" : "size-6",
+        )}
+        aria-hidden
+      >
+        <BadgeWingIcon
+          type={iconType}
+          className={size === "sm" ? "size-3.5" : "size-4"}
+        />
+      </span>
       <span>{title}</span>
     </span>
   );

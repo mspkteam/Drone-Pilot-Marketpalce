@@ -2,7 +2,7 @@ import type { DashboardNavGroup } from "@/types/dashboard-nav";
 
 /**
  * Admin / moderator sidebar — Figma section `808:24076` (flat nav list).
- * Permissions is super-admin only. Messages and support remain routable but off Figma IA.
+ * Permissions is super-admin only. Squadron Voting stays off-nav (post-MVP).
  */
 export const adminNavGroups: readonly DashboardNavGroup[] = [
   {
@@ -28,11 +28,8 @@ export const adminNavGroups: readonly DashboardNavGroup[] = [
         icon: "payments",
       },
       { label: "Disputes", href: "/dashboard/admin/disputes", icon: "disputes" },
-      {
-        label: "Squadron Voting",
-        href: "/dashboard/admin/squadron-voting",
-        icon: "disputes",
-      },
+      { label: "Messages", href: "/dashboard/admin/messages", icon: "messages" },
+      { label: "Support Chat", href: "/dashboard/admin/support", icon: "support" },
       {
         label: "Certificates",
         href: "/dashboard/admin/certificates",

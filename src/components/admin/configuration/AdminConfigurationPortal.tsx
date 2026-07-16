@@ -253,7 +253,12 @@ export function AdminConfigurationPortal({ canManage }: AdminConfigurationPortal
               <h2 className="admin-config-card-title">FEES & COMMISSION</h2>
               <p className="admin-config-card-sub">Default platform take rates</p>
             </div>
-            <CardIcon>💳</CardIcon>
+            <CardIcon>
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden>
+                <rect x="3" y="6" width="18" height="12" rx="2" stroke="currentColor" strokeWidth="1.5" />
+                <path d="M3 10h18" stroke="currentColor" strokeWidth="1.5" />
+              </svg>
+            </CardIcon>
           </header>
 
           {data?.defaultCommission ? (
@@ -334,7 +339,23 @@ export function AdminConfigurationPortal({ canManage }: AdminConfigurationPortal
               <h2 className="admin-config-card-title">EMAIL TEMPLATES</h2>
               <p className="admin-config-card-sub">Automated notifications</p>
             </div>
-            <CardIcon>✉</CardIcon>
+            <CardIcon>
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden>
+                <path
+                  d="M4 6h16v12H4V6z"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M4 7l8 6 8-6"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </CardIcon>
           </header>
           <ul className="admin-config-template-list">
             {data?.emailTemplates.map((template) => (
@@ -364,7 +385,16 @@ export function AdminConfigurationPortal({ canManage }: AdminConfigurationPortal
               <h2 className="admin-config-card-title">INTEGRATIONS</h2>
               <p className="admin-config-card-sub">Connected services</p>
             </div>
-            <CardIcon>⬡</CardIcon>
+            <CardIcon>
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden>
+                <path
+                  d="M12 3l7 4v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V7l7-4z"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </CardIcon>
           </header>
           <div className="admin-config-integrations-grid admin-config-integrations-grid--bento">
             {data?.integrations.map((integration: ConfigIntegration) => (
@@ -391,7 +421,23 @@ export function AdminConfigurationPortal({ canManage }: AdminConfigurationPortal
               <h2 className="admin-config-card-title">SECURITY</h2>
               <p className="admin-config-card-sub">Authentication and access</p>
             </div>
-            <CardIcon>🛡</CardIcon>
+            <CardIcon>
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden>
+                <path
+                  d="M12 3l7 4v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V7l7-4z"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M9.5 12l1.8 1.8L15 10"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </CardIcon>
           </header>
           <ul className="admin-config-security-list">
             {data?.security.map((setting) => (

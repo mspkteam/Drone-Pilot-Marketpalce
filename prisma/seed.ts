@@ -13,6 +13,7 @@ import {
 } from "../src/lib/membership/seed-tiers";
 import { buildPresetPermissions } from "../src/lib/auth/moderator-permissions";
 import { seedCmsContent } from "../src/lib/cms/cms-repository";
+import { CANONICAL_CERTIFICATE_TEMPLATES } from "../src/lib/admin/certificate-display";
 
 const prisma = createPrismaClient();
 
@@ -382,6 +383,28 @@ async function main() {
 
   await ensureDefaultWingDefinitions();
   await seedUniformCatalog();
+
+  // Canonical Remote Air Service certificate templates (Figma 808:37671).
+  for (const canon of CANONICAL_CERTIFICATE_TEMPLATES) {
+    await prisma.certificateTemplate.upsert({
+      where: { slug: canon.slug },
+      update: {
+        name: canon.name,
+        title: canon.title,
+        description: canon.description,
+        bodyTemplate: canon.bodyTemplate,
+        isActive: true,
+      },
+      create: {
+        name: canon.name,
+        slug: canon.slug,
+        description: canon.description,
+        title: canon.title,
+        bodyTemplate: canon.bodyTemplate,
+        isActive: true,
+      },
+    });
+  }
 
   if (adminUser && demoPilot) {
     const tpl = await prisma.certificateTemplate.upsert({

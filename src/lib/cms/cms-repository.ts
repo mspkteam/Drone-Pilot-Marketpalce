@@ -347,6 +347,17 @@ export async function updateCmsArticle(
   return { ok: true, article: mapArticle(record) };
 }
 
+export async function deleteCmsArticle(
+  id: string,
+): Promise<{ ok: true } | { ok: false; error: string; status?: 404 }> {
+  const existing = await prisma.cmsArticleRecord.findUnique({ where: { id } });
+  if (!existing) {
+    return { ok: false, error: "Article not found.", status: 404 };
+  }
+  await prisma.cmsArticleRecord.delete({ where: { id } });
+  return { ok: true };
+}
+
 export async function listCmsResources(): Promise<CmsResource[]> {
   await ensureCmsSeeded();
   const records = await prisma.cmsResourceRecord.findMany({
@@ -463,4 +474,15 @@ export async function updateCmsResource(
   });
 
   return { ok: true, resource: mapResource(record) };
+}
+
+export async function deleteCmsResource(
+  id: string,
+): Promise<{ ok: true } | { ok: false; error: string; status?: 404 }> {
+  const existing = await prisma.cmsResourceRecord.findUnique({ where: { id } });
+  if (!existing) {
+    return { ok: false, error: "Resource not found.", status: 404 };
+  }
+  await prisma.cmsResourceRecord.delete({ where: { id } });
+  return { ok: true };
 }

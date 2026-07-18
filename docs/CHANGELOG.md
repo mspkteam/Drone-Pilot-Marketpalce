@@ -553,10 +553,21 @@ Initial project control documentation and planning foundation for Drone Pilot Ma
 
 ### Fixed
 
+- Admin **CMS** article/resource management pages (`/dashboard/admin/cms/articles*`, `/dashboard/admin/cms/resources*`) were hard-gated to `super_admin` only, contradicting the CMS overview page, the CMS APIs, the sidebar nav, and the `cmsArticles`/`cmsResources` permission modules. Admins/moderators with CMS access saw the CMS section and "Manage" buttons but were bounced to the dashboard on click. Now gated by the permission map (via `ModeratorRouteGuard`) like the rest of the admin surface.
 - Admin **Subscriptions** edit/features popups: layout broken by unscoped hero button flex + whole-dialog scroll. Now body-portal, sticky head/foot, scrollable body; theme modal selectors tightened; regression tests added.
+
+### Verified (Phase 2 — Admin / Moderator / Super Admin)
+
+- Ran a live role-based smoke test (`scripts/phase2-smoke.mjs`) authenticating as `super_admin`, `admin`, and `moderator` against all 27 admin pages and 31 admin GET APIs.
+- All pages render and all data APIs return 200 for the appropriate roles. Remaining non-200s are correct-by-design: `permissions` + `configuration`/`regions` are Super-Admin-only (the "full" preset disables the `configuration` module and the nav hides those items); `reviews` is an intentionally removed route with no nav link; `management-users` GET is 405 (POST-only route).
+- Mutation guards verified: admin/moderator receive 403 from Super-Admin-only endpoints; permission enforcement (`requireAdminPermission` / `requireAdminModuleView`) is active on admin routes.
 
 ### Added
 
+- **Custom Pilot Rates** (Configuration → Fees & Commission) is now a working per-pilot commission override, replacing the static James-Sterling preview. Super Admins can search real pilots (name/email) via a live dropdown, toggle Manual Override, set a custom commission rate (%), reason, and effective date, and save. Overrides persist on `PilotProfile` (`commissionOverride*` fields) and are applied at payout via `getEffectiveCommissionRateForPilot` in `recordPaymentForCompletedBooking` (override → else persisted platform default → else 15%). New lib `src/lib/admin/pilot-rates.ts` + `GET/PATCH /api/admin/configuration/pilot-rates` (view-gated search/detail, `manageSettings`-gated save) + `AdminCustomPilotRates` client component. (Schema version 35.)
+- CMS **media uploads**: article featured images and resource featured images / downloadable files can now be uploaded directly from the editors (PNG/JPEG/WebP/GIF/SVG for images, plus PDF for resource files). Files are stored under `public/cms/` and served as static assets. New `POST /api/admin/cms/upload` (permission-gated by `cmsArticles`/`cmsResources` create/edit) + shared `AdminCmsMediaField` control with inline preview. Mirrors the existing wing image upload pattern. Replaces the URL-only "upload storage pending" fields.
+- Uniform Shop **All Orders** page (`/dashboard/admin/shop/orders`): full order history with status-count filter tabs, per-order item breakdown/totals, and inline status + payment updates (gated by `shop.updateOrderStatus`). Replaces the dead "VIEW ALL" button, which now links here.
+- Badge/Wing **manual assignment note** is now persisted with the award (stored in `PilotWing.metadata`) instead of being preview-only.
 - Badges & Wings **award condition catalog** (membership grade, active membership, bids count, average rating, verification counts, certificate template slug, etc.) with typed create/edit UI; engine + membership/bid hooks; certificate template slug guidance for wing rules.
 - Uniform Shop product create/edit **WooCommerce-style** editor (title, description, Product data tabs, Publish / image / category sidebar).
 - Reports & Analytics interactivity (stat select, chart hover/legend toggle, category select, expandable segmentation) without redesigning the page chrome.

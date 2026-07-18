@@ -15,6 +15,31 @@ export type ConfigPilotOverridePreview = {
   effectiveDate: string;
 };
 
+/** A pilot returned by the Custom Pilot Rates search box. */
+export type PilotRateSearchResult = {
+  pilotProfileId: string;
+  displayName: string;
+  email: string;
+  rank: string;
+  hasOverride: boolean;
+};
+
+/** Full override detail for the selected pilot, used to populate the form. */
+export type PilotRateDetail = {
+  pilotProfileId: string;
+  displayName: string;
+  email: string;
+  rank: string;
+  /** Platform default commission as a percent number, e.g. 15. */
+  defaultCommissionPercent: number;
+  manualOverrideEnabled: boolean;
+  /** Custom rate as a percent number, e.g. 7.5. Null when no override set. */
+  customCommissionPercent: number | null;
+  reason: string;
+  effectiveDate: string;
+  updatedAt: string | null;
+};
+
 export type ConfigEmailTemplate = {
   id: string;
   name: string;

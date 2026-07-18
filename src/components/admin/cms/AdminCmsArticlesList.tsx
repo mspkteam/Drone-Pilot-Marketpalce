@@ -82,6 +82,26 @@ export function AdminCmsArticlesList() {
     await load();
   }
 
+  async function deleteArticle(id: string, title: string) {
+    if (
+      !window.confirm(
+        `Permanently delete "${title}"? This cannot be undone.`,
+      )
+    ) {
+      return;
+    }
+    setError(null);
+    const res = await fetch(`/api/admin/cms/articles/${id}`, {
+      method: "DELETE",
+    });
+    if (!res.ok) {
+      const json = await res.json().catch(() => ({}));
+      setError(json.error ?? "Delete failed.");
+      return;
+    }
+    await load();
+  }
+
   if (loading) {
     return <p className="admin-cms-loading">Loading articles…</p>;
   }
@@ -203,26 +223,41 @@ export function AdminCmsArticlesList() {
                     </td>
                     <td>
                       <div className="admin-cms-row-actions">
-                        <Link
-                          href={`/resources/${article.slug}`}
-                          className="admin-cms-link-btn"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          Preview
-                        </Link>
+                        {article.status === "published" ? (
+                          <Link
+                            href={`/resources/${article.slug}`}
+                            className="admin-cms-link-btn"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            Preview
+                          </Link>
+                        ) : (
+                          <span className="admin-cms-link-btn admin-cms-link-btn--muted">
+                            Preview
+                          </span>
+                        )}
                         <Link
                           href={`/dashboard/admin/cms/articles/${article.id}/edit`}
                           className="admin-cms-link-btn"
                         >
                           Edit
                         </Link>
+                        {article.status !== "archived" ? (
+                          <button
+                            type="button"
+                            className="admin-cms-link-btn"
+                            onClick={() => void archiveArticle(article.id)}
+                          >
+                            Archive
+                          </button>
+                        ) : null}
                         <button
                           type="button"
                           className="admin-cms-link-btn admin-cms-link-btn--danger"
-                          onClick={() => void archiveArticle(article.id)}
+                          onClick={() => void deleteArticle(article.id, article.title)}
                         >
-                          Archive
+                          Delete
                         </button>
                       </div>
                     </td>

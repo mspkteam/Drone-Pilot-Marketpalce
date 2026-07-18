@@ -32,6 +32,7 @@ export type WingDefinitionDto = {
   description: string;
   category: WingCategory;
   iconLabel: string | null;
+  imageUrl: string | null;
   autoRule: WingAutoRule | null;
   ruleParam: string | null;
   threshold: number | null;

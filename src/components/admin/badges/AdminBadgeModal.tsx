@@ -1,8 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { BadgeWingIcon } from "@/components/admin/badges/BadgeWingIcon";
-import { iconLabelForType } from "@/lib/admin/badge-display";
 import {
   formatAverageRatingTenths,
   getWingConditionDefinition,
@@ -16,27 +14,26 @@ import type {
   BadgeIconType,
   BadgeRarity,
 } from "@/types/admin-badges";
-import { WING_CATEGORIES } from "@/types/wing";
 import type { WingAutoRule, WingCategory } from "@/types/wing";
 
-const RARITIES: BadgeRarity[] = ["COMMON", "RARE", "EPIC", "LEGENDARY"];
-const ICON_TYPES: BadgeIconType[] = [
-  "trophy",
-  "star",
-  "lightning",
-  "medal",
-  "star-outline",
-  "award",
+const RARITIES: BadgeRarity[] = [
+  "COMMON",
+  "UNCOMMON",
+  "RARE",
+  "EPIC",
+  "LEGENDARY",
+  "MYTHIC",
 ];
 
 function rarityToCategory(rarity: BadgeRarity): WingCategory {
   switch (rarity) {
     case "RARE":
-      return "trust";
-    case "EPIC":
-      return "community";
     case "LEGENDARY":
       return "trust";
+    case "UNCOMMON":
+    case "EPIC":
+      return "community";
+    case "MYTHIC":
     case "COMMON":
     default:
       return "milestone";
@@ -68,6 +65,9 @@ export function AdminBadgeModal({
   const [description, setDescription] = useState("");
   const [rarity, setRarity] = useState<BadgeRarity>("COMMON");
   const [iconType, setIconType] = useState<BadgeIconType>("star");
+  const [imageUrl, setImageUrl] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const [autoRule, setAutoRule] = useState<WingAutoRule>("completed_bookings_count");
   const [threshold, setThreshold] = useState("5");
   const [ruleParam, setRuleParam] = useState("license");
@@ -84,6 +84,7 @@ export function AdminBadgeModal({
       setDescription(badge.description);
       setRarity(badge.rarity);
       setIconType(badge.iconType);
+      setImageUrl(badge.imageUrl ?? "");
       setAutoRule(rule === "manual_only" ? "completed_bookings_count" : rule);
       setThreshold(
         badge.threshold != null
@@ -107,6 +108,7 @@ export function AdminBadgeModal({
       setDescription("");
       setRarity("COMMON");
       setIconType("star");
+      setImageUrl("");
       setAutoRule("completed_bookings_count");
       setThreshold("5");
       setRuleParam("license");
@@ -135,6 +137,30 @@ export function AdminBadgeModal({
       setRuleParam("");
     } else if (def?.field === "none" || def?.field === "threshold") {
       if (def.field === "none") setRuleParam("");
+    }
+  }
+
+  async function handleImageUpload(file: File) {
+    setUploadError(null);
+    setUploading(true);
+    try {
+      const body = new FormData();
+      body.append("file", file);
+      if (title.trim()) body.append("code", title.trim());
+      const res = await fetch("/api/admin/wing-definitions/upload", {
+        method: "POST",
+        body,
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        setUploadError(json.error ?? "Upload failed.");
+        return;
+      }
+      setImageUrl(json.url as string);
+    } catch {
+      setUploadError("Upload failed.");
+    } finally {
+      setUploading(false);
     }
   }
 
@@ -175,6 +201,7 @@ export function AdminBadgeModal({
       category: rarityToCategory(rarity),
       rarity,
       iconType,
+      imageUrl: imageUrl.trim(),
       autoRule: resolvedRule,
       threshold: resolvedThreshold,
       ruleParam: resolvedParam,
@@ -198,7 +225,7 @@ export function AdminBadgeModal({
       >
         <div className="admin-badges-modal-head">
           <h2 id="admin-badge-modal-title" className="admin-badges-modal-title">
-            {mode === "create" ? "New Badge" : "Edit Badge"}
+            {mode === "create" ? "New Wing" : "Edit Wing"}
           </h2>
           <p className="admin-badges-modal-subtitle">
             Set the award condition from live platform data. Matching pilots are
@@ -237,49 +264,86 @@ export function AdminBadgeModal({
               />
             </div>
 
-            <div className="admin-badges-field-row">
-              <div className="admin-badges-field">
-                <label htmlFor="badge-rarity">Rarity</label>
-                <select
-                  id="badge-rarity"
-                  value={rarity}
-                  onChange={(event) =>
-                    setRarity(event.target.value as BadgeRarity)
-                  }
-                >
-                  {RARITIES.map((value) => (
-                    <option key={value} value={value}>
-                      {value.charAt(0) + value.slice(1).toLowerCase()}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="admin-badges-field">
-                <label htmlFor="badge-icon">Icon type</label>
-                <div className="admin-badges-icon-picker">
-                  {ICON_TYPES.map((value) => (
-                    <button
-                      key={value}
-                      type="button"
-                      id={value === iconType ? "badge-icon" : undefined}
-                      className={`admin-badges-icon-option${
-                        iconType === value
-                          ? " admin-badges-icon-option--active"
-                          : ""
-                      }`}
-                      onClick={() => setIconType(value)}
-                      aria-pressed={iconType === value}
-                      title={iconLabelForType(value)}
-                    >
-                      <BadgeWingIcon
-                        type={value}
-                        className="admin-badges-icon-option-svg"
+            <div className="admin-badges-field">
+              <label htmlFor="badge-rarity">Rarity</label>
+              <select
+                id="badge-rarity"
+                value={rarity}
+                onChange={(event) =>
+                  setRarity(event.target.value as BadgeRarity)
+                }
+              >
+                {RARITIES.map((value) => (
+                  <option key={value} value={value}>
+                    {value.charAt(0) + value.slice(1).toLowerCase()}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="admin-badges-field">
+              <label htmlFor="badge-image">Wing image</label>
+              <div className="admin-badges-image-row">
+                <div className="admin-badges-image-preview" aria-hidden>
+                  {imageUrl.trim() ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={imageUrl.trim()}
+                      alt=""
+                      className="admin-badges-image-preview-img"
+                    />
+                  ) : (
+                    <span className="admin-badges-image-preview-empty">
+                      No image
+                    </span>
+                  )}
+                </div>
+                <div className="admin-badges-image-controls">
+                  <input
+                    id="badge-image"
+                    className="admin-badges-image-url"
+                    value={imageUrl}
+                    onChange={(event) => setImageUrl(event.target.value)}
+                    placeholder="/wings/aviator-wings-senior.png or https://…"
+                  />
+                  <div className="admin-badges-image-actions">
+                    <label className="admin-badges-btn-upload">
+                      {uploading ? "Uploading…" : "Upload image"}
+                      <input
+                        type="file"
+                        accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                        hidden
+                        disabled={uploading}
+                        onChange={(event) => {
+                          const file = event.target.files?.[0];
+                          if (file) void handleImageUpload(file);
+                          event.target.value = "";
+                        }}
                       />
-                      <span>{value}</span>
-                    </button>
-                  ))}
+                    </label>
+                    {imageUrl.trim() ? (
+                      <button
+                        type="button"
+                        className="admin-badges-btn-clear-image"
+                        onClick={() => setImageUrl("")}
+                        disabled={uploading}
+                      >
+                        Remove
+                      </button>
+                    ) : null}
+                  </div>
                 </div>
               </div>
+              <p className="admin-badges-hint">
+                PNG, JPEG, WebP, or SVG (max 2&nbsp;MB). Files are saved to{" "}
+                <code>public/wings/</code>. You can also drop artwork there named{" "}
+                <code>&lt;wing-code&gt;.png</code> and reference it here.
+              </p>
+              {uploadError ? (
+                <p className="admin-badges-hint admin-badges-hint--error">
+                  {uploadError}
+                </p>
+              ) : null}
             </div>
 
             <fieldset className="admin-badges-condition-block">
@@ -451,22 +515,6 @@ export function AdminBadgeModal({
             </fieldset>
 
             <div className="admin-badges-field">
-              <label htmlFor="badge-category">Wing category (persisted)</label>
-              <select
-                id="badge-category"
-                value={rarityToCategory(rarity)}
-                disabled
-                title="Derived from rarity for wing definitions"
-              >
-                {WING_CATEGORIES.map((cat) => (
-                  <option key={cat} value={cat}>
-                    {cat}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="admin-badges-field">
               <label htmlFor="badge-sort">Sort order</label>
               <input
                 id="badge-sort"
@@ -512,7 +560,7 @@ export function AdminBadgeModal({
               className="admin-badges-btn-save"
               disabled={saving}
             >
-              {saving ? "Saving…" : "Save Badge"}
+              {saving ? "Saving…" : "Save Wing"}
             </button>
           </div>
         </form>

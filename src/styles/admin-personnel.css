@@ -344,6 +344,7 @@
 
 .admin-personnel-role,
 .admin-personnel-region,
+.admin-personnel-wings,
 .admin-personnel-joined {
   font-size: 0.875rem;
   color: var(--color-text-muted);

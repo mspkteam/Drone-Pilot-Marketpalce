@@ -54,6 +54,10 @@ function toAdminDto(
       id: string;
       displayName: string;
       licenseNumber: string;
+      licenseCountry: string | null;
+      locationCity: string | null;
+      locationRegion: string | null;
+      locationCountry: string | null;
       user: { email: string };
     };
   },
@@ -65,6 +69,10 @@ function toAdminDto(
       displayName: v.pilotProfile.displayName,
       email: v.pilotProfile.user.email,
       licenseNumber: v.pilotProfile.licenseNumber,
+      licenseCountry: v.pilotProfile.licenseCountry,
+      locationCity: v.pilotProfile.locationCity,
+      locationRegion: v.pilotProfile.locationRegion,
+      locationCountry: v.pilotProfile.locationCountry,
     },
   };
 }

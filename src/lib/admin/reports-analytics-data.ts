@@ -262,7 +262,7 @@ async function getStatCards(role: UserRole): Promise<AdminReportsStatCard[]> {
       subtextTone: clientsQtd >= clientsPrevQtd ? "success" : "muted",
     },
     {
-      label: "PILOT ONBOARDINGS",
+      label: "PILOT ONBOARDING",
       value: formatCount(pilotsQtd),
       subtext: pctChangeLabel(pilotsQtd, pilotsPrevQtd, ""),
       subtextTone: pilotsQtd >= pilotsPrevQtd ? "success" : "muted",

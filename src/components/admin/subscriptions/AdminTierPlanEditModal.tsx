@@ -3,6 +3,7 @@
 import { useEffect, useId, useState } from "react";
 import { PricingFeatureIcon } from "@/components/marketing/pricing/PricingFeatureIcon";
 import { DashboardModalPortal } from "@/components/ui/DashboardModalPortal";
+import { formatMembershipUsd } from "@/lib/membership/pilot-membership-catalog";
 import { formatJobVisibilityDelay } from "@/lib/subscriptions/status";
 import type { AdminPlanDto, AdminPlanUpdateInput } from "@/types/admin";
 
@@ -26,7 +27,9 @@ export function AdminTierPlanEditModal({
   const titleId = useId();
   const [name, setName] = useState(plan.name);
   const [description, setDescription] = useState(plan.description);
-  const [priceMonthly, setPriceMonthly] = useState(String(plan.priceMonthly));
+  const [fastForwardFee, setFastForwardFee] = useState(
+    String(plan.fastForwardFeeUsd),
+  );
   const [jobVisibilityDelayHours, setJobVisibilityDelayHours] = useState(
     String(plan.jobVisibilityDelayHours),
   );
@@ -42,7 +45,7 @@ export function AdminTierPlanEditModal({
   useEffect(() => {
     setName(plan.name);
     setDescription(plan.description);
-    setPriceMonthly(String(plan.priceMonthly));
+    setFastForwardFee(String(plan.fastForwardFeeUsd));
     setJobVisibilityDelayHours(String(plan.jobVisibilityDelayHours));
     setCanViewJobs(plan.canViewJobs);
     setCanApply(plan.canApply);
@@ -81,7 +84,7 @@ export function AdminTierPlanEditModal({
     onSave({
       name,
       description,
-      priceMonthly: Number(priceMonthly) || 0,
+      fastForwardFeeUsd: Math.max(0, Number(fastForwardFee) || 0),
       jobVisibilityDelayHours: Number(jobVisibilityDelayHours) || 0,
       canViewJobs,
       canApply,
@@ -94,6 +97,9 @@ export function AdminTierPlanEditModal({
 
   const visibilityPreview = formatJobVisibilityDelay(
     Number(jobVisibilityDelayHours) || 0,
+  );
+  const signupTotalPreview = formatMembershipUsd(
+    plan.annualMembershipUsd + Math.max(0, Number(fastForwardFee) || 0),
   );
 
   return (
@@ -168,15 +174,23 @@ export function AdminTierPlanEditModal({
 
                   <div className="admin-subscriptions-field-grid admin-subscriptions-field-grid--2">
                     <div className="admin-subscriptions-field">
-                      <label htmlFor="tier-price">Monthly price (USD)</label>
+                      <label htmlFor="tier-price">
+                        One-time Fast Forward fee (USD)
+                      </label>
                       <input
                         id="tier-price"
                         type="number"
                         min={0}
                         step={0.01}
-                        value={priceMonthly}
-                        onChange={(event) => setPriceMonthly(event.target.value)}
+                        value={fastForwardFee}
+                        onChange={(event) =>
+                          setFastForwardFee(event.target.value)
+                        }
                       />
+                      <p className="admin-subscriptions-commission-note">
+                        {formatMembershipUsd(plan.annualMembershipUsd)}/year
+                        membership + fee = {signupTotalPreview} at signup
+                      </p>
                     </div>
                     <div className="admin-subscriptions-field">
                       <label htmlFor="tier-visibility">

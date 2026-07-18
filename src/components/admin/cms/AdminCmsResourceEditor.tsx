@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
+import { AdminCmsMediaField } from "@/components/admin/cms/AdminCmsMediaField";
 import type {
   CmsAudience,
   CmsResource,
@@ -121,7 +122,11 @@ export function AdminCmsResourceEditor({ resourceId }: AdminCmsResourceEditorPro
         return;
       }
       setNotice(
-        "Saved to in-memory preview store. CMS persistence is pending until the backend is connected.",
+        status === "published"
+          ? "Resource published. It is now live on the public Resources page."
+          : status === "archived"
+            ? "Resource archived. It is hidden from the public Resources page."
+            : "Draft saved.",
       );
       if (!isEdit && json.resource?.id) {
         router.push(`/dashboard/admin/cms/resources/${json.resource.id}/edit`);
@@ -326,25 +331,25 @@ export function AdminCmsResourceEditor({ resourceId }: AdminCmsResourceEditorPro
 
           <section className="admin-cms-sidebar-card">
             <h2 className="admin-cms-sidebar-title">Media</h2>
-            <div className="admin-cms-field">
-              <label htmlFor="resource-image">Featured image URL</label>
-              <input
-                id="resource-image"
-                value={form.featuredImage ?? ""}
-                onChange={(event) =>
-                  updateField("featuredImage", event.target.value || null)
-                }
-              />
-            </div>
-            <div className="admin-cms-field">
-              <label htmlFor="resource-file">File URL</label>
-              <input
-                id="resource-file"
-                value={form.fileUrl ?? ""}
-                onChange={(event) => updateField("fileUrl", event.target.value || null)}
-                placeholder="Upload storage pending"
-              />
-            </div>
+            <AdminCmsMediaField
+              id="resource-image"
+              label="Featured image"
+              kind="image"
+              module="cmsResources"
+              value={form.featuredImage}
+              onChange={(url) => updateField("featuredImage", url)}
+              nameHint={form.slug || form.title}
+            />
+            <AdminCmsMediaField
+              id="resource-file"
+              label="Downloadable file"
+              kind="file"
+              module="cmsResources"
+              value={form.fileUrl}
+              onChange={(url) => updateField("fileUrl", url)}
+              nameHint={form.slug || form.title}
+              placeholder="Upload a PDF or link a URL"
+            />
             <div className="admin-cms-field">
               <label htmlFor="resource-external">External URL</label>
               <input

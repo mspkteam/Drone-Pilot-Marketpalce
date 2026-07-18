@@ -99,6 +99,9 @@ export function AdminShopProductModal({
     });
   }
 
+  const variantCount = mode === "edit" && product ? product.variantCount : 1;
+  const isMultiVariant = variantCount > 1;
+
   const imagePreview =
     imageUrl.trim() ||
     (mode === "edit" && product?.imageSrc.startsWith("/")
@@ -235,7 +238,9 @@ export function AdminShopProductModal({
                               />
                             </div>
                             <p className="admin-shop-hint">
-                              Price is stored on the primary product variant.
+                              {isMultiVariant
+                                ? `Applies to all ${variantCount} size/colour variants of this product.`
+                                : "Sets the price for this product."}
                             </p>
                           </div>
                         ) : null}
@@ -254,7 +259,9 @@ export function AdminShopProductModal({
                             </div>
                             <div className="admin-shop-field admin-shop-field--inline">
                               <label htmlFor="shop-product-stock">
-                                Stock quantity
+                                {isMultiVariant
+                                  ? "Stock quantity (total)"
+                                  : "Stock quantity"}
                               </label>
                               <input
                                 id="shop-product-stock"
@@ -264,7 +271,8 @@ export function AdminShopProductModal({
                                 onChange={(event) =>
                                   setStockQuantity(event.target.value)
                                 }
-                                required
+                                required={!isMultiVariant}
+                                disabled={isMultiVariant}
                               />
                             </div>
                             <div className="admin-shop-field admin-shop-field--inline">
@@ -282,8 +290,9 @@ export function AdminShopProductModal({
                               />
                             </div>
                             <p className="admin-shop-hint">
-                              Threshold is used for admin low-stock display.
-                              SKU cannot change after create.
+                              {isMultiVariant
+                                ? "This product has multiple variants — per-variant stock is managed in catalog tools. Threshold is used for low-stock display."
+                                : "Threshold is used for admin low-stock display. SKU cannot change after create."}
                             </p>
                           </div>
                         ) : null}

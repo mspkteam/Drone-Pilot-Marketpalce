@@ -129,6 +129,12 @@ export type AdminPlanDto = {
   description: string;
   priceYearly: number;
   priceMonthly: number;
+  /** One-time Fast Forward upgrade fee (0 for the A-1 starting grade). */
+  fastForwardFeeUsd: number;
+  /** Flat annual base membership fee applied to every grade. */
+  annualMembershipUsd: number;
+  /** Membership + Fast Forward fee charged when a pilot enrolls at this grade. */
+  totalAtSignupUsd: number;
   jobVisibilityDelayHours: number;
   canViewJobs: boolean;
   canApply: boolean;
@@ -144,7 +150,8 @@ export type AdminPlanDto = {
 export type AdminPlanUpdateInput = {
   name?: string;
   description?: string;
-  priceMonthly?: number;
+  /** One-time Fast Forward upgrade fee (USD). Membership is fixed separately. */
+  fastForwardFeeUsd?: number;
   jobVisibilityDelayHours?: number;
   canViewJobs?: boolean;
   canApply?: boolean;

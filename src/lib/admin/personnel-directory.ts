@@ -144,6 +144,7 @@ async function buildRowsFromDatabase(
           status: true,
           locationCountry: true,
           locationRegion: true,
+          _count: { select: { wings: true } },
           subscriptions: {
             where: { status: "active" },
             take: 1,
@@ -226,6 +227,7 @@ async function buildRowsFromDatabase(
       roleLabel,
       roleFilter,
       region,
+      wingsLabel: pilot ? pilot._count.wings.toLocaleString() : "—",
       statusLabel: status.label,
       statusTone: status.tone,
       joinedAt: createdAt.toISOString(),
@@ -244,7 +246,7 @@ async function buildStats(): Promise<PersonnelStatCard[]> {
   const [
     totalUsers,
     usersThisMonth,
-    elitePilots,
+    totalPilots,
     enterpriseClients,
     newEnterpriseThisMonth,
     moderators,
@@ -253,17 +255,7 @@ async function buildStats(): Promise<PersonnelStatCard[]> {
   ] = await Promise.all([
     prisma.user.count(),
     prisma.user.count({ where: { createdAt: { gte: monthAgo } } }),
-    prisma.pilotProfile.count({
-      where: {
-        status: "approved",
-        subscriptions: {
-          some: {
-            status: "active",
-            subscriptionPlan: { code: { in: [...ELITE_TIER_CODES] } },
-          },
-        },
-      },
-    }),
+    prisma.pilotProfile.count(),
     prisma.clientProfile.count({
       where: { companyName: { not: null } },
     }),
@@ -274,11 +266,11 @@ async function buildStats(): Promise<PersonnelStatCard[]> {
       },
     }),
     prisma.user.count({
-      where: { role: { in: ["moderator", "admin", "super_admin"] } },
+      where: { role: "moderator" },
     }),
     prisma.user.count({
       where: {
-        role: { in: ["moderator", "admin", "super_admin"] },
+        role: "moderator",
         status: "active",
       },
     }),
@@ -307,8 +299,8 @@ async function buildStats(): Promise<PersonnelStatCard[]> {
       subtextTone: usersThisMonth > 0 ? "success" : "muted",
     },
     {
-      label: "ELITE PILOTS",
-      value: elitePilots.toLocaleString(),
+      label: "TOTAL PILOT USERS",
+      value: totalPilots.toLocaleString(),
       subtext: `across ${Math.max(regionSet.size, 1)} regions`,
       subtextTone: "muted",
     },
@@ -319,7 +311,7 @@ async function buildStats(): Promise<PersonnelStatCard[]> {
       subtextTone: newEnterpriseThisMonth > 0 ? "success" : "muted",
     },
     {
-      label: "ACTIVE OPS STAFF",
+      label: "ACTIVE MODERATORS",
       value: moderators.toLocaleString(),
       subtext: `online: ${activeModerators}`,
       subtextTone: "muted",

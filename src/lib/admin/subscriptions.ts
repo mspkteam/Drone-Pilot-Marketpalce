@@ -5,6 +5,7 @@ import {
   serializePlanFeaturesMeta,
 } from "@/lib/admin/plan-features";
 import { toMembershipTierDto } from "@/lib/membership/membership";
+import { PILOT_ANNUAL_MEMBERSHIP_FEE_USD } from "@/lib/membership/pilot-membership-catalog";
 import { getRankKeyForTierCode } from "@/lib/membership/rank-assets";
 import type {
   AdminPlanDto,
@@ -16,6 +17,19 @@ const A_TIER_CODE_PREFIX = /^A\d_/;
 
 function isMembershipTierCode(code: string | null | undefined): boolean {
   return Boolean(code && A_TIER_CODE_PREFIX.test(code));
+}
+
+function roundUsd(value: number): number {
+  return Math.round(value * 100) / 100;
+}
+
+/**
+ * DB `priceYearly` stores the total charged at signup (flat annual membership +
+ * the one-time Fast Forward fee). Derive the standalone Fast Forward fee back
+ * out so the admin UI mirrors the /pricing model instead of a yearly price.
+ */
+function fastForwardFeeFromYearly(priceYearly: number): number {
+  return Math.max(0, roundUsd(priceYearly - PILOT_ANNUAL_MEMBERSHIP_FEE_USD));
 }
 
 export async function listPlansForAdmin(): Promise<AdminPlanDto[]> {
@@ -30,6 +44,7 @@ export async function listPlansForAdmin(): Promise<AdminPlanDto[]> {
       const pricingCode = getPricingCodeForTierCode(plan.code ?? "");
       const meta = parsePlanFeaturesMeta(plan.features, pricingCode);
       const rankKey = plan.code ? getRankKeyForTierCode(plan.code) : null;
+      const fastForwardFeeUsd = fastForwardFeeFromYearly(plan.priceYearly);
 
       return {
         id: plan.id,
@@ -40,6 +55,11 @@ export async function listPlansForAdmin(): Promise<AdminPlanDto[]> {
         description: meta.description,
         priceYearly: plan.priceYearly,
         priceMonthly: plan.priceMonthly,
+        fastForwardFeeUsd,
+        annualMembershipUsd: PILOT_ANNUAL_MEMBERSHIP_FEE_USD,
+        totalAtSignupUsd: roundUsd(
+          PILOT_ANNUAL_MEMBERSHIP_FEE_USD + fastForwardFeeUsd,
+        ),
         jobVisibilityDelayHours: plan.jobVisibilityDelayHours,
         canViewJobs: plan.canViewJobs,
         canApply: plan.canApply,
@@ -109,11 +129,14 @@ export async function updatePlanForAdmin(
     isRecommended: input.isRecommended ?? currentMeta.isRecommended,
   };
 
-  const priceMonthly =
-    input.priceMonthly !== undefined
-      ? Math.max(0, Math.round(input.priceMonthly * 100) / 100)
-      : existing.priceMonthly;
-  const priceYearly = Math.round(priceMonthly * 12 * 100) / 100;
+  const priceChanged = input.fastForwardFeeUsd !== undefined;
+  const fastForwardFeeUsd = priceChanged
+    ? Math.max(0, roundUsd(input.fastForwardFeeUsd as number))
+    : fastForwardFeeFromYearly(existing.priceYearly);
+  const priceYearly = roundUsd(
+    PILOT_ANNUAL_MEMBERSHIP_FEE_USD + fastForwardFeeUsd,
+  );
+  const priceMonthly = roundUsd(priceYearly / 12);
 
   const updated = await prisma.$transaction(async (tx) => {
     if (nextMeta.isRecommended && pricingCode) {
@@ -141,9 +164,7 @@ export async function updatePlanForAdmin(
       where: { id: planId },
       data: {
         ...(input.name !== undefined ? { name: input.name.trim() } : {}),
-        ...(input.priceMonthly !== undefined
-          ? { priceMonthly, priceYearly }
-          : {}),
+        ...(priceChanged ? { priceMonthly, priceYearly } : {}),
         ...(input.jobVisibilityDelayHours !== undefined
           ? { jobVisibilityDelayHours: Math.max(0, input.jobVisibilityDelayHours) }
           : {}),
@@ -172,6 +193,12 @@ export async function updatePlanForAdmin(
       description: meta.description,
       priceYearly: updated.priceYearly,
       priceMonthly: updated.priceMonthly,
+      fastForwardFeeUsd: fastForwardFeeFromYearly(updated.priceYearly),
+      annualMembershipUsd: PILOT_ANNUAL_MEMBERSHIP_FEE_USD,
+      totalAtSignupUsd: roundUsd(
+        PILOT_ANNUAL_MEMBERSHIP_FEE_USD +
+          fastForwardFeeFromYearly(updated.priceYearly),
+      ),
       jobVisibilityDelayHours: updated.jobVisibilityDelayHours,
       canViewJobs: updated.canViewJobs,
       canApply: updated.canApply,

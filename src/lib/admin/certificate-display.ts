@@ -6,6 +6,23 @@ export const DEFAULT_CERTIFICATE_BODY = `This certifies that {{pilotName}} (Lice
 Certificate number: {{certificateNumber}}
 Issue date: {{issueDate}}`;
 
+/** Split a certificate title into (at most) two balanced display lines. */
+export function splitCertificateTitleLines(title: string): string[] {
+  const upper = title.trim().toUpperCase();
+  if (!upper) return ["CERTIFICATE"];
+
+  const byDash = upper.split(/\s*[—–-]\s*/).filter(Boolean);
+  if (byDash.length === 2) return byDash;
+
+  const ofMatch = upper.match(/^(.*?\S)\s+(OF\s+\S.*)$/);
+  if (ofMatch) return [ofMatch[1], ofMatch[2]];
+
+  const words = upper.split(/\s+/);
+  if (words.length <= 2) return [upper];
+  const mid = Math.ceil(words.length / 2);
+  return [words.slice(0, mid).join(" "), words.slice(mid).join(" ")];
+}
+
 type DisplayMeta = {
   triggerLabel: string;
   displayDescription: string;
@@ -14,33 +31,33 @@ type DisplayMeta = {
 };
 
 const DISPLAY_META_BY_KEY: Record<string, DisplayMeta> = {
-  "mission-completion": {
-    triggerLabel: "On mission settled",
+  "certificate-of-promotion": {
+    triggerLabel: "On grade promotion",
     displayDescription:
-      "Auto-issues to pilot dashboard and emails a PDF copy. Includes platform signature and verification QR.",
-    previewTitleLines: ["CERTIFICATE", "OF MISSION"],
-    previewMission: "Coastal Infrastructure Survey",
+      "Issued when a member advances to a new Remote Air Service grade. Auto-issues to the pilot dashboard and emails a PDF copy with platform signature and verification QR.",
+    previewTitleLines: ["CERTIFICATE", "OF PROMOTION"],
+    previewMission: "[New grade: First Officer / Captain / etc.]",
   },
-  "100-flight-hours": {
+  "aviator-wings-senior": {
     triggerLabel: "Hours milestone",
     displayDescription:
-      "Issued upon hitting exactly 100 cumulative verified flight hours. High priority.",
-    previewTitleLines: ["CERTIFICATE", "OF EXCELLENCE"],
-    previewMission: "100 Verified Flight Hours",
+      "Awarded after 500 remote flight hours OR qualifying pilot certificate OR five Remote Air Service contracts with a perfect rating.",
+    previewTitleLines: ["AVIATOR WINGS", "SENIOR"],
+    previewMission: "500 Remote Flight Hours",
   },
-  "elite-pilot-status": {
+  "aviator-wings-master": {
     triggerLabel: "Tier upgrade to A-4+",
     displayDescription:
-      "Reserved for Top 1% performers within specific military sectors.",
-    previewTitleLines: ["ELITE PILOT", "CERTIFICATE"],
-    previewMission: "A-4 Sr. Flight Officer Tier",
+      "Awarded after 1,000 hours OR qualifying FAA Private Pilot Certificate, AND five Remote Air Service contracts with a perfect rating.",
+    previewTitleLines: ["AVIATOR WINGS", "MASTER"],
+    previewMission: "1,000 Verified Flight Hours",
   },
-  "safety-excellence": {
+  "aviator-wings-basic-gold": {
     triggerLabel: "12 months, zero incidents",
     displayDescription:
-      "Annual safety award for maintaining perfect operational records.",
-    previewTitleLines: ["SAFETY", "EXCELLENCE"],
-    previewMission: "Perfect Operational Record — 12 Months",
+      "Awarded to FAA Part 107 Remote Pilot Certificate holders.",
+    previewTitleLines: ["AVIATOR WINGS", "BASIC GOLD"],
+    previewMission: "FAA Part 107 Remote Pilot Certificate",
   },
   "platform-verified-pilot": {
     triggerLabel: "Admin issue / onboarding",
@@ -88,77 +105,87 @@ export function enrichCertificateTemplate(
   };
 }
 
-export const MOCK_CERTIFICATE_TEMPLATES: AdminCertificateTemplateCardDto[] = [
+const PROMOTION_BODY = `This certifies that {{pilotName}} has successfully completed the requirements to advance within Remote Air Service.
+
+Awarded for: {{templateName}}
+Certificate number: {{certificateNumber}}
+Issue date: {{issueDate}}`;
+
+const WINGS_BODY = `This certifies that {{pilotName}} (License {{licenseNumber}}) has earned {{templateName}} on Remote Air Service.
+
+Certificate number: {{certificateNumber}}
+Issue date: {{issueDate}}`;
+
+/**
+ * Canonical Remote Air Service certificate templates (Figma 808:37671).
+ * Used as preview-only samples until the matching real template exists in the
+ * database (see seed.ts), and to seed display metadata by slug.
+ */
+export const CANONICAL_CERTIFICATE_TEMPLATES: Array<{
+  name: string;
+  slug: string;
+  title: string;
+  bodyTemplate: string;
+  description: string;
+  issuedCount: number;
+}> = [
   {
-    id: "mock-mission-completion",
-    name: "Mission Completion",
-    slug: "mission-completion",
-    description: null,
-    title: "Certificate of Mission Completion",
-    bodyTemplate: DEFAULT_CERTIFICATE_BODY,
-    isActive: true,
-    issuedCount: 2840,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    triggerLabel: "On mission settled",
-    displayDescription:
-      "Auto-issues to pilot dashboard and emails a PDF copy. Includes platform signature and verification QR.",
-    previewTitleLines: ["CERTIFICATE", "OF MISSION"],
-    previewMission: "Coastal Infrastructure Survey",
-    isMock: true,
+    name: "Certificate of Promotion",
+    slug: "certificate-of-promotion",
+    title: "Certificate of Promotion",
+    bodyTemplate: PROMOTION_BODY,
+    description:
+      "Issued when a member advances to a new Remote Air Service grade.",
+    issuedCount: 0,
   },
   {
-    id: "mock-100-flight-hours",
-    name: "100 Flight Hours",
-    slug: "100-flight-hours",
-    description: null,
-    title: "100 Flight Hours Milestone",
-    bodyTemplate: DEFAULT_CERTIFICATE_BODY,
-    isActive: true,
+    name: "Aviator Wings, Senior",
+    slug: "aviator-wings-senior",
+    title: "Aviator Wings — Senior",
+    bodyTemplate: WINGS_BODY,
+    description:
+      "Awarded after 500 remote flight hours OR qualifying pilot certificate OR five Remote Air Service contracts with a perfect rating.",
     issuedCount: 412,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    triggerLabel: "Hours milestone",
-    displayDescription:
-      "Issued upon hitting exactly 100 cumulative verified flight hours. High priority.",
-    previewTitleLines: ["CERTIFICATE", "OF EXCELLENCE"],
-    previewMission: "100 Verified Flight Hours",
-    isMock: true,
   },
   {
-    id: "mock-elite-pilot",
-    name: "Elite Pilot Status",
-    slug: "elite-pilot-status",
-    description: null,
-    title: "Elite Pilot Certificate",
-    bodyTemplate: DEFAULT_CERTIFICATE_BODY,
-    isActive: true,
+    name: "Aviator Wings, Master",
+    slug: "aviator-wings-master",
+    title: "Aviator Wings — Master",
+    bodyTemplate: WINGS_BODY,
+    description:
+      "Awarded after 1,000 hours OR qualifying FAA Private Pilot Certificate, AND five Remote Air Service contracts with a perfect rating.",
     issuedCount: 92,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    triggerLabel: "Tier upgrade to A-4+",
-    displayDescription:
-      "Reserved for Top 1% performers within specific military sectors.",
-    previewTitleLines: ["ELITE PILOT", "CERTIFICATE"],
-    previewMission: "A-4 Sr. Flight Officer Tier",
-    isMock: true,
   },
   {
-    id: "mock-safety-excellence",
-    name: "Safety Excellence",
-    slug: "safety-excellence",
-    description: null,
-    title: "Safety Excellence Award",
-    bodyTemplate: DEFAULT_CERTIFICATE_BODY,
-    isActive: true,
+    name: "Aviator Wings, Basic Gold",
+    slug: "aviator-wings-basic-gold",
+    title: "Aviator Wings — Basic Gold",
+    bodyTemplate: WINGS_BODY,
+    description: "Awarded to FAA Part 107 Remote Pilot Certificate holders.",
     issuedCount: 188,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    triggerLabel: "12 months, zero incidents",
-    displayDescription:
-      "Annual safety award for maintaining perfect operational records.",
-    previewTitleLines: ["SAFETY", "EXCELLENCE"],
-    previewMission: "Perfect Operational Record — 12 Months",
-    isMock: true,
   },
 ];
+
+/** Preview-only sample cards for canonical templates missing from the database. */
+export const MOCK_CERTIFICATE_TEMPLATES: AdminCertificateTemplateCardDto[] =
+  CANONICAL_CERTIFICATE_TEMPLATES.map((tpl) => {
+    const meta = DISPLAY_META_BY_KEY[tpl.slug]!;
+    const now = new Date().toISOString();
+    return {
+      id: `sample-${tpl.slug}`,
+      name: tpl.name,
+      slug: tpl.slug,
+      description: tpl.description,
+      title: tpl.title,
+      bodyTemplate: tpl.bodyTemplate,
+      isActive: true,
+      issuedCount: tpl.issuedCount,
+      createdAt: now,
+      updatedAt: now,
+      triggerLabel: meta.triggerLabel,
+      displayDescription: tpl.description,
+      previewTitleLines: meta.previewTitleLines,
+      previewMission: meta.previewMission,
+      isMock: true,
+    };
+  });

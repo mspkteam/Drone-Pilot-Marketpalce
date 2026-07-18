@@ -97,6 +97,7 @@ export function AdminBadgesWingsPortal({ canManage }: AdminBadgesWingsPortalProp
         description: input.description,
         category: input.category,
         iconLabel: iconLabelForType(input.iconType),
+        imageUrl: input.imageUrl || null,
         autoRule: input.autoRule,
         threshold: input.threshold,
         ruleParam: input.ruleParam || null,
@@ -158,6 +159,7 @@ export function AdminBadgesWingsPortal({ canManage }: AdminBadgesWingsPortalProp
         body: JSON.stringify({
           pilotProfileId: input.pilotProfileId,
           wingDefinitionId: assignBadge.id,
+          note: input.note,
         }),
       });
       const json = await res.json();
@@ -168,8 +170,8 @@ export function AdminBadgesWingsPortal({ canManage }: AdminBadgesWingsPortalProp
       const message = json.created
         ? `Awarded "${json.wing?.title ?? assignBadge.title}" to pilot.`
         : "Pilot already has this badge.";
-      if (input.note) {
-        setSuccess(`${message} (Note preview-only: ${input.note})`);
+      if (input.note && json.created) {
+        setSuccess(`${message} Note saved with the award.`);
       } else {
         setSuccess(message);
       }
@@ -198,7 +200,7 @@ export function AdminBadgesWingsPortal({ canManage }: AdminBadgesWingsPortalProp
         <div className="admin-ops-hero-glow" aria-hidden />
         <div className="admin-badges-hero-inner">
           <div className="admin-badges-hero-copy">
-            <p className="admin-ops-eyebrow">BADGES &amp; WINGS</p>
+            <p className="admin-ops-eyebrow">ACHIEVEMENTS</p>
             <h1 className="admin-badges-hero-title">Badges & Wings</h1>
             <p className="admin-badges-hero-desc">
               Recognize pilots with badges they wear on their profile. Create new
@@ -215,7 +217,7 @@ export function AdminBadgesWingsPortal({ canManage }: AdminBadgesWingsPortalProp
                 setModalMode("create");
               }}
             >
-              NEW BADGE
+              NEW WING
             </button>
           ) : null}
         </div>
@@ -296,9 +298,11 @@ export function AdminBadgesWingsPortal({ canManage }: AdminBadgesWingsPortalProp
         >
           <option value="ALL">All rarities</option>
           <option value="COMMON">Common</option>
+          <option value="UNCOMMON">Uncommon</option>
           <option value="RARE">Rare</option>
           <option value="EPIC">Epic</option>
           <option value="LEGENDARY">Legendary</option>
+          <option value="MYTHIC">Mythic</option>
         </select>
         <select
           className="admin-badges-filter"

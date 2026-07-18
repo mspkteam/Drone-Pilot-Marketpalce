@@ -72,6 +72,12 @@ model PilotProfile {
   status                String              @default("draft")
   complianceAcceptedAt  DateTime?
   onboardingCompletedAt DateTime?
+  commissionOverrideEnabled   Boolean   @default(false)
+  commissionOverrideRate      Float?
+  commissionOverrideReason    String?
+  commissionOverrideEffective String?
+  commissionOverrideUpdatedAt DateTime?
+  commissionOverrideSetById   String?
   createdAt             DateTime            @default(now())
   updatedAt             DateTime            @updatedAt
   applications          JobApplication[]
@@ -597,6 +603,7 @@ model WingDefinition {
   description String
   category    String      @default("milestone")
   iconLabel   String?
+  imageUrl    String?
   autoRule    String?
   ruleParam   String?
   threshold   Int?

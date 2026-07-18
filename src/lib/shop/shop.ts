@@ -243,6 +243,9 @@ export async function updateProduct(
     imageUrl: string | null;
     sortOrder: number;
     isActive: boolean;
+    price: number;
+    stockQuantity: number;
+    sku: string;
   }>,
 ): Promise<
   | { ok: true; product: UniformProductDto }
@@ -256,7 +259,11 @@ export async function updateProduct(
     return { ok: false, error: "Product not found.", status: 404 };
   }
 
-  const row = await prisma.uniformProduct.update({
+  if (input.price !== undefined && (!Number.isFinite(input.price) || input.price <= 0)) {
+    return { ok: false, error: "Price must be a positive number." };
+  }
+
+  await prisma.uniformProduct.update({
     where: { id },
     data: {
       ...(input.name !== undefined ? { name: input.name.trim() } : {}),
@@ -269,12 +276,62 @@ export async function updateProduct(
       ...(input.sortOrder !== undefined ? { sortOrder: input.sortOrder } : {}),
       ...(input.isActive !== undefined ? { isActive: input.isActive } : {}),
     },
+  });
+
+  // Price and stock live on variants. The admin editor exposes a single price
+  // and stock, so apply price to every variant and only apply stock when the
+  // product is a simple (single-variant) item to avoid corrupting per-size stock.
+  if (input.price !== undefined) {
+    if (existing.variants.length > 0) {
+      await prisma.uniformProductVariant.updateMany({
+        where: { productId: id },
+        data: { price: input.price },
+      });
+    } else {
+      const sku =
+        input.sku?.trim().toUpperCase() ||
+        `${slugify(input.name ?? existing.name).toUpperCase().replace(/-/g, "")}-STD`;
+      const dup = await prisma.uniformProductVariant.findUnique({ where: { sku } });
+      if (dup) {
+        return { ok: false, error: "SKU already exists — set a unique SKU." };
+      }
+      await prisma.uniformProductVariant.create({
+        data: {
+          productId: id,
+          sku,
+          label: (input.name ?? existing.name).trim(),
+          price: input.price,
+          stockQuantity:
+            input.stockQuantity !== undefined
+              ? Math.max(0, input.stockQuantity)
+              : 0,
+          isActive: true,
+        },
+      });
+    }
+  }
+
+  if (input.stockQuantity !== undefined && existing.variants.length === 1) {
+    await prisma.uniformProductVariant.update({
+      where: { id: existing.variants[0].id },
+      data: { stockQuantity: Math.max(0, input.stockQuantity) },
+    });
+  }
+
+  const row = await prisma.uniformProduct.findUnique({
+    where: { id },
     include: { variants: true },
   });
+  if (!row) {
+    return { ok: false, error: "Product not found.", status: 404 };
+  }
 
   return {
     ok: true,
-    product: { ...toProductDto(row), variants: row.variants.map(toVariantDto) },
+    product: {
+      ...toProductDto(row),
+      variants: row.variants.map(toVariantDto),
+    },
   };
 }
 

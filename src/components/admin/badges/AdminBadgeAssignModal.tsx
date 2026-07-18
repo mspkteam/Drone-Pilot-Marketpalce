@@ -109,13 +109,13 @@ export function AdminBadgeAssignModal({
                 value={note}
                 onChange={(event) => setNote(event.target.value)}
                 rows={3}
-                placeholder="Optional — not persisted until assignment audit log exists"
+                placeholder="Optional — reason or context for this award"
               />
             </div>
 
             <p className="admin-badges-hint">
-              Expiration dates and evidence links are planned. Assignment notes are
-              preview-only until the audit log backend is connected.
+              Assignment notes are saved with the award. Expiration dates and evidence
+              links are planned.
             </p>
           </div>
 

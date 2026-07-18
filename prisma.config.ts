@@ -44,9 +44,16 @@ function cliDatabaseUrl(): string {
   }
 
   if (process.env["VERCEL"]?.trim() === "1") {
-    throw new Error(
-      "Vercel build requires DATABASE_URL (postgresql://…). Check Project → Settings → Environment Variables for Production and Preview.",
+    // `prisma generate` is the only Prisma step in the Vercel build; it reads
+    // the schema and never opens a DB connection, so a real URL isn't required
+    // here. Return a Postgres placeholder (never SQLite on Vercel) so builds
+    // succeed even when an environment (e.g. Preview) has no DATABASE_URL.
+    // Runtime queries use the real DATABASE_URL via the app's own client;
+    // commands that actually connect (db push/migrate) fail loudly against this.
+    console.warn(
+      "[prisma.config] No Postgres DATABASE_URL in this Vercel environment — using a placeholder for `prisma generate`. Set DATABASE_URL for runtime + db push/migrate.",
     );
+    return "postgresql://placeholder:placeholder@localhost:5432/placeholder";
   }
 
   return LOCAL_SQLITE_URL;

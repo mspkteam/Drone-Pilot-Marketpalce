@@ -182,10 +182,14 @@ export function AdminCertificateEnginePortal({
         <div className="admin-ops-hero-glow" aria-hidden />
         <div className="admin-certificates-hero-inner">
           <div className="admin-certificates-hero-copy">
-            <p className="admin-ops-eyebrow">CERTIFICATE ENGINE</p>
-            <h1 className="admin-certificates-hero-title">Certificates</h1>
+            <p className="admin-ops-eyebrow">CERTIFICATE &amp; PROMOTION ENGINE</p>
+            <h1 className="admin-certificates-hero-title">
+              Remote Air Service Certificates
+            </h1>
             <p className="admin-certificates-hero-desc">
-              Templates that auto-generate signed PDFs whenever a pilot hits a milestone.
+              Digital certificates are issued free when earned and tied to member
+              promotions, aviation wings, and verified Remote Air Service
+              milestones.
             </p>
           </div>
           {canManageTemplates ? (
@@ -222,10 +226,27 @@ export function AdminCertificateEnginePortal({
       ) : null}
 
       {stats ? (
-        <section className="admin-certificates-stats-grid" aria-label="Certificate statistics">
+        <section
+          className="admin-certificates-stats-grid"
+          aria-label="Certificate statistics"
+        >
           <article className="admin-certificates-stat-card">
-            <p className="admin-certificates-stat-label">TEMPLATES</p>
-            <p className="admin-certificates-stat-value">{stats.templateCount}</p>
+            <p className="admin-certificates-stat-label">ACTIVE TEMPLATES</p>
+            <p className="admin-certificates-stat-value">
+              {stats.activeTemplates.toLocaleString()}
+            </p>
+            <p className="admin-certificates-stat-sub">
+              {stats.activeTemplatesSubtext}
+            </p>
+          </article>
+          <article className="admin-certificates-stat-card">
+            <p className="admin-certificates-stat-label">TOTAL ISSUED</p>
+            <p className="admin-certificates-stat-value">
+              {stats.totalIssued.toLocaleString()}
+            </p>
+            <p className="admin-certificates-stat-sub">
+              {stats.totalIssuedSubtext}
+            </p>
           </article>
           <article className="admin-certificates-stat-card">
             <p className="admin-certificates-stat-label">ISSUED (30D)</p>
@@ -243,15 +264,13 @@ export function AdminCertificateEnginePortal({
             </p>
           </article>
           <article className="admin-certificates-stat-card">
-            <p className="admin-certificates-stat-label">TOTAL ISSUED</p>
+            <p className="admin-certificates-stat-label">PILOTS RECOGNIZED</p>
             <p className="admin-certificates-stat-value">
-              {stats.totalIssued.toLocaleString()}
+              {stats.recipients.toLocaleString()}
             </p>
-          </article>
-          <article className="admin-certificates-stat-card">
-            <p className="admin-certificates-stat-label">PDF RENDER TIME</p>
-            <p className="admin-certificates-stat-value">{stats.pdfRenderTimeLabel}</p>
-            <p className="admin-certificates-stat-sub">{stats.pdfRenderTimeSubtext}</p>
+            <p className="admin-certificates-stat-sub">
+              {stats.recipientsSubtext}
+            </p>
           </article>
         </section>
       ) : null}

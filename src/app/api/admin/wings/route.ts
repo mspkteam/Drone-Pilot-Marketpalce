@@ -45,12 +45,14 @@ export async function POST(request: Request) {
     );
   }
 
+  const note = typeof body.note === "string" ? body.note.trim() : "";
   const result = await grantWingToPilot(
     body.pilotProfileId,
     body.wingDefinitionId,
     {
       source: "manual",
       assignedByUserId: authResult.userId,
+      metadata: note ? { note } : null,
     },
   );
 

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
+import { AdminCmsMediaField } from "@/components/admin/cms/AdminCmsMediaField";
 import type { CmsArticle, CmsArticleInput, CmsAudience, CmsStatus } from "@/types/cms";
 import { CMS_AUDIENCES, CMS_STATUSES } from "@/types/cms";
 
@@ -114,7 +115,11 @@ export function AdminCmsArticleEditor({ articleId }: AdminCmsArticleEditorProps)
         return;
       }
       setNotice(
-        "Saved to in-memory preview store. CMS persistence is pending until the backend is connected.",
+        status === "published"
+          ? "Article published. It is now live on the public Resources page."
+          : status === "archived"
+            ? "Article archived. It is hidden from the public Resources page."
+            : "Draft saved.",
       );
       if (!isEdit && json.article?.id) {
         router.push(`/dashboard/admin/cms/articles/${json.article.id}/edit`);
@@ -313,17 +318,15 @@ export function AdminCmsArticleEditor({ articleId }: AdminCmsArticleEditorProps)
 
           <section className="admin-cms-sidebar-card">
             <h2 className="admin-cms-sidebar-title">Media</h2>
-            <div className="admin-cms-field">
-              <label htmlFor="article-image">Featured image URL</label>
-              <input
-                id="article-image"
-                value={form.featuredImage ?? ""}
-                onChange={(event) =>
-                  updateField("featuredImage", event.target.value || null)
-                }
-                placeholder="https://…"
-              />
-            </div>
+            <AdminCmsMediaField
+              id="article-image"
+              label="Featured image"
+              kind="image"
+              module="cmsArticles"
+              value={form.featuredImage}
+              onChange={(url) => updateField("featuredImage", url)}
+              nameHint={form.slug || form.title}
+            />
           </section>
 
           <section className="admin-cms-sidebar-card">

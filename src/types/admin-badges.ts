@@ -1,6 +1,12 @@
 import type { AdminPilotWingDto, WingAutoRule, WingCategory, WingDefinitionDto } from "@/types/wing";
 
-export type BadgeRarity = "COMMON" | "RARE" | "EPIC" | "LEGENDARY";
+export type BadgeRarity =
+  | "COMMON"
+  | "UNCOMMON"
+  | "RARE"
+  | "EPIC"
+  | "LEGENDARY"
+  | "MYTHIC";
 
 export type BadgeIconType =
   | "trophy"
@@ -42,6 +48,7 @@ export type BadgeFormInput = {
   category: WingCategory;
   rarity: BadgeRarity;
   iconType: BadgeIconType;
+  imageUrl: string;
   autoRule: WingAutoRule;
   threshold: number | null;
   ruleParam: string;

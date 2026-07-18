@@ -61,11 +61,12 @@ export function AdminCmsOverviewPortal() {
         </p>
       ) : null}
 
-      <p className="admin-cms-banner admin-cms-banner--info" role="status">
-        CMS persistence is pending. Changes save to an in-memory preview store until
-        Prisma CMS models are connected. Public Resources and Help Center pages are
-        unchanged.
-      </p>
+      {data && data.persistenceMode !== "persisted" ? (
+        <p className="admin-cms-banner admin-cms-banner--info" role="status">
+          CMS persistence is running in preview mode. Changes are stored temporarily
+          until the database is connected.
+        </p>
+      ) : null}
 
       {stats ? (
         <section className="admin-cms-stats-grid" aria-label="CMS metrics">

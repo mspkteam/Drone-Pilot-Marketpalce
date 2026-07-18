@@ -238,7 +238,7 @@ Client posts project
 | Job reference files | **PLACEHOLDER** | Filename list in wizard only — M44 |
 | Message attachments | **PLACEHOLDER** | Paperclip UI — M62 |
 | Dispute evidence | **PARTIAL** | Dispute entries API exists |
-| CMS featured images | **PLACEHOLDER** | URL field only — M262 |
+| CMS featured images / resource files | **WIRED** | Upload via `POST /api/admin/cms/upload` → `public/cms/` (M262) |
 
 **Rule:** Extend `support/files` or verification upload helpers — do not invent a new storage system.
 
@@ -356,3 +356,4 @@ Use these — do not rebuild:
 |------|--------|
 | 2026-06-02 | Initial audit after UI/design phase complete (Phases 1–41) |
 | 2026-06-02 | Source PDF alignment — 15% commission, membership model, phases 1–10, M295–M320 |
+| 2026-07-18 | Phase 2 (Admin/Moderator/Super Admin) live role smoke test — all admin pages + APIs verified per role. Fixed CMS article/resource pages that were incorrectly Super-Admin-only (now permission-gated, consistent with overview + APIs + nav). |

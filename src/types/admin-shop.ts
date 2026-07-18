@@ -15,6 +15,7 @@ export type AdminInventoryRowDto = {
   imageSrc: string;
   description: string;
   isActive: boolean;
+  variantCount: number;
   isMock?: boolean;
 };
 

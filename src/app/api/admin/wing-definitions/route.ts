@@ -37,6 +37,7 @@ export async function POST(request: Request) {
     description: body.description ?? "",
     category: body.category ?? "milestone",
     iconLabel: body.iconLabel,
+    imageUrl: body.imageUrl,
     autoRule: body.autoRule ?? "manual_only",
     ruleParam: body.ruleParam,
     threshold: body.threshold,

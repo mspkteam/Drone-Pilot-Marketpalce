@@ -118,10 +118,10 @@ export function AdminTierPlansPortal() {
         <div className="admin-subscriptions-hero-inner">
           <div className="admin-subscriptions-hero-copy">
             <p className="admin-ops-eyebrow">SUBSCRIPTION MANAGEMENT</p>
-            <h1 className="admin-subscriptions-hero-title">Subscriptions</h1>
+            <h1 className="admin-subscriptions-hero-title">Officer Tier Plans</h1>
             <p className="admin-subscriptions-hero-desc">
-              Manage A-1–A-6 membership and Fast Forward upgrades. Edit plan copy,
-              features, and visibility delays from one place.
+              Six membership grades from Student A-1 to Captain A-6. Edit pricing,
+              features and commission rates without redeploying.
             </p>
           </div>
           <div className="admin-subscriptions-hero-actions">

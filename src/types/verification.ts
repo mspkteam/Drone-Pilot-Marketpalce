@@ -42,5 +42,9 @@ export type AdminVerificationDto = VerificationDto & {
     displayName: string;
     email: string;
     licenseNumber: string;
+    licenseCountry: string | null;
+    locationCity: string | null;
+    locationRegion: string | null;
+    locationCountry: string | null;
   };
 };

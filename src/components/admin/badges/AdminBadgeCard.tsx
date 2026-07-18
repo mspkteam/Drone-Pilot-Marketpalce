@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { BadgeWingIcon } from "@/components/admin/badges/BadgeWingIcon";
 import type { AdminBadgeCardDto } from "@/types/admin-badges";
 
@@ -12,12 +13,16 @@ type AdminBadgeCardProps = {
 
 function rarityClass(rarity: AdminBadgeCardDto["rarity"]): string {
   switch (rarity) {
+    case "MYTHIC":
+      return "admin-badges-card--mythic";
     case "LEGENDARY":
       return "admin-badges-card--legendary";
     case "RARE":
       return "admin-badges-card--rare";
     case "EPIC":
       return "admin-badges-card--epic";
+    case "UNCOMMON":
+      return "admin-badges-card--uncommon";
     case "COMMON":
     default:
       return "admin-badges-card--common";
@@ -26,12 +31,16 @@ function rarityClass(rarity: AdminBadgeCardDto["rarity"]): string {
 
 function rarityValueClass(rarity: AdminBadgeCardDto["rarity"]): string {
   switch (rarity) {
+    case "MYTHIC":
+      return "admin-badges-rarity-value--mythic";
     case "LEGENDARY":
       return "admin-badges-rarity-value--legendary";
     case "RARE":
       return "admin-badges-rarity-value--rare";
     case "EPIC":
       return "admin-badges-rarity-value--epic";
+    case "UNCOMMON":
+      return "admin-badges-rarity-value--uncommon";
     case "COMMON":
     default:
       return "admin-badges-rarity-value--common";
@@ -44,6 +53,9 @@ export function AdminBadgeCard({
   onEdit,
   onAssign,
 }: AdminBadgeCardProps) {
+  const [imageFailed, setImageFailed] = useState(false);
+  const showImage = Boolean(badge.imageUrl) && !imageFailed;
+
   return (
     <article
       className={`admin-badges-card ${rarityClass(badge.rarity)}`}
@@ -51,7 +63,7 @@ export function AdminBadgeCard({
     >
       <div className="admin-badges-card-head">
         <h3 className="admin-badges-card-title">{badge.title}</h3>
-        <p className="admin-badges-card-criteria">{badge.criteria}</p>
+        <p className="admin-badges-card-criteria">{badge.description}</p>
       </div>
 
       <div className="admin-badges-card-divider" aria-hidden />
@@ -60,11 +72,21 @@ export function AdminBadgeCard({
         className={`admin-badges-icon-block admin-badges-icon-block--${badge.rarity.toLowerCase()}`}
         aria-hidden
       >
-        <BadgeWingIcon
-          type={badge.iconType}
-          className="admin-badges-icon-svg"
-          title={badge.title}
-        />
+        {showImage ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={badge.imageUrl as string}
+            alt=""
+            className="admin-badges-icon-image"
+            onError={() => setImageFailed(true)}
+          />
+        ) : (
+          <BadgeWingIcon
+            type={badge.iconType}
+            className="admin-badges-icon-svg"
+            title={badge.title}
+          />
+        )}
       </div>
 
       <div className="admin-badges-card-meta">

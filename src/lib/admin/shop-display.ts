@@ -71,6 +71,7 @@ export function mapProductToInventoryRow(
     imageSrc: imageFromProduct(product),
     description: product.description,
     isActive: product.isActive,
+    variantCount: variants.length,
     isMock: false,
   };
 }
@@ -126,6 +127,7 @@ export const MOCK_INVENTORY_ROWS: AdminInventoryRowDto[] = [
     imageSrc: "/marketing/hero-pilot.jpg",
     description: "Official flight suit for platform pilots.",
     isActive: true,
+    variantCount: 1,
     isMock: true,
   },
   {
@@ -141,6 +143,7 @@ export const MOCK_INVENTORY_ROWS: AdminInventoryRowDto[] = [
     imageSrc: homeAssets.ranks.a1,
     description: "Operations cap with squadron insignia.",
     isActive: true,
+    variantCount: 1,
     isMock: true,
   },
   {
@@ -156,6 +159,7 @@ export const MOCK_INVENTORY_ROWS: AdminInventoryRowDto[] = [
     imageSrc: homeAssets.ranks.a3,
     description: "Metal wing pin for uniform display.",
     isActive: true,
+    variantCount: 1,
     isMock: true,
   },
   {
@@ -171,6 +175,7 @@ export const MOCK_INVENTORY_ROWS: AdminInventoryRowDto[] = [
     imageSrc: "/marketing/hero-pilot.jpg",
     description: "Premium aviator jacket.",
     isActive: true,
+    variantCount: 1,
     isMock: true,
   },
 ];

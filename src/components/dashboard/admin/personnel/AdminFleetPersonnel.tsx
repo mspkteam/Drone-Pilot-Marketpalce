@@ -20,13 +20,14 @@ type AdminFleetPersonnelProps = {
 };
 
 function rowsToCsv(rows: PersonnelRow[]): string {
-  const header = "Name,ID,Role,Region,Status,Joined";
+  const header = "Name,ID,Role,Wings,Region,Status,Joined";
   const lines = rows.map((row) => {
     const escape = (value: string) => `"${value.replace(/"/g, '""')}"`;
     return [
       escape(row.name),
       escape(row.displayId),
       escape(row.roleLabel),
+      escape(row.wingsLabel),
       escape(row.region),
       escape(row.statusLabel),
       escape(row.joinedLabel),
@@ -263,7 +264,7 @@ export function AdminFleetPersonnel({
               <tr>
                 <th>NAME / ID</th>
                 <th>ROLE</th>
-                <th>REGION</th>
+                <th>WINGS</th>
                 <th>STATUS</th>
                 <th>JOINED</th>
                 <th className="admin-personnel-th-actions" scope="col">
@@ -280,7 +281,7 @@ export function AdminFleetPersonnel({
                       <span className="admin-personnel-id">{row.displayId}</span>
                     </td>
                     <td className="admin-personnel-role">{row.roleLabel}</td>
-                    <td className="admin-personnel-region">{row.region}</td>
+                    <td className="admin-personnel-wings">{row.wingsLabel}</td>
                     <td>
                       <StatusBadge row={row} />
                     </td>

@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
-import { getCmsResourceById, updateCmsResource } from "@/lib/cms/cms-store";
+import {
+  deleteCmsResource,
+  getCmsResourceById,
+  updateCmsResource,
+} from "@/lib/cms/cms-store";
 import { requireAdminModuleView, requireAdminPermission } from "@/lib/auth/require-admin-permission";
 
 type RouteContext = { params: Promise<{ id: string }> };
@@ -45,4 +49,25 @@ export async function PATCH(request: Request, context: RouteContext) {
     resource: result.resource,
     persistenceMode: "persisted" as const,
   });
+}
+
+export async function DELETE(_request: Request, context: RouteContext) {
+  const authResult = await requireAdminPermission("cmsResources", "delete");
+  if (!authResult.ok) {
+    return NextResponse.json(
+      { error: authResult.error },
+      { status: authResult.status },
+    );
+  }
+
+  const { id } = await context.params;
+  const result = await deleteCmsResource(id);
+  if (!result.ok) {
+    return NextResponse.json(
+      { error: result.error },
+      { status: result.status ?? 400 },
+    );
+  }
+
+  return NextResponse.json({ ok: true });
 }

@@ -139,13 +139,17 @@
 @media (min-width: 1024px) {
   .admin-config-bento {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    grid-template-rows: auto auto auto;
     align-items: start;
   }
+}
 
-  .admin-config-card--fees {
-    grid-row: 1 / span 3;
-  }
+/* Right-hand column stacks its cards with a normal gap, independent of the
+   taller Fees & Commission card on the left (avoids stretched gaps). */
+.admin-config-bento-col {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  min-width: 0;
 }
 
 .admin-config-card {
@@ -275,8 +279,128 @@
 }
 
 .admin-config-pilot-search-field {
+  position: relative;
   flex: 1;
   min-width: 0;
+}
+
+/* Live search results dropdown */
+.admin-config-pilot-results {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 0.375rem);
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 0.25rem;
+  list-style: none;
+  max-height: 15rem;
+  overflow-y: auto;
+  border: 1px solid #302919;
+  border-radius: 0.5rem;
+  background: #14120e;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.5);
+}
+
+.admin-config-pilot-result {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: 100%;
+  border: none;
+  border-radius: 0.375rem;
+  background: transparent;
+  padding: 0.5rem 0.625rem;
+  text-align: left;
+  cursor: pointer;
+  color: var(--color-text);
+}
+
+.admin-config-pilot-result:hover {
+  background: rgba(216, 179, 57, 0.1);
+}
+
+.admin-config-pilot-result--muted {
+  color: var(--color-text-soft);
+  font-size: 0.8125rem;
+  cursor: default;
+}
+
+.admin-config-pilot-result-name {
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.admin-config-pilot-result-meta {
+  flex-shrink: 0;
+  font-size: 0.6875rem;
+  letter-spacing: 0.04em;
+  color: var(--color-gold-soft);
+}
+
+.admin-config-pilot-empty {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--color-text-soft);
+}
+
+/* Editable override fields */
+.admin-config-override-field--row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.admin-config-override-field--row .admin-config-override-label {
+  margin: 0;
+}
+
+.admin-config-toggle--editable {
+  cursor: pointer;
+}
+
+.admin-config-rate-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-top: 0.25rem;
+}
+
+.admin-config-rate-suffix {
+  position: absolute;
+  right: 0.75rem;
+  font-size: 0.8125rem;
+  color: var(--color-text-soft);
+  pointer-events: none;
+}
+
+.admin-config-override-input {
+  width: 100%;
+  min-height: 2.25rem;
+  border: 1px solid #302919;
+  border-radius: 0.375rem;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 0 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.admin-config-rate-input-wrap .admin-config-override-input {
+  padding-right: 1.75rem;
+}
+
+.admin-config-override-input:focus {
+  outline: none;
+  border-color: rgba(216, 179, 57, 0.45);
+}
+
+.admin-config-override-input:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 .admin-config-pilot-search-input {

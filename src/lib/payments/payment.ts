@@ -1,5 +1,6 @@
 import type { Commission, Payment } from "@/generated/prisma/client";
-import { calculateCommission, DEFAULT_COMMISSION_RATE } from "@/lib/commission/constants";
+import { getEffectiveCommissionRateForPilot } from "@/lib/admin/pilot-rates";
+import { calculateCommission } from "@/lib/commission/constants";
 import { prisma } from "@/lib/db";
 import type {
   CommissionDto,
@@ -90,7 +91,7 @@ export async function recordPaymentForCompletedBooking(bookingId: string) {
     where: { id: bookingId },
     include: {
       clientProfile: { select: { userId: true } },
-      pilotProfile: { select: { userId: true } },
+      pilotProfile: { select: { id: true, userId: true } },
     },
   });
 
@@ -98,10 +99,8 @@ export async function recordPaymentForCompletedBooking(bookingId: string) {
     return null;
   }
 
-  const { amount, amountNet } = calculateCommission(
-    booking.agreedAmount,
-    DEFAULT_COMMISSION_RATE,
-  );
+  const rate = await getEffectiveCommissionRateForPilot(booking.pilotProfile.id);
+  const { amount, amountNet } = calculateCommission(booking.agreedAmount, rate);
 
   return prisma.$transaction(async (tx) => {
     const payment = await tx.payment.create({
@@ -121,7 +120,7 @@ export async function recordPaymentForCompletedBooking(bookingId: string) {
       data: {
         bookingId: booking.id,
         paymentId: payment.id,
-        rate: DEFAULT_COMMISSION_RATE,
+        rate,
         amount,
         currency: booking.currency,
         status: "calculated",

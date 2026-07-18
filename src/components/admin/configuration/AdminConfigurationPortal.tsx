@@ -1,15 +1,14 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { AdminConfigEmailTemplateModal } from "@/components/admin/configuration/AdminConfigEmailTemplateModal";
 import { AdminConfigSaveConfirmModal } from "@/components/admin/configuration/AdminConfigSaveConfirmModal";
+import { AdminCustomPilotRates } from "@/components/admin/configuration/AdminCustomPilotRates";
 import type {
   AdminConfigurationDataDto,
   ConfigCommissionRow,
   ConfigEmailTemplate,
   ConfigIntegration,
-  ConfigPilotOverridePreview,
   IntegrationStatus,
 } from "@/types/admin-configuration";
 
@@ -28,27 +27,6 @@ function CommissionRow({ row, compact }: { row: ConfigCommissionRow; compact?: b
       </div>
       <span className="admin-config-value-pill">{row.value}</span>
     </li>
-  );
-}
-
-function PilotOverrideField({
-  label,
-  value,
-  highlight,
-}: {
-  label: string;
-  value: string;
-  highlight?: boolean;
-}) {
-  return (
-    <div className="admin-config-override-field">
-      <p className="admin-config-override-label">{label}</p>
-      <p
-        className={`admin-config-override-value${highlight ? " admin-config-override-value--gold" : ""}`}
-      >
-        {value}
-      </p>
-    </div>
   );
 }
 
@@ -89,7 +67,6 @@ export function AdminConfigurationPortal({ canManage }: AdminConfigurationPortal
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
-  const [pilotSearch, setPilotSearch] = useState("");
   const [editingTemplate, setEditingTemplate] = useState<ConfigEmailTemplate | null>(
     null,
   );
@@ -109,7 +86,6 @@ export function AdminConfigurationPortal({ canManage }: AdminConfigurationPortal
         setData(null);
       } else {
         setData(json);
-        setPilotSearch(json.pilotOverridePreview.pilotName);
       }
     } catch {
       setError("Failed to load configuration.");
@@ -150,44 +126,11 @@ export function AdminConfigurationPortal({ canManage }: AdminConfigurationPortal
     }
   }
 
-  function handlePilotSearch() {
-    setNotice("Pilot search uses the override preview panel below.");
-  }
-
-  async function handleSaveOverride() {
-    if (!canManage || !data) return;
-    setSaving(true);
-    try {
-      const res = await fetch("/api/admin/configuration", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          pilotOverridePreview: {
-            ...data.pilotOverridePreview,
-            pilotName: pilotSearch || data.pilotOverridePreview.pilotName,
-          },
-        }),
-      });
-      const json = (await res.json()) as { message?: string; error?: string };
-      if (!res.ok) {
-        setError(json.error ?? "Failed to save override.");
-        return;
-      }
-      setNotice(json.message ?? "Pilot override saved.");
-      await load();
-    } catch {
-      setError("Failed to save override.");
-    } finally {
-      setSaving(false);
-    }
-  }
-
   if (loading) {
     return <p className="admin-config-loading">Loading configuration…</p>;
   }
 
   const stats = data?.contentStats;
-  const override = data?.pilotOverridePreview;
 
   return (
     <div className="admin-config-page">
@@ -289,50 +232,10 @@ export function AdminConfigurationPortal({ canManage }: AdminConfigurationPortal
             </>
           ) : null}
 
-          {override ? (
-            <>
-              <h3 className="admin-config-section-title">Custom pilot rates</h3>
-              <div className="admin-config-pilot-search">
-                <label className="admin-config-pilot-search-field">
-                  <span className="sr-only">Search pilot by name</span>
-                  <input
-                    type="search"
-                    className="admin-config-pilot-search-input"
-                    placeholder="Search a pilot by name"
-                    value={pilotSearch}
-                    onChange={(event) => setPilotSearch(event.target.value)}
-                  />
-                </label>
-                <button
-                  type="button"
-                  className="admin-config-pilot-search-btn"
-                  onClick={handlePilotSearch}
-                >
-                  Search
-                </button>
-              </div>
-              <PilotOverridePanel override={override} />
-              {canManage ? (
-                <div className="admin-config-override-actions">
-                  <button
-                    type="button"
-                    className="admin-config-btn-gold admin-config-btn-save-override"
-                    onClick={handleSaveOverride}
-                  >
-                    Save Override
-                  </button>
-                  <Link
-                    href="/dashboard/admin/users"
-                    className="admin-config-btn-outline admin-config-btn-all-pilots"
-                  >
-                    See All Pilots
-                  </Link>
-                </div>
-              ) : null}
-            </>
-          ) : null}
+          <AdminCustomPilotRates canManage={canManage} />
         </section>
 
+        <div className="admin-config-bento-col">
         <section className="admin-config-card" aria-label="Email templates">
           <header className="admin-config-card-head admin-config-card-head--border">
             <div>
@@ -472,6 +375,7 @@ export function AdminConfigurationPortal({ canManage }: AdminConfigurationPortal
             </div>
           ) : null}
         </section>
+        </div>
       </div>
 
       {editingTemplate ? (
@@ -488,29 +392,6 @@ export function AdminConfigurationPortal({ canManage }: AdminConfigurationPortal
           onConfirm={handleSaveConfirm}
         />
       ) : null}
-    </div>
-  );
-}
-
-function PilotOverridePanel({ override }: { override: ConfigPilotOverridePreview }) {
-  return (
-    <div className="admin-config-override-panel">
-      <PilotOverrideField label="PILOT" value={override.pilotName} highlight />
-      <PilotOverrideField label="Rank" value={override.rank} />
-      <PilotOverrideField
-        label="DEFAULT COMMISSION"
-        value={override.defaultCommission}
-      />
-      <PilotOverrideField
-        label="MANUAL OVERRIDE"
-        value={override.manualOverrideEnabled ? "Enabled" : "Disabled"}
-      />
-      <PilotOverrideField
-        label="CUSTOM COMMISSION RATE"
-        value={override.customCommissionRate}
-      />
-      <PilotOverrideField label="REASON" value={override.reason} />
-      <PilotOverrideField label="EFFECTIVE DATE" value={override.effectiveDate} />
     </div>
   );
 }

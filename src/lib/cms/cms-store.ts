@@ -1,6 +1,8 @@
 export {
   createCmsArticle,
   createCmsResource,
+  deleteCmsArticle,
+  deleteCmsResource,
   getCmsArticleById,
   getCmsArticleBySlug,
   getCmsOverview,

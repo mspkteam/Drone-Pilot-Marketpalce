@@ -37,6 +37,7 @@ function toDefinitionDto(
     description: row.description,
     category: row.category as WingCategory,
     iconLabel: row.iconLabel,
+    imageUrl: row.imageUrl,
     autoRule: row.autoRule as WingAutoRule | null,
     ruleParam: row.ruleParam,
     threshold: row.threshold,
@@ -66,94 +67,97 @@ function toPilotWingDto(
   };
 }
 
+/**
+ * Canonical Remote Air Service wings shown on the Achievements page.
+ * Mirrors Figma 808:38130 (six wings, exact titles/descriptions/order).
+ * `imageUrl` points at /public/wings/<code>.png — drop matching artwork there
+ * (or upload via the Edit modal) and the tile renders it; otherwise the card
+ * falls back to the vector icon.
+ */
 export const DEFAULT_WING_DEFINITIONS: Array<{
   code: string;
   title: string;
   description: string;
   category: WingCategory;
   iconLabel: string;
+  imageUrl: string;
   autoRule: WingAutoRule;
   ruleParam?: string;
   threshold?: number;
   sortOrder: number;
 }> = [
   {
-    code: "platform-pilot",
-    title: "Platform Pilot",
-    description: "Approved to operate on the Drone Pilot Marketplace.",
-    category: "trust",
-    iconLabel: "award",
-    autoRule: "profile_approved",
+    code: "recreational-aviator-gold",
+    title: "Recreational Aviator Wings — Gold",
+    description:
+      "Awarded to pilot members working toward their FAA Part 107 Remote Pilot Certificate or home country equivalent.",
+    category: "milestone",
+    iconLabel: "star-outline",
+    imageUrl: "/wings/recreational-aviator-gold.png",
+    autoRule: "active_membership",
     sortOrder: 10,
   },
   {
-    code: "first-flight",
-    title: "First Flight",
-    description: "Completed your first marketplace booking.",
-    category: "milestone",
-    iconLabel: "lightning",
-    autoRule: "first_completed_booking",
+    code: "remote-aviation-crew-silver",
+    title: "Remote Aviation Crew — Silver",
+    description:
+      "Awarded to non-instructor staff performing duties furthering Aerospace Education.",
+    category: "community",
+    iconLabel: "medal",
+    imageUrl: "/wings/remote-aviation-crew-silver.png",
+    autoRule: "manual_only",
     sortOrder: 20,
   },
   {
-    code: "reliable-pro",
-    title: "Reliable Pro",
-    description: "Completed five successful bookings.",
-    category: "milestone",
-    iconLabel: "medal",
-    autoRule: "completed_bookings_count",
-    threshold: 5,
+    code: "aviator-wings-basic-gold",
+    title: "Aviator Wings, Basic — Gold",
+    description: "Awarded to FAA Part 107 Remote Pilot Certificate holders.",
+    category: "trust",
+    iconLabel: "award",
+    imageUrl: "/wings/aviator-wings-basic-gold.png",
+    autoRule: "approved_verification",
+    ruleParam: "license",
     sortOrder: 30,
   },
   {
-    code: "veteran-pilot",
-    title: "Veteran Pilot",
-    description: "Completed ten successful bookings.",
-    category: "milestone",
-    iconLabel: "trophy",
-    autoRule: "completed_bookings_count",
-    threshold: 10,
+    code: "aviator-wings-basic-silver",
+    title: "Aviator Wings, Basic — Silver",
+    description:
+      "Awarded upon passing the Part 107 written exam; gold wings after TSA background check and permanent certificate issuance.",
+    category: "trust",
+    iconLabel: "star",
+    imageUrl: "/wings/aviator-wings-basic-silver.png",
+    autoRule: "manual_only",
     sortOrder: 40,
   },
   {
-    code: "five-star-debut",
-    title: "Five-Star Debut",
-    description: "Received your first 5-star client review.",
-    category: "community",
-    iconLabel: "star",
-    autoRule: "five_star_reviews_count",
-    threshold: 1,
+    code: "aviator-wings-senior",
+    title: "Aviator Wings, Senior",
+    description:
+      "Awarded after 500 remote flight hours OR qualifying pilot certificate OR five Remote Air Service contracts with perfect rating.",
+    category: "milestone",
+    iconLabel: "trophy",
+    imageUrl: "/wings/aviator-wings-senior.png",
+    autoRule: "completed_bookings_count",
+    threshold: 5,
     sortOrder: 50,
   },
   {
-    code: "verified-license",
-    title: "Verified License",
-    description: "License verification approved by the platform.",
-    category: "trust",
-    iconLabel: "star-outline",
-    autoRule: "approved_verification",
-    ruleParam: "license",
+    code: "aviator-wings-master",
+    title: "Aviator Wings, Master",
+    description:
+      "Awarded after 1,000 hours OR qualifying FAA Private Pilot Certificate AND five Remote Air Service contracts with perfect rating.",
+    category: "milestone",
+    iconLabel: "trophy",
+    imageUrl: "/wings/aviator-wings-master.png",
+    autoRule: "manual_only",
     sortOrder: 60,
   },
-  {
-    code: "certified-pilot",
-    title: "Certified Pilot",
-    description: "Issued an official platform certificate.",
-    category: "trust",
-    iconLabel: "award",
-    autoRule: "has_certificate",
-    sortOrder: 70,
-  },
-  {
-    code: "community-champion",
-    title: "Community Champion",
-    description: "Recognized by admins for outstanding community contribution.",
-    category: "community",
-    iconLabel: "medal",
-    autoRule: "manual_only",
-    sortOrder: 80,
-  },
 ];
+
+const CANONICAL_WING_CODES = new Set(
+  DEFAULT_WING_DEFINITIONS.map((def) => def.code),
+);
 
 export async function ensureDefaultWingDefinitions(): Promise<void> {
   for (const def of DEFAULT_WING_DEFINITIONS) {
@@ -164,6 +168,7 @@ export async function ensureDefaultWingDefinitions(): Promise<void> {
         description: def.description,
         category: def.category,
         iconLabel: def.iconLabel,
+        imageUrl: def.imageUrl,
         autoRule: def.autoRule,
         ruleParam: def.ruleParam ?? null,
         threshold: def.threshold ?? null,
@@ -176,6 +181,7 @@ export async function ensureDefaultWingDefinitions(): Promise<void> {
         description: def.description,
         category: def.category,
         iconLabel: def.iconLabel,
+        imageUrl: def.imageUrl,
         autoRule: def.autoRule,
         ruleParam: def.ruleParam ?? null,
         threshold: def.threshold ?? null,
@@ -184,6 +190,15 @@ export async function ensureDefaultWingDefinitions(): Promise<void> {
       },
     });
   }
+
+  // Retire earlier sample wings that are not part of the Figma set and have
+  // never been awarded, so the Achievements page shows exactly the six wings.
+  await prisma.wingDefinition.deleteMany({
+    where: {
+      code: { notIn: [...CANONICAL_WING_CODES] },
+      pilotWings: { none: {} },
+    },
+  });
 }
 
 export async function listWingDefinitionsForAdmin(): Promise<WingDefinitionDto[]> {
@@ -200,6 +215,7 @@ export async function createWingDefinition(input: {
   description: string;
   category: string;
   iconLabel?: string | null;
+  imageUrl?: string | null;
   autoRule?: string | null;
   ruleParam?: string | null;
   threshold?: number | null;
@@ -246,6 +262,7 @@ export async function createWingDefinition(input: {
       description,
       category,
       iconLabel: input.iconLabel?.trim() || null,
+      imageUrl: input.imageUrl?.trim() || null,
       autoRule,
       ruleParam: input.ruleParam?.trim() || null,
       threshold: input.threshold ?? null,
@@ -265,6 +282,7 @@ export async function updateWingDefinition(
     description: string;
     category: string;
     iconLabel: string | null;
+    imageUrl: string | null;
     autoRule: string | null;
     ruleParam: string | null;
     threshold: number | null;
@@ -301,6 +319,9 @@ export async function updateWingDefinition(
       ...(input.category !== undefined ? { category: input.category } : {}),
       ...(input.iconLabel !== undefined
         ? { iconLabel: input.iconLabel?.trim() || null }
+        : {}),
+      ...(input.imageUrl !== undefined
+        ? { imageUrl: input.imageUrl?.trim() || null }
         : {}),
       ...(input.autoRule !== undefined ? { autoRule: input.autoRule } : {}),
       ...(input.ruleParam !== undefined

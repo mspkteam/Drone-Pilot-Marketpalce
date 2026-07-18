@@ -1,4 +1,4 @@
-/** Default platform commission rate (15% — Paragraph 5 / source PDFs). Super Admin per-pilot override: M309. */
+/** Default platform commission rate (15% — Paragraph 5 / source PDFs). Super Admin per-pilot override applied at payout via getEffectiveCommissionRateForPilot. */
 export const DEFAULT_COMMISSION_RATE = 0.15;
 
 export function calculateCommission(amountGross: number, rate = DEFAULT_COMMISSION_RATE) {

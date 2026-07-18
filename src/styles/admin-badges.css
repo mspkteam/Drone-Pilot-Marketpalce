@@ -281,6 +281,10 @@
   border-top-color: var(--color-text-muted);
 }
 
+.admin-badges-card-head {
+  min-height: 7.5rem;
+}
+
 .admin-badges-card-title {
   margin: 0;
   font-size: 1.25rem;
@@ -291,7 +295,7 @@
 }
 
 .admin-badges-card-criteria {
-  margin: 0.25rem 0 0;
+  margin: 0.375rem 0 0;
   font-size: 0.8125rem;
   line-height: 1.45;
   color: var(--color-text-muted);
@@ -485,6 +489,148 @@
   }
 }
 
+/* Uncommon + Mythic rarities (Figma achievements set) */
+.admin-badges-card--uncommon {
+  border-top-color: #6dfe9c;
+}
+
+.admin-badges-card--mythic {
+  border-top-color: var(--color-gold);
+}
+
+.admin-badges-icon-block--uncommon {
+  background: rgba(109, 254, 156, 0.12);
+  color: #6dfe9c;
+}
+
+.admin-badges-icon-block--mythic {
+  background: rgba(216, 179, 57, 0.16);
+  color: var(--color-gold-soft);
+}
+
+.admin-badges-rarity-value--uncommon {
+  color: #6dfe9c;
+}
+
+.admin-badges-rarity-value--mythic {
+  color: var(--color-gold-soft);
+}
+
+/* Wing artwork inside the icon tile */
+.admin-badges-icon-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 0.5rem;
+}
+
+/* Image upload field (modal) */
+.admin-badges-image-row {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.admin-badges-image-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 5rem;
+  height: 5rem;
+  border: 1px solid var(--dashboard-card-border);
+  border-radius: 0.75rem;
+  background: var(--color-bg-deeper);
+  overflow: hidden;
+}
+
+.admin-badges-image-preview-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 0.5rem;
+}
+
+.admin-badges-image-preview-empty {
+  font-size: 0.5625rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-soft);
+}
+
+.admin-badges-image-controls {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.625rem;
+}
+
+.admin-badges-image-url {
+  width: 100%;
+}
+
+.admin-badges-image-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.admin-badges-btn-upload {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.375rem;
+  padding: 0 1rem;
+  border: 1px solid rgba(216, 179, 57, 0.35);
+  border-radius: 0.375rem;
+  background: rgba(216, 179, 57, 0.08);
+  color: var(--color-gold-soft);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.admin-badges-btn-upload:hover {
+  background: rgba(216, 179, 57, 0.16);
+  border-color: var(--color-border-gold);
+}
+
+.admin-badges-btn-clear-image {
+  min-height: 2.375rem;
+  padding: 0 0.875rem;
+  border: 1px solid var(--dashboard-card-border);
+  border-radius: 0.375rem;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.admin-badges-btn-clear-image:hover {
+  color: var(--color-text);
+  border-color: var(--color-border-strong);
+}
+
+.admin-badges-field .admin-badges-hint code {
+  padding: 0.05rem 0.3rem;
+  border-radius: 0.25rem;
+  background: var(--color-bg-deeper);
+  border: 1px solid var(--dashboard-card-border);
+  font-size: 0.6875rem;
+  color: var(--color-text-muted);
+}
+
+.admin-badges-hint--error {
+  color: var(--color-danger-soft);
+}
+
 /* Recent awards */
 .admin-badges-recent {
   border: 1px solid var(--dashboard-card-border);
@@ -604,7 +750,7 @@
   padding: 1.25rem 1.5rem;
 }
 
-.admin-badges-field label {
+.admin-badges-field > label {
   display: block;
   margin-bottom: 0.25rem;
   font-size: 0.625rem;

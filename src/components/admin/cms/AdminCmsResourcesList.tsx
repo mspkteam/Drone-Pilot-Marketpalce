@@ -96,6 +96,26 @@ export function AdminCmsResourcesList() {
     await load();
   }
 
+  async function deleteResource(id: string, title: string) {
+    if (
+      !window.confirm(
+        `Permanently delete "${title}"? This cannot be undone.`,
+      )
+    ) {
+      return;
+    }
+    setError(null);
+    const res = await fetch(`/api/admin/cms/resources/${id}`, {
+      method: "DELETE",
+    });
+    if (!res.ok) {
+      const json = await res.json().catch(() => ({}));
+      setError(json.error ?? "Delete failed.");
+      return;
+    }
+    await load();
+  }
+
   if (loading) {
     return <p className="admin-cms-loading">Loading resources…</p>;
   }
@@ -244,6 +264,15 @@ export function AdminCmsResourcesList() {
                           >
                             Preview
                           </a>
+                        ) : resource.status === "published" ? (
+                          <Link
+                            href={`/resources/${resource.slug}`}
+                            className="admin-cms-link-btn"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            Preview
+                          </Link>
                         ) : (
                           <span className="admin-cms-link-btn admin-cms-link-btn--muted">
                             Preview
@@ -255,12 +284,21 @@ export function AdminCmsResourcesList() {
                         >
                           Edit
                         </Link>
+                        {resource.status !== "archived" ? (
+                          <button
+                            type="button"
+                            className="admin-cms-link-btn"
+                            onClick={() => void archiveResource(resource.id)}
+                          >
+                            Archive
+                          </button>
+                        ) : null}
                         <button
                           type="button"
                           className="admin-cms-link-btn admin-cms-link-btn--danger"
-                          onClick={() => void archiveResource(resource.id)}
+                          onClick={() => void deleteResource(resource.id, resource.title)}
                         >
-                          Archive
+                          Delete
                         </button>
                       </div>
                     </td>

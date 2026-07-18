@@ -9,13 +9,14 @@ export type AdminCertificateTemplateCardDto = CertificateTemplateDto & {
 };
 
 export type AdminCertificateStatsDto = {
-  templateCount: number;
+  activeTemplates: number;
+  activeTemplatesSubtext: string;
+  totalIssued: number;
+  totalIssuedSubtext: string;
   issued30d: number;
   issued30dSubtext: string;
-  totalIssued: number;
-  pdfRenderTimeLabel: string;
-  pdfRenderTimeSubtext: string;
-  usingMockStats: boolean;
+  recipients: number;
+  recipientsSubtext: string;
 };
 
 export type AdminCertificateEngineDataDto = {

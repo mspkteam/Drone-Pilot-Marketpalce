@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { AdminShopInventoryRow } from "@/components/admin/shop/AdminShopInventoryRow";
 import { AdminShopOrderRow } from "@/components/admin/shop/AdminShopOrderRow";
@@ -138,6 +139,9 @@ export function AdminUniformShopPortal({
               description: input.description,
               imageUrl: input.imageUrl || null,
               isActive: input.isActive,
+              price: input.price,
+              stockQuantity: input.stockQuantity,
+              sku: input.sku,
             }),
           },
         );
@@ -145,26 +149,6 @@ export function AdminUniformShopPortal({
         if (!productRes.ok) {
           setModalError(productJson.error ?? "Product update failed.");
           return;
-        }
-
-        if (editingProduct.variantId) {
-          const variantRes = await fetch(
-            `/api/admin/shop/variants/${editingProduct.variantId}`,
-            {
-              method: "PATCH",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                label: input.name,
-                price: input.price,
-                stockQuantity: input.stockQuantity,
-              }),
-            },
-          );
-          const variantJson = await variantRes.json();
-          if (!variantRes.ok) {
-            setModalError(variantJson.error ?? "Variant update failed.");
-            return;
-          }
         }
 
         setSuccess(`Product "${input.name}" updated.`);
@@ -310,13 +294,9 @@ export function AdminUniformShopPortal({
         <section className="admin-shop-panel" aria-label="Recent orders">
           <div className="admin-shop-panel-head">
             <h2 className="admin-shop-panel-title">RECENT ORDERS</h2>
-            <button
-              type="button"
-              className="admin-shop-view-all"
-              title="Full orders list route pending — recent orders shown here"
-            >
+            <Link href="/dashboard/admin/shop/orders" className="admin-shop-view-all">
               VIEW ALL
-            </button>
+            </Link>
           </div>
 
           <div className="admin-shop-orders-list">

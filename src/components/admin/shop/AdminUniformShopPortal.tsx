@@ -86,6 +86,17 @@ export function AdminUniformShopPortal({
     setSaving(true);
     setModalError(null);
     try {
+      const variantPayload = input.variants.map((v) => ({
+        id: v.id,
+        sku: v.sku,
+        label: v.label,
+        size: v.size || null,
+        color: v.color || null,
+        price: v.price,
+        stockQuantity: v.stockQuantity,
+        isActive: v.isActive ?? true,
+      }));
+
       if (modalMode === "create") {
         const productRes = await fetch("/api/admin/shop/products", {
           method: "POST",
@@ -93,35 +104,14 @@ export function AdminUniformShopPortal({
           body: JSON.stringify({
             name: input.name,
             description: input.description,
-            imageUrl: input.imageUrl || null,
+            imageUrls: input.imageUrls,
+            isActive: input.isActive,
+            variants: variantPayload,
           }),
         });
         const productJson = await productRes.json();
         if (!productRes.ok) {
           setModalError(productJson.error ?? "Product create failed.");
-          return;
-        }
-
-        const variantRes = await fetch(
-          `/api/admin/shop/products/${productJson.product.id}/variants`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              sku: input.sku,
-              label: input.name,
-              price: input.price,
-              stockQuantity: input.stockQuantity,
-            }),
-          },
-        );
-        const variantJson = await variantRes.json();
-        if (!variantRes.ok) {
-          setModalError(
-            variantJson.error ??
-              "Product created but variant failed — add variant from catalog tools.",
-          );
-          await load();
           return;
         }
 
@@ -137,11 +127,9 @@ export function AdminUniformShopPortal({
             body: JSON.stringify({
               name: input.name,
               description: input.description,
-              imageUrl: input.imageUrl || null,
+              imageUrls: input.imageUrls,
               isActive: input.isActive,
-              price: input.price,
-              stockQuantity: input.stockQuantity,
-              sku: input.sku,
+              variants: variantPayload,
             }),
           },
         );

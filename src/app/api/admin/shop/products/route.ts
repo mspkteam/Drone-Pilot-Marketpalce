@@ -31,8 +31,12 @@ export async function POST(request: Request) {
   const result = await createProduct({
     name: body.name ?? "",
     description: body.description ?? "",
+    imageUrls: Array.isArray(body.imageUrls) ? body.imageUrls : undefined,
     imageUrl: body.imageUrl,
     sortOrder: body.sortOrder,
+    isActive: body.isActive,
+    variants: Array.isArray(body.variants) ? body.variants : undefined,
+    variant: body.variant,
   });
 
   if (!result.ok) {

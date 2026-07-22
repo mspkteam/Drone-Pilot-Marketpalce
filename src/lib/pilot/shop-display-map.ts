@@ -6,6 +6,8 @@ export type ShopDisplayProduct = {
   name: string;
   category: string;
   imageSrc: string;
+  imageUrls: string[];
+  variants: UniformProductVariantDto[];
   variant: UniformProductVariantDto;
   displayPrice: number;
   variantCount: number;
@@ -78,6 +80,7 @@ function categoryFromProduct(product: UniformProductDto): string {
 }
 
 function imageFromProduct(product: UniformProductDto): string {
+  if (product.images.length > 0) return product.images[0]!.url;
   if (product.imageUrl) return product.imageUrl;
 
   const haystack = `${product.name} ${product.slug}`.toLowerCase();
@@ -88,6 +91,14 @@ function imageFromProduct(product: UniformProductDto): string {
   if (haystack.includes("cap")) return homeAssets.ranks.a1;
   if (haystack.includes("wings") || haystack.includes("digital")) return homeAssets.ranks.a4;
   return homeAssets.ranks.a3;
+}
+
+function imagesFromProduct(product: UniformProductDto): string[] {
+  if (product.images.length > 0) {
+    return product.images.map((img) => img.url);
+  }
+  const fallback = imageFromProduct(product);
+  return fallback ? [fallback] : [];
 }
 
 export function pickPrimaryVariant(
@@ -107,6 +118,8 @@ export function mapProductForDisplay(
     name: product.name,
     category: categoryFromProduct(product),
     imageSrc: imageFromProduct(product),
+    imageUrls: imagesFromProduct(product),
+    variants: product.variants,
     variant,
     displayPrice: variant.price,
     variantCount: product.variants.length,
@@ -124,6 +137,43 @@ export function imageForVariant(
   variantId: string,
   displayProducts: ShopDisplayProduct[],
 ): string {
-  const match = displayProducts.find((item) => item.variant.id === variantId);
+  const match = displayProducts.find((item) =>
+    item.variants.some((v) => v.id === variantId),
+  );
   return match?.imageSrc ?? homeAssets.ranks.a3;
+}
+
+export function uniqueVariantValues(
+  variants: UniformProductVariantDto[],
+  field: "size" | "color",
+): string[] {
+  const values = new Set<string>();
+  for (const variant of variants) {
+    const value = variant[field]?.trim();
+    if (value) values.add(value);
+  }
+  return Array.from(values);
+}
+
+export function resolveVariant(
+  variants: UniformProductVariantDto[],
+  size: string | null,
+  color: string | null,
+): UniformProductVariantDto | null {
+  const active = variants.filter((v) => v.isActive);
+  if (!active.length) return null;
+
+  const matches = active.filter((v) => {
+    if (size && v.size?.trim() !== size) return false;
+    if (color && v.color?.trim() !== color) return false;
+    return true;
+  });
+
+  return (
+    matches.find((v) => v.stockQuantity > 0) ??
+    matches[0] ??
+    active.find((v) => v.stockQuantity > 0) ??
+    active[0] ??
+    null
+  );
 }

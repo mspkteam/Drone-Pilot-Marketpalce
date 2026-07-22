@@ -36,6 +36,7 @@ export function AdminCertificateEnginePortal({
   const [issuePilotId, setIssuePilotId] = useState("");
   const [issueTemplateId, setIssueTemplateId] = useState("");
   const [issueNotes, setIssueNotes] = useState("");
+  const [issueGrade, setIssueGrade] = useState("");
   const [issuing, setIssuing] = useState(false);
 
   const load = useCallback(async () => {
@@ -74,6 +75,17 @@ export function AdminCertificateEnginePortal({
   const selectedTemplate =
     templates.find((template) => template.id === selectedId) ?? templates[0] ?? null;
 
+  async function readApiError(res: Response): Promise<string> {
+    const text = await res.text();
+    if (!text) return `Request failed (${res.status})`;
+    try {
+      const json = JSON.parse(text) as { error?: string };
+      return json.error ?? `Request failed (${res.status})`;
+    } catch {
+      return text.slice(0, 240) || `Request failed (${res.status})`;
+    }
+  }
+
   async function handleSaveTemplate(input: CertificateTemplateFormInput) {
     if (!canManageTemplates) return;
     if (modalMode === "edit" && editingTemplate?.isMock) {
@@ -93,13 +105,16 @@ export function AdminCertificateEnginePortal({
             description: input.description || null,
             title: input.title,
             bodyTemplate: input.bodyTemplate,
+            backgroundImageUrl: input.backgroundImageUrl ?? null,
+            layoutKey: input.layoutKey ?? null,
+            overlayPositions: input.overlayPositions ?? null,
           }),
         });
-        const json = await res.json();
         if (!res.ok) {
-          setModalError(json.error ?? "Create failed.");
+          setModalError(await readApiError(res));
           return;
         }
+        const json = (await res.json()) as { template?: { id?: string } };
         setSuccess("Template created.");
         setModalMode(null);
         await load();
@@ -116,12 +131,14 @@ export function AdminCertificateEnginePortal({
               title: input.title,
               bodyTemplate: input.bodyTemplate,
               isActive: input.isActive,
+              backgroundImageUrl: input.backgroundImageUrl ?? null,
+              layoutKey: input.layoutKey ?? null,
+              overlayPositions: input.overlayPositions ?? null,
             }),
           },
         );
-        const json = await res.json();
         if (!res.ok) {
-          setModalError(json.error ?? "Save failed.");
+          setModalError(await readApiError(res));
           return;
         }
         setSuccess("Template updated.");
@@ -129,8 +146,10 @@ export function AdminCertificateEnginePortal({
         setEditingTemplate(null);
         await load();
       }
-    } catch {
-      setModalError("Save failed.");
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Save failed.";
+      setModalError(message);
     } finally {
       setSaving(false);
     }
@@ -151,6 +170,7 @@ export function AdminCertificateEnginePortal({
           pilotProfileId: issuePilotId,
           templateId: issueTemplateId,
           notes: issueNotes || null,
+          awardGrade: issueGrade || null,
         }),
       });
       const json = await res.json();
@@ -162,6 +182,7 @@ export function AdminCertificateEnginePortal({
         `Issued ${json.certificate.certificateNumber} to ${json.certificate.pilotDisplayName}.`,
       );
       setIssueNotes("");
+      setIssueGrade("");
       await load();
     } catch {
       setError("Issue failed.");
@@ -172,6 +193,9 @@ export function AdminCertificateEnginePortal({
 
   const stats = data?.stats;
   const realTemplates = templates.filter((template) => !template.isMock);
+  const issueTemplate =
+    realTemplates.find((t) => t.id === issueTemplateId) ?? null;
+  const issueNeedsGrade = Boolean(issueTemplate?.requiresGrade);
 
   return (
     <div className="admin-certificates-page">
@@ -202,7 +226,7 @@ export function AdminCertificateEnginePortal({
                 setModalMode("create");
               }}
             >
-              NEW TEMPLATE
+              NEW CUSTOM CERTIFICATE
             </button>
           ) : null}
         </div>
@@ -329,9 +353,19 @@ export function AdminCertificateEnginePortal({
               <select
                 id="issue-template"
                 value={issueTemplateId}
-                onChange={(event) => setIssueTemplateId(event.target.value)}
+                onChange={(event) => {
+                  const nextId = event.target.value;
+                  setIssueTemplateId(nextId);
+                  const next = realTemplates.find((t) => t.id === nextId);
+                  if (next?.requiresGrade && next.previewGrade) {
+                    setIssueGrade(next.previewGrade);
+                  } else {
+                    setIssueGrade("");
+                  }
+                }}
                 required
               >
+                <option value="">Select template…</option>
                 {realTemplates
                   .filter((template) => template.isActive)
                   .map((template) => (
@@ -341,6 +375,22 @@ export function AdminCertificateEnginePortal({
                   ))}
               </select>
             </div>
+            {issueNeedsGrade ? (
+              <div className="admin-certificates-field">
+                <label htmlFor="issue-grade">Grade / Rank</label>
+                <input
+                  id="issue-grade"
+                  value={issueGrade}
+                  onChange={(event) => setIssueGrade(event.target.value)}
+                  placeholder={
+                    issueTemplate?.slug === "captain-promotion"
+                      ? "CAPTAIN"
+                      : "e.g. First Officer"
+                  }
+                  required
+                />
+              </div>
+            ) : null}
             <div className="admin-certificates-field">
               <label htmlFor="issue-notes">Notes (optional)</label>
               <input

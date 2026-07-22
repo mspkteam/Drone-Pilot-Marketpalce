@@ -13,9 +13,20 @@ export type AdminInventoryRowDto = {
   status: InventoryStockStatus;
   category: string;
   imageSrc: string;
+  imageUrls: string[];
   description: string;
   isActive: boolean;
   variantCount: number;
+  variants: Array<{
+    id: string;
+    sku: string;
+    label: string;
+    size: string | null;
+    color: string | null;
+    price: number;
+    stockQuantity: number;
+    isActive: boolean;
+  }>;
   isMock?: boolean;
 };
 
@@ -50,15 +61,29 @@ export type AdminShopEngineDataDto = {
   rawOrders: AdminUniformOrderDto[];
 };
 
+export type ShopVariantFormInput = {
+  id?: string;
+  sku: string;
+  label: string;
+  size: string;
+  color: string;
+  price: number;
+  stockQuantity: number;
+  isActive?: boolean;
+};
+
 export type ShopProductFormInput = {
   name: string;
-  sku: string;
   category: string;
+  description: string;
+  imageUrls: string[];
+  isActive: boolean;
+  isDigital: boolean;
+  isVariable: boolean;
+  /** Base price when simple product; ignored when variable (per-variant prices). */
   price: number;
   stockQuantity: number;
   stockThreshold: number;
-  description: string;
-  imageUrl: string;
-  isActive: boolean;
-  isDigital: boolean;
+  sku: string;
+  variants: ShopVariantFormInput[];
 };

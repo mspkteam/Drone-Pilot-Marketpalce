@@ -5,6 +5,8 @@ export type AdminCertificateTemplateCardDto = CertificateTemplateDto & {
   displayDescription: string;
   previewTitleLines: string[];
   previewMission: string;
+  previewGrade?: string | null;
+  requiresGrade?: boolean;
   isMock?: boolean;
 };
 
@@ -38,4 +40,8 @@ export type CertificateTemplateFormInput = {
   title: string;
   bodyTemplate: string;
   isActive: boolean;
+  backgroundImageUrl?: string | null;
+  layoutKey?: string | null;
+  overlayPositions?: Array<{ field: string; x: number; y: number }> | null;
+  requiresGrade?: boolean;
 };

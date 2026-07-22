@@ -25,6 +25,7 @@ function categoryFromProduct(product: UniformProductDto): string {
 }
 
 function imageFromProduct(product: UniformProductDto): string {
+  if (product.images.length > 0) return product.images[0]!.url;
   if (product.imageUrl) return product.imageUrl;
 
   const haystack = `${product.name} ${product.slug}`.toLowerCase();
@@ -69,9 +70,24 @@ export function mapProductToInventoryRow(
     status: deriveStockStatus(totalStock, threshold),
     category: categoryFromProduct(product),
     imageSrc: imageFromProduct(product),
+    imageUrls: product.images.length
+      ? product.images.map((img) => img.url)
+      : product.imageUrl
+        ? [product.imageUrl]
+        : [],
     description: product.description,
     isActive: product.isActive,
     variantCount: variants.length,
+    variants: variants.map((v) => ({
+      id: v.id,
+      sku: v.sku,
+      label: v.label,
+      size: v.size,
+      color: v.color,
+      price: v.price,
+      stockQuantity: v.stockQuantity,
+      isActive: v.isActive,
+    })),
     isMock: false,
   };
 }
@@ -125,9 +141,11 @@ export const MOCK_INVENTORY_ROWS: AdminInventoryRowDto[] = [
     status: "IN_STOCK",
     category: "UNIFORM",
     imageSrc: "/marketing/hero-pilot.jpg",
+    imageUrls: ["/marketing/hero-pilot.jpg"],
     description: "Official flight suit for platform pilots.",
     isActive: true,
     variantCount: 1,
+    variants: [],
     isMock: true,
   },
   {
@@ -141,9 +159,11 @@ export const MOCK_INVENTORY_ROWS: AdminInventoryRowDto[] = [
     status: "LOW_STOCK",
     category: "HEADWEAR",
     imageSrc: homeAssets.ranks.a1,
+    imageUrls: [homeAssets.ranks.a1],
     description: "Operations cap with squadron insignia.",
     isActive: true,
     variantCount: 1,
+    variants: [],
     isMock: true,
   },
   {
@@ -157,9 +177,11 @@ export const MOCK_INVENTORY_ROWS: AdminInventoryRowDto[] = [
     status: "IN_STOCK",
     category: "INSIGNIA",
     imageSrc: homeAssets.ranks.a3,
+    imageUrls: [homeAssets.ranks.a3],
     description: "Metal wing pin for uniform display.",
     isActive: true,
     variantCount: 1,
+    variants: [],
     isMock: true,
   },
   {
@@ -173,9 +195,11 @@ export const MOCK_INVENTORY_ROWS: AdminInventoryRowDto[] = [
     status: "OUT_OF_STOCK",
     category: "UNIFORM",
     imageSrc: "/marketing/hero-pilot.jpg",
+    imageUrls: ["/marketing/hero-pilot.jpg"],
     description: "Premium aviator jacket.",
     isActive: true,
     variantCount: 1,
+    variants: [],
     isMock: true,
   },
 ];

@@ -30,12 +30,20 @@ export type UniformProductVariantDto = {
   isActive: boolean;
 };
 
+export type UniformProductImageDto = {
+  id: string;
+  url: string;
+  alt: string | null;
+  sortOrder: number;
+};
+
 export type UniformProductDto = {
   id: string;
   name: string;
   slug: string;
   description: string;
   imageUrl: string | null;
+  images: UniformProductImageDto[];
   isActive: boolean;
   sortOrder: number;
   variants: UniformProductVariantDto[];

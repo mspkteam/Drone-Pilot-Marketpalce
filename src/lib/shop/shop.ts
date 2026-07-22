@@ -2,10 +2,12 @@ import type {
   UniformOrder,
   UniformOrderItem,
   UniformProduct,
+  UniformProductImage,
   UniformProductVariant,
 } from "@/generated/prisma/client";
 import { prisma } from "@/lib/db";
 import { notifyAsync, sendNotification } from "@/lib/notifications/notify";
+import { SHOP_IMAGES_PER_PRODUCT_MAX } from "@/lib/shop/constants";
 import { UNIFORM_SHIPPING_FLAT_RATE } from "@/lib/shop/constants";
 import type {
   AdminUniformOrderDto,
@@ -14,6 +16,7 @@ import type {
   UniformOrderStatus,
   UniformPaymentStatus,
   UniformProductDto,
+  UniformProductImageDto,
   UniformProductVariantDto,
 } from "@/types/shop";
 import {
@@ -46,6 +49,15 @@ export async function generateUniformOrderNumber(): Promise<string> {
   return `${prefix}${String(seq).padStart(6, "0")}`;
 }
 
+function toImageDto(img: UniformProductImage): UniformProductImageDto {
+  return {
+    id: img.id,
+    url: img.url,
+    alt: img.alt,
+    sortOrder: img.sortOrder,
+  };
+}
+
 function toVariantDto(v: UniformProductVariant): UniformProductVariantDto {
   return {
     id: v.id,
@@ -61,20 +73,163 @@ function toVariantDto(v: UniformProductVariant): UniformProductVariantDto {
 }
 
 function toProductDto(
-  p: UniformProduct & { variants: UniformProductVariant[] },
+  p: UniformProduct & {
+    variants: UniformProductVariant[];
+    images?: UniformProductImage[];
+  },
 ): UniformProductDto {
+  const images = (p.images ?? []).map(toImageDto).sort((a, b) => a.sortOrder - b.sortOrder);
+  const primaryImage = images[0]?.url ?? p.imageUrl;
   return {
     id: p.id,
     name: p.name,
     slug: p.slug,
     description: p.description,
-    imageUrl: p.imageUrl,
+    imageUrl: primaryImage,
+    images,
     isActive: p.isActive,
     sortOrder: p.sortOrder,
     variants: p.variants
       .filter((v) => v.isActive)
       .map(toVariantDto),
   };
+}
+
+function toProductDtoAdmin(
+  p: UniformProduct & {
+    variants: UniformProductVariant[];
+    images?: UniformProductImage[];
+  },
+): UniformProductDto {
+  const images = (p.images ?? []).map(toImageDto).sort((a, b) => a.sortOrder - b.sortOrder);
+  const primaryImage = images[0]?.url ?? p.imageUrl;
+  return {
+    id: p.id,
+    name: p.name,
+    slug: p.slug,
+    description: p.description,
+    imageUrl: primaryImage,
+    images,
+    isActive: p.isActive,
+    sortOrder: p.sortOrder,
+    variants: p.variants.map(toVariantDto),
+  };
+}
+
+const productInclude = {
+  variants: { orderBy: { label: "asc" as const } },
+  images: { orderBy: { sortOrder: "asc" as const } },
+};
+
+export type ShopVariantSyncInput = {
+  id?: string;
+  sku: string;
+  label: string;
+  size?: string | null;
+  color?: string | null;
+  price: number;
+  stockQuantity: number;
+  isActive?: boolean;
+};
+
+export async function syncProductImages(
+  productId: string,
+  imageUrls: string[],
+): Promise<void> {
+  const urls = imageUrls
+    .map((u) => u.trim())
+    .filter(Boolean)
+    .slice(0, SHOP_IMAGES_PER_PRODUCT_MAX);
+
+  await prisma.uniformProductImage.deleteMany({ where: { productId } });
+  if (urls.length) {
+    await prisma.uniformProductImage.createMany({
+      data: urls.map((url, index) => ({
+        productId,
+        url,
+        sortOrder: index,
+      })),
+    });
+  }
+
+  await prisma.uniformProduct.update({
+    where: { id: productId },
+    data: { imageUrl: urls[0] ?? null },
+  });
+}
+
+export async function syncProductVariants(
+  productId: string,
+  variants: ShopVariantSyncInput[],
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  if (!variants.length) {
+    return { ok: false, error: "At least one size/color variant is required." };
+  }
+
+  const existing = await prisma.uniformProductVariant.findMany({
+    where: { productId },
+  });
+  const existingIds = new Set(existing.map((v) => v.id));
+  const incomingIds = new Set(
+    variants.map((v) => v.id).filter((id): id is string => Boolean(id)),
+  );
+
+  for (const row of variants) {
+    const sku = row.sku.trim().toUpperCase();
+    const label = row.label.trim();
+    if (!sku || !label || row.price <= 0) {
+      return { ok: false, error: "Each variant needs SKU, label, and a positive price." };
+    }
+
+    if (row.id && existingIds.has(row.id)) {
+      const dup = await prisma.uniformProductVariant.findFirst({
+        where: { sku, NOT: { id: row.id } },
+      });
+      if (dup) {
+        return { ok: false, error: `SKU ${sku} is already in use.` };
+      }
+      await prisma.uniformProductVariant.update({
+        where: { id: row.id },
+        data: {
+          sku,
+          label,
+          size: row.size?.trim() || null,
+          color: row.color?.trim() || null,
+          price: row.price,
+          stockQuantity: Math.max(0, row.stockQuantity),
+          isActive: row.isActive ?? true,
+        },
+      });
+    } else {
+      const dup = await prisma.uniformProductVariant.findUnique({ where: { sku } });
+      if (dup) {
+        return { ok: false, error: `SKU ${sku} is already in use.` };
+      }
+      await prisma.uniformProductVariant.create({
+        data: {
+          productId,
+          sku,
+          label,
+          size: row.size?.trim() || null,
+          color: row.color?.trim() || null,
+          price: row.price,
+          stockQuantity: Math.max(0, row.stockQuantity),
+          isActive: row.isActive ?? true,
+        },
+      });
+    }
+  }
+
+  for (const old of existing) {
+    if (!incomingIds.has(old.id)) {
+      await prisma.uniformProductVariant.update({
+        where: { id: old.id },
+        data: { isActive: false },
+      });
+    }
+  }
+
+  return { ok: true };
 }
 
 function toItemDto(item: UniformOrderItem): UniformOrderItemDto {
@@ -125,6 +280,7 @@ export async function listActiveProductsForShop(): Promise<UniformProductDto[]> 
   const rows = await prisma.uniformProduct.findMany({
     where: { isActive: true },
     include: {
+      ...productInclude,
       variants: {
         where: { isActive: true },
         orderBy: { label: "asc" },
@@ -137,22 +293,38 @@ export async function listActiveProductsForShop(): Promise<UniformProductDto[]> 
 
 export async function listProductsForAdmin(): Promise<UniformProductDto[]> {
   const rows = await prisma.uniformProduct.findMany({
-    include: {
-      variants: { orderBy: { label: "asc" } },
-    },
+    include: productInclude,
     orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
   });
-  return rows.map((p) => ({
-    ...toProductDto(p),
-    variants: p.variants.map(toVariantDto),
-  }));
+  return rows.map(toProductDtoAdmin);
+}
+
+export async function getProductForAdmin(
+  id: string,
+): Promise<UniformProductDto | null> {
+  const row = await prisma.uniformProduct.findUnique({
+    where: { id },
+    include: productInclude,
+  });
+  return row ? toProductDtoAdmin(row) : null;
 }
 
 export async function createProduct(input: {
   name: string;
   description: string;
+  imageUrls?: string[];
   imageUrl?: string | null;
   sortOrder?: number;
+  isActive?: boolean;
+  variants?: ShopVariantSyncInput[];
+  variant?: {
+    sku: string;
+    label: string;
+    size?: string | null;
+    color?: string | null;
+    price: number;
+    stockQuantity: number;
+  };
 }): Promise<
   | { ok: true; product: UniformProductDto }
   | { ok: false; error: string }
@@ -172,19 +344,68 @@ export async function createProduct(input: {
     return { ok: false, error: "Product slug already exists." };
   }
 
+  const imageUrls =
+    input.imageUrls?.filter((u) => u.trim()) ??
+    (input.imageUrl?.trim() ? [input.imageUrl.trim()] : []);
+
   const row = await prisma.uniformProduct.create({
     data: {
       name,
       slug,
       description,
-      imageUrl: input.imageUrl?.trim() || null,
+      imageUrl: imageUrls[0] ?? null,
       sortOrder: input.sortOrder ?? 0,
-      isActive: true,
+      isActive: input.isActive ?? true,
+      images: imageUrls.length
+        ? {
+            create: imageUrls.map((url, index) => ({
+              url,
+              sortOrder: index,
+            })),
+          }
+        : undefined,
     },
-    include: { variants: true },
+    include: productInclude,
   });
 
-  return { ok: true, product: toProductDto(row) };
+  if (input.variants?.length) {
+    const sync = await syncProductVariants(row.id, input.variants);
+    if (!sync.ok) {
+      await prisma.uniformProduct.delete({ where: { id: row.id } });
+      return sync;
+    }
+  } else if (input.variant) {
+    const v = input.variant;
+    const dup = await prisma.uniformProductVariant.findUnique({
+      where: { sku: v.sku.trim().toUpperCase() },
+    });
+    if (dup) {
+      await prisma.uniformProduct.delete({ where: { id: row.id } });
+      return { ok: false, error: "SKU already exists." };
+    }
+    await prisma.uniformProductVariant.create({
+      data: {
+        productId: row.id,
+        sku: v.sku.trim().toUpperCase(),
+        label: v.label.trim(),
+        size: v.size?.trim() || null,
+        color: v.color?.trim() || null,
+        price: v.price,
+        stockQuantity: Math.max(0, v.stockQuantity),
+        isActive: true,
+      },
+    });
+  }
+
+  const refreshed = await prisma.uniformProduct.findUnique({
+    where: { id: row.id },
+    include: productInclude,
+  });
+  if (!refreshed) {
+    return { ok: false, error: "Product create failed." };
+  }
+
+  return { ok: true, product: toProductDtoAdmin(refreshed) };
 }
 
 export async function createVariant(
@@ -241,11 +462,13 @@ export async function updateProduct(
     name: string;
     description: string;
     imageUrl: string | null;
+    imageUrls: string[];
     sortOrder: number;
     isActive: boolean;
     price: number;
     stockQuantity: number;
     sku: string;
+    variants: ShopVariantSyncInput[];
   }>,
 ): Promise<
   | { ok: true; product: UniformProductDto }
@@ -253,7 +476,7 @@ export async function updateProduct(
 > {
   const existing = await prisma.uniformProduct.findUnique({
     where: { id },
-    include: { variants: true },
+    include: productInclude,
   });
   if (!existing) {
     return { ok: false, error: "Product not found.", status: 404 };
@@ -278,13 +501,19 @@ export async function updateProduct(
     },
   });
 
-  // Price and stock live on variants. The admin editor exposes a single price
-  // and stock, so apply price to every variant and only apply stock when the
-  // product is a simple (single-variant) item to avoid corrupting per-size stock.
-  if (input.price !== undefined) {
+  if (input.imageUrls !== undefined) {
+    await syncProductImages(id, input.imageUrls);
+  }
+
+  if (input.variants !== undefined) {
+    const sync = await syncProductVariants(id, input.variants);
+    if (!sync.ok) {
+      return { ok: false, error: sync.error };
+    }
+  } else if (input.price !== undefined) {
     if (existing.variants.length > 0) {
       await prisma.uniformProductVariant.updateMany({
-        where: { productId: id },
+        where: { productId: id, isActive: true },
         data: { price: input.price },
       });
     } else {
@@ -311,34 +540,37 @@ export async function updateProduct(
     }
   }
 
-  if (input.stockQuantity !== undefined && existing.variants.length === 1) {
-    await prisma.uniformProductVariant.update({
-      where: { id: existing.variants[0].id },
-      data: { stockQuantity: Math.max(0, input.stockQuantity) },
-    });
+  if (
+    input.stockQuantity !== undefined &&
+    input.variants === undefined &&
+    existing.variants.filter((v) => v.isActive).length === 1
+  ) {
+    const active = existing.variants.find((v) => v.isActive) ?? existing.variants[0];
+    if (active) {
+      await prisma.uniformProductVariant.update({
+        where: { id: active.id },
+        data: { stockQuantity: Math.max(0, input.stockQuantity) },
+      });
+    }
   }
 
   const row = await prisma.uniformProduct.findUnique({
     where: { id },
-    include: { variants: true },
+    include: productInclude,
   });
   if (!row) {
     return { ok: false, error: "Product not found.", status: 404 };
   }
 
-  return {
-    ok: true,
-    product: {
-      ...toProductDto(row),
-      variants: row.variants.map(toVariantDto),
-    },
-  };
+  return { ok: true, product: toProductDtoAdmin(row) };
 }
 
 export async function updateVariant(
   id: string,
   input: Partial<{
     label: string;
+    size: string | null;
+    color: string | null;
     price: number;
     stockQuantity: number;
     isActive: boolean;
@@ -358,6 +590,8 @@ export async function updateVariant(
     where: { id },
     data: {
       ...(input.label !== undefined ? { label: input.label.trim() } : {}),
+      ...(input.size !== undefined ? { size: input.size?.trim() || null } : {}),
+      ...(input.color !== undefined ? { color: input.color?.trim() || null } : {}),
       ...(input.price !== undefined ? { price: input.price } : {}),
       ...(input.stockQuantity !== undefined
         ? { stockQuantity: Math.max(0, input.stockQuantity) }

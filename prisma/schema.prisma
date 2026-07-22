@@ -563,16 +563,20 @@ model WaitlistEntry {
 }
 
 model CertificateTemplate {
-  id           String             @id @default(cuid())
-  name         String
-  slug         String             @unique
-  description  String?
-  title        String
-  bodyTemplate String
-  isActive     Boolean            @default(true)
-  createdAt    DateTime           @default(now())
-  updatedAt    DateTime           @updatedAt
-  certificates PilotCertificate[]
+  id                   String             @id @default(cuid())
+  name                 String
+  slug                 String             @unique
+  description          String?
+  title                String
+  bodyTemplate         String
+  backgroundImageUrl   String?
+  layoutKey            String?
+  /** JSON array of { field, x, y } percent overrides for drag-aligned overlays. */
+  overlayPositionsJson String?
+  isActive             Boolean            @default(true)
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+  certificates         PilotCertificate[]
 }
 
 model PilotCertificate {
@@ -584,6 +588,7 @@ model PilotCertificate {
   template          CertificateTemplate @relation(fields: [templateId], references: [id], onDelete: Restrict)
   pilotDisplayName  String
   licenseNumber     String?
+  awardGrade        String?
   issuedAt          DateTime            @default(now())
   issuedByUserId    String
   pdfFileName       String
@@ -644,8 +649,22 @@ model UniformProduct {
   createdAt   DateTime                 @default(now())
   updatedAt   DateTime                 @updatedAt
   variants    UniformProductVariant[]
+  images      UniformProductImage[]
 
   @@index([isActive])
+  @@index([sortOrder])
+}
+
+model UniformProductImage {
+  id        String         @id @default(cuid())
+  productId String
+  product   UniformProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
+  url       String
+  alt       String?
+  sortOrder Int            @default(0)
+  createdAt DateTime       @default(now())
+
+  @@index([productId])
   @@index([sortOrder])
 }
 

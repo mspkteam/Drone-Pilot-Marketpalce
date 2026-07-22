@@ -384,7 +384,7 @@ async function main() {
   await ensureDefaultWingDefinitions();
   await seedUniformCatalog();
 
-  // Canonical Remote Air Service certificate templates (Figma 808:37671).
+  // Canonical Remote Air Service certificate templates (client PNG artwork).
   for (const canon of CANONICAL_CERTIFICATE_TEMPLATES) {
     await prisma.certificateTemplate.upsert({
       where: { slug: canon.slug },
@@ -393,7 +393,9 @@ async function main() {
         title: canon.title,
         description: canon.description,
         bodyTemplate: canon.bodyTemplate,
-        isActive: true,
+        backgroundImageUrl: canon.backgroundImageUrl,
+        layoutKey: canon.layoutKey,
+        isActive: canon.isActive,
       },
       create: {
         name: canon.name,
@@ -401,37 +403,46 @@ async function main() {
         description: canon.description,
         title: canon.title,
         bodyTemplate: canon.bodyTemplate,
-        isActive: true,
+        backgroundImageUrl: canon.backgroundImageUrl,
+        layoutKey: canon.layoutKey,
+        isActive: canon.isActive,
       },
     });
   }
 
-  if (adminUser && demoPilot) {
-    const tpl = await prisma.certificateTemplate.upsert({
-      where: { slug: "platform-verified-pilot" },
-      update: { isActive: true },
-      create: {
-        name: "Platform Verified Pilot",
-        slug: "platform-verified-pilot",
-        description: "Recognizes pilots verified on the marketplace.",
-        title: "Certificate of Platform Verification",
-        bodyTemplate:
-          "This certifies that {{pilotName}} (License {{licenseNumber}}) has successfully completed platform verification for {{templateName}}.\n\nCertificate: {{certificateNumber}}\nIssued: {{issueDate}}",
-        isActive: true,
+  // Retire staff-designed / superseded templates so the admin list matches client art.
+  await prisma.certificateTemplate.updateMany({
+    where: {
+      slug: {
+        in: [
+          "platform-verified-pilot",
+          "aviator-wings-senior",
+          "aviator-wings-master",
+          "aviator-wings-basic-gold",
+        ],
       },
+    },
+    data: { isActive: false },
+  });
+
+  if (adminUser && demoPilot) {
+    const tpl = await prisma.certificateTemplate.findUnique({
+      where: { slug: "recreational-pilot-wings" },
     });
 
-    const existingCert = await prisma.pilotCertificate.findFirst({
-      where: { pilotProfileId: demoPilot.id, templateId: tpl.id },
-    });
+    if (tpl) {
+      const existingCert = await prisma.pilotCertificate.findFirst({
+        where: { pilotProfileId: demoPilot.id, templateId: tpl.id },
+      });
 
-    if (!existingCert) {
-      await issueCertificateToPilot(
-        adminUser.id,
-        demoPilot.id,
-        tpl.id,
-        "Seeded demo certificate for local testing.",
-      );
+      if (!existingCert) {
+        await issueCertificateToPilot(
+          adminUser.id,
+          demoPilot.id,
+          tpl.id,
+          "Seeded demo certificate for local testing.",
+        );
+      }
     }
 
     await evaluateAndAssignWings(demoPilot.id);

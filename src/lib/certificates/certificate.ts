@@ -1,6 +1,12 @@
 import type { CertificateTemplate, PilotCertificate } from "@/generated/prisma/client";
 import { prisma } from "@/lib/db";
 import { notifyAsync, sendNotification } from "@/lib/notifications/notify";
+import {
+  parseOverlayPositionsJson,
+  sanitizeOverlayOverrides,
+  serializeOverlayPositions,
+  type OverlayFieldOverride,
+} from "@/lib/certificates/layouts";
 import { applyTemplate, renderCertificatePdf } from "@/lib/certificates/pdf";
 import { writeCertificatePdf } from "@/lib/certificates/storage";
 import { evaluateAndAssignWings } from "@/lib/wings/wings";
@@ -45,6 +51,9 @@ function toTemplateDto(
     description: t.description,
     title: t.title,
     bodyTemplate: t.bodyTemplate,
+    backgroundImageUrl: t.backgroundImageUrl,
+    layoutKey: t.layoutKey,
+    overlayPositions: parseOverlayPositionsJson(t.overlayPositionsJson),
     isActive: t.isActive,
     issuedCount: t._count?.certificates ?? 0,
     createdAt: t.createdAt.toISOString(),
@@ -63,6 +72,7 @@ function toPilotCertDto(
     templateName: c.template.name,
     pilotDisplayName: c.pilotDisplayName,
     licenseNumber: c.licenseNumber,
+    awardGrade: c.awardGrade,
     issuedAt: c.issuedAt.toISOString(),
     issuedByUserId: c.issuedByUserId,
     notes: c.notes,
@@ -83,6 +93,9 @@ export async function createCertificateTemplate(input: {
   description?: string | null;
   title: string;
   bodyTemplate: string;
+  backgroundImageUrl?: string | null;
+  layoutKey?: string | null;
+  overlayPositions?: OverlayFieldOverride[] | null;
 }): Promise<
   | { ok: true; template: CertificateTemplateDto }
   | { ok: false; error: string }
@@ -106,6 +119,11 @@ export async function createCertificateTemplate(input: {
     return { ok: false, error: "A template with this name already exists." };
   }
 
+  const backgroundImageUrl = input.backgroundImageUrl?.trim() || null;
+  const layoutKey =
+    input.layoutKey?.trim() ||
+    (backgroundImageUrl ? "custom" : null);
+
   const row = await prisma.certificateTemplate.create({
     data: {
       name,
@@ -113,6 +131,11 @@ export async function createCertificateTemplate(input: {
       description: input.description?.trim() || null,
       title,
       bodyTemplate,
+      backgroundImageUrl,
+      layoutKey,
+      overlayPositionsJson: serializeOverlayPositions(
+        sanitizeOverlayOverrides(input.overlayPositions),
+      ),
     },
     include: { _count: { select: { certificates: true } } },
   });
@@ -128,6 +151,9 @@ export async function updateCertificateTemplate(
     title: string;
     bodyTemplate: string;
     isActive: boolean;
+    backgroundImageUrl: string | null;
+    layoutKey: string | null;
+    overlayPositions: OverlayFieldOverride[] | null;
   }>,
 ): Promise<
   | { ok: true; template: CertificateTemplateDto }
@@ -150,6 +176,19 @@ export async function updateCertificateTemplate(
         ? { bodyTemplate: input.bodyTemplate.trim() }
         : {}),
       ...(input.isActive !== undefined ? { isActive: input.isActive } : {}),
+      ...(input.backgroundImageUrl !== undefined
+        ? { backgroundImageUrl: input.backgroundImageUrl?.trim() || null }
+        : {}),
+      ...(input.layoutKey !== undefined
+        ? { layoutKey: input.layoutKey?.trim() || null }
+        : {}),
+      ...(input.overlayPositions !== undefined
+        ? {
+            overlayPositionsJson: serializeOverlayPositions(
+              sanitizeOverlayOverrides(input.overlayPositions),
+            ),
+          }
+        : {}),
     },
     include: { _count: { select: { certificates: true } } },
   });
@@ -204,6 +243,7 @@ export async function issueCertificateToPilot(
   pilotProfileId: string,
   templateId: string,
   notes?: string | null,
+  awardGrade?: string | null,
 ): Promise<
   | { ok: true; certificate: PilotCertificateDto }
   | { ok: false; error: string; status: 400 | 404 }
@@ -223,6 +263,25 @@ export async function issueCertificateToPilot(
     return { ok: false, error: "Template not found or inactive.", status: 404 };
   }
 
+  const grade =
+    typeof awardGrade === "string" && awardGrade.trim()
+      ? awardGrade.trim()
+      : null;
+
+  if (
+    (template.layoutKey === "certificate-of-promotion" ||
+      template.layoutKey === "captain-promotion" ||
+      template.slug === "certificate-of-promotion" ||
+      template.slug === "captain-promotion") &&
+    !grade
+  ) {
+    return {
+      ok: false,
+      error: "Grade / rank is required for this certificate template.",
+      status: 400,
+    };
+  }
+
   const certificateNumber = await generateCertificateNumber();
   const issuedAt = new Date();
   const body = applyTemplate(template.bodyTemplate, {
@@ -231,6 +290,7 @@ export async function issueCertificateToPilot(
     certificateNumber,
     issueDate: issuedAt.toLocaleDateString("en-US"),
     templateName: template.name,
+    gradeOrTitle: grade ?? template.title,
   });
 
   const pdfBuffer = await renderCertificatePdf({
@@ -239,6 +299,10 @@ export async function issueCertificateToPilot(
     pilotDisplayName: pilot.displayName,
     certificateNumber,
     issuedAt,
+    backgroundImageUrl: template.backgroundImageUrl,
+    layoutKey: template.layoutKey ?? template.slug,
+    gradeOrTitle: grade,
+    overlayPositions: parseOverlayPositionsJson(template.overlayPositionsJson),
   });
 
   const pdfFileName = `${certificateNumber.replace(/[^a-zA-Z0-9-]/g, "_")}.pdf`;
@@ -251,6 +315,7 @@ export async function issueCertificateToPilot(
       templateId,
       pilotDisplayName: pilot.displayName,
       licenseNumber: pilot.licenseNumber,
+      awardGrade: grade,
       issuedAt,
       issuedByUserId,
       pdfFileName,

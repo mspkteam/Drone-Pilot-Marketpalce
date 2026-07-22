@@ -7,6 +7,8 @@ import {
   formatShopPrice,
   imageForVariant,
   mapProductForDisplay,
+  resolveVariant,
+  uniqueVariantValues,
   type ShopDisplayProduct,
 } from "@/lib/pilot/shop-display-map";
 import { UNIFORM_SHIPPING_FLAT_RATE } from "@/lib/shop/constants";
@@ -210,36 +212,12 @@ export function PilotUniformShop() {
         <div className="pilot-shop-layout">
           <ul className="pilot-shop-grid">
             {displayProducts.map((item) => (
-                  <li key={item.productId} className="pilot-shop-card">
-                    <div className="pilot-shop-card-media">
-                      <Image
-                        src={item.imageSrc}
-                        alt=""
-                        width={220}
-                        height={180}
-                        className="pilot-shop-card-image"
-                      />
-                    </div>
-                    <span className="pilot-shop-card-badge">{item.category}</span>
-                    <h2 className="pilot-shop-card-name">{item.name}</h2>
-                    {item.variantCount > 1 ? (
-                      <p className="pilot-shop-card-variant">{item.variant.label}</p>
-                    ) : null}
-                    <div className="pilot-shop-card-footer">
-                      <span className="pilot-shop-card-price">
-                        {formatShopPrice(item.displayPrice)}
-                      </span>
-                      <button
-                        type="button"
-                        className="pilot-shop-add-btn"
-                        disabled={item.variant.stockQuantity < 1}
-                        onClick={() => addToCart(item.variant.id)}
-                      >
-                        + ADD
-                      </button>
-                    </div>
-                  </li>
-                ))}
+              <PilotShopProductCard
+                key={item.productId}
+                item={item}
+                onAddToCart={addToCart}
+              />
+            ))}
           </ul>
 
           <aside className="pilot-shop-cart" aria-label="Shopping cart">
@@ -388,5 +366,133 @@ export function PilotUniformShop() {
         </div>
       )}
     </div>
+  );
+}
+
+function PilotShopProductCard({
+  item,
+  onAddToCart,
+}: {
+  item: ShopDisplayProduct;
+  onAddToCart: (variantId: string) => void;
+}) {
+  const sizes = uniqueVariantValues(item.variants, "size");
+  const colors = uniqueVariantValues(item.variants, "color");
+  const [imageIndex, setImageIndex] = useState(0);
+  const [selectedSize, setSelectedSize] = useState<string | null>(sizes[0] ?? null);
+  const [selectedColor, setSelectedColor] = useState<string | null>(colors[0] ?? null);
+
+  const selectedVariant =
+    resolveVariant(item.variants, selectedSize, selectedColor) ?? item.variant;
+
+  const gallery =
+    item.imageUrls.length > 0 ? item.imageUrls : item.imageSrc ? [item.imageSrc] : [];
+  const activeImage = gallery[imageIndex] ?? item.imageSrc;
+
+  useEffect(() => {
+    setImageIndex(0);
+  }, [item.productId]);
+
+  useEffect(() => {
+    const resolved = resolveVariant(item.variants, selectedSize, selectedColor);
+    if (!resolved && item.variants.length) {
+      const fallback = item.variant;
+      setSelectedSize(fallback.size?.trim() || null);
+      setSelectedColor(fallback.color?.trim() || null);
+    }
+  }, [item, selectedSize, selectedColor]);
+
+  const priceLabel =
+    item.variantCount > 1
+      ? formatShopPrice(selectedVariant.price)
+      : formatShopPrice(item.displayPrice);
+
+  return (
+    <li className="pilot-shop-card">
+      <div className="pilot-shop-card-media">
+        <Image
+          src={activeImage}
+          alt=""
+          width={220}
+          height={180}
+          className="pilot-shop-card-image"
+        />
+      </div>
+
+      {gallery.length > 1 ? (
+        <div className="pilot-shop-card-gallery" aria-label="Product images">
+          {gallery.map((url, index) => (
+            <button
+              key={`${url}-${index}`}
+              type="button"
+              className={`pilot-shop-card-thumb${imageIndex === index ? " is-active" : ""}`}
+              onClick={() => setImageIndex(index)}
+              aria-label={`View image ${index + 1}`}
+            >
+              <Image src={url} alt="" width={48} height={48} />
+            </button>
+          ))}
+        </div>
+      ) : null}
+
+      <span className="pilot-shop-card-badge">{item.category}</span>
+      <h2 className="pilot-shop-card-name">{item.name}</h2>
+
+      {sizes.length > 0 ? (
+        <div className="pilot-shop-option-group">
+          <span className="pilot-shop-option-label">Size</span>
+          <div className="pilot-shop-option-buttons">
+            {sizes.map((size) => (
+              <button
+                key={size}
+                type="button"
+                className={`pilot-shop-option-btn${
+                  selectedSize === size ? " is-active" : ""
+                }`}
+                onClick={() => setSelectedSize(size)}
+              >
+                {size}
+              </button>
+            ))}
+          </div>
+        </div>
+      ) : null}
+
+      {colors.length > 0 ? (
+        <div className="pilot-shop-option-group">
+          <span className="pilot-shop-option-label">Color</span>
+          <div className="pilot-shop-option-buttons">
+            {colors.map((color) => (
+              <button
+                key={color}
+                type="button"
+                className={`pilot-shop-option-btn${
+                  selectedColor === color ? " is-active" : ""
+                }`}
+                onClick={() => setSelectedColor(color)}
+              >
+                {color}
+              </button>
+            ))}
+          </div>
+        </div>
+      ) : null}
+
+      {item.variantCount > 1 && !sizes.length && !colors.length ? (
+        <p className="pilot-shop-card-variant">{selectedVariant.label}</p>
+      ) : null}
+
+      <div className="pilot-shop-card-footer">
+        <span className="pilot-shop-card-price">{priceLabel}</span>
+        <button
+          type="button"
+          className="pilot-shop-add-btn"
+          disabled={selectedVariant.stockQuantity < 1}
+          onClick={() => onAddToCart(selectedVariant.id)}
+        >
+          + ADD
+        </button>
+      </div>
+    </li>
   );
 }

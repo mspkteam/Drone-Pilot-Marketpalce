@@ -87,17 +87,6 @@ export const DEFAULT_WING_DEFINITIONS: Array<{
   sortOrder: number;
 }> = [
   {
-    code: "recreational-aviator-gold",
-    title: "Recreational Aviator Wings — Gold",
-    description:
-      "Awarded to pilot members working toward their FAA Part 107 Remote Pilot Certificate or home country equivalent.",
-    category: "milestone",
-    iconLabel: "star-outline",
-    imageUrl: "/wings/recreational-aviator-gold.png",
-    autoRule: "active_membership",
-    sortOrder: 10,
-  },
-  {
     code: "remote-aviation-crew-silver",
     title: "Remote Aviation Crew — Silver",
     description:
@@ -106,18 +95,18 @@ export const DEFAULT_WING_DEFINITIONS: Array<{
     iconLabel: "medal",
     imageUrl: "/wings/remote-aviation-crew-silver.png",
     autoRule: "manual_only",
-    sortOrder: 20,
+    sortOrder: 10,
   },
   {
-    code: "aviator-wings-basic-gold",
-    title: "Aviator Wings, Basic — Gold",
-    description: "Awarded to FAA Part 107 Remote Pilot Certificate holders.",
-    category: "trust",
-    iconLabel: "award",
-    imageUrl: "/wings/aviator-wings-basic-gold.png",
-    autoRule: "approved_verification",
-    ruleParam: "license",
-    sortOrder: 30,
+    code: "recreational-aviator-gold",
+    title: "Recreational Aviator Wings — Gold",
+    description:
+      "Awarded to pilot members working toward their FAA Part 107 Remote Pilot Certificate or home country equivalent.",
+    category: "milestone",
+    iconLabel: "star-outline",
+    imageUrl: "/wings/recreational-aviator-gold.png",
+    autoRule: "active_membership",
+    sortOrder: 20,
   },
   {
     code: "aviator-wings-basic-silver",
@@ -128,13 +117,24 @@ export const DEFAULT_WING_DEFINITIONS: Array<{
     iconLabel: "star",
     imageUrl: "/wings/aviator-wings-basic-silver.png",
     autoRule: "manual_only",
+    sortOrder: 30,
+  },
+  {
+    code: "aviator-wings-basic-gold",
+    title: "Aviator Wings, Basic — Gold",
+    description: "Awarded to FAA Part 107 Remote Pilot Certificate holders.",
+    category: "trust",
+    iconLabel: "award",
+    imageUrl: "/wings/aviator-wings-basic-gold.png",
+    autoRule: "approved_verification",
+    ruleParam: "license",
     sortOrder: 40,
   },
   {
     code: "aviator-wings-senior",
     title: "Aviator Wings, Senior",
     description:
-      "Awarded after 500 remote flight hours OR qualifying pilot certificate OR five Remote Air Service contracts with perfect rating.",
+      "Awarded after 500 remote flight hours OR five Remote Air Service contracts with perfect rating.",
     category: "milestone",
     iconLabel: "trophy",
     imageUrl: "/wings/aviator-wings-senior.png",
@@ -146,7 +146,7 @@ export const DEFAULT_WING_DEFINITIONS: Array<{
     code: "aviator-wings-master",
     title: "Aviator Wings, Master",
     description:
-      "Awarded after 1,000 hours OR qualifying FAA Private Pilot Certificate AND five Remote Air Service contracts with perfect rating.",
+      "Awarded after 1,000 remote flight hours OR ten Remote Air Service contracts with perfect rating.",
     category: "milestone",
     iconLabel: "trophy",
     imageUrl: "/wings/aviator-wings-master.png",

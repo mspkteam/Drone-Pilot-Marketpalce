@@ -4,6 +4,60 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.12] — 2026-07-22
+
+### Added
+
+- Uniform shop product gallery: up to 6 images per product with admin upload API
+- Variable products: size, color, SKU, price, and stock per variant in admin modal
+- Pilot shop image gallery thumbnails and size/color selectors on multi-variant products
+
+### Changed
+
+- Admin product create/update sends `imageUrls` and full `variants` array in one request
+- `UniformProductImage` model (schema v38) stores ordered gallery images per product
+
+---
+
+## [0.27.11] — 2026-07-22
+
+### Added
+
+- All 10 client certificate PNGs (6 fillable issuable + 4 reference examples)
+- Professional overlay editor: center H/V, font size, align, max width, font style
+- Snap-to-center guides when dragging fields on certificate artwork
+
+### Changed
+
+- Fillable templates use official `-fillable.png` artwork from client folder
+- Example certificates shown as inactive reference templates in admin grid
+
+---
+
+## [0.27.10] — 2026-07-22
+
+### Added
+
+- Certificate builder: drag name, grade, date, and other overlay fields to align with PNG artwork
+- Saved overlay positions apply to live preview and issued PDFs
+
+---
+
+## [0.27.9] — 2026-07-22
+
+### Added
+
+- Certificate builder: upload custom PNG/JPEG/WebP artwork and create custom certificate templates
+- Admin certificate cards show thumbnail previews of the official RAS fillable PNGs
+- Auto-seed/upsert of all six client-provided certificate templates on Certificates page load
+
+### Changed
+
+- Certificate builder restyled for PNG-based artwork preview (paper frame + wider modal)
+- “NEW CUSTOM CERTIFICATE” CTA for creating uploaded/custom templates
+
+---
+
 ## [0.1.0] — 2026-06-01
 
 ### Summary
@@ -550,6 +604,7 @@ Initial project control documentation and planning foundation for Drone Pilot Ma
 
 - Ops dashboard **Platform Growth** chart: hover/click weeks for tooltips, toggle series via legend, clickable week labels (same visual design).
 - Ops dashboard **System Integrity**: was static preview copy; now live DB probe latency, operational error rate (cancelled bookings + open disputes / 30-day activity), dynamic status subtitle + strip. Metrics are clickable for detail.
+- **Badges & Wings** (client Milestone 2 review): silver before gold — Remote Aviation Crew (Silver) then Recreational Aviator (Gold); Basic Silver then Basic Gold. Senior copy: 500 hours OR five perfect-rating contracts. Master copy: 1,000 hours OR ten perfect-rating contracts.
 
 ### Fixed
 
@@ -564,6 +619,7 @@ Initial project control documentation and planning foundation for Drone Pilot Ma
 
 ### Added
 
+- **Client certificate PNG templates** (Milestone 2 review): six official RAS fillable certificates under `public/certificates/` (Promotion A-1–A-5, Captain Promotion, Recreational Pilot Wings, Aviator Wings, Senior, Master). `CertificateTemplate` now has `backgroundImageUrl` + `layoutKey`; admin live preview overlays name/grade/date/number on the PNG; issued PDFs draw the same artwork via PDFKit. Promotion/Captain issue requires a grade/rank field (`awardGrade` on `PilotCertificate`). Staff-designed defaults retired (inactive). Schema version 36.
 - **Custom Pilot Rates** (Configuration → Fees & Commission) is now a working per-pilot commission override, replacing the static James-Sterling preview. Super Admins can search real pilots (name/email) via a live dropdown, toggle Manual Override, set a custom commission rate (%), reason, and effective date, and save. Overrides persist on `PilotProfile` (`commissionOverride*` fields) and are applied at payout via `getEffectiveCommissionRateForPilot` in `recordPaymentForCompletedBooking` (override → else persisted platform default → else 15%). New lib `src/lib/admin/pilot-rates.ts` + `GET/PATCH /api/admin/configuration/pilot-rates` (view-gated search/detail, `manageSettings`-gated save) + `AdminCustomPilotRates` client component. (Schema version 35.)
 - CMS **media uploads**: article featured images and resource featured images / downloadable files can now be uploaded directly from the editors (PNG/JPEG/WebP/GIF/SVG for images, plus PDF for resource files). Files are stored under `public/cms/` and served as static assets. New `POST /api/admin/cms/upload` (permission-gated by `cmsArticles`/`cmsResources` create/edit) + shared `AdminCmsMediaField` control with inline preview. Mirrors the existing wing image upload pattern. Replaces the URL-only "upload storage pending" fields.
 - Uniform Shop **All Orders** page (`/dashboard/admin/shop/orders`): full order history with status-count filter tabs, per-order item breakdown/totals, and inline status + payment updates (gated by `shop.updateOrderStatus`). Replaces the dead "VIEW ALL" button, which now links here.

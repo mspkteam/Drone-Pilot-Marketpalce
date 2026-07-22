@@ -1,4 +1,5 @@
 import { CertificateCanvas } from "@/components/admin/certificates/CertificateCanvas";
+import type { OverlayFieldOverride } from "@/lib/certificates/layouts";
 import type { AdminCertificateTemplateCardDto } from "@/types/admin-certificates";
 
 type AdminCertificateLivePreviewProps = {
@@ -21,6 +22,15 @@ export function AdminCertificateLivePreview({
         <CertificateCanvas
           titleLines={template.previewTitleLines}
           mission={template.previewMission}
+          backgroundImageUrl={template.backgroundImageUrl}
+          layoutKey={template.layoutKey ?? template.slug}
+          overlayPositions={
+            template.overlayPositions as OverlayFieldOverride[] | null
+          }
+          gradeOrTitle={template.previewGrade}
+          memberName="Jonathan Doe"
+          certificateNumber="DPM-2026-000075"
+          issuedAt={new Date("2026-01-01")}
         />
       </div>
 
@@ -30,7 +40,7 @@ export function AdminCertificateLivePreview({
             ▦
           </span>
           <p className="admin-certificates-verify-text">
-            Encrypted blockchain verification active.
+            Official Remote Air Service certificate artwork.
           </p>
         </div>
         <span className="admin-certificates-verify-status">

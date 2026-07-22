@@ -2,7 +2,7 @@ import { PrismaClient } from "@/generated/prisma/client";
 import { createPrismaClient } from "@/lib/create-prisma-client";
 
 /** Bump when Prisma schema changes so dev HMR does not keep an old client. */
-const PRISMA_CLIENT_SCHEMA_VERSION = 35;
+const PRISMA_CLIENT_SCHEMA_VERSION = 38;
 
 const globalForPrisma = globalThis as unknown as {
   prisma?: PrismaClient;
@@ -34,6 +34,7 @@ function isStalePrismaClient(client: PrismaClient): boolean {
     wingDefinition?: unknown;
     pilotWing?: unknown;
     uniformProduct?: unknown;
+    uniformProductImage?: unknown;
     uniformProductVariant?: unknown;
     uniformOrder?: unknown;
     uniformOrderItem?: unknown;
@@ -70,6 +71,7 @@ function isStalePrismaClient(client: PrismaClient): boolean {
     typeof c.wingDefinition === "undefined" ||
     typeof c.pilotWing === "undefined" ||
     typeof c.uniformProduct === "undefined" ||
+    typeof c.uniformProductImage === "undefined" ||
     typeof c.uniformProductVariant === "undefined" ||
     typeof c.uniformOrder === "undefined" ||
     typeof c.uniformOrderItem === "undefined" ||

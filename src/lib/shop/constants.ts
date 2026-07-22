@@ -1,1 +1,4 @@
 export const UNIFORM_SHIPPING_FLAT_RATE = 12;
+
+export const SHOP_IMAGE_MAX_BYTES = 5 * 1024 * 1024;
+export const SHOP_IMAGES_PER_PRODUCT_MAX = 6;

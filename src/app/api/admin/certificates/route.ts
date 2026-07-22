@@ -48,6 +48,7 @@ export async function POST(request: Request) {
     body.pilotProfileId,
     body.templateId,
     body.notes,
+    typeof body.awardGrade === "string" ? body.awardGrade : null,
   );
 
   if (!result.ok) {

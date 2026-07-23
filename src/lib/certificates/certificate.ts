@@ -1,6 +1,16 @@
-import type { CertificateTemplate, PilotCertificate } from "@/generated/prisma/client";
+import type {
+  CertificateTemplate,
+  PilotCertificate,
+} from "@/generated/prisma/client";
 import { prisma } from "@/lib/db";
 import { notifyAsync, sendNotification } from "@/lib/notifications/notify";
+import {
+  CERTIFICATE_AUTO_RULES,
+  GRADE_DISPLAY_TITLES,
+  PROMOTION_GRADE_CODES,
+  isCertificateAutoRule,
+  type CertificateAutoRule,
+} from "@/lib/certificates/conditions";
 import {
   parseOverlayPositionsJson,
   sanitizeOverlayOverrides,
@@ -54,6 +64,9 @@ function toTemplateDto(
     backgroundImageUrl: t.backgroundImageUrl,
     layoutKey: t.layoutKey,
     overlayPositions: parseOverlayPositionsJson(t.overlayPositionsJson),
+    autoRule: (t.autoRule as CertificateAutoRule) || "manual_only",
+    ruleParam: t.ruleParam,
+    threshold: t.threshold,
     isActive: t.isActive,
     issuedCount: t._count?.certificates ?? 0,
     createdAt: t.createdAt.toISOString(),
@@ -96,6 +109,9 @@ export async function createCertificateTemplate(input: {
   backgroundImageUrl?: string | null;
   layoutKey?: string | null;
   overlayPositions?: OverlayFieldOverride[] | null;
+  autoRule?: string | null;
+  ruleParam?: string | null;
+  threshold?: number | null;
 }): Promise<
   | { ok: true; template: CertificateTemplateDto }
   | { ok: false; error: string }
@@ -121,8 +137,11 @@ export async function createCertificateTemplate(input: {
 
   const backgroundImageUrl = input.backgroundImageUrl?.trim() || null;
   const layoutKey =
-    input.layoutKey?.trim() ||
-    (backgroundImageUrl ? "custom" : null);
+    input.layoutKey?.trim() || (backgroundImageUrl ? "custom" : null);
+
+  const autoRule = isCertificateAutoRule(input.autoRule)
+    ? input.autoRule
+    : "manual_only";
 
   const row = await prisma.certificateTemplate.create({
     data: {
@@ -136,6 +155,9 @@ export async function createCertificateTemplate(input: {
       overlayPositionsJson: serializeOverlayPositions(
         sanitizeOverlayOverrides(input.overlayPositions),
       ),
+      autoRule,
+      ruleParam: input.ruleParam?.trim() || null,
+      threshold: input.threshold ?? null,
     },
     include: { _count: { select: { certificates: true } } },
   });
@@ -154,6 +176,9 @@ export async function updateCertificateTemplate(
     backgroundImageUrl: string | null;
     layoutKey: string | null;
     overlayPositions: OverlayFieldOverride[] | null;
+    autoRule: string | null;
+    ruleParam: string | null;
+    threshold: number | null;
   }>,
 ): Promise<
   | { ok: true; template: CertificateTemplateDto }
@@ -162,6 +187,14 @@ export async function updateCertificateTemplate(
   const existing = await prisma.certificateTemplate.findUnique({ where: { id } });
   if (!existing) {
     return { ok: false, error: "Template not found.", status: 404 };
+  }
+
+  if (
+    input.autoRule !== undefined &&
+    input.autoRule !== null &&
+    !isCertificateAutoRule(input.autoRule)
+  ) {
+    return { ok: false, error: "Invalid auto-assign rule." };
   }
 
   const row = await prisma.certificateTemplate.update({
@@ -189,6 +222,13 @@ export async function updateCertificateTemplate(
             ),
           }
         : {}),
+      ...(input.autoRule !== undefined
+        ? { autoRule: input.autoRule ?? "manual_only" }
+        : {}),
+      ...(input.ruleParam !== undefined
+        ? { ruleParam: input.ruleParam?.trim() || null }
+        : {}),
+      ...(input.threshold !== undefined ? { threshold: input.threshold } : {}),
     },
     include: { _count: { select: { certificates: true } } },
   });
@@ -238,6 +278,136 @@ export async function listPilotsForCertificateAssign() {
   }));
 }
 
+async function countPerfectContracts(pilotProfileId: string): Promise<number> {
+  const completed = await prisma.booking.findMany({
+    where: { pilotProfileId, status: "completed" },
+    select: { id: true },
+  });
+  if (!completed.length) return 0;
+  const bookingIds = completed.map((b) => b.id);
+  const fiveStar = await prisma.review.groupBy({
+    by: ["bookingId"],
+    where: {
+      bookingId: { in: bookingIds },
+      targetPilotProfileId: pilotProfileId,
+      status: "published",
+      rating: 5,
+    },
+  });
+  return fiveStar.length;
+}
+
+async function pilotHasWingCode(
+  pilotProfileId: string,
+  codeIncludes: string[],
+): Promise<boolean> {
+  const wings = await prisma.pilotWing.findMany({
+    where: { pilotProfileId },
+    include: { wingDefinition: { select: { code: true } } },
+  });
+  return wings.some((w) =>
+    codeIncludes.some((needle) =>
+      w.wingDefinition.code.toLowerCase().includes(needle.toLowerCase()),
+    ),
+  );
+}
+
+async function getPilotGradeCode(pilotProfileId: string): Promise<string | null> {
+  const sub = await prisma.pilotSubscription.findFirst({
+    where: {
+      pilotProfileId,
+      status: { in: ["active", "trialing"] },
+    },
+    include: { subscriptionPlan: { select: { code: true } } },
+    orderBy: { createdAt: "desc" },
+  });
+  return sub?.subscriptionPlan.code ?? null;
+}
+
+async function pilotMeetsCertificateRule(
+  pilotProfileId: string,
+  template: CertificateTemplate,
+): Promise<{ meets: boolean; awardGrade?: string | null }> {
+  const rule = (template.autoRule || "manual_only") as CertificateAutoRule;
+  if (!CERTIFICATE_AUTO_RULES.includes(rule) || rule === "manual_only") {
+    return { meets: false };
+  }
+
+  switch (rule) {
+    case "grade_promotion_a1_a5": {
+      const code = await getPilotGradeCode(pilotProfileId);
+      if (!code || !(PROMOTION_GRADE_CODES as readonly string[]).includes(code)) {
+        return { meets: false };
+      }
+      const title = GRADE_DISPLAY_TITLES[code] ?? code;
+      const already = await prisma.pilotCertificate.findFirst({
+        where: {
+          pilotProfileId,
+          templateId: template.id,
+          awardGrade: title,
+        },
+        select: { id: true },
+      });
+      if (already) return { meets: false };
+      return { meets: true, awardGrade: title };
+    }
+    case "grade_captain_a6": {
+      const code = await getPilotGradeCode(pilotProfileId);
+      if (code !== "A6_CAPTAIN") return { meets: false };
+      const already = await prisma.pilotCertificate.count({
+        where: { pilotProfileId, templateId: template.id },
+      });
+      if (already > 0) return { meets: false };
+      return { meets: true, awardGrade: "CAPTAIN" };
+    }
+    case "wing_recreational": {
+      const has = await pilotHasWingCode(pilotProfileId, [
+        "recreational",
+        "remote-aviation-crew",
+      ]);
+      if (!has) return { meets: false };
+      const already = await prisma.pilotCertificate.count({
+        where: { pilotProfileId, templateId: template.id },
+      });
+      return { meets: already === 0 };
+    }
+    case "wing_aviator": {
+      const has = await pilotHasWingCode(pilotProfileId, [
+        "aviator-wings-basic",
+      ]);
+      if (!has) return { meets: false };
+      const already = await prisma.pilotCertificate.count({
+        where: { pilotProfileId, templateId: template.id },
+      });
+      return { meets: already === 0 };
+    }
+    case "hours_or_perfect_contracts_senior": {
+      const perfect = await countPerfectContracts(pilotProfileId);
+      const hasWing = await pilotHasWingCode(pilotProfileId, [
+        "aviator-wings-senior",
+      ]);
+      if (perfect < 5 && !hasWing) return { meets: false };
+      const already = await prisma.pilotCertificate.count({
+        where: { pilotProfileId, templateId: template.id },
+      });
+      return { meets: already === 0 };
+    }
+    case "hours_or_perfect_contracts_master": {
+      const perfect = await countPerfectContracts(pilotProfileId);
+      const hasWing = await pilotHasWingCode(pilotProfileId, [
+        "aviator-wings-master",
+      ]);
+      if (perfect < 10 && !hasWing) return { meets: false };
+      const already = await prisma.pilotCertificate.count({
+        where: { pilotProfileId, templateId: template.id },
+      });
+      return { meets: already === 0 };
+    }
+    default:
+      return { meets: false };
+  }
+}
+
 export async function issueCertificateToPilot(
   issuedByUserId: string,
   pilotProfileId: string,
@@ -284,6 +454,7 @@ export async function issueCertificateToPilot(
 
   const certificateNumber = await generateCertificateNumber();
   const issuedAt = new Date();
+  const memberNumber = pilot.licenseNumber?.trim() || undefined;
   const body = applyTemplate(template.bodyTemplate, {
     pilotName: pilot.displayName,
     licenseNumber: pilot.licenseNumber,
@@ -302,6 +473,7 @@ export async function issueCertificateToPilot(
     backgroundImageUrl: template.backgroundImageUrl,
     layoutKey: template.layoutKey ?? template.slug,
     gradeOrTitle: grade,
+    memberNumber,
     overlayPositions: parseOverlayPositionsJson(template.overlayPositionsJson),
   });
 
@@ -337,6 +509,54 @@ export async function issueCertificateToPilot(
   await evaluateAndAssignWings(pilotProfileId);
 
   return { ok: true, certificate: toPilotCertDto(row) };
+}
+
+/**
+ * Evaluate auto-issue rules and award matching certificates.
+ * Call alongside evaluateAndAssignWings when pilot status changes.
+ */
+export async function evaluateAndIssueCertificates(
+  pilotProfileId: string,
+): Promise<PilotCertificateDto[]> {
+  const pilot = await prisma.pilotProfile.findUnique({
+    where: { id: pilotProfileId },
+    select: { id: true, userId: true },
+  });
+  if (!pilot) return [];
+
+  const templates = await prisma.certificateTemplate.findMany({
+    where: {
+      isActive: true,
+      autoRule: { not: "manual_only" },
+    },
+  });
+
+  const issued: PilotCertificateDto[] = [];
+
+  for (const template of templates) {
+    const check = await pilotMeetsCertificateRule(pilotProfileId, template);
+    if (!check.meets) continue;
+
+    const result = await issueCertificateToPilot(
+      pilot.userId,
+      pilotProfileId,
+      template.id,
+      "Auto-issued by platform certificate rules",
+      check.awardGrade ?? null,
+    );
+
+    if (result.ok) {
+      issued.push(result.certificate);
+    }
+  }
+
+  return issued;
+}
+
+/** Wings first, then certificates (certificates may depend on newly granted wings). */
+export async function evaluatePilotAwards(pilotProfileId: string): Promise<void> {
+  await evaluateAndAssignWings(pilotProfileId);
+  await evaluateAndIssueCertificates(pilotProfileId);
 }
 
 export async function getCertificateForPilot(

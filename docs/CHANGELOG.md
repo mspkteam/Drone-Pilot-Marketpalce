@@ -4,6 +4,30 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.13] — 2026-07-23
+
+### Added
+
+- Client certificate fonts embedded (Engravers MT, Harrowgate, Colchester) for preview + PDF
+- Certificate auto-issue rules (grade A-1–A-5, Captain A-6, recreational/aviator wings, senior/master perfect contracts)
+- Builder: field checklist, named font picker, assign-mode selector
+- `evaluatePilotAwards()` runs wings then certificates on status changes
+
+### Changed
+
+- Canonical templates reduced to six fillable RAS forms (examples no longer seeded as active)
+- Overlay fonts use named client faces instead of generic blackletter/serif/sans roles
+- Member number on wings certificates uses pilot license number
+- Builder preview matches issued PDF (shared layout/fonts/scale; no legacy text canvas)
+- Editor slimmed: removed PDF body-template UI; save persists effective overlay fields
+- Overlay overrides are authoritative (unchecked fields no longer appear on PDF)
+
+### Schema
+
+- `CertificateTemplate.autoRule`, `ruleParam`, `threshold` (v39)
+
+---
+
 ## [0.27.12] — 2026-07-22
 
 ### Added

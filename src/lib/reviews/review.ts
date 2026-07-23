@@ -1,7 +1,7 @@
-import type { Review } from "@/generated/prisma/client";
+﻿import type { Review } from "@/generated/prisma/client";
 import { prisma } from "@/lib/db";
 import { triggerReviewReceived } from "@/lib/notifications/triggers";
-import { evaluateAndAssignWings } from "@/lib/wings/wings";
+import { evaluatePilotAwards } from "@/lib/certificates/certificate";
 import type {
   BookingReviewsDto,
   ReviewDto,
@@ -270,7 +270,7 @@ export async function createReview(
   );
 
   if (role === "client" && input.rating === 5) {
-    await evaluateAndAssignWings(booking.pilotProfileId);
+    await evaluatePilotAwards(booking.pilotProfileId);
   }
 
   return { ok: true, review: toReviewDto(review) };

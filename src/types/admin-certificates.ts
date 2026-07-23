@@ -42,6 +42,18 @@ export type CertificateTemplateFormInput = {
   isActive: boolean;
   backgroundImageUrl?: string | null;
   layoutKey?: string | null;
-  overlayPositions?: Array<{ field: string; x: number; y: number }> | null;
+  overlayPositions?: Array<{
+    field: string;
+    x: number;
+    y: number;
+    fontSize?: number;
+    align?: string;
+    maxWidth?: number;
+    font?: string;
+    weight?: string;
+  }> | null;
+  autoRule?: string;
+  ruleParam?: string | null;
+  threshold?: number | null;
   requiresGrade?: boolean;
 };

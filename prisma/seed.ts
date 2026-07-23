@@ -395,6 +395,8 @@ async function main() {
         bodyTemplate: canon.bodyTemplate,
         backgroundImageUrl: canon.backgroundImageUrl,
         layoutKey: canon.layoutKey,
+        autoRule: canon.autoRule,
+        threshold: canon.threshold ?? null,
         isActive: canon.isActive,
       },
       create: {
@@ -405,6 +407,8 @@ async function main() {
         bodyTemplate: canon.bodyTemplate,
         backgroundImageUrl: canon.backgroundImageUrl,
         layoutKey: canon.layoutKey,
+        autoRule: canon.autoRule,
+        threshold: canon.threshold ?? null,
         isActive: canon.isActive,
       },
     });
@@ -419,6 +423,10 @@ async function main() {
           "aviator-wings-senior",
           "aviator-wings-master",
           "aviator-wings-basic-gold",
+          "certificate-of-promotion-example",
+          "captain-promotion-example",
+          "recreational-pilot-wings-example",
+          "master-aviator-wings-example",
         ],
       },
     },

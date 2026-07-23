@@ -1,5 +1,6 @@
 import {
   CANONICAL_CERTIFICATE_TEMPLATES,
+  OBSOLETE_CERTIFICATE_SLUGS,
   enrichCertificateTemplate,
   MOCK_CERTIFICATE_TEMPLATES,
 } from "@/lib/admin/certificate-display";
@@ -15,8 +16,15 @@ import type {
   AdminCertificateTemplateCardDto,
 } from "@/types/admin-certificates";
 
-/** Upsert the ten client-provided RAS certificate templates (idempotent). */
+/** Upsert six fillable RAS templates; deactivate obsolete example rows. */
 export async function ensureCanonicalCertificateTemplates(): Promise<void> {
+  for (const slug of OBSOLETE_CERTIFICATE_SLUGS) {
+    await prisma.certificateTemplate.updateMany({
+      where: { slug },
+      data: { isActive: false },
+    });
+  }
+
   for (const canon of CANONICAL_CERTIFICATE_TEMPLATES) {
     await prisma.certificateTemplate.upsert({
       where: { slug: canon.slug },
@@ -27,6 +35,8 @@ export async function ensureCanonicalCertificateTemplates(): Promise<void> {
         bodyTemplate: canon.bodyTemplate,
         backgroundImageUrl: canon.backgroundImageUrl,
         layoutKey: canon.layoutKey,
+        autoRule: canon.autoRule,
+        threshold: canon.threshold ?? null,
         isActive: canon.isActive,
       },
       create: {
@@ -37,6 +47,8 @@ export async function ensureCanonicalCertificateTemplates(): Promise<void> {
         bodyTemplate: canon.bodyTemplate,
         backgroundImageUrl: canon.backgroundImageUrl,
         layoutKey: canon.layoutKey,
+        autoRule: canon.autoRule,
+        threshold: canon.threshold ?? null,
         isActive: canon.isActive,
       },
     });
@@ -56,7 +68,6 @@ export async function getAdminCertificateEngineData(): Promise<AdminCertificateE
     dbTemplates.map((t) => [t.slug, enrichCertificateTemplate(t)]),
   );
 
-  // Present canonical Remote Air Service templates first (client PNG order).
   const templates: AdminCertificateTemplateCardDto[] = [];
   let usingMockTemplates = false;
   for (const canon of CANONICAL_CERTIFICATE_TEMPLATES) {
@@ -65,17 +76,15 @@ export async function getAdminCertificateEngineData(): Promise<AdminCertificateE
       templates.push(real);
       realBySlug.delete(canon.slug);
     } else {
-      const sample = MOCK_CERTIFICATE_TEMPLATES.find(
-        (m) => m.slug === canon.slug,
-      );
+      const sample = MOCK_CERTIFICATE_TEMPLATES.find((m) => m.slug === canon.slug);
       if (sample) {
         templates.push(sample);
         usingMockTemplates = true;
       }
     }
   }
-  // Append any additional real templates (custom uploads) that are still active.
   for (const remaining of realBySlug.values()) {
+    if (!remaining.isActive) continue;
     templates.push(remaining);
   }
 

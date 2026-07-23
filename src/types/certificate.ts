@@ -8,7 +8,19 @@ export type CertificateTemplateDto = {
   backgroundImageUrl: string | null;
   layoutKey: string | null;
   /** Drag-aligned field positions (percent), null = use layout defaults. */
-  overlayPositions: Array<{ field: string; x: number; y: number }> | null;
+  overlayPositions: Array<{
+    field: string;
+    x: number;
+    y: number;
+    fontSize?: number;
+    align?: string;
+    maxWidth?: number;
+    font?: string;
+    weight?: string;
+  }> | null;
+  autoRule: string;
+  ruleParam: string | null;
+  threshold: number | null;
   isActive: boolean;
   issuedCount: number;
   createdAt: string;

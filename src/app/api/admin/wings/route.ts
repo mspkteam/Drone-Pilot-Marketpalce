@@ -63,6 +63,13 @@ export async function POST(request: Request) {
     );
   }
 
+  if (result.created) {
+    const { evaluateAndIssueCertificates } = await import(
+      "@/lib/certificates/certificate"
+    );
+    await evaluateAndIssueCertificates(body.pilotProfileId);
+  }
+
   return NextResponse.json(
     { wing: result.wing, created: result.created },
     { status: result.created ? 201 : 200 },

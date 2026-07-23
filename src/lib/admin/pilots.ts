@@ -1,7 +1,7 @@
-import { prisma } from "@/lib/db";
+﻿import { prisma } from "@/lib/db";
 import { toMembershipTierDto } from "@/lib/membership/membership";
 import { notifyAsync, sendNotification } from "@/lib/notifications/notify";
-import { evaluateAndAssignWings } from "@/lib/wings/wings";
+import { evaluatePilotAwards } from "@/lib/certificates/certificate";
 import type { AdminPilotDto } from "@/types/admin";
 import type { PilotProfileStatus } from "@/types/pilot";
 import { PILOT_PROFILE_STATUSES } from "@/types/pilot";
@@ -86,7 +86,7 @@ export async function approvePilotProfile(pilotProfileId: string) {
     });
   });
 
-  await evaluateAndAssignWings(pilotProfileId);
+  await evaluatePilotAwards(pilotProfileId);
 
   return { ok: true as const };
 }

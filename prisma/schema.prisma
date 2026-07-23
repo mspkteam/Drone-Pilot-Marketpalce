@@ -571,8 +571,12 @@ model CertificateTemplate {
   bodyTemplate         String
   backgroundImageUrl   String?
   layoutKey            String?
-  /** JSON array of { field, x, y } percent overrides for drag-aligned overlays. */
+  /** JSON array of { field, x, y, font, ... } percent overrides for drag-aligned overlays. */
   overlayPositionsJson String?
+  /** Auto-issue rule — see CERTIFICATE_AUTO_RULES (manual_only default). */
+  autoRule             String             @default("manual_only")
+  ruleParam            String?
+  threshold            Int?
   isActive             Boolean            @default(true)
   createdAt            DateTime           @default(now())
   updatedAt            DateTime           @updatedAt

@@ -36,26 +36,20 @@ export function CertificateOverlayFieldEditor({
 
   function patch(partial: Partial<Omit<OverlayFieldOverride, "field">>) {
     if (!active) return;
-    onChange(
-      updateFieldOverride(layout, overrides, active.field, partial),
-    );
+    onChange(updateFieldOverride(layout, overrides, active.field, partial));
   }
 
   if (!effective.length) {
     return (
       <p className="admin-cert-builder-hint">
-        Upload certificate artwork to configure overlay fields.
+        Enable at least one overlay field above.
       </p>
     );
   }
 
   return (
-    <section className="admin-cert-overlay-editor" aria-label="Field alignment">
-      <p className="admin-cert-builder-section-title">Field alignment</p>
-      <p className="admin-cert-builder-hint">
-        Select a field, drag on the preview, or fine-tune position and typography
-        below.
-      </p>
+    <section className="admin-cert-overlay-editor" aria-label="Field settings">
+      <p className="admin-cert-builder-section-title">Selected field</p>
 
       <div className="admin-cert-overlay-field-tabs" role="tablist">
         {effective.map((field) => (
@@ -79,36 +73,9 @@ export function CertificateOverlayFieldEditor({
 
       {active ? (
         <div className="admin-cert-overlay-controls">
-          <div className="admin-cert-overlay-row admin-cert-overlay-row--quick">
-            <button
-              type="button"
-              className="admin-cert-builder-token"
-              disabled={disabled}
-              onClick={() => patch({ x: 50 })}
-            >
-              Center H
-            </button>
-            <button
-              type="button"
-              className="admin-cert-builder-token"
-              disabled={disabled}
-              onClick={() => patch({ y: 50 })}
-            >
-              Center V
-            </button>
-            <button
-              type="button"
-              className="admin-cert-builder-token"
-              disabled={disabled}
-              onClick={() => patch({ x: 50, y: 50 })}
-            >
-              Center both
-            </button>
-          </div>
-
           <div className="admin-cert-overlay-grid">
             <label className="admin-certificates-field admin-certificates-field--compact">
-              <span>X position (%)</span>
+              <span>X (%)</span>
               <input
                 type="number"
                 min={0}
@@ -116,13 +83,11 @@ export function CertificateOverlayFieldEditor({
                 step={0.1}
                 value={round1(active.x)}
                 disabled={disabled}
-                onChange={(e) =>
-                  patch({ x: Number(e.target.value) })
-                }
+                onChange={(e) => patch({ x: Number(e.target.value) })}
               />
             </label>
             <label className="admin-certificates-field admin-certificates-field--compact">
-              <span>Y position (%)</span>
+              <span>Y (%)</span>
               <input
                 type="number"
                 min={0}
@@ -130,13 +95,11 @@ export function CertificateOverlayFieldEditor({
                 step={0.1}
                 value={round1(active.y)}
                 disabled={disabled}
-                onChange={(e) =>
-                  patch({ y: Number(e.target.value) })
-                }
+                onChange={(e) => patch({ y: Number(e.target.value) })}
               />
             </label>
             <label className="admin-certificates-field admin-certificates-field--compact">
-              <span>Font size (px)</span>
+              <span>Font size</span>
               <input
                 type="number"
                 min={6}
@@ -144,13 +107,11 @@ export function CertificateOverlayFieldEditor({
                 step={1}
                 value={Math.round(active.fontSize ?? 24)}
                 disabled={disabled}
-                onChange={(e) =>
-                  patch({ fontSize: Number(e.target.value) })
-                }
+                onChange={(e) => patch({ fontSize: Number(e.target.value) })}
               />
             </label>
             <label className="admin-certificates-field admin-certificates-field--compact">
-              <span>Max width (%)</span>
+              <span>Width (%)</span>
               <input
                 type="number"
                 min={5}
@@ -158,15 +119,13 @@ export function CertificateOverlayFieldEditor({
                 step={1}
                 value={Math.round(active.maxWidth ?? 70)}
                 disabled={disabled}
-                onChange={(e) =>
-                  patch({ maxWidth: Number(e.target.value) })
-                }
+                onChange={(e) => patch({ maxWidth: Number(e.target.value) })}
               />
             </label>
           </div>
 
           <div className="admin-cert-overlay-row">
-            <span className="admin-cert-overlay-label">Text align</span>
+            <span className="admin-cert-overlay-label">Align</span>
             <div className="admin-cert-overlay-align-group">
               {(["left", "center", "right"] as const).map((align) => (
                 <button
@@ -187,10 +146,10 @@ export function CertificateOverlayFieldEditor({
           </div>
 
           <div className="admin-cert-overlay-row">
-            <span className="admin-cert-overlay-label">Font style</span>
+            <span className="admin-cert-overlay-label">Font</span>
             <select
               className="admin-cert-overlay-select"
-              value={active.font ?? "sans"}
+              value={active.font ?? "arial"}
               disabled={disabled}
               onChange={(e) =>
                 patch({
@@ -198,10 +157,10 @@ export function CertificateOverlayFieldEditor({
                 })
               }
             >
-              <option value="blackletter">Blackletter</option>
-              <option value="serif">Serif</option>
-              <option value="sans">Sans</option>
-              <option value="script">Script</option>
+              <option value="engravers">Engravers MT</option>
+              <option value="harrowgate">Harrowgate</option>
+              <option value="colchester">Colchester</option>
+              <option value="arial">Arial</option>
             </select>
             <label className="admin-certificates-check-row admin-certificates-check-row--inline">
               <input

@@ -1,4 +1,4 @@
-import type { Booking } from "@/generated/prisma/client";
+﻿import type { Booking } from "@/generated/prisma/client";
 import { prisma } from "@/lib/db";
 import {
   triggerBidAccepted,
@@ -7,7 +7,7 @@ import {
 } from "@/lib/notifications/triggers";
 import { linkBookingToConversation } from "@/lib/messaging/messaging";
 import { recordPaymentForCompletedBooking } from "@/lib/payments/payment";
-import { evaluateAndAssignWings } from "@/lib/wings/wings";
+import { evaluatePilotAwards } from "@/lib/certificates/certificate";
 import type { BookingDto, BookingListItemDto, BookingStatus } from "@/types/booking";
 import { jobAcceptsApplications } from "@/lib/bookings/status";
 
@@ -260,7 +260,7 @@ export async function updateBookingStatus(
       select: { pilotProfileId: true },
     });
     if (completedBooking) {
-      await evaluateAndAssignWings(completedBooking.pilotProfileId);
+      await evaluatePilotAwards(completedBooking.pilotProfileId);
     }
   } else if (newStatus === "cancelled") {
     data.cancelledAt = now;

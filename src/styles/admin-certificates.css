@@ -1,5 +1,36 @@
 /* Admin Automated Certificates — certificate engine */
 
+@font-face {
+  font-family: "Engravers MT";
+  src: url("/fonts/engravers-mt.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Harrowgate";
+  src: url("/fonts/harrowgate.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Colchester";
+  src: url("/fonts/colchester.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+.admin-cert-field-checklist {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+  gap: 0.5rem 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
 .admin-certificates-shell.dashboard-page {
   display: flex;
   flex-direction: column;
@@ -889,15 +920,6 @@
 
 .admin-certificates-field textarea {
   resize: vertical;
-}
-
-/* PDF body template — monospace, comfortable height */
-#cert-tpl-body {
-  min-height: 9.5rem;
-  font-family: var(--font-mono, ui-monospace, "JetBrains Mono", monospace);
-  font-size: 0.75rem;
-  line-height: 1.6;
-  white-space: pre-wrap;
 }
 
 .admin-certificates-issued-list {

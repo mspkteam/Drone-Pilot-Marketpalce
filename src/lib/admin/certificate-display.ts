@@ -1,5 +1,7 @@
 import type { CertificateTemplateDto } from "@/types/certificate";
 import type { AdminCertificateTemplateCardDto } from "@/types/admin-certificates";
+import type { CertificateAutoRule } from "@/lib/certificates/conditions";
+import { getCertificateConditionLabel } from "@/lib/certificates/conditions";
 
 export const DEFAULT_CERTIFICATE_BODY = `This certifies that {{pilotName}} (License {{licenseNumber}}) has met the requirements for {{templateName}} on Remote Air Service.
 
@@ -36,105 +38,66 @@ const DISPLAY_META_BY_KEY: Record<string, DisplayMeta> = {
   "certificate-of-promotion": {
     triggerLabel: "On grade promotion (A-1–A-5)",
     displayDescription:
-      "Issued when a member advances to a new Remote Air Service grade (A-1 through A-5). Fillable RAS template.",
+      "Issued when a member advances to a new Remote Air Service grade (A-1 through A-5).",
     previewTitleLines: ["CERTIFICATE", "OF PROMOTION"],
     previewMission: "First Officer",
     previewGrade: "First Officer",
     requiresGrade: true,
-  },
-  "certificate-of-promotion-example": {
-    triggerLabel: "Reference — filled example",
-    displayDescription:
-      "Client-provided example showing a completed Certificate of Promotion (A-1–A-5). Not issued to pilots.",
-    previewTitleLines: ["CERTIFICATE", "OF PROMOTION"],
-    previewMission: "First Officer",
-    previewGrade: "First Officer",
   },
   "captain-promotion": {
     triggerLabel: "Promotion to Captain (A-6)",
     displayDescription:
-      "Official Captain promotion certificate from the Commander and Board of Directors. Fillable RAS template.",
+      "Official Captain promotion certificate from the Commander and Board of Directors.",
     previewTitleLines: ["CERTIFICATE", "OF PROMOTION"],
     previewMission: "CAPTAIN",
     previewGrade: "CAPTAIN",
     requiresGrade: true,
   },
-  "captain-promotion-example": {
-    triggerLabel: "Reference — filled example",
-    displayDescription:
-      "Client-provided example of a completed Captain promotion certificate. Not issued to pilots.",
-    previewTitleLines: ["CERTIFICATE", "OF PROMOTION"],
-    previewMission: "CAPTAIN",
-    previewGrade: "CAPTAIN",
-  },
   "recreational-pilot-wings": {
-    triggerLabel: "Recreational recognition",
+    triggerLabel: "Recreational / UAS wing",
     displayDescription:
-      "Recognizes Recreational Pilot: UAS and awards recreational pilot wings. Fillable RAS template.",
-    previewTitleLines: ["RECREATIONAL PILOT", "UAS"],
-    previewMission: "Recreational Pilot: Unmanned Aircraft Systems",
-  },
-  "recreational-pilot-wings-example": {
-    triggerLabel: "Reference — filled example",
-    displayDescription:
-      "Client-provided example of completed Recreational Pilot Wings. Not issued to pilots.",
+      "Recognizes Recreational Pilot: UAS when the recreational wing is earned.",
     previewTitleLines: ["RECREATIONAL PILOT", "UAS"],
     previewMission: "Recreational Pilot: Unmanned Aircraft Systems",
   },
   "aviator-wings": {
-    triggerLabel: "Remote Pilot / Aviator Wings",
-    displayDescription:
-      "Awards Remote Pilot and Aviator Wings. Fillable RAS template.",
+    triggerLabel: "Aviator / Remote Pilot wing",
+    displayDescription: "Awards Remote Pilot and Aviator Wings when the basic aviator wing is earned.",
     previewTitleLines: ["REMOTE PILOT", "AVIATOR WINGS"],
     previewMission: "REMOTE PILOT / AVIATOR WINGS",
   },
   "senior-aviator-wings": {
-    triggerLabel: "Hours / contracts milestone",
+    triggerLabel: "500h or 5 perfect contracts",
     displayDescription:
-      "500 remote flight hours OR five RAS contracts with perfect rating. Fillable RAS template.",
+      "Senior Aviator Wings — five perfect RAS contracts or senior wing earned.",
     previewTitleLines: ["SENIOR REMOTE PILOT", "SENIOR AVIATOR WINGS"],
     previewMission: "SENIOR REMOTE PILOT / SENIOR AVIATOR WINGS",
   },
   "master-aviator-wings": {
-    triggerLabel: "Hours / contracts milestone",
+    triggerLabel: "1,000h or 10 perfect contracts",
     displayDescription:
-      "1,000 remote flight hours OR ten RAS contracts with perfect rating. Fillable RAS template.",
-    previewTitleLines: ["MASTER REMOTE PILOT", "MASTER AVIATOR WINGS"],
-    previewMission: "MASTER REMOTE PILOT / MASTER AVIATOR WINGS",
-  },
-  "master-aviator-wings-example": {
-    triggerLabel: "Reference — filled example",
-    displayDescription:
-      "Client-provided example of completed Master Aviator Wings. Not issued to pilots.",
+      "Master Aviator Wings — ten perfect RAS contracts or master wing earned.",
     previewTitleLines: ["MASTER REMOTE PILOT", "MASTER AVIATOR WINGS"],
     previewMission: "MASTER REMOTE PILOT / MASTER AVIATOR WINGS",
   },
 };
 
-function layoutKeyForSlug(slug: string): string {
-  return slug.replace(/-example$/, "").replace(/-fillable$/, "");
-}
-
 function metaForTemplate(template: CertificateTemplateDto): DisplayMeta {
   const bySlug = DISPLAY_META_BY_KEY[template.slug];
   if (bySlug) return bySlug;
 
-  const layoutSlug = layoutKeyForSlug(template.slug);
-  const byLayout = DISPLAY_META_BY_KEY[layoutSlug];
-  if (byLayout) return byLayout;
-
-  const byLayoutKey =
+  const byLayout =
     template.layoutKey && DISPLAY_META_BY_KEY[template.layoutKey]
       ? DISPLAY_META_BY_KEY[template.layoutKey]
       : null;
-  if (byLayoutKey) return byLayoutKey;
+  if (byLayout) return byLayout;
 
   const titleParts = template.title.split(/\s+/).slice(0, 2);
   return {
-    triggerLabel: "Manual / admin issue",
+    triggerLabel: getCertificateConditionLabel(template.autoRule),
     displayDescription:
       template.description ??
-      "Issues a signed PDF to the pilot dashboard when manually triggered or automated rules are connected.",
+      "Issues a signed PDF to the pilot dashboard when manually triggered or automated rules fire.",
     previewTitleLines:
       titleParts.length >= 2
         ? [titleParts[0]!.toUpperCase(), titleParts.slice(1).join(" ").toUpperCase()]
@@ -149,7 +112,10 @@ export function enrichCertificateTemplate(
   const meta = metaForTemplate(template);
   return {
     ...template,
-    triggerLabel: meta.triggerLabel,
+    triggerLabel:
+      template.autoRule && template.autoRule !== "manual_only"
+        ? getCertificateConditionLabel(template.autoRule)
+        : meta.triggerLabel,
     displayDescription: template.description ?? meta.displayDescription,
     previewTitleLines: meta.previewTitleLines,
     previewMission: meta.previewMission,
@@ -175,7 +141,7 @@ Certificate number: {{certificateNumber}}
 Issue date: {{issueDate}}`;
 
 /**
- * All ten client-provided RAS certificate PNGs (6 fillable + 4 reference examples).
+ * Six client fillable RAS certificate templates (examples are reference-only on disk).
  */
 export const CANONICAL_CERTIFICATE_TEMPLATES: Array<{
   name: string;
@@ -185,135 +151,102 @@ export const CANONICAL_CERTIFICATE_TEMPLATES: Array<{
   description: string;
   backgroundImageUrl: string;
   layoutKey: string;
+  autoRule: CertificateAutoRule;
+  threshold?: number | null;
   isActive: boolean;
   issuedCount: number;
 }> = [
   {
-    name: "Certificate of Promotion (Fillable)",
+    name: "Certificate of Promotion",
     slug: "certificate-of-promotion",
     title: "Certificate of Promotion",
     bodyTemplate: PROMOTION_BODY,
     description:
-      "Fillable template — issued when a member advances to grade A-1 through A-5.",
+      "Fillable template — auto-issued when a member reaches grade A-1 through A-5.",
     backgroundImageUrl: "/certificates/certificate-of-promotion-fillable.png",
     layoutKey: "certificate-of-promotion",
+    autoRule: "grade_promotion_a1_a5",
     isActive: true,
     issuedCount: 0,
   },
   {
-    name: "Certificate of Promotion (Example)",
-    slug: "certificate-of-promotion-example",
-    title: "Certificate of Promotion — Example",
-    bodyTemplate: PROMOTION_BODY,
-    description:
-      "Reference example with sample data filled in. For admin preview only.",
-    backgroundImageUrl: "/certificates/certificate-of-promotion-example.png",
-    layoutKey: "certificate-of-promotion",
-    isActive: false,
-    issuedCount: 0,
-  },
-  {
-    name: "Captain Promotion (Fillable)",
+    name: "Captain Promotion",
     slug: "captain-promotion",
     title: "Captain Promotion Certificate",
     bodyTemplate: CAPTAIN_BODY,
-    description:
-      "Fillable Captain (A-6) promotion certificate from Commander and Board.",
+    description: "Fillable Captain (A-6) promotion certificate — auto-issued at A-6.",
     backgroundImageUrl: "/certificates/captain-promotion-fillable.png",
     layoutKey: "captain-promotion",
+    autoRule: "grade_captain_a6",
     isActive: true,
     issuedCount: 0,
   },
   {
-    name: "Captain Promotion (Example)",
-    slug: "captain-promotion-example",
-    title: "Captain Promotion — Example",
-    bodyTemplate: CAPTAIN_BODY,
-    description:
-      "Reference example with sample Captain promotion data. Admin preview only.",
-    backgroundImageUrl: "/certificates/captain-promotion-example.png",
-    layoutKey: "captain-promotion",
-    isActive: false,
-    issuedCount: 0,
-  },
-  {
-    name: "Recreational Pilot Wings (Fillable)",
+    name: "Recreational Pilot Wings",
     slug: "recreational-pilot-wings",
     title: "Recreational Pilot: Unmanned Aircraft Systems",
     bodyTemplate: WINGS_BODY,
-    description: "Fillable Recreational Pilot UAS wings certificate.",
+    description: "Fillable Recreational Pilot UAS wings — auto when recreational wing is earned.",
     backgroundImageUrl: "/certificates/recreational-pilot-wings-fillable.png",
     layoutKey: "recreational-pilot-wings",
+    autoRule: "wing_recreational",
     isActive: true,
     issuedCount: 0,
   },
   {
-    name: "Recreational Pilot Wings (Example)",
-    slug: "recreational-pilot-wings-example",
-    title: "Recreational Pilot Wings — Example",
-    bodyTemplate: WINGS_BODY,
-    description:
-      "Reference example of completed Recreational Pilot Wings. Admin preview only.",
-    backgroundImageUrl: "/certificates/recreational-pilot-wings-example.png",
-    layoutKey: "recreational-pilot-wings",
-    isActive: false,
-    issuedCount: 0,
-  },
-  {
-    name: "Aviator Wings (Fillable)",
+    name: "Aviator Wings",
     slug: "aviator-wings",
     title: "Remote Pilot — Aviator Wings",
     bodyTemplate: WINGS_BODY,
-    description: "Fillable Remote Pilot Aviator Wings award certificate.",
+    description: "Fillable Remote Pilot Aviator Wings — auto when basic aviator wing is earned.",
     backgroundImageUrl: "/certificates/aviator-wings-fillable.png",
     layoutKey: "aviator-wings",
+    autoRule: "wing_aviator",
     isActive: true,
     issuedCount: 0,
   },
   {
-    name: "Senior Aviator Wings (Fillable)",
+    name: "Senior Aviator Wings",
     slug: "senior-aviator-wings",
     title: "Senior Remote Pilot — Senior Aviator Wings",
     bodyTemplate: WINGS_BODY,
     description:
-      "Fillable Senior Aviator Wings — 500 hours or five perfect contracts.",
+      "Fillable Senior Aviator Wings — five perfect contracts or senior wing earned.",
     backgroundImageUrl: "/certificates/senior-aviator-wings-fillable.png",
     layoutKey: "senior-aviator-wings",
+    autoRule: "hours_or_perfect_contracts_senior",
+    threshold: 500,
     isActive: true,
     issuedCount: 0,
   },
   {
-    name: "Master Aviator Wings (Fillable)",
+    name: "Master Aviator Wings",
     slug: "master-aviator-wings",
     title: "Master Remote Pilot — Master Aviator Wings",
     bodyTemplate: WINGS_BODY,
     description:
-      "Fillable Master Aviator Wings — 1,000 hours or ten perfect contracts.",
+      "Fillable Master Aviator Wings — ten perfect contracts or master wing earned.",
     backgroundImageUrl: "/certificates/master-aviator-wings-fillable.png",
     layoutKey: "master-aviator-wings",
+    autoRule: "hours_or_perfect_contracts_master",
+    threshold: 1000,
     isActive: true,
-    issuedCount: 0,
-  },
-  {
-    name: "Master Aviator Wings (Example)",
-    slug: "master-aviator-wings-example",
-    title: "Master Aviator Wings — Example",
-    bodyTemplate: WINGS_BODY,
-    description:
-      "Reference example of completed Master Aviator Wings. Admin preview only.",
-    backgroundImageUrl: "/certificates/master-aviator-wings-example.png",
-    layoutKey: "master-aviator-wings",
-    isActive: false,
     issuedCount: 0,
   },
 ];
 
+/** Slugs that were examples / obsolete — deactivate on ensure. */
+export const OBSOLETE_CERTIFICATE_SLUGS = [
+  "certificate-of-promotion-example",
+  "captain-promotion-example",
+  "recreational-pilot-wings-example",
+  "master-aviator-wings-example",
+] as const;
+
 /** Preview-only sample cards for canonical templates missing from the database. */
 export const MOCK_CERTIFICATE_TEMPLATES: AdminCertificateTemplateCardDto[] =
   CANONICAL_CERTIFICATE_TEMPLATES.map((tpl) => {
-    const meta =
-      DISPLAY_META_BY_KEY[tpl.slug] ??
-      DISPLAY_META_BY_KEY[tpl.layoutKey]!;
+    const meta = DISPLAY_META_BY_KEY[tpl.slug]!;
     const now = new Date().toISOString();
     return {
       id: `sample-${tpl.slug}`,
@@ -325,6 +258,9 @@ export const MOCK_CERTIFICATE_TEMPLATES: AdminCertificateTemplateCardDto[] =
       backgroundImageUrl: tpl.backgroundImageUrl,
       layoutKey: tpl.layoutKey,
       overlayPositions: null,
+      autoRule: tpl.autoRule,
+      ruleParam: null,
+      threshold: tpl.threshold ?? null,
       isActive: tpl.isActive,
       issuedCount: tpl.issuedCount,
       createdAt: now,

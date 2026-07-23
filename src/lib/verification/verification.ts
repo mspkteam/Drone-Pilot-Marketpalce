@@ -1,7 +1,7 @@
-import type { Verification } from "@/generated/prisma/client";
+﻿import type { Verification } from "@/generated/prisma/client";
 import { prisma } from "@/lib/db";
 import { notifyAsync, sendNotification } from "@/lib/notifications/notify";
-import { evaluateAndAssignWings } from "@/lib/wings/wings";
+import { evaluatePilotAwards } from "@/lib/certificates/certificate";
 import {
   buildStoredFileName,
   readVerificationFile,
@@ -285,7 +285,7 @@ async function submitVerificationRecord(
   return { ok: true, verification: toVerificationDto(row) };
 }
 
-/** @deprecated Use submitVerificationWithUrl — kept for route compatibility */
+/** @deprecated Use submitVerificationWithUrl â€” kept for route compatibility */
 export async function submitVerification(
   pilotProfileId: string,
   input: { type: VerificationType; documentUrl: string; notes: string | null },
@@ -402,7 +402,7 @@ export async function approveVerification(
     });
   });
 
-  await evaluateAndAssignWings(row.pilotProfileId);
+  await evaluatePilotAwards(row.pilotProfileId);
 
   return { ok: true };
 }

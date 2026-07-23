@@ -1,7 +1,7 @@
-import { getFastForwardFeeUsd } from "@/lib/membership/pilot-membership-catalog";
+﻿import { getFastForwardFeeUsd } from "@/lib/membership/pilot-membership-catalog";
 import { toMembershipTierDto } from "@/lib/membership/membership";
 import { prisma } from "@/lib/db";
-import { evaluateAndAssignWings } from "@/lib/wings/wings";
+import { evaluatePilotAwards } from "@/lib/certificates/certificate";
 import type {
   PilotSubscriptionDto,
   SubscriptionStatus,
@@ -103,7 +103,7 @@ export async function setPilotMembershipTier(
       include: { subscriptionPlan: true },
     });
 
-    await evaluateAndAssignWings(pilotProfileId);
+    await evaluatePilotAwards(pilotProfileId);
 
     return {
       ok: true,
@@ -139,7 +139,7 @@ export async function setPilotMembershipTier(
     include: { subscriptionPlan: true },
   });
 
-  await evaluateAndAssignWings(pilotProfileId);
+  await evaluatePilotAwards(pilotProfileId);
 
   return {
     ok: true,
@@ -149,7 +149,7 @@ export async function setPilotMembershipTier(
   };
 }
 
-/** @deprecated Use setPilotMembershipTier — kept for callers expecting enroll-only semantics. */
+/** @deprecated Use setPilotMembershipTier â€” kept for callers expecting enroll-only semantics. */
 export async function enrollPilotInPlan(
   pilotProfileId: string,
   planId: string,

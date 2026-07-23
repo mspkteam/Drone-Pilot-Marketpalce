@@ -108,6 +108,7 @@ export function AdminCertificateEnginePortal({
             backgroundImageUrl: input.backgroundImageUrl ?? null,
             layoutKey: input.layoutKey ?? null,
             overlayPositions: input.overlayPositions ?? null,
+            autoRule: input.autoRule ?? "manual_only",
           }),
         });
         if (!res.ok) {
@@ -134,6 +135,7 @@ export function AdminCertificateEnginePortal({
               backgroundImageUrl: input.backgroundImageUrl ?? null,
               layoutKey: input.layoutKey ?? null,
               overlayPositions: input.overlayPositions ?? null,
+              autoRule: input.autoRule ?? "manual_only",
             }),
           },
         );

@@ -1,4 +1,4 @@
-import type { Job, JobApplication } from "@/generated/prisma/client";
+﻿import type { Job, JobApplication } from "@/generated/prisma/client";
 import { canWithdrawApplication } from "@/lib/applications/status";
 import {
   parseProposalDetails,
@@ -12,7 +12,7 @@ import {
 } from "@/lib/membership/membership";
 import { prisma } from "@/lib/db";
 import { triggerBidReceived } from "@/lib/notifications/triggers";
-import { evaluateAndAssignWings } from "@/lib/wings/wings";
+import { evaluatePilotAwards } from "@/lib/certificates/certificate";
 import type {
   ApplicationStatus,
   JobApplicationDto,
@@ -199,7 +199,7 @@ export async function listOpenJobsForPilot(
   };
 }
 
-/** @deprecated Use listOpenJobsForPilot — returns visible jobs only */
+/** @deprecated Use listOpenJobsForPilot â€” returns visible jobs only */
 export async function listVisibleOpenJobsForPilot(pilotProfileId: string) {
   const result = await listOpenJobsForPilot(pilotProfileId);
   return result.jobs;
@@ -347,7 +347,7 @@ export async function createJobApplication(
     select: { displayName: true },
   });
   triggerBidReceived(jobId, job.title, pilot?.displayName ?? "A pilot");
-  await evaluateAndAssignWings(pilotProfileId);
+  await evaluatePilotAwards(pilotProfileId);
 
   return { ok: true, application: toApplicationDto(application) };
 }

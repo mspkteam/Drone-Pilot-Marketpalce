@@ -52,6 +52,9 @@ export async function POST(request: Request) {
         | import("@/lib/certificates/layouts").OverlayFieldOverride[]
         | null
         | undefined) ?? null,
+      autoRule: body.autoRule as string | null | undefined,
+      ruleParam: body.ruleParam as string | null | undefined,
+      threshold: body.threshold as number | null | undefined,
     });
 
     if (!result.ok) {

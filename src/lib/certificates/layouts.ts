@@ -3,6 +3,12 @@
  * Coordinates are percentages of image width/height (0–100), top-left origin.
  */
 
+import {
+  isCertificateFontKey,
+  migrateLegacyFontRole,
+  type CertificateFontKey,
+} from "@/lib/certificates/fonts";
+
 export type CertificateOverlayField =
   | "pilotName"
   | "gradeOrTitle"
@@ -14,6 +20,18 @@ export type CertificateOverlayField =
   | "month"
   | "year";
 
+export const ALL_OVERLAY_FIELDS: CertificateOverlayField[] = [
+  "pilotName",
+  "gradeOrTitle",
+  "issuedAt",
+  "awardDateShort",
+  "certificateNumber",
+  "memberNumber",
+  "day",
+  "month",
+  "year",
+];
+
 export type CertificateFieldStyle = {
   field: CertificateOverlayField;
   /** Horizontal center of the text block as % of width */
@@ -23,8 +41,8 @@ export type CertificateFieldStyle = {
   /** Max width of text block as % of image width */
   maxWidth?: number;
   fontSize: number;
-  /** CSS/PDF font role */
-  font: "blackletter" | "serif" | "sans" | "script";
+  /** Named client font */
+  font: CertificateFontKey;
   align?: "center" | "left" | "right";
   weight?: "normal" | "bold";
   letterSpacing?: number;
@@ -33,44 +51,43 @@ export type CertificateFieldStyle = {
 
 export type CertificateLayout = {
   key: string;
-  /** Aspect hint for preview / PDF page size */
   orientation: "landscape" | "portrait";
-  /** Intrinsic pixel size of the source PNG (for PDF scaling) */
   width: number;
   height: number;
   fields: CertificateFieldStyle[];
 };
 
+/** Shared Form 275 wings award family (Aviator / Senior / Master). */
 const WINGS_AWARD_LAYOUT: Omit<CertificateLayout, "key"> = {
   orientation: "landscape",
-  width: 1024,
-  height: 804,
+  width: 3300,
+  height: 2550,
   fields: [
     {
       field: "pilotName",
       x: 50,
-      y: 42,
+      y: 38,
       maxWidth: 70,
-      fontSize: 28,
-      font: "blackletter",
+      fontSize: 56,
+      font: "colchester",
       align: "center",
     },
     {
       field: "memberNumber",
-      x: 72,
+      x: 78,
       y: 86,
-      maxWidth: 14,
-      fontSize: 11,
-      font: "sans",
+      maxWidth: 12,
+      fontSize: 14,
+      font: "arial",
       align: "left",
     },
     {
       field: "awardDateShort",
-      x: 86,
+      x: 90,
       y: 86,
-      maxWidth: 14,
-      fontSize: 11,
-      font: "sans",
+      maxWidth: 12,
+      fontSize: 14,
+      font: "arial",
       align: "left",
     },
     {
@@ -78,8 +95,8 @@ const WINGS_AWARD_LAYOUT: Omit<CertificateLayout, "key"> = {
       x: 88,
       y: 94,
       maxWidth: 22,
-      fontSize: 9,
-      font: "sans",
+      fontSize: 12,
+      font: "engravers",
       align: "right",
       uppercase: true,
     },
@@ -96,10 +113,10 @@ export const CERTIFICATE_LAYOUTS: Record<string, CertificateLayout> = {
       {
         field: "pilotName",
         x: 50,
-        y: 58,
+        y: 52,
         maxWidth: 70,
         fontSize: 64,
-        font: "blackletter",
+        font: "colchester",
         align: "center",
       },
       {
@@ -107,18 +124,18 @@ export const CERTIFICATE_LAYOUTS: Record<string, CertificateLayout> = {
         x: 50,
         y: 78,
         maxWidth: 50,
-        fontSize: 22,
-        font: "sans",
+        fontSize: 20,
+        font: "arial",
         align: "center",
         uppercase: true,
       },
       {
         field: "certificateNumber",
-        x: 12,
+        x: 18,
         y: 92,
         maxWidth: 40,
         fontSize: 16,
-        font: "sans",
+        font: "engravers",
         align: "left",
         uppercase: true,
       },
@@ -136,7 +153,7 @@ export const CERTIFICATE_LAYOUTS: Record<string, CertificateLayout> = {
         y: 48,
         maxWidth: 70,
         fontSize: 72,
-        font: "blackletter",
+        font: "harrowgate",
         align: "center",
       },
       {
@@ -145,16 +162,16 @@ export const CERTIFICATE_LAYOUTS: Record<string, CertificateLayout> = {
         y: 62,
         maxWidth: 60,
         fontSize: 56,
-        font: "blackletter",
+        font: "colchester",
         align: "center",
       },
       {
         field: "certificateNumber",
-        x: 18,
+        x: 22,
         y: 88,
         maxWidth: 35,
-        fontSize: 18,
-        font: "sans",
+        fontSize: 16,
+        font: "arial",
         align: "left",
       },
     ],
@@ -171,7 +188,7 @@ export const CERTIFICATE_LAYOUTS: Record<string, CertificateLayout> = {
         y: 32,
         maxWidth: 75,
         fontSize: 52,
-        font: "blackletter",
+        font: "colchester",
         align: "center",
       },
       {
@@ -180,7 +197,7 @@ export const CERTIFICATE_LAYOUTS: Record<string, CertificateLayout> = {
         y: 42,
         maxWidth: 60,
         fontSize: 48,
-        font: "serif",
+        font: "engravers",
         align: "center",
         weight: "bold",
         uppercase: true,
@@ -191,7 +208,7 @@ export const CERTIFICATE_LAYOUTS: Record<string, CertificateLayout> = {
         y: 68,
         maxWidth: 12,
         fontSize: 16,
-        font: "script",
+        font: "harrowgate",
         align: "center",
       },
       {
@@ -200,7 +217,7 @@ export const CERTIFICATE_LAYOUTS: Record<string, CertificateLayout> = {
         y: 68,
         maxWidth: 18,
         fontSize: 16,
-        font: "script",
+        font: "harrowgate",
         align: "center",
       },
       {
@@ -209,7 +226,7 @@ export const CERTIFICATE_LAYOUTS: Record<string, CertificateLayout> = {
         y: 68,
         maxWidth: 10,
         fontSize: 16,
-        font: "script",
+        font: "harrowgate",
         align: "center",
       },
     ],
@@ -239,7 +256,7 @@ export const CERTIFICATE_LAYOUTS: Record<string, CertificateLayout> = {
         y: 52,
         maxWidth: 70,
         fontSize: 56,
-        font: "blackletter",
+        font: "colchester",
         align: "center",
       },
       {
@@ -248,7 +265,7 @@ export const CERTIFICATE_LAYOUTS: Record<string, CertificateLayout> = {
         y: 62,
         maxWidth: 60,
         fontSize: 36,
-        font: "serif",
+        font: "engravers",
         align: "center",
         weight: "bold",
       },
@@ -258,7 +275,7 @@ export const CERTIFICATE_LAYOUTS: Record<string, CertificateLayout> = {
         y: 78,
         maxWidth: 50,
         fontSize: 20,
-        font: "sans",
+        font: "arial",
         align: "center",
         uppercase: true,
       },
@@ -268,7 +285,7 @@ export const CERTIFICATE_LAYOUTS: Record<string, CertificateLayout> = {
         y: 92,
         maxWidth: 40,
         fontSize: 14,
-        font: "sans",
+        font: "arial",
         align: "left",
         uppercase: true,
       },
@@ -283,7 +300,6 @@ export function getCertificateLayout(
   return CERTIFICATE_LAYOUTS[layoutKey] ?? CERTIFICATE_LAYOUTS.custom ?? null;
 }
 
-/** Admin overrides for drag-aligned overlays (position + typography). */
 export type OverlayFieldOverride = {
   field: CertificateOverlayField;
   x: number;
@@ -291,12 +307,17 @@ export type OverlayFieldOverride = {
   fontSize?: number;
   align?: "center" | "left" | "right";
   maxWidth?: number;
-  font?: CertificateFieldStyle["font"];
+  font?: CertificateFontKey;
   weight?: "normal" | "bold";
 };
 
 /** @deprecated alias — use OverlayFieldOverride */
 export type OverlayPositionOverride = OverlayFieldOverride;
+
+function parseFont(value: unknown): CertificateFontKey | undefined {
+  const migrated = migrateLegacyFontRole(value);
+  return migrated ?? undefined;
+}
 
 export function parseOverlayPositionsJson(
   raw: string | null | undefined,
@@ -315,6 +336,7 @@ export function parseOverlayPositionsJson(
       if (typeof field !== "string" || !Number.isFinite(x) || !Number.isFinite(y)) {
         continue;
       }
+      if (!(ALL_OVERLAY_FIELDS as string[]).includes(field)) continue;
       const override: OverlayFieldOverride = {
         field: field as CertificateOverlayField,
         x: Math.min(100, Math.max(0, x)),
@@ -329,14 +351,8 @@ export function parseOverlayPositionsJson(
       if (rec.maxWidth != null && Number.isFinite(Number(rec.maxWidth))) {
         override.maxWidth = Math.min(100, Math.max(5, Number(rec.maxWidth)));
       }
-      if (
-        rec.font === "blackletter" ||
-        rec.font === "serif" ||
-        rec.font === "sans" ||
-        rec.font === "script"
-      ) {
-        override.font = rec.font;
-      }
+      const font = parseFont(rec.font);
+      if (font) override.font = font;
       if (rec.weight === "bold" || rec.weight === "normal") {
         override.weight = rec.weight;
       }
@@ -357,6 +373,7 @@ export function sanitizeOverlayOverrides(
     if (!item?.field || !Number.isFinite(item.x) || !Number.isFinite(item.y)) {
       continue;
     }
+    if (!(ALL_OVERLAY_FIELDS as string[]).includes(item.field)) continue;
     const entry: OverlayFieldOverride = {
       field: item.field,
       x: Math.min(100, Math.max(0, item.x)),
@@ -371,13 +388,11 @@ export function sanitizeOverlayOverrides(
     if (item.maxWidth != null && Number.isFinite(item.maxWidth)) {
       entry.maxWidth = Math.min(100, Math.max(5, item.maxWidth));
     }
-    if (
-      item.font === "blackletter" ||
-      item.font === "serif" ||
-      item.font === "sans" ||
-      item.font === "script"
-    ) {
+    if (item.font && isCertificateFontKey(item.font)) {
       entry.font = item.font;
+    } else if (item.font) {
+      const migrated = migrateLegacyFontRole(item.font);
+      if (migrated) entry.font = migrated;
     }
     if (item.weight === "bold" || item.weight === "normal") {
       entry.weight = item.weight;
@@ -424,20 +439,41 @@ function mergeFieldWithOverride(
   };
 }
 
-/** Merge saved overrides onto a base layout. */
+const DEFAULT_FIELD_STYLE: Omit<CertificateFieldStyle, "field" | "x" | "y"> = {
+  maxWidth: 40,
+  fontSize: 24,
+  font: "arial",
+  align: "center",
+};
+
+function styleFromOverride(override: OverlayFieldOverride): CertificateFieldStyle {
+  return {
+    field: override.field,
+    x: override.x,
+    y: override.y,
+    maxWidth: override.maxWidth ?? DEFAULT_FIELD_STYLE.maxWidth,
+    fontSize: override.fontSize ?? DEFAULT_FIELD_STYLE.fontSize,
+    font: override.font ?? DEFAULT_FIELD_STYLE.font,
+    align: override.align ?? "center",
+    weight: override.weight,
+  };
+}
+
+/**
+ * Apply saved overlays onto a base layout.
+ * When overrides exist they are the authoritative field list (builder checklist).
+ */
 export function applyOverlayPositionOverrides(
   layout: CertificateLayout,
   overrides: OverlayFieldOverride[] | null | undefined,
 ): CertificateLayout {
   if (!overrides?.length) return layout;
-  const byField = new Map(overrides.map((o) => [o.field, o]));
-  return {
-    ...layout,
-    fields: layout.fields.map((f) => {
-      const o = byField.get(f.field);
-      return o ? mergeFieldWithOverride(f, o) : f;
-    }),
-  };
+  const byBase = new Map(layout.fields.map((f) => [f.field, f]));
+  const fields: CertificateFieldStyle[] = overrides.map((o) => {
+    const base = byBase.get(o.field);
+    return base ? mergeFieldWithOverride(base, o) : styleFromOverride(o);
+  });
+  return { ...layout, fields };
 }
 
 export function overridesFromLayoutFields(
@@ -467,12 +503,19 @@ export function getEffectiveFieldOverrides(
   saved: OverlayFieldOverride[] | null | undefined,
 ): OverlayFieldOverride[] {
   if (saved?.length) {
-    const byField = new Map(saved.map((o) => [o.field, o]));
-    return baseLayout.fields.map((f) => {
-      const savedField = byField.get(f.field);
-      return savedField
-        ? mergeFieldWithOverride(f, savedField)
-        : overridesFromLayoutFields([f])[0]!;
+    const byBase = new Map(baseLayout.fields.map((f) => [f.field, f]));
+    return saved.map((o) => {
+      const base = byBase.get(o.field);
+      return {
+        field: o.field,
+        x: o.x,
+        y: o.y,
+        fontSize: o.fontSize ?? base?.fontSize ?? 24,
+        align: o.align ?? base?.align ?? ("center" as const),
+        maxWidth: o.maxWidth ?? base?.maxWidth ?? 40,
+        font: o.font ?? base?.font ?? ("arial" as const),
+        weight: o.weight ?? base?.weight,
+      };
     });
   }
   return overridesFromLayoutFields(baseLayout.fields);
@@ -485,9 +528,51 @@ export function updateFieldOverride(
   patch: Partial<Omit<OverlayFieldOverride, "field">>,
 ): OverlayFieldOverride[] {
   const effective = getEffectiveFieldOverrides(baseLayout, current);
+  if (!effective.some((item) => item.field === field)) {
+    return [
+      ...effective,
+      {
+        field,
+        x: patch.x ?? 50,
+        y: patch.y ?? 50,
+        fontSize: patch.fontSize ?? 24,
+        align: patch.align ?? "center",
+        maxWidth: patch.maxWidth ?? 40,
+        font: patch.font ?? "arial",
+        weight: patch.weight,
+      },
+    ];
+  }
   return effective.map((item) =>
     item.field === field ? { ...item, ...patch, field } : item,
   );
+}
+
+export function setActiveOverlayFields(
+  baseLayout: CertificateLayout,
+  current: OverlayFieldOverride[] | null | undefined,
+  activeFields: CertificateOverlayField[],
+): OverlayFieldOverride[] {
+  const effective = getEffectiveFieldOverrides(baseLayout, current);
+  const byField = new Map(effective.map((o) => [o.field, o]));
+  const defaults = overridesFromLayoutFields(baseLayout.fields);
+  const defaultByField = new Map(defaults.map((o) => [o.field, o]));
+
+  return activeFields.map((field, index) => {
+    const existing = byField.get(field);
+    if (existing) return existing;
+    const fromDefault = defaultByField.get(field);
+    if (fromDefault) return fromDefault;
+    return {
+      field,
+      x: 50,
+      y: 40 + index * 8,
+      fontSize: 24,
+      align: "center" as const,
+      maxWidth: 40,
+      font: "arial" as const,
+    };
+  });
 }
 
 export const OVERLAY_FIELD_LABELS: Record<CertificateOverlayField, string> = {
@@ -520,15 +605,17 @@ export function resolveOverlayText(
       return values.pilotName || "[MEMBER NAME]";
     case "gradeOrTitle":
       return values.gradeOrTitle?.trim() || "[GRADE]";
-    case "certificateNumber":
-      return values.certificateNumber
-        ? `CERTIFICATE NO. ${values.certificateNumber.replace(/^DPM-\d+-/, "").replace(/^0+/, "") || values.certificateNumber}`
-        : "CERTIFICATE NO.";
+    case "certificateNumber": {
+      if (!values.certificateNumber) return "CERTIFICATE NO.";
+      const short =
+        values.certificateNumber.replace(/^DPM-\d+-/, "").replace(/^0+/, "") ||
+        values.certificateNumber;
+      return `CERTIFICATE NO. ${short}`;
+    }
     case "memberNumber": {
-      const num =
-        values.memberNumber ??
-        values.certificateNumber.replace(/\D/g, "").slice(-5);
-      return num ? `# ${num}` : "#";
+      const num = values.memberNumber?.trim();
+      if (num) return num.startsWith("#") ? num : `# ${num}`;
+      return "#";
     }
     case "issuedAt":
       return issued

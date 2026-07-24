@@ -71,11 +71,11 @@ export function PilotSubscriptionPlanCards({
             </div>
 
             <Image
-              src={homeAssets.ranks[plan.rankKey]}
+              src={homeAssets.pricingRanks[plan.rankKey]}
               alt=""
-              width={27}
-              height={46}
-              className="mt-5 h-11 w-auto object-contain object-left"
+              width={48}
+              height={48}
+              className="mt-5 h-12 w-12 object-contain object-left"
               aria-hidden
             />
 
@@ -86,10 +86,10 @@ export function PilotSubscriptionPlanCards({
             <p className="mt-4 flex items-baseline gap-1">
               <span className="text-[2rem] font-extrabold leading-none text-gold">
                 {plan.currency === "USD"
-                  ? `$${plan.priceMonthly.toLocaleString()}`
-                  : `${plan.currency} ${plan.priceMonthly.toLocaleString()}`}
+                  ? `$${plan.priceYearly.toLocaleString()}`
+                  : `${plan.currency} ${plan.priceYearly.toLocaleString()}`}
               </span>
-              <span className="text-sm font-medium text-ras-soft">/month</span>
+              <span className="text-sm font-medium text-ras-soft">/year</span>
             </p>
 
             <ul className="mt-6 flex flex-1 flex-col gap-2.5">

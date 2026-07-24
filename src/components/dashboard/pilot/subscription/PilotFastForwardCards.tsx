@@ -113,7 +113,7 @@ export function PilotFastForwardCards({
             </div>
 
             <Image
-              src={homeAssets.ranks[card.rankKey]}
+              src={homeAssets.pricingRanks[card.rankKey]}
               alt=""
               width={52}
               height={52}

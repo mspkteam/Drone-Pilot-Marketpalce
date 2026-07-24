@@ -44,6 +44,8 @@ describe("public access", () => {
     assert.equal(isPublicMarketingPathAllowed("/pilots/demo-id"), false);
     assert.equal(isPublicMarketingPathAllowed("/captains-club"), true);
     assert.equal(isPublicMarketingPathAllowed("/reputation"), true);
+    assert.equal(isPublicMarketingPathAllowed("/jobs"), true);
+    assert.equal(isPublicMarketingPathAllowed("/jobs/demo-id"), true);
     assert.equal(isPublicMarketingPathAllowed("/dashboard/client"), false);
   });
 

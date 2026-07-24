@@ -18,6 +18,7 @@ export type PilotSubscriptionPlanCard = {
   rankKey: "a1" | "a2" | "a3" | "a4" | "a5" | "a6";
   title: string;
   priceMonthly: number;
+  priceYearly: number;
   currency: string;
   features: PricingPlanFeature[];
   isRecommended: boolean;
@@ -91,6 +92,7 @@ export function mapTierToSubscriptionCard(
     rankKey: marketing?.rankKey ?? "a1",
     title: plan.name,
     priceMonthly: plan.priceMonthly,
+    priceYearly: plan.priceYearly,
     currency: plan.currency,
     features: displayFeaturesFromPlan(plan, marketing),
     isRecommended: plan.isRecommended ?? false,

@@ -2,12 +2,9 @@ export const PERSONNEL_ROLE_FILTERS = [
   "All roles",
   "Pilot",
   "Elite Pilot",
+  "Squadron Lead",
   "Client",
   "Enterprise Client",
-  "Moderator",
-  "Admin",
-  "Super Admin",
-  "Squadron Lead",
 ] as const;
 
 export const PERSONNEL_REGION_FILTERS = [

@@ -6,9 +6,16 @@ import type {
   UniformProductVariant,
 } from "@/generated/prisma/client";
 import { prisma } from "@/lib/db";
+import { getPilotActiveTier } from "@/lib/membership/membership";
 import { notifyAsync, sendNotification } from "@/lib/notifications/notify";
+import {
+  normalizeTierCode,
+  normalizeWingCode,
+  pilotMeetsProductEligibility,
+} from "@/lib/shop/eligibility";
 import { SHOP_IMAGES_PER_PRODUCT_MAX } from "@/lib/shop/constants";
 import { UNIFORM_SHIPPING_FLAT_RATE } from "@/lib/shop/constants";
+import { listPilotWings } from "@/lib/wings/wings";
 import type {
   AdminUniformOrderDto,
   UniformOrderDto,
@@ -89,6 +96,9 @@ function toProductDto(
     images,
     isActive: p.isActive,
     sortOrder: p.sortOrder,
+    minTierCode: p.minTierCode ?? null,
+    exactTierCode: p.exactTierCode ?? null,
+    requiredWingCode: p.requiredWingCode ?? null,
     variants: p.variants
       .filter((v) => v.isActive)
       .map(toVariantDto),
@@ -112,6 +122,9 @@ function toProductDtoAdmin(
     images,
     isActive: p.isActive,
     sortOrder: p.sortOrder,
+    minTierCode: p.minTierCode ?? null,
+    exactTierCode: p.exactTierCode ?? null,
+    requiredWingCode: p.requiredWingCode ?? null,
     variants: p.variants.map(toVariantDto),
   };
 }
@@ -276,19 +289,42 @@ function toOrderDto(
   };
 }
 
-export async function listActiveProductsForShop(): Promise<UniformProductDto[]> {
-  const rows = await prisma.uniformProduct.findMany({
-    where: { isActive: true },
-    include: {
-      ...productInclude,
-      variants: {
-        where: { isActive: true },
-        orderBy: { label: "asc" },
+export async function listActiveProductsForShop(
+  pilotProfileId: string,
+): Promise<UniformProductDto[]> {
+  const [rows, tiers, wings] = await Promise.all([
+    prisma.uniformProduct.findMany({
+      where: { isActive: true },
+      include: {
+        ...productInclude,
+        variants: {
+          where: { isActive: true },
+          orderBy: { label: "asc" },
+        },
       },
-    },
-    orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
-  });
-  return rows.map(toProductDto);
+      orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+    }),
+    getPilotActiveTier(pilotProfileId),
+    listPilotWings(pilotProfileId),
+  ]);
+
+  const pilot = {
+    tierCode: tiers?.code ?? null,
+    wingCodes: new Set(wings.map((w) => w.code)),
+  };
+
+  return rows
+    .filter((row) =>
+      pilotMeetsProductEligibility(
+        {
+          minTierCode: row.minTierCode,
+          exactTierCode: row.exactTierCode,
+          requiredWingCode: row.requiredWingCode,
+        },
+        pilot,
+      ),
+    )
+    .map(toProductDto);
 }
 
 export async function listProductsForAdmin(): Promise<UniformProductDto[]> {
@@ -316,6 +352,9 @@ export async function createProduct(input: {
   imageUrl?: string | null;
   sortOrder?: number;
   isActive?: boolean;
+  minTierCode?: string | null;
+  exactTierCode?: string | null;
+  requiredWingCode?: string | null;
   variants?: ShopVariantSyncInput[];
   variant?: {
     sku: string;
@@ -344,6 +383,16 @@ export async function createProduct(input: {
     return { ok: false, error: "Product slug already exists." };
   }
 
+  const minTierCode = normalizeTierCode(input.minTierCode);
+  const exactTierCode = normalizeTierCode(input.exactTierCode);
+  if (input.minTierCode?.trim() && !minTierCode) {
+    return { ok: false, error: "Invalid minimum grade code." };
+  }
+  if (input.exactTierCode?.trim() && !exactTierCode) {
+    return { ok: false, error: "Invalid exact grade code." };
+  }
+  const requiredWingCode = normalizeWingCode(input.requiredWingCode);
+
   const imageUrls =
     input.imageUrls?.filter((u) => u.trim()) ??
     (input.imageUrl?.trim() ? [input.imageUrl.trim()] : []);
@@ -356,6 +405,9 @@ export async function createProduct(input: {
       imageUrl: imageUrls[0] ?? null,
       sortOrder: input.sortOrder ?? 0,
       isActive: input.isActive ?? true,
+      minTierCode,
+      exactTierCode,
+      requiredWingCode,
       images: imageUrls.length
         ? {
             create: imageUrls.map((url, index) => ({
@@ -465,6 +517,9 @@ export async function updateProduct(
     imageUrls: string[];
     sortOrder: number;
     isActive: boolean;
+    minTierCode: string | null;
+    exactTierCode: string | null;
+    requiredWingCode: string | null;
     price: number;
     stockQuantity: number;
     sku: string;
@@ -486,6 +541,25 @@ export async function updateProduct(
     return { ok: false, error: "Price must be a positive number." };
   }
 
+  let minTierCode: string | null | undefined;
+  let exactTierCode: string | null | undefined;
+  let requiredWingCode: string | null | undefined;
+  if (input.minTierCode !== undefined) {
+    minTierCode = normalizeTierCode(input.minTierCode);
+    if (input.minTierCode?.trim() && !minTierCode) {
+      return { ok: false, error: "Invalid minimum grade code." };
+    }
+  }
+  if (input.exactTierCode !== undefined) {
+    exactTierCode = normalizeTierCode(input.exactTierCode);
+    if (input.exactTierCode?.trim() && !exactTierCode) {
+      return { ok: false, error: "Invalid exact grade code." };
+    }
+  }
+  if (input.requiredWingCode !== undefined) {
+    requiredWingCode = normalizeWingCode(input.requiredWingCode);
+  }
+
   await prisma.uniformProduct.update({
     where: { id },
     data: {
@@ -498,6 +572,9 @@ export async function updateProduct(
         : {}),
       ...(input.sortOrder !== undefined ? { sortOrder: input.sortOrder } : {}),
       ...(input.isActive !== undefined ? { isActive: input.isActive } : {}),
+      ...(minTierCode !== undefined ? { minTierCode } : {}),
+      ...(exactTierCode !== undefined ? { exactTierCode } : {}),
+      ...(requiredWingCode !== undefined ? { requiredWingCode } : {}),
     },
   });
 
@@ -653,6 +730,39 @@ export async function placeUniformOrder(
 
   if (variants.length !== variantIds.length) {
     return { ok: false, error: "One or more items are unavailable.", status: 400 };
+  }
+
+  const pilotProfile = await prisma.pilotProfile.findUnique({
+    where: { userId },
+    select: { id: true },
+  });
+  if (pilotProfile) {
+    const [tiers, wings] = await Promise.all([
+      getPilotActiveTier(pilotProfile.id),
+      listPilotWings(pilotProfile.id),
+    ]);
+    const pilot = {
+      tierCode: tiers?.code ?? null,
+      wingCodes: new Set(wings.map((w) => w.code)),
+    };
+    for (const variant of variants) {
+      if (
+        !pilotMeetsProductEligibility(
+          {
+            minTierCode: variant.product.minTierCode,
+            exactTierCode: variant.product.exactTierCode,
+            requiredWingCode: variant.product.requiredWingCode,
+          },
+          pilot,
+        )
+      ) {
+        return {
+          ok: false,
+          error: `${variant.product.name} is not available for your grade or awards.`,
+          status: 400,
+        };
+      }
+    }
   }
 
   const variantMap = new Map(variants.map((v) => [v.id, v]));

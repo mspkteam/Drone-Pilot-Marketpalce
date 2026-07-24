@@ -71,6 +71,9 @@ export function AdminShopProductModal({
   const [isDigital, setIsDigital] = useState(false);
   const [isVariable, setIsVariable] = useState(false);
   const [variants, setVariants] = useState<ShopVariantFormInput[]>([emptyVariant()]);
+  const [minTierCode, setMinTierCode] = useState("");
+  const [exactTierCode, setExactTierCode] = useState("");
+  const [requiredWingCode, setRequiredWingCode] = useState("");
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
 
@@ -94,6 +97,9 @@ export function AdminShopProductModal({
       );
       setIsActive(product.isActive);
       setIsDigital(product.category === "DIGITAL");
+      setMinTierCode(product.minTierCode ?? "");
+      setExactTierCode(product.exactTierCode ?? "");
+      setRequiredWingCode(product.requiredWingCode ?? "");
       const variable = productHasVariableVariants(product);
       setIsVariable(variable);
       if (product.variants.length) {
@@ -135,6 +141,9 @@ export function AdminShopProductModal({
       setIsDigital(false);
       setIsVariable(false);
       setVariants([emptyVariant()]);
+      setMinTierCode("");
+      setExactTierCode("");
+      setRequiredWingCode("");
     }
   }, [mode, product]);
 
@@ -233,6 +242,9 @@ export function AdminShopProductModal({
       isDigital,
       isVariable,
       variants: payloadVariants,
+      minTierCode,
+      exactTierCode,
+      requiredWingCode,
     });
   }
 
@@ -294,6 +306,12 @@ export function AdminShopProductModal({
                   setCategory={setCategory}
                   isVariableState={isVariable}
                   setIsVariable={setIsVariable}
+                  minTierCode={minTierCode}
+                  setMinTierCode={setMinTierCode}
+                  exactTierCode={exactTierCode}
+                  setExactTierCode={setExactTierCode}
+                  requiredWingCode={requiredWingCode}
+                  setRequiredWingCode={setRequiredWingCode}
                 />
 
                 <aside className="admin-shop-wc-side">
@@ -520,6 +538,12 @@ function ShopModalMain({
   setCategory,
   isVariableState,
   setIsVariable,
+  minTierCode,
+  setMinTierCode,
+  exactTierCode,
+  setExactTierCode,
+  requiredWingCode,
+  setRequiredWingCode,
 }: {
   dataTab: ProductDataTab;
   setDataTab: (tab: ProductDataTab) => void;
@@ -545,6 +569,12 @@ function ShopModalMain({
   setCategory: (v: string) => void;
   isVariableState: boolean;
   setIsVariable: (v: boolean) => void;
+  minTierCode: string;
+  setMinTierCode: (v: string) => void;
+  exactTierCode: string;
+  setExactTierCode: (v: string) => void;
+  requiredWingCode: string;
+  setRequiredWingCode: (v: string) => void;
 }) {
   return (
     <div className="admin-shop-wc-main">
@@ -614,6 +644,12 @@ function ShopModalMain({
             isVariableState={isVariableState}
             setIsVariable={setIsVariable}
             setDataTab={setDataTab}
+            minTierCode={minTierCode}
+            setMinTierCode={setMinTierCode}
+            exactTierCode={exactTierCode}
+            setExactTierCode={setExactTierCode}
+            requiredWingCode={requiredWingCode}
+            setRequiredWingCode={setRequiredWingCode}
           />
         </div>
       </section>
@@ -643,6 +679,12 @@ function ProductDataTabPanel({
   isVariableState,
   setIsVariable,
   setDataTab,
+  minTierCode,
+  setMinTierCode,
+  exactTierCode,
+  setExactTierCode,
+  requiredWingCode,
+  setRequiredWingCode,
 }: {
   dataTab: ProductDataTab;
   isVariable: boolean;
@@ -665,6 +707,12 @@ function ProductDataTabPanel({
   isVariableState: boolean;
   setIsVariable: (v: boolean) => void;
   setDataTab: (tab: ProductDataTab) => void;
+  minTierCode: string;
+  setMinTierCode: (v: string) => void;
+  exactTierCode: string;
+  setExactTierCode: (v: string) => void;
+  requiredWingCode: string;
+  setRequiredWingCode: (v: string) => void;
 }) {
   return (
     <div className="admin-shop-wc-tab-panel">
@@ -721,6 +769,12 @@ function ProductDataTabPanel({
           isDigital={isDigital}
           setIsDigital={setIsDigital}
           setCategory={setCategory}
+          minTierCode={minTierCode}
+          setMinTierCode={setMinTierCode}
+          exactTierCode={exactTierCode}
+          setExactTierCode={setExactTierCode}
+          requiredWingCode={requiredWingCode}
+          setRequiredWingCode={setRequiredWingCode}
         />
       ) : null}
     </div>
@@ -815,6 +869,12 @@ function AdvancedFields({
   isDigital,
   setIsDigital,
   setCategory,
+  minTierCode,
+  setMinTierCode,
+  exactTierCode,
+  setExactTierCode,
+  requiredWingCode,
+  setRequiredWingCode,
 }: {
   isVariableState: boolean;
   setIsVariable: (v: boolean) => void;
@@ -822,6 +882,12 @@ function AdvancedFields({
   isDigital: boolean;
   setIsDigital: (v: boolean) => void;
   setCategory: (v: string) => void;
+  minTierCode: string;
+  setMinTierCode: (v: string) => void;
+  exactTierCode: string;
+  setExactTierCode: (v: string) => void;
+  requiredWingCode: string;
+  setRequiredWingCode: (v: string) => void;
 }) {
   return (
     <div className="admin-shop-wc-fields">
@@ -849,10 +915,59 @@ function AdvancedFields({
         />
         Virtual / digital product (no shipping)
       </label>
-      <p className="admin-shop-hint">
-        Enable variable product to manage multiple size/color combinations with separate SKU,
-        price, and stock for each.
-      </p>
+
+      <div className="admin-shop-field">
+        <label htmlFor="shop-min-tier">Minimum grade (optional)</label>
+        <select
+          id="shop-min-tier"
+          value={minTierCode}
+          onChange={(event) => setMinTierCode(event.target.value)}
+        >
+          <option value="">Any grade</option>
+          <option value="A1_STUDENT">A-1 Student</option>
+          <option value="A2_JUNIOR_FLIGHT_OFFICER">A-2 Jr Flight Officer</option>
+          <option value="A3_FLIGHT_OFFICER">A-3 Flight Officer</option>
+          <option value="A4_SENIOR_FLIGHT_OFFICER">A-4 Sr Flight Officer</option>
+          <option value="A5_FIRST_OFFICER">A-5 First Officer</option>
+          <option value="A6_CAPTAIN">A-6 Captain</option>
+        </select>
+        <p className="admin-shop-hint">
+          e.g. Captain&apos;s Club polo → A-6 Captain
+        </p>
+      </div>
+
+      <div className="admin-shop-field">
+        <label htmlFor="shop-exact-tier">Exact grade only (optional)</label>
+        <select
+          id="shop-exact-tier"
+          value={exactTierCode}
+          onChange={(event) => setExactTierCode(event.target.value)}
+        >
+          <option value="">Not grade-locked</option>
+          <option value="A1_STUDENT">A-1 Student</option>
+          <option value="A2_JUNIOR_FLIGHT_OFFICER">A-2 Jr Flight Officer</option>
+          <option value="A3_FLIGHT_OFFICER">A-3 Flight Officer</option>
+          <option value="A4_SENIOR_FLIGHT_OFFICER">A-4 Sr Flight Officer</option>
+          <option value="A5_FIRST_OFFICER">A-5 First Officer</option>
+          <option value="A6_CAPTAIN">A-6 Captain</option>
+        </select>
+        <p className="admin-shop-hint">
+          Use for epaulettes that must match the pilot&apos;s current grade.
+        </p>
+      </div>
+
+      <div className="admin-shop-field">
+        <label htmlFor="shop-required-wing">Required wing code (optional)</label>
+        <input
+          id="shop-required-wing"
+          value={requiredWingCode}
+          onChange={(event) => setRequiredWingCode(event.target.value)}
+          placeholder="e.g. aviator-wings-senior"
+        />
+        <p className="admin-shop-hint">
+          Pilot must already hold this wing award to see/order the item.
+        </p>
+      </div>
     </div>
   );
 }

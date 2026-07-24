@@ -92,6 +92,7 @@ function mapStatus(
   userStatus: string,
   options: {
     pilotStatus?: string | null;
+    clientStatus?: string | null;
     isClient?: boolean;
     isEnterprise?: boolean;
     region?: string;
@@ -100,16 +101,32 @@ function mapStatus(
   if (userStatus === "suspended" || userStatus === "inactive") {
     return { label: "SUSPENDED", tone: "danger" };
   }
+  if (userStatus === "pending") {
+    return { label: "PENDING", tone: "pending" };
+  }
   if (options.pilotStatus) {
     if (
       options.pilotStatus === "pending_review" ||
-      options.pilotStatus === "draft"
+      options.pilotStatus === "draft" ||
+      options.pilotStatus === "rejected"
     ) {
       return { label: "PENDING", tone: "pending" };
+    }
+    if (options.pilotStatus === "suspended") {
+      return { label: "SUSPENDED", tone: "danger" };
     }
     return { label: "ACTIVE DUTY", tone: "success" };
   }
   if (options.isClient) {
+    if (
+      options.clientStatus === "pending_review" ||
+      options.clientStatus === "draft"
+    ) {
+      return { label: "PENDING", tone: "pending" };
+    }
+    if (options.clientStatus === "suspended") {
+      return { label: "SUSPENDED", tone: "danger" };
+    }
     if (options.isEnterprise && options.region === "Global") {
       return { label: "MULTINATIONAL", tone: "success" };
     }
@@ -118,23 +135,17 @@ function mapStatus(
   return { label: "ACTIVE DUTY", tone: "success" };
 }
 
-function viewHrefForRole(
-  role: UserRole,
-  hasPilot: boolean,
-  hasClient: boolean,
-): string {
-  if (hasPilot) return "/dashboard/admin/pilots";
-  if (hasClient) return "/dashboard/admin/clients";
-  if (role === "moderator" || role === "admin" || role === "super_admin") {
-    return "/dashboard/admin/users";
-  }
-  return "/dashboard/admin/users";
+function viewHrefForMember(userId: string): string {
+  return `/dashboard/admin/users/${userId}`;
 }
 
 async function buildRowsFromDatabase(
   isSuperAdmin: boolean,
 ): Promise<PersonnelRow[]> {
   const users = await prisma.user.findMany({
+    where: {
+      role: { notIn: ["moderator", "admin", "super_admin"] },
+    },
     orderBy: { createdAt: "desc" },
     include: {
       pilotProfile: {
@@ -161,6 +172,7 @@ async function buildRowsFromDatabase(
           id: true,
           contactName: true,
           companyName: true,
+          status: true,
         },
       },
     },
@@ -179,16 +191,7 @@ async function buildRowsFromDatabase(
     let roleLabel = "Client";
     let roleFilter = "Client";
 
-    if (role === "super_admin") {
-      roleLabel = "Super Admin";
-      roleFilter = "Super Admin";
-    } else if (role === "admin") {
-      roleLabel = "Admin";
-      roleFilter = "Admin";
-    } else if (role === "moderator") {
-      roleLabel = "Moderator";
-      roleFilter = "Moderator";
-    } else if (pilot) {
+    if (pilot) {
       const mapped = mapPilotRoleLabel(
         tier?.code ?? null,
         tier?.instructorEligible ?? false,
@@ -210,13 +213,14 @@ async function buildRowsFromDatabase(
 
     const status = mapStatus(user.status, {
       pilotStatus: pilot?.status,
+      clientStatus: client?.status,
       isClient: Boolean(client),
       isEnterprise,
       region,
     });
 
     const createdAt = user.createdAt;
-    const viewHref = viewHrefForRole(role, Boolean(pilot), Boolean(client));
+    const viewHref = viewHrefForMember(user.id);
     const editHref = isSuperAdmin ? viewHref : null;
 
     return {
@@ -242,38 +246,23 @@ async function buildRowsFromDatabase(
 async function buildStats(): Promise<PersonnelStatCard[]> {
   const monthAgo = new Date();
   monthAgo.setMonth(monthAgo.getMonth() - 1);
+  const memberRoles = ["pilot", "client"] as const;
 
   const [
-    totalUsers,
-    usersThisMonth,
+    totalMembers,
+    membersThisMonth,
     totalPilots,
-    enterpriseClients,
-    newEnterpriseThisMonth,
-    moderators,
-    activeModerators,
+    totalClients,
+    clientsThisMonth,
     distinctRegions,
   ] = await Promise.all([
-    prisma.user.count(),
-    prisma.user.count({ where: { createdAt: { gte: monthAgo } } }),
+    prisma.user.count({ where: { role: { in: [...memberRoles] } } }),
+    prisma.user.count({
+      where: { role: { in: [...memberRoles] }, createdAt: { gte: monthAgo } },
+    }),
     prisma.pilotProfile.count(),
-    prisma.clientProfile.count({
-      where: { companyName: { not: null } },
-    }),
-    prisma.clientProfile.count({
-      where: {
-        companyName: { not: null },
-        createdAt: { gte: monthAgo },
-      },
-    }),
-    prisma.user.count({
-      where: { role: "moderator" },
-    }),
-    prisma.user.count({
-      where: {
-        role: "moderator",
-        status: "active",
-      },
-    }),
+    prisma.clientProfile.count(),
+    prisma.clientProfile.count({ where: { createdAt: { gte: monthAgo } } }),
     prisma.pilotProfile.findMany({
       select: { locationCountry: true, locationRegion: true },
       where: {
@@ -293,27 +282,27 @@ async function buildStats(): Promise<PersonnelStatCard[]> {
 
   return [
     {
-      label: "TOTAL USERS",
-      value: totalUsers.toLocaleString(),
-      subtext: `+${usersThisMonth} this month`,
-      subtextTone: usersThisMonth > 0 ? "success" : "muted",
+      label: "TOTAL MEMBERS",
+      value: totalMembers.toLocaleString(),
+      subtext: `+${membersThisMonth} this month`,
+      subtextTone: membersThisMonth > 0 ? "success" : "muted",
     },
     {
-      label: "TOTAL PILOT USERS",
+      label: "PILOTS",
       value: totalPilots.toLocaleString(),
       subtext: `across ${Math.max(regionSet.size, 1)} regions`,
       subtextTone: "muted",
     },
     {
-      label: "ENTERPRISE CLIENTS",
-      value: enterpriseClients.toLocaleString(),
-      subtext: `+${newEnterpriseThisMonth} new contracts`,
-      subtextTone: newEnterpriseThisMonth > 0 ? "success" : "muted",
+      label: "CLIENTS",
+      value: totalClients.toLocaleString(),
+      subtext: `+${clientsThisMonth} this month`,
+      subtextTone: clientsThisMonth > 0 ? "success" : "muted",
     },
     {
-      label: "ACTIVE MODERATORS",
-      value: moderators.toLocaleString(),
-      subtext: `online: ${activeModerators}`,
+      label: "REGIONS",
+      value: Math.max(regionSet.size, 1).toLocaleString(),
+      subtext: "active pilot coverage",
       subtextTone: "muted",
     },
   ];

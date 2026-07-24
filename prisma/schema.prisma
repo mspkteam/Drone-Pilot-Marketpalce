@@ -15,6 +15,8 @@ model User {
   passwordHash    String
   role            String
   status          String         @default("active")
+  /// Admin note when account is held for review / ToS (not shown to the user).
+  moderationNote  String?
   emailVerifiedAt DateTime?
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
@@ -650,6 +652,12 @@ model UniformProduct {
   imageUrl    String?
   isActive    Boolean                  @default(true)
   sortOrder   Int                      @default(0)
+  /// Minimum membership tier code (e.g. A6_CAPTAIN). Null = no minimum.
+  minTierCode String?
+  /// Exact membership tier required (e.g. epaulettes for that grade only).
+  exactTierCode String?
+  /// WingDefinition.code the pilot must already hold to see/order this item.
+  requiredWingCode String?
   createdAt   DateTime                 @default(now())
   updatedAt   DateTime                 @updatedAt
   variants    UniformProductVariant[]

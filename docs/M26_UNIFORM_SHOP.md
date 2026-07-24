@@ -9,10 +9,20 @@ Pilots purchase branded apparel through a **separate shop** from marketplace job
 
 ## Data model
 
-- `UniformProduct` — catalog item
+- `UniformProduct` — catalog item (`minTierCode`, `exactTierCode`, `requiredWingCode` gate pilot visibility/orders)
 - `UniformProductVariant` — SKU, price, stock
 - `UniformOrder` — shipping address, subtotal, shipping, total, `status`, `paymentStatus`
 - `UniformOrderItem` — line snapshots
+
+### Eligibility (pilot shop)
+
+| Field | Behavior |
+|-------|----------|
+| `minTierCode` | Pilot membership grade must be at least this tier (e.g. Captain polo → `A6_CAPTAIN`) |
+| `exactTierCode` | Must match current grade exactly (epaulettes) |
+| `requiredWingCode` | Pilot must already hold that wing award |
+
+Unset fields = no restriction. Admin configures these on product Advanced tab.
 
 ### Order status
 

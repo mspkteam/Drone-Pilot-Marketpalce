@@ -37,6 +37,7 @@ export const DEFAULT_UNLOCKED_PUBLIC_PATHS = [
   "/pilots",
   "/captains-club",
   "/reputation",
+  "/jobs",
 ] as const;
 
 function normalizePublicPath(pathname: string): string {

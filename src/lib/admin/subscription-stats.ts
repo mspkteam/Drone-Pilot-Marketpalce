@@ -40,8 +40,8 @@ export async function getSubscriptionStatsForAdmin(): Promise<AdminSubscriptionS
   ]);
 
   const activeSubscribers = activeSubs.length;
-  const mrr = activeSubs.reduce(
-    (sum, sub) => sum + (sub.subscriptionPlan.priceMonthly ?? 0),
+  const arr = activeSubs.reduce(
+    (sum, sub) => sum + (sub.subscriptionPlan.priceYearly ?? 0),
     0,
   );
 
@@ -69,8 +69,8 @@ export async function getSubscriptionStatsForAdmin(): Promise<AdminSubscriptionS
   return {
     activeSubscribers,
     activeSubscribersSubtext: `+${newThisMonth} this month`,
-    monthlyRecurring: formatCurrency(mrr),
-    monthlyRecurringSubtext: "from enrolled pilots",
+    monthlyRecurring: formatCurrency(arr),
+    monthlyRecurringSubtext: "annual membership fees",
     avgTier,
     avgTierSubtext: "across all pilots",
     churnRate: churnPercent !== null ? `${churnPercent.toFixed(1)}%` : "—",

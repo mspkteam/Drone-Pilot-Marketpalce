@@ -1,4 +1,9 @@
-export const CLIENT_PROFILE_STATUSES = ["draft", "active", "suspended"] as const;
+export const CLIENT_PROFILE_STATUSES = [
+  "draft",
+  "active",
+  "pending_review",
+  "suspended",
+] as const;
 
 export type ClientProfileStatus = (typeof CLIENT_PROFILE_STATUSES)[number];
 

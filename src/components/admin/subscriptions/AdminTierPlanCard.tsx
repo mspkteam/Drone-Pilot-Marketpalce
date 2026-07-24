@@ -18,7 +18,7 @@ export function AdminTierPlanCard({
   onEdit,
   onManageFeatures,
 }: AdminTierPlanCardProps) {
-  const rankSrc = plan.rankKey ? homeAssets.ranks[plan.rankKey] : null;
+  const rankSrc = plan.rankKey ? homeAssets.pricingRanks[plan.rankKey] : null;
   const isStartingGrade = plan.fastForwardFeeUsd <= 0;
   const feeLabel = formatMembershipUsd(plan.fastForwardFeeUsd);
   const membershipLabel = formatMembershipUsd(plan.annualMembershipUsd);

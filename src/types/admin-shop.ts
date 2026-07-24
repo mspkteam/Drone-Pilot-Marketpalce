@@ -17,6 +17,9 @@ export type AdminInventoryRowDto = {
   description: string;
   isActive: boolean;
   variantCount: number;
+  minTierCode: string | null;
+  exactTierCode: string | null;
+  requiredWingCode: string | null;
   variants: Array<{
     id: string;
     sku: string;
@@ -86,4 +89,10 @@ export type ShopProductFormInput = {
   stockThreshold: number;
   sku: string;
   variants: ShopVariantFormInput[];
+  /** Minimum grade code (e.g. A6_CAPTAIN). Empty = none. */
+  minTierCode: string;
+  /** Exact grade only (epaulettes). Empty = none. */
+  exactTierCode: string;
+  /** Wing definition code required. Empty = none. */
+  requiredWingCode: string;
 };

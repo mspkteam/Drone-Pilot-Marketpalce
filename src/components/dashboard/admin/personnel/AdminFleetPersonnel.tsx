@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { AdminPersonnelEditModal } from "@/components/dashboard/admin/personnel/AdminPersonnelEditModal";
 import { AdminPersonnelInviteModal } from "@/components/dashboard/admin/personnel/AdminPersonnelInviteModal";
 import { useModeratorPermissions } from "@/contexts/ModeratorPermissionsContext";
 import {
@@ -60,9 +61,8 @@ export function AdminFleetPersonnel({
   const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(1);
   const [inviteOpen, setInviteOpen] = useState(false);
+  const [editUserId, setEditUserId] = useState<string | null>(null);
   const [rows, setRows] = useState(data.rows);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [actionError, setActionError] = useState<string | null>(null);
 
   useEffect(() => {
     setRows(data.rows);
@@ -105,33 +105,6 @@ export function AdminFleetPersonnel({
     URL.revokeObjectURL(url);
   }, [filteredRows]);
 
-  async function handleDelete(row: PersonnelRow) {
-    if (!canManageManagementUsers || !row.isManagementUser) return;
-    const confirmed = window.confirm(
-      `Delete ${row.roleLabel} account "${row.name}" (${row.displayId})? This cannot be undone.`,
-    );
-    if (!confirmed) return;
-
-    setActionError(null);
-    setDeletingId(row.id);
-    try {
-      const res = await fetch(`/api/admin/management-users/${row.id}`, {
-        method: "DELETE",
-      });
-      const payload = (await res.json()) as { error?: string };
-      if (!res.ok) {
-        setActionError(payload.error ?? "Failed to delete user.");
-        return;
-      }
-      setRows((current) => current.filter((item) => item.id !== row.id));
-      router.refresh();
-    } catch {
-      setActionError("Failed to delete user.");
-    } finally {
-      setDeletingId(null);
-    }
-  }
-
   return (
     <div className="admin-personnel-page">
       <section
@@ -141,11 +114,11 @@ export function AdminFleetPersonnel({
         <div className="admin-ops-hero-glow" aria-hidden />
         <div className="admin-personnel-hero-inner">
           <div className="admin-personnel-hero-copy">
-            <p className="admin-ops-eyebrow">USER MANAGEMENT</p>
+            <p className="admin-ops-eyebrow">MEMBER DIRECTORY</p>
             <h1 className="admin-personnel-hero-title">Fleet &amp; Personnel</h1>
             <p className="admin-personnel-hero-desc">
-              Every client, officer, admin and moderator across all regions in one
-              place.
+              Pilots and clients across all regions — view profiles, membership,
+              and account status.
             </p>
           </div>
           <div className="admin-personnel-hero-actions">
@@ -170,12 +143,6 @@ export function AdminFleetPersonnel({
           </div>
         </div>
       </section>
-
-      {actionError ? (
-        <p className="admin-personnel-banner-error" role="alert">
-          {actionError}
-        </p>
-      ) : null}
 
       <section
         className="admin-personnel-stats-grid"
@@ -295,36 +262,18 @@ export function AdminFleetPersonnel({
                           VIEW
                         </Link>
                         {row.editHref ? (
-                          <Link
-                            href={row.editHref}
+                          <button
+                            type="button"
                             className="admin-personnel-action"
+                            onClick={() => setEditUserId(row.id)}
                           >
                             EDIT
-                          </Link>
+                          </button>
                         ) : (
                           <span className="admin-personnel-action admin-personnel-action--disabled">
                             EDIT
                           </span>
                         )}
-                        {canManageManagementUsers ? (
-                          row.isManagementUser ? (
-                            <button
-                              type="button"
-                              className="admin-personnel-action admin-personnel-action--danger"
-                              disabled={deletingId === row.id}
-                              onClick={() => void handleDelete(row)}
-                            >
-                              {deletingId === row.id ? "…" : "DELETE"}
-                            </button>
-                          ) : (
-                            <span
-                              className="admin-personnel-action admin-personnel-action--placeholder"
-                              aria-hidden
-                            >
-                              DELETE
-                            </span>
-                          )
-                        ) : null}
                       </div>
                     </td>
                   </tr>
@@ -385,6 +334,12 @@ export function AdminFleetPersonnel({
       <AdminPersonnelInviteModal
         open={inviteOpen}
         onClose={() => setInviteOpen(false)}
+      />
+      <AdminPersonnelEditModal
+        open={Boolean(editUserId)}
+        userId={editUserId}
+        onClose={() => setEditUserId(null)}
+        onSaved={() => router.refresh()}
       />
     </div>
   );

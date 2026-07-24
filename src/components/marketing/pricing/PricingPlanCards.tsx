@@ -92,11 +92,11 @@ export function PricingPlanCards({
                 </div>
 
                 <Image
-                  src={homeAssets.ranks[plan.rankKey]}
+                  src={homeAssets.pricingRanks[plan.rankKey]}
                   alt=""
-                  width={27}
-                  height={46}
-                  className="mt-5 h-11 w-auto object-contain object-left"
+                  width={48}
+                  height={48}
+                  className="mt-5 h-12 w-12 object-contain object-left"
                   aria-hidden
                 />
 

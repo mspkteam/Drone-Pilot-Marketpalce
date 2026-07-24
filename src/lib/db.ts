@@ -2,7 +2,7 @@ import { PrismaClient } from "@/generated/prisma/client";
 import { createPrismaClient } from "@/lib/create-prisma-client";
 
 /** Bump when Prisma schema changes so dev HMR does not keep an old client. */
-const PRISMA_CLIENT_SCHEMA_VERSION = 39;
+const PRISMA_CLIENT_SCHEMA_VERSION = 40;
 
 const globalForPrisma = globalThis as unknown as {
   prisma?: PrismaClient;

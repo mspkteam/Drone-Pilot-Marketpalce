@@ -34,13 +34,23 @@ export const homeAssets = {
   },
 
   ranks: {
-    /** bdg 2 — A-1 Student (171:50) */
+    /** bdg 2 — A-1 Student (171:50) — home Aviator Grade Progression */
     a1: "/marketing/rank-a1.png",
     a2: "/marketing/rank-a2.png",
     a3: "/marketing/rank-a3.png",
     a4: "/marketing/rank-a4.png",
     a5: "/marketing/rank-a5.png",
     a6: "/marketing/rank-a6.png",
+  },
+
+  /** Client grade icons for pricing / membership plan cards (not home progression). */
+  pricingRanks: {
+    a1: "/marketing/pricing-rank-a1.png",
+    a2: "/marketing/pricing-rank-a2.png",
+    a3: "/marketing/pricing-rank-a3.png",
+    a4: "/marketing/pricing-rank-a4.png",
+    a5: "/marketing/pricing-rank-a5.png",
+    a6: "/marketing/pricing-rank-a6.png",
   },
 
   footer: {

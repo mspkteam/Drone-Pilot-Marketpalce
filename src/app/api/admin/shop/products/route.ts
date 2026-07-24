@@ -35,6 +35,9 @@ export async function POST(request: Request) {
     imageUrl: body.imageUrl,
     sortOrder: body.sortOrder,
     isActive: body.isActive,
+    minTierCode: body.minTierCode ?? null,
+    exactTierCode: body.exactTierCode ?? null,
+    requiredWingCode: body.requiredWingCode ?? null,
     variants: Array.isArray(body.variants) ? body.variants : undefined,
     variant: body.variant,
   });

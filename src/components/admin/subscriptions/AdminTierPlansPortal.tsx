@@ -158,7 +158,7 @@ export function AdminTierPlansPortal() {
               </p>
             </article>
             <article className="admin-subscriptions-stat-card">
-              <p className="admin-subscriptions-stat-label">MONTHLY RECURRING</p>
+              <p className="admin-subscriptions-stat-label">ANNUAL RECURRING</p>
               <p className="admin-subscriptions-stat-value">
                 {displayStats.monthlyRecurring}
               </p>

@@ -4,6 +4,29 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.14] — 2026-07-24
+
+### Added
+
+- Public `/jobs` and `/jobs/[id]` pages with Google Jobs `JobPosting` JSON-LD for approved open missions
+- Uniform shop eligibility: min grade, exact grade (epaulettes), and required wing code
+- Admin Fleet & Personnel edit modal: email, account status, profile fields, moderation note, pending_review holds
+- Admin member detail view (`/dashboard/admin/users/[id]`) for pilots and clients
+- Pricing/membership cards use new grade icons (`pricing-rank-a1`–`a6`)
+
+### Changed
+
+- Membership pricing copy: annual recurring (not monthly) in admin stats and plan cards
+- Client profile status includes `pending_review` for ToS holds
+- Fleet & Personnel roster shows pilots/clients only (management users excluded)
+
+### Schema
+
+- `User.moderationNote`
+- `UniformProduct.minTierCode`, `exactTierCode`, `requiredWingCode` (v40)
+
+---
+
 ## [0.27.13] — 2026-07-23
 
 ### Added

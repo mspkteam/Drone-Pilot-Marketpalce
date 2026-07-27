@@ -8,8 +8,8 @@ import type { WingDefinitionDto } from "@/types/wing";
 
 const RARITY_BY_CODE: Record<string, BadgeRarity> = {
   // Canonical Remote Air Service wings (Figma 808:38130).
-  "recreational-aviator-gold": "COMMON",
-  "remote-aviation-crew-silver": "UNCOMMON",
+  "recreational-aviator-gold": "UNCOMMON",
+  "remote-aviation-crew-silver": "COMMON",
   "aviator-wings-basic-gold": "RARE",
   "aviator-wings-basic-silver": "EPIC",
   "aviator-wings-senior": "LEGENDARY",

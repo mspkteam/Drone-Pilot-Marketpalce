@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type {
   PilotRateDetail,
@@ -12,6 +13,7 @@ type AdminCustomPilotRatesProps = {
 };
 
 export function AdminCustomPilotRates({ canManage }: AdminCustomPilotRatesProps) {
+  const searchParams = useSearchParams();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<PilotRateSearchResult[]>([]);
   const [showResults, setShowResults] = useState(false);
@@ -92,6 +94,16 @@ export function AdminCustomPilotRates({ canManage }: AdminCustomPilotRatesProps)
       setLoadingDetail(false);
     }
   }
+
+  const selectPilotRef = useRef(selectPilot);
+  selectPilotRef.current = selectPilot;
+
+  useEffect(() => {
+    const pilotId = searchParams.get("pilot");
+    if (pilotId) {
+      void selectPilotRef.current(pilotId);
+    }
+  }, [searchParams]);
 
   async function handleSave() {
     if (!detail || !canManage) return;
@@ -321,7 +333,7 @@ export function AdminCustomPilotRates({ canManage }: AdminCustomPilotRatesProps)
               </button>
             ) : null}
             <Link
-              href="/dashboard/admin/pilots"
+              href="/dashboard/admin/users?role=pilot"
               className="admin-config-btn-outline admin-config-btn-all-pilots"
             >
               See All Pilots
@@ -334,7 +346,7 @@ export function AdminCustomPilotRates({ canManage }: AdminCustomPilotRatesProps)
             Search and select a pilot to view or set a custom commission rate.
           </p>
           <Link
-            href="/dashboard/admin/pilots"
+            href="/dashboard/admin/users?role=pilot"
             className="admin-config-btn-outline admin-config-btn-all-pilots"
           >
             See All Pilots

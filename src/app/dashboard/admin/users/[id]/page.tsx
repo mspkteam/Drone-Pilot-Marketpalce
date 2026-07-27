@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { AdminMemberDetailView } from "@/components/dashboard/admin/personnel/AdminMemberDetailView";
@@ -41,13 +40,21 @@ export default async function AdminMemberDetailPage({ params }: PageProps) {
     "edit",
     permissionConfig,
   );
+  const canAssignBadges = canPerform(
+    role,
+    session.user.id,
+    "badges",
+    "assign",
+    permissionConfig,
+  );
 
   return (
     <DashboardPageLayout className="admin-personnel-shell">
-      <AdminMemberDetailView member={member} canEdit={canEdit} />
-      <p className="admin-member-detail-foot">
-        <Link href="/dashboard/admin/users">Return to Fleet &amp; Personnel</Link>
-      </p>
+      <AdminMemberDetailView
+        member={member}
+        canEdit={canEdit}
+        canAssignBadges={canAssignBadges}
+      />
     </DashboardPageLayout>
   );
 }

@@ -8,7 +8,11 @@ const nextConfig: NextConfig = {
     "@prisma/adapter-neon",
     "@prisma/adapter-better-sqlite3",
     "better-sqlite3",
+    "pdfkit",
   ],
+  outputFileTracingIncludes: {
+    "/api/**/*": ["./node_modules/pdfkit/js/data/**/*"],
+  },
   /** Allow LAN IP in dev so client navigation / HMR work off localhost. */
   allowedDevOrigins: ["192.168.137.1", "127.0.0.1"],
   images: {

@@ -1,9 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { AdminPersonnelEditModal } from "@/components/dashboard/admin/personnel/AdminPersonnelEditModal";
 import { AdminPersonnelInviteModal } from "@/components/dashboard/admin/personnel/AdminPersonnelInviteModal";
 import { useModeratorPermissions } from "@/contexts/ModeratorPermissionsContext";
 import {
@@ -51,28 +50,47 @@ export function AdminFleetPersonnel({
   data,
   canManageManagementUsers = false,
 }: AdminFleetPersonnelProps) {
-  const router = useRouter();
+  const searchParams = useSearchParams();
   const { canPerform } = useModeratorPermissions();
   const canExport = canPerform("users", "export");
   const canInvite = canManageManagementUsers;
 
-  const [roleFilter, setRoleFilter] = useState<string>("All roles");
+  const [roleFilter, setRoleFilter] = useState<string>(() => {
+    if (searchParams.get("role") === "pilot") return "All pilots";
+    if (searchParams.get("role") === "client") return "All clients";
+    return "All roles";
+  });
   const [regionFilter, setRegionFilter] = useState<string>("Global");
   const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(1);
   const [inviteOpen, setInviteOpen] = useState(false);
-  const [editUserId, setEditUserId] = useState<string | null>(null);
   const [rows, setRows] = useState(data.rows);
 
   useEffect(() => {
     setRows(data.rows);
   }, [data.rows]);
 
+  useEffect(() => {
+    if (searchParams.get("role") === "pilot") {
+      setRoleFilter("All pilots");
+      setPage(1);
+    } else if (searchParams.get("role") === "client") {
+      setRoleFilter("All clients");
+      setPage(1);
+    }
+  }, [searchParams]);
+
   const filteredRows = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
     return rows.filter((row) => {
       const roleMatch =
-        roleFilter === "All roles" || row.roleFilter === roleFilter;
+        roleFilter === "All roles"
+          ? true
+          : roleFilter === "All pilots"
+            ? row.role === "pilot"
+            : roleFilter === "All clients"
+              ? row.role === "client"
+              : row.roleFilter === roleFilter;
       const regionMatch =
         regionFilter === "Global" || row.region === regionFilter;
       if (!roleMatch || !regionMatch) return false;
@@ -105,6 +123,24 @@ export function AdminFleetPersonnel({
     URL.revokeObjectURL(url);
   }, [filteredRows]);
 
+  const pilotRosterView =
+    roleFilter === "All pilots" || searchParams.get("role") === "pilot";
+  const clientRosterView =
+    roleFilter === "All clients" || searchParams.get("role") === "client";
+
+  const profileHrefForRow = useCallback(
+    (row: PersonnelRow) => {
+      if (row.role === "pilot" && pilotRosterView) {
+        return `${row.viewHref}?from=pilots`;
+      }
+      if (row.role === "client" && clientRosterView) {
+        return `${row.viewHref}?from=clients`;
+      }
+      return row.viewHref;
+    },
+    [pilotRosterView, clientRosterView],
+  );
+
   return (
     <div className="admin-personnel-page">
       <section
@@ -114,11 +150,26 @@ export function AdminFleetPersonnel({
         <div className="admin-ops-hero-glow" aria-hidden />
         <div className="admin-personnel-hero-inner">
           <div className="admin-personnel-hero-copy">
-            <p className="admin-ops-eyebrow">MEMBER DIRECTORY</p>
-            <h1 className="admin-personnel-hero-title">Fleet &amp; Personnel</h1>
+            <p className="admin-ops-eyebrow">
+              {pilotRosterView
+                ? "PILOT ROSTER"
+                : clientRosterView
+                  ? "CLIENT ROSTER"
+                  : "MEMBER DIRECTORY"}
+            </p>
+            <h1 className="admin-personnel-hero-title">
+              {pilotRosterView
+                ? "Pilots"
+                : clientRosterView
+                  ? "Clients"
+                  : "Fleet & Personnel"}
+            </h1>
             <p className="admin-personnel-hero-desc">
-              Pilots and clients across all regions — view profiles, membership,
-              and account status.
+              {pilotRosterView
+                ? "Open a pilot profile to review, edit, approve, or assign wings and badges."
+                : clientRosterView
+                  ? "Open a client profile to review and edit account details, jobs, and status."
+                  : "Pilots and clients across all regions — open a profile to manage the full account."}
             </p>
           </div>
           <div className="admin-personnel-hero-actions">
@@ -216,7 +267,13 @@ export function AdminFleetPersonnel({
           <input
             type="search"
             className="admin-personnel-search-input"
-            placeholder="Search a pilot by name"
+            placeholder={
+              pilotRosterView
+                ? "Search pilots by name or ID"
+                : clientRosterView
+                  ? "Search clients by name or ID"
+                  : "Search by name or ID"
+            }
             value={searchQuery}
             onChange={(e) => {
               setSearchQuery(e.target.value);
@@ -254,27 +311,12 @@ export function AdminFleetPersonnel({
                     </td>
                     <td className="admin-personnel-joined">{row.joinedLabel}</td>
                     <td className="admin-personnel-actions">
-                      <div className="admin-personnel-actions-row">
-                        <Link
-                          href={row.viewHref}
-                          className="admin-personnel-action"
-                        >
-                          VIEW
-                        </Link>
-                        {row.editHref ? (
-                          <button
-                            type="button"
-                            className="admin-personnel-action"
-                            onClick={() => setEditUserId(row.id)}
-                          >
-                            EDIT
-                          </button>
-                        ) : (
-                          <span className="admin-personnel-action admin-personnel-action--disabled">
-                            EDIT
-                          </span>
-                        )}
-                      </div>
+                      <Link
+                        href={profileHrefForRow(row)}
+                        className="admin-personnel-action"
+                      >
+                        Open profile
+                      </Link>
                     </td>
                   </tr>
                 ))
@@ -334,12 +376,6 @@ export function AdminFleetPersonnel({
       <AdminPersonnelInviteModal
         open={inviteOpen}
         onClose={() => setInviteOpen(false)}
-      />
-      <AdminPersonnelEditModal
-        open={Boolean(editUserId)}
-        userId={editUserId}
-        onClose={() => setEditUserId(null)}
-        onSaved={() => router.refresh()}
       />
     </div>
   );

@@ -1,5 +1,7 @@
 import { DEFAULT_COMMISSION_RATE } from "@/lib/commission/constants";
-import { getEffectiveCommissionRate } from "@/lib/admin/platform-settings";
+import {
+  getGradeCommissionRateForLabel,
+} from "@/lib/admin/platform-settings";
 import { prisma } from "@/lib/db";
 import type {
   PilotRateDetail,
@@ -68,13 +70,14 @@ export async function getPilotRateDetail(
   });
   if (!pilot) return null;
 
-  const defaultRate = await getEffectiveCommissionRate();
+  const rank = gradeLabelFromTierCode(pilot.subscriptions[0]?.subscriptionPlan.code);
+  const defaultRate = await getGradeCommissionRateForLabel(rank);
 
   return {
     pilotProfileId: pilot.id,
     displayName: pilot.displayName.trim() || pilot.user.email,
     email: pilot.user.email,
-    rank: gradeLabelFromTierCode(pilot.subscriptions[0]?.subscriptionPlan.code),
+    rank,
     defaultCommissionPercent: fractionToPercent(defaultRate),
     manualOverrideEnabled: pilot.commissionOverrideEnabled,
     customCommissionPercent:
@@ -164,7 +167,16 @@ export async function getEffectiveCommissionRateForPilot(
 ): Promise<number> {
   const pilot = await prisma.pilotProfile.findUnique({
     where: { id: pilotProfileId },
-    select: { commissionOverrideEnabled: true, commissionOverrideRate: true },
+    select: {
+      commissionOverrideEnabled: true,
+      commissionOverrideRate: true,
+      subscriptions: {
+        where: { status: { in: [...ACTIVE_MEMBERSHIP] } },
+        include: { subscriptionPlan: { select: { code: true } } },
+        orderBy: { createdAt: "desc" },
+        take: 1,
+      },
+    },
   });
 
   if (
@@ -174,8 +186,12 @@ export async function getEffectiveCommissionRateForPilot(
     return pilot.commissionOverrideRate;
   }
 
+  const gradeLabel = gradeLabelFromTierCode(
+    pilot?.subscriptions[0]?.subscriptionPlan.code,
+  );
+
   try {
-    return await getEffectiveCommissionRate();
+    return await getGradeCommissionRateForLabel(gradeLabel);
   } catch {
     return DEFAULT_COMMISSION_RATE;
   }

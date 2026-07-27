@@ -16,7 +16,17 @@ function CardIcon({ children }: { children: React.ReactNode }) {
   return <span className="admin-config-card-icon" aria-hidden>{children}</span>;
 }
 
-function CommissionRow({ row, compact }: { row: ConfigCommissionRow; compact?: boolean }) {
+function EditableCommissionRow({
+  row,
+  compact,
+  canManage,
+  onChange,
+}: {
+  row: ConfigCommissionRow;
+  compact?: boolean;
+  canManage: boolean;
+  onChange: (next: ConfigCommissionRow) => void;
+}) {
   return (
     <li className={`admin-config-row${compact ? " admin-config-row--compact" : ""}`}>
       <div className="admin-config-row-copy">
@@ -25,7 +35,73 @@ function CommissionRow({ row, compact }: { row: ConfigCommissionRow; compact?: b
           <p className="admin-config-row-desc">{row.description}</p>
         ) : null}
       </div>
-      <span className="admin-config-value-pill">{row.value}</span>
+      {canManage ? (
+        <input
+          type="text"
+          className="admin-config-inline-input"
+          value={row.value}
+          onChange={(event) => onChange({ ...row, value: event.target.value })}
+          aria-label={`${row.label} rate`}
+        />
+      ) : (
+        <span className="admin-config-value-pill">{row.value}</span>
+      )}
+    </li>
+  );
+}
+
+function EditableManageRuleRow({
+  row,
+  canManage,
+  onChange,
+}: {
+  row: ConfigCommissionRow;
+  canManage: boolean;
+  onChange: (next: ConfigCommissionRow) => void;
+}) {
+  return (
+    <li className="admin-config-row admin-config-row--compact">
+      <div className="admin-config-row-copy">
+        {canManage ? (
+          <>
+            <input
+              type="text"
+              className="admin-config-inline-input admin-config-inline-input--label"
+              value={row.label}
+              onChange={(event) => onChange({ ...row, label: event.target.value })}
+              aria-label="Rule label"
+            />
+            <input
+              type="text"
+              className="admin-config-inline-input admin-config-inline-input--desc"
+              value={row.description ?? ""}
+              onChange={(event) =>
+                onChange({ ...row, description: event.target.value })
+              }
+              aria-label="Rule description"
+              placeholder="Description"
+            />
+          </>
+        ) : (
+          <>
+            <p className="admin-config-row-label">{row.label}</p>
+            {row.description ? (
+              <p className="admin-config-row-desc">{row.description}</p>
+            ) : null}
+          </>
+        )}
+      </div>
+      {canManage ? (
+        <input
+          type="text"
+          className="admin-config-inline-input"
+          value={row.value}
+          onChange={(event) => onChange({ ...row, value: event.target.value })}
+          aria-label={`${row.label} value`}
+        />
+      ) : (
+        <span className="admin-config-value-pill">{row.value}</span>
+      )}
     </li>
   );
 }
@@ -72,6 +148,9 @@ export function AdminConfigurationPortal({ canManage }: AdminConfigurationPortal
   );
   const [showSaveConfirm, setShowSaveConfirm] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [defaultCommissionValue, setDefaultCommissionValue] = useState("15%");
+  const [gradeRates, setGradeRates] = useState<ConfigCommissionRow[]>([]);
+  const [manageRules, setManageRules] = useState<ConfigCommissionRow[]>([]);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -86,6 +165,9 @@ export function AdminConfigurationPortal({ canManage }: AdminConfigurationPortal
         setData(null);
       } else {
         setData(json);
+        setDefaultCommissionValue(json.defaultCommission.value);
+        setGradeRates(json.gradeRates);
+        setManageRules(json.manageRules);
       }
     } catch {
       setError("Failed to load configuration.");
@@ -108,6 +190,9 @@ export function AdminConfigurationPortal({ canManage }: AdminConfigurationPortal
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          defaultCommissionPercent: defaultCommissionValue,
+          gradeRates,
+          manageRules,
           security: data.security,
           pilotOverridePreview: data.pilotOverridePreview,
         }),
@@ -206,30 +291,84 @@ export function AdminConfigurationPortal({ canManage }: AdminConfigurationPortal
 
           {data?.defaultCommission ? (
             <ul className="admin-config-rows">
-              <CommissionRow row={data.defaultCommission} />
+              <li className="admin-config-row">
+                <div className="admin-config-row-copy">
+                  <p className="admin-config-row-label">{data.defaultCommission.label}</p>
+                  {data.defaultCommission.description ? (
+                    <p className="admin-config-row-desc">
+                      {data.defaultCommission.description}
+                    </p>
+                  ) : null}
+                </div>
+                {canManage ? (
+                  <input
+                    type="text"
+                    className="admin-config-inline-input"
+                    value={defaultCommissionValue}
+                    onChange={(event) => setDefaultCommissionValue(event.target.value)}
+                    aria-label="Default commission rate"
+                  />
+                ) : (
+                  <span className="admin-config-value-pill">
+                    {data.defaultCommission.value}
+                  </span>
+                )}
+              </li>
             </ul>
           ) : null}
 
-          {data?.gradeRates.length ? (
+          {gradeRates.length ? (
             <>
-              <h3 className="admin-config-section-title">By pilot grade</h3>
+              <h3 className="admin-config-section-title">By pilot grade (A-1 – A-6)</h3>
               <ul className="admin-config-rows admin-config-rows--compact">
-                {data.gradeRates.map((row) => (
-                  <CommissionRow key={row.id} row={row} compact />
+                {gradeRates.map((row) => (
+                  <EditableCommissionRow
+                    key={row.id}
+                    row={row}
+                    compact
+                    canManage={canManage}
+                    onChange={(next) =>
+                      setGradeRates((current) =>
+                        current.map((item) => (item.id === next.id ? next : item)),
+                      )
+                    }
+                  />
                 ))}
               </ul>
             </>
           ) : null}
 
-          {data?.manageRules.length ? (
+          {manageRules.length ? (
             <>
               <h3 className="admin-config-section-title">Manage rules</h3>
               <ul className="admin-config-rows admin-config-rows--compact">
-                {data.manageRules.map((row) => (
-                  <CommissionRow key={row.id} row={row} />
+                {manageRules.map((row) => (
+                  <EditableManageRuleRow
+                    key={row.id}
+                    row={row}
+                    canManage={canManage}
+                    onChange={(next) =>
+                      setManageRules((current) =>
+                        current.map((item) => (item.id === next.id ? next : item)),
+                      )
+                    }
+                  />
                 ))}
               </ul>
             </>
+          ) : null}
+
+          {canManage ? (
+            <div className="admin-config-save-wrap admin-config-save-wrap--inline">
+              <button
+                type="button"
+                className="admin-config-btn-gold admin-config-btn-save"
+                onClick={() => setShowSaveConfirm(true)}
+                disabled={saving}
+              >
+                SAVE COMMISSION SETTINGS
+              </button>
+            </div>
           ) : null}
 
           <AdminCustomPilotRates canManage={canManage} />

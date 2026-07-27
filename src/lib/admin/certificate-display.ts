@@ -2,6 +2,7 @@ import type { CertificateTemplateDto } from "@/types/certificate";
 import type { AdminCertificateTemplateCardDto } from "@/types/admin-certificates";
 import type { CertificateAutoRule } from "@/lib/certificates/conditions";
 import { getCertificateConditionLabel } from "@/lib/certificates/conditions";
+import { getManualIssueFieldsFromTemplate } from "@/lib/certificates/manual-issue";
 
 export const DEFAULT_CERTIFICATE_BODY = `This certifies that {{pilotName}} (License {{licenseNumber}}) has met the requirements for {{templateName}} on Remote Air Service.
 
@@ -121,6 +122,7 @@ export function enrichCertificateTemplate(
     previewMission: meta.previewMission,
     previewGrade: meta.previewGrade ?? null,
     requiresGrade: Boolean(meta.requiresGrade),
+    manualIssueFields: getManualIssueFieldsFromTemplate(template),
     isMock: false,
   };
 }
@@ -271,6 +273,10 @@ export const MOCK_CERTIFICATE_TEMPLATES: AdminCertificateTemplateCardDto[] =
       previewMission: meta.previewMission,
       previewGrade: meta.previewGrade ?? null,
       requiresGrade: Boolean(meta.requiresGrade),
+      manualIssueFields: getManualIssueFieldsFromTemplate({
+        layoutKey: tpl.layoutKey,
+        slug: tpl.slug,
+      }),
       isMock: true,
     };
   });

@@ -1,5 +1,6 @@
 import path from "node:path";
 import fs from "node:fs";
+import fsPromises from "node:fs/promises";
 import PDFDocument from "pdfkit";
 import {
   CERTIFICATE_FONT_FILE_NAMES,
@@ -13,6 +14,7 @@ import {
   type CertificateOverlayValues,
   type OverlayPositionOverride,
 } from "@/lib/certificates/layouts";
+import { loadCertificateBackground } from "@/lib/certificates/background";
 
 export type CertificatePdfData = {
   title: string;
@@ -31,8 +33,11 @@ const PDF_FONT_NAMES: Record<CertificateFontKey, string> = {
   engravers: "CertEngravers",
   harrowgate: "CertHarrowgate",
   colchester: "CertColchester",
-  arial: "Helvetica",
+  arial: "CertArial",
 };
+
+const PDF_FALLBACK_FONT = "CertArial";
+const PDF_FALLBACK_FONT_BOLD = "CertArial-Bold";
 
 function resolveCertificateFontPath(
   key: Exclude<CertificateFontKey, "arial">,
@@ -49,6 +54,7 @@ function resolveCertificateFontPath(
 }
 
 function registerCertificateFonts(doc: PDFKit.PDFDocument): void {
+  const engraversPath = resolveCertificateFontPath("engravers");
   const pairs: Array<[Exclude<CertificateFontKey, "arial">, string]> = [
     ["engravers", "CertEngravers"],
     ["harrowgate", "CertHarrowgate"],
@@ -60,18 +66,65 @@ function registerCertificateFonts(doc: PDFKit.PDFDocument): void {
       try {
         doc.registerFont(name, fontPath);
       } catch {
-        // Fall back to Helvetica if register fails
+        // Skip missing font files.
       }
+    }
+  }
+
+  // Never use PDFKit built-in Helvetica (requires .afm files missing in Next bundles).
+  const sansPath = engraversPath ?? resolveCertificateFontPath("colchester");
+  if (sansPath) {
+    try {
+      doc.registerFont("CertArial", sansPath);
+      doc.registerFont("CertArial-Bold", sansPath);
+    } catch {
+      // registerFont throws if path invalid.
     }
   }
 }
 
 function pdfFontFor(key: CertificateFontKey, weight?: "normal" | "bold"): string {
   if (key === "arial") {
-    return weight === "bold" ? "Helvetica-Bold" : "Helvetica";
+    return weight === "bold" ? PDF_FALLBACK_FONT_BOLD : PDF_FALLBACK_FONT;
   }
   return PDF_FONT_NAMES[key];
 }
+
+function applyPdfFont(
+  doc: PDFKit.PDFDocument,
+  key: CertificateFontKey,
+  weight?: "normal" | "bold",
+): void {
+  const candidates = [
+    pdfFontFor(key, weight),
+    weight === "bold" ? PDF_FALLBACK_FONT_BOLD : PDF_FALLBACK_FONT,
+    "CertEngravers",
+    "CertColchester",
+  ];
+  for (const fontName of candidates) {
+    try {
+      doc.font(fontName);
+      return;
+    } catch {
+      // Try next embedded font.
+    }
+  }
+  throw new Error("No certificate fonts could be loaded for PDF generation.");
+}
+
+function imageFormatFromUrl(
+  backgroundImageUrl: string,
+): "png" | "jpeg" | "webp" {
+  const lower = backgroundImageUrl.toLowerCase();
+  if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) return "jpeg";
+  if (lower.endsWith(".webp")) return "webp";
+  return "png";
+}
+
+type ResolvedBackground = {
+  data: Buffer;
+  format: "png" | "jpeg" | "webp";
+};
 
 function resolvePublicPngPath(backgroundImageUrl: string): string | null {
   const cleaned = backgroundImageUrl.replace(/^\//, "");
@@ -83,24 +136,54 @@ function resolvePublicPngPath(backgroundImageUrl: string): string | null {
   return fs.existsSync(absolute) ? absolute : null;
 }
 
+async function resolveBackgroundForPdf(
+  backgroundImageUrl: string | null | undefined,
+  layout: CertificateLayout | null,
+): Promise<ResolvedBackground | null> {
+  if (!backgroundImageUrl || !layout) return null;
+
+  const format = imageFormatFromUrl(backgroundImageUrl);
+  const localPath = resolvePublicPngPath(backgroundImageUrl);
+  if (localPath) {
+    try {
+      const data = await fsPromises.readFile(localPath);
+      return { data, format };
+    } catch {
+      // Fall through to HTTP fetch (Vercel CDN).
+    }
+  }
+
+  const buffer = await loadCertificateBackground(backgroundImageUrl);
+  if (!buffer) return null;
+  return { data: buffer, format };
+}
+
 function pageSizeFor(
   orientation: "landscape" | "portrait",
 ): [number, number] {
   return orientation === "landscape" ? [792, 612] : [612, 792];
 }
 
-export function renderCertificatePdf(data: CertificatePdfData): Promise<Buffer> {
+export async function renderCertificatePdf(
+  data: CertificatePdfData,
+): Promise<Buffer> {
   const base = getCertificateLayout(data.layoutKey);
   const layout = base
     ? applyOverlayPositionOverrides(base, data.overlayPositions)
     : null;
-  const pngPath =
-    data.backgroundImageUrl && layout
-      ? resolvePublicPngPath(data.backgroundImageUrl)
-      : null;
+  const background = await resolveBackgroundForPdf(
+    data.backgroundImageUrl,
+    layout,
+  );
 
-  if (pngPath && layout) {
-    return renderPngCertificatePdf(data, pngPath, layout);
+  if (background && layout) {
+    return renderPngCertificatePdf(data, background, layout);
+  }
+
+  if (layout && data.backgroundImageUrl) {
+    throw new Error(
+      `Certificate background could not be loaded: ${data.backgroundImageUrl}`,
+    );
   }
 
   return renderPlainCertificatePdf(data);
@@ -108,7 +191,7 @@ export function renderCertificatePdf(data: CertificatePdfData): Promise<Buffer> 
 
 function renderPngCertificatePdf(
   data: CertificatePdfData,
-  pngPath: string,
+  background: ResolvedBackground,
   layout: CertificateLayout,
 ): Promise<Buffer> {
   return new Promise((resolve, reject) => {
@@ -124,7 +207,31 @@ function renderPngCertificatePdf(
 
     const pageW = size[0];
     const pageH = size[1];
-    doc.image(pngPath, 0, 0, { width: pageW, height: pageH });
+
+    try {
+      // PDFKit requires `format` when the image source is a Buffer (Vercel / fetch path).
+      if (background.format === "webp") {
+        reject(
+          new Error(
+            "WebP certificate backgrounds are not supported for PDF export. Re-upload as PNG.",
+          ),
+        );
+        return;
+      }
+      doc.image(
+        background.data,
+        0,
+        0,
+        {
+          width: pageW,
+          height: pageH,
+          format: background.format,
+        } as PDFKit.Mixins.ImageOption,
+      );
+    } catch (error) {
+      reject(error);
+      return;
+    }
 
     const values: CertificateOverlayValues = {
       pilotName: data.pilotDisplayName,
@@ -153,13 +260,7 @@ function renderPngCertificatePdf(
       else if (align === "right") x = xCenter - maxW;
       else x = xCenter;
 
-      let fontName = pdfFontFor(field.font, field.weight);
-      try {
-        doc.font(fontName);
-      } catch {
-        fontName = field.weight === "bold" ? "Helvetica-Bold" : "Helvetica";
-        doc.font(fontName);
-      }
+      applyPdfFont(doc, field.font, field.weight);
 
       doc
         .fontSize(fontSize)
@@ -183,6 +284,9 @@ function renderPlainCertificatePdf(data: CertificatePdfData): Promise<Buffer> {
     doc.on("data", (chunk: Buffer) => chunks.push(chunk));
     doc.on("end", () => resolve(Buffer.concat(chunks)));
     doc.on("error", reject);
+
+    registerCertificateFonts(doc);
+    applyPdfFont(doc, "arial");
 
     doc
       .fontSize(10)

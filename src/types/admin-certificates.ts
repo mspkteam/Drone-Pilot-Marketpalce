@@ -7,6 +7,8 @@ export type AdminCertificateTemplateCardDto = CertificateTemplateDto & {
   previewMission: string;
   previewGrade?: string | null;
   requiresGrade?: boolean;
+  /** Fields admins must fill on manual issue (derived from certificate layout). */
+  manualIssueFields?: Array<"memberNumber" | "issuedAt" | "gradeOrTitle">;
   isMock?: boolean;
 };
 

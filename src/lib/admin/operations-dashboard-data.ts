@@ -145,7 +145,10 @@ async function buildActionQueue(): Promise<AdminActionQueueItem[]> {
     prisma.pilotProfile.findFirst({
       where: { status: "pending_review" },
       orderBy: { createdAt: "asc" },
-      include: {
+      select: {
+        id: true,
+        displayName: true,
+        userId: true,
         subscriptions: {
           where: { status: "active" },
           take: 1,
@@ -191,7 +194,7 @@ async function buildActionQueue(): Promise<AdminActionQueueItem[]> {
       typeLabel: "PILOT APPLICATION",
       text: `${pendingPilot.displayName} · ${tierName}`,
       actionLabel: "APPROVE",
-      href: "/dashboard/admin/pilots",
+      href: `/dashboard/admin/users/${pendingPilot.userId}`,
       tone: "gold",
       icon: "user-plus",
     });

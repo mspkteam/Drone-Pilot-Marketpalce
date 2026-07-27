@@ -1,5 +1,7 @@
 export const PERSONNEL_ROLE_FILTERS = [
   "All roles",
+  "All pilots",
+  "All clients",
   "Pilot",
   "Elite Pilot",
   "Squadron Lead",

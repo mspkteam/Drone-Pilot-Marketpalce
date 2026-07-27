@@ -1,4 +1,9 @@
 import { prisma } from "@/lib/db";
+import {
+  mergeClientProfilePreferences,
+  serializeClientProfilePreferences,
+  type ClientPreferredContact,
+} from "@/lib/client/preferences";
 import type { AdminUserEditDto } from "@/types/admin-user-edit";
 import { USER_ACCOUNT_STATUSES } from "@/types/admin-user-edit";
 import type { UserRole } from "@/types/roles";
@@ -19,12 +24,16 @@ export async function getUserForAdminEdit(
           id: true,
           displayName: true,
           licenseNumber: true,
+          licenseCountry: true,
           status: true,
           isPublic: true,
           bio: true,
           locationCity: true,
           locationRegion: true,
           locationCountry: true,
+          serviceRadiusKm: true,
+          hourlyRateMin: true,
+          hourlyRateMax: true,
         },
       },
       clientProfile: {
@@ -33,6 +42,7 @@ export async function getUserForAdminEdit(
           contactName: true,
           companyName: true,
           phone: true,
+          billingAddress: true,
           status: true,
         },
       },
@@ -52,12 +62,16 @@ export async function getUserForAdminEdit(
           id: user.pilotProfile.id,
           displayName: user.pilotProfile.displayName,
           licenseNumber: user.pilotProfile.licenseNumber,
+          licenseCountry: user.pilotProfile.licenseCountry,
           status: user.pilotProfile.status,
           isPublic: user.pilotProfile.isPublic,
           bio: user.pilotProfile.bio,
           locationCity: user.pilotProfile.locationCity,
           locationRegion: user.pilotProfile.locationRegion,
           locationCountry: user.pilotProfile.locationCountry,
+          serviceRadiusKm: user.pilotProfile.serviceRadiusKm,
+          hourlyRateMin: user.pilotProfile.hourlyRateMin,
+          hourlyRateMax: user.pilotProfile.hourlyRateMax,
         }
       : null,
     client: user.clientProfile
@@ -66,6 +80,7 @@ export async function getUserForAdminEdit(
           contactName: user.clientProfile.contactName,
           companyName: user.clientProfile.companyName,
           phone: user.clientProfile.phone,
+          billingAddress: user.clientProfile.billingAddress,
           status: user.clientProfile.status,
         }
       : null,
@@ -78,18 +93,33 @@ export type AdminUserUpdateInput = {
   moderationNote?: string | null;
   pilot?: {
     displayName?: string;
+    licenseNumber?: string;
+    licenseCountry?: string | null;
     status?: string;
     isPublic?: boolean;
     bio?: string | null;
     locationCity?: string | null;
     locationRegion?: string | null;
     locationCountry?: string | null;
+    serviceRadiusKm?: number | null;
+    hourlyRateMin?: number | null;
+    hourlyRateMax?: number | null;
   };
   client?: {
     contactName?: string;
     companyName?: string | null;
     phone?: string | null;
+    billingAddress?: string | null;
     status?: string;
+    preferences?: {
+      roleTitle?: string;
+      preferredContact?: string;
+      typicalProjectArea?: string;
+      defaultBudgetRange?: string;
+      approvalContact?: string;
+      billingEmail?: string;
+      projectTypes?: string[];
+    };
   };
 };
 
@@ -139,6 +169,25 @@ export async function updateUserByAdmin(
     if (input.pilot.displayName !== undefined && !input.pilot.displayName.trim()) {
       return { ok: false, error: "Display name is required.", status: 400 };
     }
+    if (
+      input.pilot.licenseNumber !== undefined &&
+      !input.pilot.licenseNumber.trim()
+    ) {
+      return { ok: false, error: "License number is required.", status: 400 };
+    }
+    if (
+      input.pilot.serviceRadiusKm !== undefined &&
+      input.pilot.serviceRadiusKm !== null &&
+      (input.pilot.serviceRadiusKm < 0 || !Number.isInteger(input.pilot.serviceRadiusKm))
+    ) {
+      return { ok: false, error: "Service radius must be a whole number ≥ 0.", status: 400 };
+    }
+    for (const key of ["hourlyRateMin", "hourlyRateMax"] as const) {
+      const value = input.pilot[key];
+      if (value !== undefined && value !== null && value < 0) {
+        return { ok: false, error: "Hourly rates cannot be negative.", status: 400 };
+      }
+    }
   }
 
   if (input.client && existing.clientProfile) {
@@ -182,6 +231,12 @@ export async function updateUserByAdmin(
           ...(input.pilot.displayName !== undefined
             ? { displayName: input.pilot.displayName.trim() }
             : {}),
+          ...(input.pilot.licenseNumber !== undefined
+            ? { licenseNumber: input.pilot.licenseNumber.trim() }
+            : {}),
+          ...(input.pilot.licenseCountry !== undefined
+            ? { licenseCountry: input.pilot.licenseCountry?.trim() || null }
+            : {}),
           ...(input.pilot.status !== undefined
             ? { status: input.pilot.status }
             : {}),
@@ -204,11 +259,34 @@ export async function updateUserByAdmin(
           ...(input.pilot.locationCountry !== undefined
             ? { locationCountry: input.pilot.locationCountry?.trim() || null }
             : {}),
+          ...(input.pilot.serviceRadiusKm !== undefined
+            ? { serviceRadiusKm: input.pilot.serviceRadiusKm }
+            : {}),
+          ...(input.pilot.hourlyRateMin !== undefined
+            ? { hourlyRateMin: input.pilot.hourlyRateMin }
+            : {}),
+          ...(input.pilot.hourlyRateMax !== undefined
+            ? { hourlyRateMax: input.pilot.hourlyRateMax }
+            : {}),
         },
       });
     }
 
     if (input.client && existing.clientProfile) {
+      const nextPreferences =
+        input.client.preferences !== undefined
+          ? serializeClientProfilePreferences(
+              mergeClientProfilePreferences(
+                existing.clientProfile.preferencesJson,
+                {
+                  ...input.client.preferences,
+                  preferredContact: input.client.preferences
+                    .preferredContact as ClientPreferredContact | undefined,
+                },
+              ),
+            )
+          : undefined;
+
       await tx.clientProfile.update({
         where: { id: existing.clientProfile.id },
         data: {
@@ -221,8 +299,14 @@ export async function updateUserByAdmin(
           ...(input.client.phone !== undefined
             ? { phone: input.client.phone?.trim() || null }
             : {}),
+          ...(input.client.billingAddress !== undefined
+            ? { billingAddress: input.client.billingAddress?.trim() || null }
+            : {}),
           ...(input.client.status !== undefined
             ? { status: input.client.status }
+            : {}),
+          ...(nextPreferences !== undefined
+            ? { preferencesJson: nextPreferences }
             : {}),
         },
       });

@@ -1,4 +1,10 @@
 import { prisma } from "@/lib/db";
+import { getGradeCommissionRateForLabel } from "@/lib/admin/platform-settings";
+import { gradeLabelFromTierCode } from "@/lib/admin/pilot-rates";
+import {
+  parseClientProfilePreferences,
+  type ClientProfilePreferences,
+} from "@/lib/client/preferences";
 import { toMembershipTierDto } from "@/lib/membership/membership";
 import type { AdminUserEditDto } from "@/types/admin-user-edit";
 import type { UserRole } from "@/types/roles";
@@ -51,6 +57,14 @@ export type AdminMemberDetailDto = {
       currency: string;
       submittedAt: string;
     }>;
+    commission: {
+      defaultPercent: number;
+      overrideEnabled: boolean;
+      overridePercent: number | null;
+      overrideReason: string | null;
+    } | null;
+    servicesOffered: string[];
+    pendingVerifications: number;
   } | null;
   clientDetail: {
     profileId: string;
@@ -60,16 +74,49 @@ export type AdminMemberDetailDto = {
     billingAddress: string | null;
     status: string;
     onboardingCompletedAt: string | null;
+    preferences: ClientProfilePreferences;
     counts: {
       jobs: number;
       bookings: number;
       reviews: number;
+      openDisputes: number;
+      conversations: number;
     };
     recentJobs: Array<{
       id: string;
       title: string;
       status: string;
       locationLabel: string;
+      createdAt: string;
+    }>;
+    recentBookings: Array<{
+      id: string;
+      jobTitle: string;
+      status: string;
+      agreedAmount: number;
+      currency: string;
+      pilotName: string;
+      paymentStatus: string | null;
+      createdAt: string;
+    }>;
+    recentDisputes: Array<{
+      id: string;
+      jobTitle: string;
+      status: string;
+      reason: string;
+      createdAt: string;
+    }>;
+    recentConversations: Array<{
+      id: string;
+      jobTitle: string;
+      pilotName: string;
+      lastMessageAt: string | null;
+    }>;
+    recentReviews: Array<{
+      id: string;
+      rating: number;
+      comment: string | null;
+      status: string;
       createdAt: string;
     }>;
   } | null;
@@ -105,7 +152,12 @@ export async function getMemberDetailForAdmin(
               bookings: true,
               certificates: true,
               reviewsReceived: true,
+              verifications: true,
             },
+          },
+          verifications: {
+            where: { status: "pending" },
+            select: { id: true },
           },
         },
       },
@@ -122,11 +174,47 @@ export async function getMemberDetailForAdmin(
               createdAt: true,
             },
           },
+          bookings: {
+            orderBy: { createdAt: "desc" },
+            take: 8,
+            select: {
+              id: true,
+              status: true,
+              agreedAmount: true,
+              currency: true,
+              createdAt: true,
+              job: { select: { title: true } },
+              pilotProfile: { select: { displayName: true } },
+              payment: { select: { status: true } },
+            },
+          },
+          conversationsAsClient: {
+            orderBy: { lastMessageAt: "desc" },
+            take: 6,
+            select: {
+              id: true,
+              lastMessageAt: true,
+              job: { select: { title: true } },
+              pilotProfile: { select: { displayName: true } },
+            },
+          },
+          reviewsReceived: {
+            orderBy: { createdAt: "desc" },
+            take: 6,
+            select: {
+              id: true,
+              rating: true,
+              comment: true,
+              status: true,
+              createdAt: true,
+            },
+          },
           _count: {
             select: {
               jobs: true,
               bookings: true,
               reviewsReceived: true,
+              conversationsAsClient: true,
             },
           },
         },
@@ -178,12 +266,16 @@ export async function getMemberDetailForAdmin(
           id: pilot.id,
           displayName: pilot.displayName,
           licenseNumber: pilot.licenseNumber,
+          licenseCountry: pilot.licenseCountry,
           status: pilot.status,
           isPublic: pilot.isPublic,
           bio: pilot.bio,
           locationCity: pilot.locationCity,
           locationRegion: pilot.locationRegion,
           locationCountry: pilot.locationCountry,
+          serviceRadiusKm: pilot.serviceRadiusKm,
+          hourlyRateMin: pilot.hourlyRateMin,
+          hourlyRateMax: pilot.hourlyRateMax,
         }
       : null,
     client: client
@@ -192,10 +284,42 @@ export async function getMemberDetailForAdmin(
           contactName: client.contactName,
           companyName: client.companyName,
           phone: client.phone,
+          billingAddress: client.billingAddress,
           status: client.status,
         }
       : null,
   };
+
+  const tierCode = tier?.code ?? null;
+  const gradeLabel = gradeLabelFromTierCode(tierCode);
+  const defaultCommissionRate = pilot
+    ? await getGradeCommissionRateForLabel(gradeLabel)
+    : null;
+
+  const openDisputeCount = client
+    ? await prisma.dispute.count({
+        where: {
+          status: "open",
+          booking: { clientProfileId: client.id },
+        },
+      })
+    : 0;
+
+  // Also pull open disputes beyond the recent booking window for the list.
+  const clientDisputes = client
+    ? await prisma.dispute.findMany({
+        where: { booking: { clientProfileId: client.id } },
+        orderBy: { createdAt: "desc" },
+        take: 8,
+        select: {
+          id: true,
+          status: true,
+          reason: true,
+          createdAt: true,
+          booking: { select: { job: { select: { title: true } } } },
+        },
+      })
+    : [];
 
   return {
     account,
@@ -249,6 +373,20 @@ export async function getMemberDetailForAdmin(
             currency: a.currency,
             submittedAt: a.submittedAt.toISOString(),
           })),
+          commission: defaultCommissionRate != null
+            ? {
+                defaultPercent:
+                  Math.round(defaultCommissionRate * 100 * 100) / 100,
+                overrideEnabled: pilot.commissionOverrideEnabled,
+                overridePercent:
+                  pilot.commissionOverrideRate != null
+                    ? Math.round(pilot.commissionOverrideRate * 100 * 100) / 100
+                    : null,
+                overrideReason: pilot.commissionOverrideReason,
+              }
+            : null,
+          servicesOffered: parseServicesOffered(pilot.servicesOffered),
+          pendingVerifications: pilot.verifications.length,
         }
       : null,
     clientDetail: client
@@ -261,10 +399,13 @@ export async function getMemberDetailForAdmin(
           status: client.status,
           onboardingCompletedAt:
             client.onboardingCompletedAt?.toISOString() ?? null,
+          preferences: parseClientProfilePreferences(client.preferencesJson),
           counts: {
             jobs: client._count.jobs,
             bookings: client._count.bookings,
             reviews: client._count.reviewsReceived,
+            openDisputes: openDisputeCount,
+            conversations: client._count.conversationsAsClient,
           },
           recentJobs: client.jobs.map((j) => ({
             id: j.id,
@@ -273,7 +414,47 @@ export async function getMemberDetailForAdmin(
             locationLabel: j.locationLabel,
             createdAt: j.createdAt.toISOString(),
           })),
+          recentBookings: client.bookings.map((b) => ({
+            id: b.id,
+            jobTitle: b.job.title,
+            status: b.status,
+            agreedAmount: b.agreedAmount,
+            currency: b.currency,
+            pilotName: b.pilotProfile.displayName,
+            paymentStatus: b.payment?.status ?? null,
+            createdAt: b.createdAt.toISOString(),
+          })),
+          recentDisputes: clientDisputes.map((d) => ({
+            id: d.id,
+            jobTitle: d.booking.job.title,
+            status: d.status,
+            reason: d.reason,
+            createdAt: d.createdAt.toISOString(),
+          })),
+          recentConversations: client.conversationsAsClient.map((c) => ({
+            id: c.id,
+            jobTitle: c.job.title,
+            pilotName: c.pilotProfile.displayName,
+            lastMessageAt: c.lastMessageAt?.toISOString() ?? null,
+          })),
+          recentReviews: client.reviewsReceived.map((r) => ({
+            id: r.id,
+            rating: r.rating,
+            comment: r.comment,
+            status: r.status,
+            createdAt: r.createdAt.toISOString(),
+          })),
         }
       : null,
   };
+}
+
+function parseServicesOffered(raw: string): string[] {
+  try {
+    const parsed = JSON.parse(raw) as unknown;
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter((item): item is string => typeof item === "string");
+  } catch {
+    return [];
+  }
 }

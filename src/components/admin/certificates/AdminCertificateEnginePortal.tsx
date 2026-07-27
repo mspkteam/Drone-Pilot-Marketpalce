@@ -1,15 +1,19 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { AdminCertificateLivePreview } from "@/components/admin/certificates/AdminCertificateLivePreview";
 import { AdminCertificateTemplateCard } from "@/components/admin/certificates/AdminCertificateTemplateCard";
 import { AdminCertificateTemplateModal } from "@/components/admin/certificates/AdminCertificateTemplateModal";
+import { CertificateCanvas } from "@/components/admin/certificates/CertificateCanvas";
 import type {
   AdminCertificateEngineDataDto,
   AdminCertificateTemplateCardDto,
   CertificateTemplateFormInput,
 } from "@/types/admin-certificates";
 import type { AdminPilotCertificateDto } from "@/types/certificate";
+import { manualIssueFieldLabel } from "@/lib/certificates/manual-issue";
+import type { ManualIssueFieldKey } from "@/lib/certificates/manual-issue";
+import type { OverlayFieldOverride } from "@/lib/certificates/layouts";
 
 function isPositiveGrowth(subtext: string): boolean {
   return subtext.trim().startsWith("+");
@@ -37,7 +41,12 @@ export function AdminCertificateEnginePortal({
   const [issueTemplateId, setIssueTemplateId] = useState("");
   const [issueNotes, setIssueNotes] = useState("");
   const [issueGrade, setIssueGrade] = useState("");
+  const [issueMemberNumber, setIssueMemberNumber] = useState("");
+  const [issueIssuedAt, setIssueIssuedAt] = useState(() =>
+    new Date().toISOString().slice(0, 10),
+  );
   const [issuing, setIssuing] = useState(false);
+  const issuedSectionRef = useRef<HTMLElement | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -165,27 +174,54 @@ export function AdminCertificateEnginePortal({
     setError(null);
     setSuccess(null);
     try {
+      const payload: Record<string, string | null> = {
+        pilotProfileId: issuePilotId,
+        templateId: issueTemplateId,
+        notes: issueNotes || null,
+      };
+      if (issueGrade.trim()) payload.awardGrade = issueGrade.trim();
+      if (issueMemberNumber.trim()) payload.memberNumber = issueMemberNumber.trim();
+      if (issueIssuedAt.trim()) payload.issuedAt = issueIssuedAt;
+
       const res = await fetch("/api/admin/certificates", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          pilotProfileId: issuePilotId,
-          templateId: issueTemplateId,
-          notes: issueNotes || null,
-          awardGrade: issueGrade || null,
-        }),
+        body: JSON.stringify(payload),
       });
       const json = await res.json();
       if (!res.ok) {
         setError(json.error ?? "Issue failed.");
         return;
       }
+      const issuedCertificate = json.certificate as AdminPilotCertificateDto;
+      setData((prev) => {
+        if (!prev || !issuedCertificate?.id) return prev;
+        const pilot = prev.pilots.find((item) => item.id === issuePilotId);
+        const nextRow: AdminPilotCertificateDto = {
+          ...issuedCertificate,
+          pilotEmail: issuedCertificate.pilotEmail ?? pilot?.email ?? "",
+          pilotDisplayName:
+            issuedCertificate.pilotDisplayName ?? pilot?.displayName ?? "Pilot",
+          templateName:
+            issuedCertificate.templateName ?? issueTemplate?.name ?? "Certificate",
+        };
+        return {
+          ...prev,
+          certificates: [
+            nextRow,
+            ...prev.certificates.filter((row) => row.id !== nextRow.id),
+          ],
+        };
+      });
       setSuccess(
-        `Issued ${json.certificate.certificateNumber} to ${json.certificate.pilotDisplayName}.`,
+        `Issued ${issuedCertificate.certificateNumber} to ${issuedCertificate.pilotDisplayName}.`,
       );
       setIssueNotes("");
       setIssueGrade("");
+      setIssueMemberNumber("");
+      setIssueIssuedAt(new Date().toISOString().slice(0, 10));
       await load();
+      issuedSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     } catch {
       setError("Issue failed.");
     } finally {
@@ -197,7 +233,15 @@ export function AdminCertificateEnginePortal({
   const realTemplates = templates.filter((template) => !template.isMock);
   const issueTemplate =
     realTemplates.find((t) => t.id === issueTemplateId) ?? null;
-  const issueNeedsGrade = Boolean(issueTemplate?.requiresGrade);
+  const issueManualFields: ManualIssueFieldKey[] =
+    issueTemplate?.manualIssueFields ?? [];
+  const issueNeedsGrade =
+    Boolean(issueTemplate?.requiresGrade) ||
+    issueManualFields.includes("gradeOrTitle");
+  const issueNeedsMemberNumber = issueManualFields.includes("memberNumber");
+  const issueNeedsIssuedAt = issueManualFields.includes("issuedAt");
+  const selectedPilot =
+    data?.pilots.find((pilot) => pilot.id === issuePilotId) ?? null;
 
   return (
     <div className="admin-certificates-page">
@@ -339,7 +383,14 @@ export function AdminCertificateEnginePortal({
               <select
                 id="issue-pilot"
                 value={issuePilotId}
-                onChange={(event) => setIssuePilotId(event.target.value)}
+                onChange={(event) => {
+                  const nextId = event.target.value;
+                  setIssuePilotId(nextId);
+                  const pilot = data.pilots.find((item) => item.id === nextId);
+                  if (pilot?.licenseNumber && !issueMemberNumber.trim()) {
+                    setIssueMemberNumber(pilot.licenseNumber);
+                  }
+                }}
                 required
               >
                 <option value="">Select pilot…</option>
@@ -364,6 +415,11 @@ export function AdminCertificateEnginePortal({
                   } else {
                     setIssueGrade("");
                   }
+                  if (selectedPilot?.licenseNumber) {
+                    setIssueMemberNumber(selectedPilot.licenseNumber);
+                  } else {
+                    setIssueMemberNumber("");
+                  }
                 }}
                 required
               >
@@ -379,7 +435,9 @@ export function AdminCertificateEnginePortal({
             </div>
             {issueNeedsGrade ? (
               <div className="admin-certificates-field">
-                <label htmlFor="issue-grade">Grade / Rank</label>
+                <label htmlFor="issue-grade">
+                  {manualIssueFieldLabel("gradeOrTitle")}
+                </label>
                 <input
                   id="issue-grade"
                   value={issueGrade}
@@ -389,6 +447,38 @@ export function AdminCertificateEnginePortal({
                       ? "CAPTAIN"
                       : "e.g. First Officer"
                   }
+                  required
+                />
+              </div>
+            ) : null}
+            {issueNeedsMemberNumber ? (
+              <div className="admin-certificates-field">
+                <label htmlFor="issue-member-number">
+                  {manualIssueFieldLabel("memberNumber")}
+                </label>
+                <input
+                  id="issue-member-number"
+                  value={issueMemberNumber}
+                  onChange={(event) => setIssueMemberNumber(event.target.value)}
+                  placeholder={
+                    selectedPilot?.licenseNumber
+                      ? `e.g. ${selectedPilot.licenseNumber}`
+                      : "RAS member number"
+                  }
+                  required={!selectedPilot?.licenseNumber}
+                />
+              </div>
+            ) : null}
+            {issueNeedsIssuedAt ? (
+              <div className="admin-certificates-field">
+                <label htmlFor="issue-issued-at">
+                  {manualIssueFieldLabel("issuedAt")}
+                </label>
+                <input
+                  id="issue-issued-at"
+                  type="date"
+                  value={issueIssuedAt}
+                  onChange={(event) => setIssueIssuedAt(event.target.value)}
                   required
                 />
               </div>
@@ -405,36 +495,78 @@ export function AdminCertificateEnginePortal({
               {issuing ? "Issuing…" : "Issue & Generate PDF"}
             </button>
           </form>
+
+          {issueTemplate && selectedPilot ? (
+            <div className="admin-certificates-issue-preview" aria-label="Issue preview">
+              <p className="admin-certificates-issued-sub">
+                Preview for {selectedPilot.displayName} — matches the downloaded PDF template.
+              </p>
+              <div className="admin-certificates-preview-canvas-wrap">
+                <CertificateCanvas
+                  backgroundImageUrl={issueTemplate.backgroundImageUrl}
+                  layoutKey={issueTemplate.layoutKey ?? issueTemplate.slug}
+                  overlayPositions={
+                    issueTemplate.overlayPositions as OverlayFieldOverride[] | null
+                  }
+                  memberName={selectedPilot.displayName}
+                  memberNumber={issueMemberNumber || selectedPilot.licenseNumber}
+                  gradeOrTitle={issueGrade || issueTemplate.previewGrade || undefined}
+                  certificateNumber="[auto on issue]"
+                  issuedAt={issueIssuedAt}
+                />
+              </div>
+            </div>
+          ) : null}
         </section>
       ) : null}
 
-      {data && data.certificates.length > 0 ? (
-        <section className="admin-certificates-issued-panel" aria-label="Issued certificates">
+      {data && realTemplates.length > 0 ? (
+        <section
+          ref={issuedSectionRef}
+          className="admin-certificates-issued-panel"
+          aria-label="Issued certificates"
+        >
           <h2 className="admin-certificates-issued-title">Issued certificates</h2>
           <p className="admin-certificates-issued-sub">
             Audit trail of platform-issued pilot certificates.
+            {data.certificates.length === 0
+              ? " No certificates issued yet."
+              : ` ${data.certificates.length.toLocaleString()} on record.`}
           </p>
-          <ul className="admin-certificates-issued-list">
-            {data.certificates.map((certificate: AdminPilotCertificateDto) => (
-              <li key={certificate.id} className="admin-certificates-issued-row">
-                <div>
-                  <p className="admin-certificates-issued-name">
-                    {certificate.pilotDisplayName} · {certificate.templateName}
-                  </p>
-                  <p className="admin-certificates-issued-meta">
-                    {certificate.certificateNumber} ·{" "}
-                    {new Date(certificate.issuedAt).toLocaleString()}
-                  </p>
-                </div>
-                <a
-                  className="admin-certificates-link"
-                  href={`/api/admin/certificates/${certificate.id}/download`}
-                >
-                  Download PDF
-                </a>
-              </li>
-            ))}
-          </ul>
+          {data.certificates.length > 0 ? (
+            <ul className="admin-certificates-issued-list">
+              {data.certificates.map((certificate: AdminPilotCertificateDto) => (
+                <li key={certificate.id} className="admin-certificates-issued-row">
+                  <div>
+                    <p className="admin-certificates-issued-name">
+                      {certificate.pilotDisplayName}
+                    </p>
+                    <p className="admin-certificates-issued-meta">
+                      {certificate.templateName}
+                      {certificate.pilotEmail ? ` · ${certificate.pilotEmail}` : ""}
+                    </p>
+                    <p className="admin-certificates-issued-meta">
+                      {certificate.certificateNumber} ·{" "}
+                      {new Date(certificate.issuedAt).toLocaleString()}
+                      {certificate.licenseNumber
+                        ? ` · Member ${certificate.licenseNumber}`
+                        : ""}
+                    </p>
+                  </div>
+                  <a
+                    className="admin-certificates-link"
+                    href={`/api/admin/certificates/${certificate.id}/download`}
+                  >
+                    Download PDF
+                  </a>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="admin-certificates-issued-sub">
+              Issued certificates will appear here after manual issue or automated rules run.
+            </p>
+          )}
         </section>
       ) : null}
 

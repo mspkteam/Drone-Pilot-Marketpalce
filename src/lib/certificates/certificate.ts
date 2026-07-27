@@ -17,6 +17,10 @@ import {
   serializeOverlayPositions,
   type OverlayFieldOverride,
 } from "@/lib/certificates/layouts";
+import {
+  getManualIssueFieldsFromTemplate,
+  parseManualIssueDate,
+} from "@/lib/certificates/manual-issue";
 import { applyTemplate, renderCertificatePdf } from "@/lib/certificates/pdf";
 import { writeCertificatePdf } from "@/lib/certificates/storage";
 import { evaluateAndAssignWings } from "@/lib/wings/wings";
@@ -266,7 +270,7 @@ export async function listCertificatesForAdmin(): Promise<AdminPilotCertificateD
 
 export async function listPilotsForCertificateAssign() {
   const pilots = await prisma.pilotProfile.findMany({
-    where: { status: "approved" },
+    where: { status: { in: ["approved", "pending_review"] } },
     include: { user: { select: { email: true } } },
     orderBy: { displayName: "asc" },
   });
@@ -408,14 +412,20 @@ async function pilotMeetsCertificateRule(
   }
 }
 
+export type IssueCertificateOptions = {
+  notes?: string | null;
+  awardGrade?: string | null;
+  memberNumber?: string | null;
+  issuedAt?: string | Date | null;
+};
+
 export async function issueCertificateToPilot(
   issuedByUserId: string,
   pilotProfileId: string,
   templateId: string,
-  notes?: string | null,
-  awardGrade?: string | null,
+  options: IssueCertificateOptions = {},
 ): Promise<
-  | { ok: true; certificate: PilotCertificateDto }
+  | { ok: true; certificate: AdminPilotCertificateDto }
   | { ok: false; error: string; status: 400 | 404 }
 > {
   const pilot = await prisma.pilotProfile.findUnique({
@@ -434,8 +444,20 @@ export async function issueCertificateToPilot(
   }
 
   const grade =
-    typeof awardGrade === "string" && awardGrade.trim()
-      ? awardGrade.trim()
+    typeof options.awardGrade === "string" && options.awardGrade.trim()
+      ? options.awardGrade.trim()
+      : null;
+
+  const issuedAt =
+    options.issuedAt instanceof Date
+      ? options.issuedAt
+      : parseManualIssueDate(
+          typeof options.issuedAt === "string" ? options.issuedAt : null,
+        ) ?? new Date();
+
+  const memberNumberOverride =
+    typeof options.memberNumber === "string" && options.memberNumber.trim()
+      ? options.memberNumber.trim()
       : null;
 
   if (
@@ -452,30 +474,49 @@ export async function issueCertificateToPilot(
     };
   }
 
-  const certificateNumber = await generateCertificateNumber();
-  const issuedAt = new Date();
-  const memberNumber = pilot.licenseNumber?.trim() || undefined;
-  const body = applyTemplate(template.bodyTemplate, {
-    pilotName: pilot.displayName,
-    licenseNumber: pilot.licenseNumber,
-    certificateNumber,
-    issueDate: issuedAt.toLocaleDateString("en-US"),
-    templateName: template.name,
-    gradeOrTitle: grade ?? template.title,
-  });
+  const manualFields = getManualIssueFieldsFromTemplate(template);
+  if (manualFields.includes("memberNumber") && !memberNumberOverride && !pilot.licenseNumber?.trim()) {
+    return {
+      ok: false,
+      error: "Member number is required for this certificate template.",
+      status: 400,
+    };
+  }
 
-  const pdfBuffer = await renderCertificatePdf({
-    title: template.title,
-    body,
-    pilotDisplayName: pilot.displayName,
-    certificateNumber,
-    issuedAt,
-    backgroundImageUrl: template.backgroundImageUrl,
-    layoutKey: template.layoutKey ?? template.slug,
-    gradeOrTitle: grade,
-    memberNumber,
-    overlayPositions: parseOverlayPositionsJson(template.overlayPositionsJson),
-  });
+  const certificateNumber = await generateCertificateNumber();
+  const memberNumber =
+    memberNumberOverride ?? (pilot.licenseNumber?.trim() || undefined);
+
+  let pdfBuffer: Buffer;
+  try {
+    const body = applyTemplate(template.bodyTemplate, {
+      pilotName: pilot.displayName,
+      licenseNumber: memberNumber ?? pilot.licenseNumber,
+      certificateNumber,
+      issueDate: issuedAt.toLocaleDateString("en-US"),
+      templateName: template.name,
+      gradeOrTitle: grade ?? template.title,
+    });
+
+    pdfBuffer = await renderCertificatePdf({
+      title: template.title,
+      body,
+      pilotDisplayName: pilot.displayName,
+      certificateNumber,
+      issuedAt,
+      backgroundImageUrl: template.backgroundImageUrl,
+      layoutKey: template.layoutKey ?? template.slug,
+      gradeOrTitle: grade,
+      memberNumber,
+      overlayPositions: parseOverlayPositionsJson(template.overlayPositionsJson),
+    });
+  } catch (error) {
+    const message =
+      error instanceof Error
+        ? error.message
+        : "Certificate PDF generation failed.";
+    return { ok: false, error: message, status: 400 };
+  }
 
   const pdfFileName = `${certificateNumber.replace(/[^a-zA-Z0-9-]/g, "_")}.pdf`;
   await writeCertificatePdf(pdfFileName, pdfBuffer);
@@ -486,12 +527,12 @@ export async function issueCertificateToPilot(
       pilotProfileId,
       templateId,
       pilotDisplayName: pilot.displayName,
-      licenseNumber: pilot.licenseNumber,
+      licenseNumber: memberNumber ?? pilot.licenseNumber,
       awardGrade: grade,
       issuedAt,
       issuedByUserId,
       pdfFileName,
-      notes: notes?.trim() || null,
+      notes: options.notes?.trim() || null,
     },
     include: { template: { select: { name: true } } },
   });
@@ -508,7 +549,13 @@ export async function issueCertificateToPilot(
 
   await evaluateAndAssignWings(pilotProfileId);
 
-  return { ok: true, certificate: toPilotCertDto(row) };
+  return {
+    ok: true,
+    certificate: {
+      ...toPilotCertDto(row),
+      pilotEmail: pilot.user.email,
+    },
+  };
 }
 
 /**
@@ -541,8 +588,10 @@ export async function evaluateAndIssueCertificates(
       pilot.userId,
       pilotProfileId,
       template.id,
-      "Auto-issued by platform certificate rules",
-      check.awardGrade ?? null,
+      {
+        notes: "Auto-issued by platform certificate rules",
+        awardGrade: check.awardGrade ?? null,
+      },
     );
 
     if (result.ok) {
@@ -573,4 +622,62 @@ export async function getCertificateById(certificateId: string) {
     where: { id: certificateId },
     include: { template: { select: { name: true } } },
   });
+}
+
+type CertificateWithTemplate = PilotCertificate & {
+  template: CertificateTemplate;
+};
+
+/** Load certificate + full template row for PDF generation or download. */
+export async function getCertificateWithTemplate(
+  certificateId: string,
+): Promise<CertificateWithTemplate | null> {
+  return prisma.pilotCertificate.findUnique({
+    where: { id: certificateId },
+    include: { template: true },
+  });
+}
+
+async function renderStoredCertificatePdf(
+  cert: CertificateWithTemplate,
+): Promise<Buffer> {
+  const template = cert.template;
+  const issuedAt =
+    cert.issuedAt instanceof Date ? cert.issuedAt : new Date(cert.issuedAt);
+  const memberNumber = cert.licenseNumber?.trim() || undefined;
+  const grade = cert.awardGrade;
+  const body = applyTemplate(template.bodyTemplate, {
+    pilotName: cert.pilotDisplayName,
+    licenseNumber: memberNumber ?? cert.licenseNumber ?? "",
+    certificateNumber: cert.certificateNumber,
+    issueDate: issuedAt.toLocaleDateString("en-US"),
+    templateName: template.name,
+    gradeOrTitle: grade ?? template.title,
+  });
+
+  return renderCertificatePdf({
+    title: template.title,
+    body,
+    pilotDisplayName: cert.pilotDisplayName,
+    certificateNumber: cert.certificateNumber,
+    issuedAt,
+    backgroundImageUrl: template.backgroundImageUrl,
+    layoutKey: template.layoutKey ?? template.slug,
+    gradeOrTitle: grade,
+    memberNumber,
+    overlayPositions: parseOverlayPositionsJson(template.overlayPositionsJson),
+  });
+}
+
+/** Always render from stored template + pilot data so downloads match the live preview. */
+export async function getCertificatePdfBuffer(
+  cert: CertificateWithTemplate,
+): Promise<Buffer> {
+  const buffer = await renderStoredCertificatePdf(cert);
+  try {
+    await writeCertificatePdf(cert.pdfFileName, buffer);
+  } catch {
+    // Ephemeral serverless filesystem — regeneration still serves the download.
+  }
+  return buffer;
 }

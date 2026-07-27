@@ -4,7 +4,110 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
-## [0.27.14] — 2026-07-24
+## [0.27.23] — 2026-07-27
+
+### Added
+
+- Admin client profile: preferences editing, suspend/reactivate login, jobs/bookings/disputes/messages/reviews sections, and ops deep-links
+- Client member stats: jobs, bookings, messages, open disputes, reviews
+
+### Changed
+
+- Member profile layout matches Fleet & Personnel ops look (warm hero, bracket panels, gold accent stats)
+
+---
+
+## [0.27.22] — 2026-07-27
+
+### Added
+
+- Unified Fleet & Personnel action: **Open profile** for all members (pilots and clients)
+- Full **client profile** page with inline edit (contact, company, phone, billing, status)
+- Pilot profile: assign **wings & badges** inline; links to certificates and badge catalog
+- Client roster filter (`?role=client`) and **All clients** directory filter
+
+### Changed
+
+- Roster no longer mixes PROFILE / VIEW / EDIT — all management happens on the profile page
+- Account modal renamed to **Account settings** (email, login status, moderation)
+
+---
+
+## [0.27.21] — 2026-07-27
+
+### Added
+
+- Admin pilot profile page on Fleet & Personnel: full read view, inline edit, approve/reject, commission link
+- Pilot roster mode (`?role=pilot`): updated copy, PROFILE action, back-navigation to pilot list
+
+### Changed
+
+- Users with edit permission can use roster EDIT (not Super Admin only)
+- Pilot profile API supports license, location, rates, bio, and service radius updates
+
+---
+
+## [0.27.20] — 2026-07-27
+
+### Changed
+
+- Platform Settings “See All Pilots” opens Fleet & Personnel (`/dashboard/admin/users?role=pilot`) with pilot filter and VIEW profile links
+- Legacy `/dashboard/admin/pilots` redirects to the personnel directory; ops dashboard pilot approvals link to member profiles
+
+---
+
+## [0.27.19] — 2026-07-27
+
+### Added
+
+- Admin Platform Settings: editable default commission, all six grade rates (A-1–A-6), and manage rules
+- Per-grade commission rates apply to pilot payouts (after per-pilot override)
+
+### Changed
+
+- Legacy A-4+ commission row migrates to A-4; missing A-5/A-6 rows backfilled on load
+- Subscriptions portal links to Platform Settings for commission editing
+
+---
+
+## [0.27.18] — 2026-07-27
+
+### Fixed
+
+- Certificate PDF: externalize `pdfkit` for Next.js and stop using built-in Helvetica (fixes missing `Helvetica.afm` on download)
+
+---
+
+## [0.27.17] — 2026-07-27
+
+### Fixed
+
+- Certificate PDF download: pass image `format` to PDFKit when background is a Buffer (fixes Vercel/production downloads)
+- Background loader tries multiple app URLs; API returns the real error message instead of a generic failure
+
+---
+
+## [0.27.16] — 2026-07-27
+
+### Fixed
+
+- Certificate PDF downloads use the exact template artwork (not a generic text layout)
+- Assigned pilot appears immediately in Issued certificates with name and email
+- Manual issue preview reflects the selected pilot before PDF generation
+
+---
+
+## [0.27.15] — 2026-07-27
+
+### Fixed
+
+- Admin badges: swapped **Common** / **Uncommon** titles for Recreational Aviator Gold and Remote Aviation Crew Silver (icons unchanged)
+- Certificate manual issue: template-aware fields (member #, award/issue date, grade) per certificate layout
+- Issued certificates list always visible with empty state; pilot name/email shown on each row; instant update after issue
+- PDF download always renders the **exact fillable template** (background PNG + overlays), including on Vercel; no generic fallback when a template exists
+- Manual issue preview shows selected pilot on the certificate before issuing
+
+---
 
 ### Added
 

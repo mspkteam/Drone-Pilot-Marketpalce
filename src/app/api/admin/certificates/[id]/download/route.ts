@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
-import { getCertificateById } from "@/lib/certificates/certificate";
-import { readCertificatePdf } from "@/lib/certificates/storage";
+import {
+  getCertificateWithTemplate,
+  getCertificatePdfBuffer,
+} from "@/lib/certificates/certificate";
 import { requireAdminModuleView } from "@/lib/auth/require-admin-permission";
 
 type RouteContext = { params: Promise<{ id: string }> };
@@ -15,20 +17,25 @@ export async function GET(_request: Request, context: RouteContext) {
   }
 
   const { id } = await context.params;
-  const cert = await getCertificateById(id);
+  const cert = await getCertificateWithTemplate(id);
   if (!cert) {
     return NextResponse.json({ error: "Certificate not found." }, { status: 404 });
   }
 
   try {
-    const buffer = await readCertificatePdf(cert.pdfFileName);
+    const buffer = await getCertificatePdfBuffer(cert);
     return new NextResponse(new Uint8Array(buffer), {
       headers: {
         "Content-Type": "application/pdf",
         "Content-Disposition": `attachment; filename="${cert.certificateNumber}.pdf"`,
       },
     });
-  } catch {
-    return NextResponse.json({ error: "PDF file not found." }, { status: 404 });
+  } catch (error) {
+    console.error("Admin certificate PDF download failed:", error);
+    const message =
+      error instanceof Error
+        ? error.message
+        : "Unable to generate certificate PDF.";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

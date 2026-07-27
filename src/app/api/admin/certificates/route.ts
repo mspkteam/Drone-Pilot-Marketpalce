@@ -47,8 +47,13 @@ export async function POST(request: Request) {
     authResult.userId,
     body.pilotProfileId,
     body.templateId,
-    body.notes,
-    typeof body.awardGrade === "string" ? body.awardGrade : null,
+    {
+      notes: typeof body.notes === "string" ? body.notes : null,
+      awardGrade: typeof body.awardGrade === "string" ? body.awardGrade : null,
+      memberNumber:
+        typeof body.memberNumber === "string" ? body.memberNumber : null,
+      issuedAt: typeof body.issuedAt === "string" ? body.issuedAt : null,
+    },
   );
 
   if (!result.ok) {

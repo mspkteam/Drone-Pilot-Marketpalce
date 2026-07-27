@@ -444,12 +444,9 @@ async function main() {
       });
 
       if (!existingCert) {
-        await issueCertificateToPilot(
-          adminUser.id,
-          demoPilot.id,
-          tpl.id,
-          "Seeded demo certificate for local testing.",
-        );
+        await issueCertificateToPilot(adminUser.id, demoPilot.id, tpl.id, {
+          notes: "Seeded demo certificate for local testing.",
+        });
       }
     }
 

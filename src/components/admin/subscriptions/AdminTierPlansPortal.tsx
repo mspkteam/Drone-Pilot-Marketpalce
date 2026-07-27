@@ -209,8 +209,8 @@ export function AdminTierPlansPortal() {
               Default platform commission: {commissionPct}%
             </p>
             <p className="admin-subscriptions-commission-note">
-              Editable commission settings are pending — rate is fixed in code (
-              `DEFAULT_COMMISSION_RATE`).
+              Edit default and per-grade commission rates (A-1 through A-6) in{" "}
+              <Link href="/dashboard/admin/settings">Platform Settings</Link>.
             </p>
           </section>
 

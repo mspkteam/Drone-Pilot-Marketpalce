@@ -34,6 +34,7 @@ export function AdminPersonnelEditModal({
   const [clientCompanyName, setClientCompanyName] = useState("");
   const [clientPhone, setClientPhone] = useState("");
   const [clientStatus, setClientStatus] = useState("active");
+  const [clientBillingAddress, setClientBillingAddress] = useState("");
 
   useEffect(() => {
     if (!open || !userId) return;
@@ -66,6 +67,7 @@ export function AdminPersonnelEditModal({
           setClientContactName(u.client.contactName);
           setClientCompanyName(u.client.companyName ?? "");
           setClientPhone(u.client.phone ?? "");
+          setClientBillingAddress(u.client.billingAddress ?? "");
           setClientStatus(u.client.status);
         }
       } catch {
@@ -112,6 +114,7 @@ export function AdminPersonnelEditModal({
           contactName: clientContactName,
           companyName: clientCompanyName.trim() || null,
           phone: clientPhone.trim() || null,
+          billingAddress: clientBillingAddress.trim() || null,
           status: clientStatus,
         };
       }
@@ -301,6 +304,15 @@ export function AdminPersonnelEditModal({
                     <input
                       value={clientPhone}
                       onChange={(e) => setClientPhone(e.target.value)}
+                      disabled={saving}
+                    />
+                  </label>
+                  <label className="admin-personnel-edit-field">
+                    <span>Billing address</span>
+                    <textarea
+                      value={clientBillingAddress}
+                      onChange={(e) => setClientBillingAddress(e.target.value)}
+                      rows={2}
                       disabled={saving}
                     />
                   </label>

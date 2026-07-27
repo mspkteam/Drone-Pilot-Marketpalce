@@ -2,6 +2,7 @@ import { getCmsOverview, listCmsArticles } from "@/lib/cms/cms-store";
 import {
   getDefaultPlatformConfig,
   getPersistedPlatformConfig,
+  normalizeGradeRates,
   toDefaultCommissionRow,
 } from "@/lib/admin/platform-settings";
 import type { AdminConfigurationDataDto } from "@/types/admin-configuration";
@@ -44,7 +45,7 @@ export async function getAdminConfigurationData(): Promise<AdminConfigurationDat
 
   return {
     defaultCommission: toDefaultCommissionRow(persisted.defaultCommissionRate),
-    gradeRates: persisted.gradeRates,
+    gradeRates: normalizeGradeRates(persisted.gradeRates),
     manageRules: persisted.manageRules,
     pilotOverridePreview: persisted.pilotOverridePreview,
     emailTemplates: [

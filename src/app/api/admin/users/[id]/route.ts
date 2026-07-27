@@ -36,6 +36,44 @@ export async function PATCH(request: Request, context: RouteContext) {
   const { id } = await context.params;
   const body = (await request.json()) as Record<string, unknown>;
 
+  const pilotPayload =
+    body.pilot && typeof body.pilot === "object"
+      ? (body.pilot as {
+          displayName?: string;
+          licenseNumber?: string;
+          licenseCountry?: string | null;
+          status?: string;
+          isPublic?: boolean;
+          bio?: string | null;
+          locationCity?: string | null;
+          locationRegion?: string | null;
+          locationCountry?: string | null;
+          serviceRadiusKm?: number | null;
+          hourlyRateMin?: number | null;
+          hourlyRateMax?: number | null;
+        })
+      : undefined;
+
+  const clientPayload =
+    body.client && typeof body.client === "object"
+      ? (body.client as {
+          contactName?: string;
+          companyName?: string | null;
+          phone?: string | null;
+          billingAddress?: string | null;
+          status?: string;
+          preferences?: {
+            roleTitle?: string;
+            preferredContact?: string;
+            typicalProjectArea?: string;
+            defaultBudgetRange?: string;
+            approvalContact?: string;
+            billingEmail?: string;
+            projectTypes?: string[];
+          };
+        })
+      : undefined;
+
   const result = await updateUserByAdmin(id, {
     email: typeof body.email === "string" ? body.email : undefined,
     status: typeof body.status === "string" ? body.status : undefined,
@@ -43,27 +81,8 @@ export async function PATCH(request: Request, context: RouteContext) {
       body.moderationNote === null || typeof body.moderationNote === "string"
         ? (body.moderationNote as string | null)
         : undefined,
-    pilot:
-      body.pilot && typeof body.pilot === "object"
-        ? (body.pilot as {
-            displayName?: string;
-            status?: string;
-            isPublic?: boolean;
-            bio?: string | null;
-            locationCity?: string | null;
-            locationRegion?: string | null;
-            locationCountry?: string | null;
-          })
-        : undefined,
-    client:
-      body.client && typeof body.client === "object"
-        ? (body.client as {
-            contactName?: string;
-            companyName?: string | null;
-            phone?: string | null;
-            status?: string;
-          })
-        : undefined,
+    pilot: pilotPayload,
+    client: clientPayload,
   });
 
   if (!result.ok) {

@@ -18,18 +18,23 @@ export type AdminUserEditDto = {
     id: string;
     displayName: string;
     licenseNumber: string;
+    licenseCountry: string | null;
     status: string;
     isPublic: boolean;
     bio: string | null;
     locationCity: string | null;
     locationRegion: string | null;
     locationCountry: string | null;
+    serviceRadiusKm: number | null;
+    hourlyRateMin: number | null;
+    hourlyRateMax: number | null;
   } | null;
   client: {
     id: string;
     contactName: string;
     companyName: string | null;
     phone: string | null;
+    billingAddress: string | null;
     status: string;
   } | null;
 };

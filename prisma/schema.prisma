@@ -613,6 +613,8 @@ model WingDefinition {
   title       String
   description String
   category    String      @default("milestone")
+  /** COMMON | UNCOMMON | RARE | EPIC | LEGENDARY | MYTHIC */
+  rarity      String      @default("COMMON")
   iconLabel   String?
   imageUrl    String?
   autoRule    String?
@@ -626,6 +628,7 @@ model WingDefinition {
 
   @@index([isActive])
   @@index([sortOrder])
+  @@index([rarity])
 }
 
 model PilotWing {

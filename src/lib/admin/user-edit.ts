@@ -13,9 +13,45 @@ import { CLIENT_PROFILE_STATUSES } from "@/types/client";
 export type { AdminUserEditDto } from "@/types/admin-user-edit";
 export { USER_ACCOUNT_STATUSES } from "@/types/admin-user-edit";
 
+/**
+ * Client accounts may exist before onboarding creates a ClientProfile.
+ * Admin member views always need a profile row so every client gets the
+ * same full profile UI (not a bare "no profile yet" page).
+ */
+export async function ensureClientProfileForUser(
+  userId: string,
+): Promise<boolean> {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      id: true,
+      email: true,
+      role: true,
+      clientProfile: { select: { id: true } },
+    },
+  });
+  if (!user || user.role !== "client" || user.clientProfile) {
+    return false;
+  }
+
+  const contactName =
+    user.email.split("@")[0]?.trim() || "Client";
+
+  await prisma.clientProfile.create({
+    data: {
+      userId: user.id,
+      contactName,
+      status: "draft",
+    },
+  });
+  return true;
+}
+
 export async function getUserForAdminEdit(
   userId: string,
 ): Promise<AdminUserEditDto | null> {
+  await ensureClientProfileForUser(userId);
+
   const user = await prisma.user.findUnique({
     where: { id: userId },
     include: {
@@ -130,6 +166,8 @@ export async function updateUserByAdmin(
   | { ok: true; user: AdminUserEditDto }
   | { ok: false; error: string; status: 400 | 404 | 409 }
 > {
+  await ensureClientProfileForUser(userId);
+
   const existing = await prisma.user.findUnique({
     where: { id: userId },
     include: { pilotProfile: true, clientProfile: true },

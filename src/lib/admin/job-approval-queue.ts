@@ -1,75 +1,38 @@
 import { listJobsForAdmin } from "@/lib/jobs/admin";
 import { prisma } from "@/lib/db";
+import {
+  isJobApprovalStatusFilter,
+  mapAdminJobToQueueRow,
+} from "@/lib/admin/job-approval-queue-map";
 import type { AdminJobDto } from "@/types/admin-job";
 import type {
   JobApprovalQueueData,
-  JobApprovalQueueRow,
   JobApprovalStatCard,
-  JobRiskLevel,
+  JobApprovalStatusFilter,
 } from "@/types/admin-job-approval";
 
-function assessJobRisk(job: AdminJobDto): {
-  level: JobRiskLevel;
-  label: string;
-  isNightOp: boolean;
-} {
-  const title = job.title.toLowerCase();
-  const requirements = (job.requirements ?? "").toLowerCase();
-  const budget = job.budgetMax ?? job.budgetMin ?? 0;
-  const isNightOp = title.includes("night") || requirements.includes("night");
+export {
+  isJobApprovalStatusFilter,
+  mapAdminJobToQueueRow,
+} from "@/lib/admin/job-approval-queue-map";
 
-  let level: JobRiskLevel = "low";
-  if (
-    budget >= 6000 ||
-    isNightOp ||
-    (job.category === "inspection" && budget >= 4000)
-  ) {
-    level = "high";
-  } else if (budget >= 2000 || job.category === "inspection") {
-    level = "medium";
+const QUEUE_STATUSES = ["pending_approval", "open", "rejected"] as const;
+
+async function listJobsForQueue(
+  statusFilter: JobApprovalStatusFilter,
+): Promise<AdminJobDto[]> {
+  if (statusFilter === "all") {
+    const jobs = await listJobsForAdmin("all");
+    return jobs.filter((job) =>
+      (QUEUE_STATUSES as readonly string[]).includes(job.status),
+    );
   }
-
-  const label =
-    level === "high" ? "HIGH RISK" : level === "medium" ? "MEDIUM RISK" : "LOW RISK";
-
-  return { level, label, isNightOp };
-}
-
-function formatBudget(job: AdminJobDto): string {
-  const amount = job.budgetMax ?? job.budgetMin;
-  if (amount == null) return "—";
-  return `$${Math.round(amount).toLocaleString()}`;
-}
-
-function formatPostedBy(job: AdminJobDto): string {
-  return (job.client.companyName ?? job.client.contactName).toUpperCase();
-}
-
-function formatLocation(job: AdminJobDto): string {
-  const parts = [job.locationCity, job.locationRegion, job.locationCountry]
-    .filter(Boolean)
-    .join(", ");
-  return (parts || job.locationLabel).toUpperCase();
-}
-
-function toQueueRow(job: AdminJobDto): JobApprovalQueueRow {
-  const risk = assessJobRisk(job);
-  return {
-    id: job.id,
-    missionId: `MISSION-${job.id.slice(-4).toUpperCase()}`,
-    title: job.title.toUpperCase(),
-    postedBy: formatPostedBy(job),
-    location: formatLocation(job),
-    budget: formatBudget(job),
-    riskLevel: risk.level,
-    riskLabel: risk.label,
-    isNightOp: risk.isNightOp,
-    reviewHref: `/dashboard/admin/jobs/${job.id}`,
-  };
+  return listJobsForAdmin(statusFilter);
 }
 
 async function buildStats(
-  pendingRows: JobApprovalQueueRow[],
+  pendingCount: number,
+  highRiskPending: number,
 ): Promise<JobApprovalStatCard[]> {
   const now = new Date();
   const startOfToday = new Date(now);
@@ -106,7 +69,6 @@ async function buildStats(
       }),
     ]);
 
-  const highRiskCount = pendingRows.filter((r) => r.riskLevel === "high").length;
   const approvalDeltas = recentApprovals
     .map((job) => {
       if (!job.approvedAt || !job.submittedAt) return null;
@@ -129,18 +91,20 @@ async function buildStats(
   return [
     {
       label: "AWAITING REVIEW",
-      value: String(pendingRows.length),
+      value: String(pendingCount),
       subtext:
-        highRiskCount > 0
-          ? `${highRiskCount} flagged high-risk`
+        highRiskPending > 0
+          ? `${highRiskPending} flagged high-risk`
           : "No high-risk flags",
       tone: "gold",
+      statusFilter: "pending_approval",
     },
     {
       label: "APPROVED TODAY",
       value: String(approvedToday),
       subtext: approvedSubtext,
       tone: "success",
+      statusFilter: "open",
     },
     {
       label: "AVG. APPROVAL TIME",
@@ -153,20 +117,35 @@ async function buildStats(
       value: String(rejected7d),
       subtext: "policy violations",
       tone: "danger",
+      statusFilter: "rejected",
     },
   ];
 }
 
-export async function getJobApprovalQueueData(): Promise<JobApprovalQueueData> {
-  const pendingJobs = await listJobsForAdmin("pending_approval");
-  const rows = pendingJobs.map(toQueueRow);
-  const stats = await buildStats(rows);
+export async function getJobApprovalQueueData(
+  statusFilter: JobApprovalStatusFilter = "pending_approval",
+): Promise<JobApprovalQueueData> {
+  const [jobs, pendingJobs] = await Promise.all([
+    listJobsForQueue(statusFilter),
+    statusFilter === "pending_approval"
+      ? null
+      : listJobsForAdmin("pending_approval"),
+  ]);
+
+  const rows = jobs.map(mapAdminJobToQueueRow);
+  const pendingRows =
+    statusFilter === "pending_approval"
+      ? rows
+      : (pendingJobs ?? []).map(mapAdminJobToQueueRow);
+  const highRiskPending = pendingRows.filter((r) => r.riskLevel === "high").length;
+  const stats = await buildStats(pendingRows.length, highRiskPending);
 
   return {
     stats,
     rows,
-    totalPending: rows.length,
+    totalPending: pendingRows.length,
+    totalMatching: rows.length,
+    statusFilter,
     usingMockRows: false,
   };
 }
-

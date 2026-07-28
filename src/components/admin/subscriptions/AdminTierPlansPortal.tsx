@@ -126,7 +126,7 @@ export function AdminTierPlansPortal() {
           </div>
           <div className="admin-subscriptions-hero-actions">
             <Link
-              href="/dashboard/pilot/subscription"
+              href="/pricing"
               className="admin-subscriptions-btn admin-subscriptions-btn--ghost"
               target="_blank"
               rel="noopener noreferrer"

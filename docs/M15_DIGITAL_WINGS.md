@@ -1,6 +1,6 @@
 # M15 — Digital Wings / Achievements
 
-**Version:** 0.27.3  
+**Version:** 0.27.26  
 **Depends on:** M05 (Pilot profiles), M09 (Bookings), M10 (Reviews), M11 (Membership), M14, M22
 
 ## Overview
@@ -11,10 +11,11 @@ Admin UI: **Badges & Wings** (`/dashboard/admin/achievements`) — create/edit f
 
 ## Data model
 
-- `WingDefinition` — catalog (`code`, `title`, `description`, `category`, `autoRule`, `ruleParam`, `threshold`)
+- `WingDefinition` — catalog (`code`, `title`, `description`, `category`, `rarity`, `autoRule`, `ruleParam`, `threshold`, `iconLabel`, `imageUrl`, `isActive`, `sortOrder`)
 - `PilotWing` — earned instance (unique per pilot + definition)
 
-Categories: `milestone` | `trust` | `community`
+Categories: `milestone` | `trust` | `community`  
+Rarity: `COMMON` | `UNCOMMON` | `RARE` | `EPIC` | `LEGENDARY` | `MYTHIC` (persisted; editable in admin)
 
 ## Award conditions (site-backed)
 

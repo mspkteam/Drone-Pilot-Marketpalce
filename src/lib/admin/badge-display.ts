@@ -4,17 +4,17 @@ import type {
   BadgeIconType,
   BadgeRarity,
 } from "@/types/admin-badges";
+import { BADGE_RARITIES } from "@/types/admin-badges";
 import type { WingDefinitionDto } from "@/types/wing";
 
+/** Seed / legacy fallback when `WingDefinition.rarity` is missing or invalid. */
 const RARITY_BY_CODE: Record<string, BadgeRarity> = {
-  // Canonical Remote Air Service wings (Figma 808:38130).
   "recreational-aviator-gold": "UNCOMMON",
   "remote-aviation-crew-silver": "COMMON",
   "aviator-wings-basic-gold": "RARE",
   "aviator-wings-basic-silver": "EPIC",
   "aviator-wings-senior": "LEGENDARY",
   "aviator-wings-master": "MYTHIC",
-  // Legacy sample codes (retained for any historical awards).
   "golden-wings": "LEGENDARY",
   "night-operator": "RARE",
   "first-bid": "COMMON",
@@ -54,7 +54,22 @@ const ICON_BY_CODE: Record<string, BadgeIconType> = {
   "verified-license": "star-outline",
 };
 
+export function isBadgeRarity(value: string | null | undefined): value is BadgeRarity {
+  return Boolean(value && (BADGE_RARITIES as readonly string[]).includes(value));
+}
+
+export function defaultRarityForCode(code: string): BadgeRarity {
+  return RARITY_BY_CODE[code] ?? "COMMON";
+}
+
+/**
+ * Prefer persisted rarity. Fall back to code map / heuristics for legacy rows.
+ */
 export function deriveRarity(definition: WingDefinitionDto): BadgeRarity {
+  if (isBadgeRarity(definition.rarity)) {
+    return definition.rarity;
+  }
+
   const mapped = RARITY_BY_CODE[definition.code];
   if (mapped) return mapped;
 
@@ -91,7 +106,6 @@ export function deriveIconType(definition: WingDefinitionDto): BadgeIconType {
 }
 
 export function iconGlyph(iconType: BadgeIconType): string {
-  // Legacy text fallback for plain-text contexts (select options, exports).
   switch (iconType) {
     case "trophy":
       return "Trophy";
@@ -138,4 +152,3 @@ export function enrichBadgeDefinition(
     isMock: false,
   };
 }
-

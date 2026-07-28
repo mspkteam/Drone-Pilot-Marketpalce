@@ -36,12 +36,14 @@ export async function POST(request: Request) {
     title: body.title ?? "",
     description: body.description ?? "",
     category: body.category ?? "milestone",
+    rarity: body.rarity,
     iconLabel: body.iconLabel,
     imageUrl: body.imageUrl,
     autoRule: body.autoRule ?? "manual_only",
     ruleParam: body.ruleParam,
     threshold: body.threshold,
     sortOrder: body.sortOrder,
+    isActive: body.isActive,
   });
 
   if (!result.ok) {

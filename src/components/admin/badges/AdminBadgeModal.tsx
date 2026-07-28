@@ -14,16 +14,8 @@ import type {
   BadgeIconType,
   BadgeRarity,
 } from "@/types/admin-badges";
+import { BADGE_ICON_TYPES, BADGE_RARITIES } from "@/types/admin-badges";
 import type { WingAutoRule, WingCategory } from "@/types/wing";
-
-const RARITIES: BadgeRarity[] = [
-  "COMMON",
-  "UNCOMMON",
-  "RARE",
-  "EPIC",
-  "LEGENDARY",
-  "MYTHIC",
-];
 
 function rarityToCategory(rarity: BadgeRarity): WingCategory {
   switch (rarity) {
@@ -74,7 +66,6 @@ export function AdminBadgeModal({
   const [isActive, setIsActive] = useState(true);
   const [sortOrder, setSortOrder] = useState("100");
   const [autoAward, setAutoAward] = useState(false);
-  const [visibleOnProfile, setVisibleOnProfile] = useState(true);
 
   useEffect(() => {
     if (mode === "edit" && badge) {
@@ -102,7 +93,6 @@ export function AdminBadgeModal({
       setIsActive(badge.isActive);
       setSortOrder(String(badge.sortOrder));
       setAutoAward(rule !== "manual_only" && rule !== null);
-      setVisibleOnProfile(badge.isActive);
     } else {
       setTitle("");
       setDescription("");
@@ -115,7 +105,6 @@ export function AdminBadgeModal({
       setIsActive(true);
       setSortOrder("100");
       setAutoAward(false);
-      setVisibleOnProfile(true);
     }
   }, [mode, badge]);
 
@@ -205,7 +194,7 @@ export function AdminBadgeModal({
       autoRule: resolvedRule,
       threshold: resolvedThreshold,
       ruleParam: resolvedParam,
-      isActive: isActive && visibleOnProfile,
+      isActive,
       sortOrder: Number.isFinite(parsedSort) ? parsedSort : 100,
     });
   }
@@ -273,12 +262,35 @@ export function AdminBadgeModal({
                   setRarity(event.target.value as BadgeRarity)
                 }
               >
-                {RARITIES.map((value) => (
+                {BADGE_RARITIES.map((value) => (
                   <option key={value} value={value}>
                     {value.charAt(0) + value.slice(1).toLowerCase()}
                   </option>
                 ))}
               </select>
+            </div>
+
+            <div className="admin-badges-field">
+              <label htmlFor="badge-icon">Icon style</label>
+              <select
+                id="badge-icon"
+                value={iconType}
+                onChange={(event) =>
+                  setIconType(event.target.value as BadgeIconType)
+                }
+              >
+                {BADGE_ICON_TYPES.map((value) => (
+                  <option key={value} value={value}>
+                    {value
+                      .split("-")
+                      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+                      .join(" ")}
+                  </option>
+                ))}
+              </select>
+              <p className="admin-badges-hint">
+                Used when no wing image is set. Uploaded images override the icon.
+              </p>
             </div>
 
             <div className="admin-badges-field">
@@ -528,20 +540,10 @@ export function AdminBadgeModal({
               <label className="admin-badges-check">
                 <input
                   type="checkbox"
-                  checked={visibleOnProfile}
-                  onChange={(event) =>
-                    setVisibleOnProfile(event.target.checked)
-                  }
-                />
-                Visible on pilot profile
-              </label>
-              <label className="admin-badges-check">
-                <input
-                  type="checkbox"
                   checked={isActive}
                   onChange={(event) => setIsActive(event.target.checked)}
                 />
-                Active
+                Active (visible and eligible for awards)
               </label>
             </div>
           </div>

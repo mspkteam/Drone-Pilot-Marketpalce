@@ -848,6 +848,7 @@
 
 /* Issued / manual issue */
 .admin-certificates-issued-panel {
+  scroll-margin-top: 1.5rem;
   border: 1px solid var(--dashboard-card-border);
   border-radius: 0.5rem;
   background: var(--color-card-warm);

@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import {
   SUPPORT_ALLOWED_MIME_TYPES,
+  SUPPORT_MAX_ATTACHMENTS,
   SUPPORT_MAX_BYTES,
 } from "@/lib/support/constants";
 import { cn } from "@/lib/utils";
+import "@/styles/support-attachments.css";
 
 const ACCEPT = [
   "image/jpeg",
@@ -22,11 +24,13 @@ const MIME_LABELS: Record<string, string> = {
 };
 
 type SupportAttachmentUploadProps = {
-  file: File | null;
-  onFileChange: (file: File | null) => void;
+  files: File[];
+  onFilesChange: (files: File[]) => void;
   disabled?: boolean;
   label?: string;
   className?: string;
+  /** Admin dashboard styling hooks */
+  variant?: "widget" | "admin";
 };
 
 function validateClientFile(file: File): string | null {
@@ -34,9 +38,13 @@ function validateClientFile(file: File): string | null {
     return `Unsupported file type. Allowed: ${Object.values(MIME_LABELS).join(", ")}.`;
   }
   if (file.size > SUPPORT_MAX_BYTES) {
-    return `File must be ${SUPPORT_MAX_BYTES / (1024 * 1024)} MB or smaller.`;
+    return `Each file must be ${SUPPORT_MAX_BYTES / (1024 * 1024)} MB or smaller.`;
   }
   return null;
+}
+
+function fileKey(file: File) {
+  return `${file.name}:${file.size}:${file.lastModified}`;
 }
 
 function IconPaperclip({ className }: { className?: string }) {
@@ -58,110 +66,190 @@ function IconPaperclip({ className }: { className?: string }) {
   );
 }
 
-export function SupportAttachmentUpload({
+function ThumbnailTile({
   file,
-  onFileChange,
-  disabled = false,
-  label = "Attach image",
-  className,
-}: SupportAttachmentUploadProps) {
-  const inputId = useId();
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [error, setError] = useState<string | null>(null);
+  onRemove,
+  disabled,
+  variant,
+}: {
+  file: File;
+  onRemove: () => void;
+  disabled?: boolean;
+  variant: "widget" | "admin";
+}) {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const isImage = file.type.startsWith("image/");
 
   useEffect(() => {
-    if (!file?.type.startsWith("image/")) {
+    if (!isImage) {
       setPreviewUrl(null);
       return;
     }
     const url = URL.createObjectURL(file);
     setPreviewUrl(url);
     return () => URL.revokeObjectURL(url);
-  }, [file]);
+  }, [file, isImage]);
 
-  function applyFile(next: File | null) {
-    if (!next) {
-      setError(null);
-      onFileChange(null);
-      return;
+  return (
+    <li
+      className={cn(
+        "support-attach-thumb",
+        variant === "admin" && "admin-support-attach-thumb",
+      )}
+    >
+      {previewUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={previewUrl} alt="" className="support-attach-thumb-img" />
+      ) : (
+        <span className="support-attach-thumb-file" aria-hidden>
+          PDF
+        </span>
+      )}
+      <span className="support-attach-thumb-name" title={file.name}>
+        {file.name}
+      </span>
+      <button
+        type="button"
+        className={cn(
+          "support-attach-thumb-remove",
+          variant === "admin" && "admin-support-attach-thumb-remove",
+        )}
+        disabled={disabled}
+        onClick={onRemove}
+        aria-label={`Remove ${file.name}`}
+      >
+        ×
+      </button>
+    </li>
+  );
+}
+
+export function SupportAttachmentUpload({
+  files,
+  onFilesChange,
+  disabled = false,
+  label = "Attach files",
+  className,
+  variant = "widget",
+}: SupportAttachmentUploadProps) {
+  const inputId = useId();
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const remaining = SUPPORT_MAX_ATTACHMENTS - files.length;
+  const canAddMore = remaining > 0 && !disabled;
+
+  const existingKeys = useMemo(() => new Set(files.map(fileKey)), [files]);
+
+  function addFiles(list: FileList | null) {
+    if (!list || list.length === 0) return;
+
+    const next = [...files];
+    let lastError: string | null = null;
+
+    for (const file of Array.from(list)) {
+      if (next.length >= SUPPORT_MAX_ATTACHMENTS) {
+        lastError = `You can attach up to ${SUPPORT_MAX_ATTACHMENTS} files.`;
+        break;
+      }
+      const err = validateClientFile(file);
+      if (err) {
+        lastError = err;
+        continue;
+      }
+      if (existingKeys.has(fileKey(file))) continue;
+      next.push(file);
     }
-    const err = validateClientFile(next);
-    if (err) {
-      setError(err);
-      onFileChange(null);
-      if (inputRef.current) inputRef.current.value = "";
-      return;
-    }
+
+    setError(lastError);
+    onFilesChange(next);
+    if (inputRef.current) inputRef.current.value = "";
+  }
+
+  function removeAt(index: number) {
     setError(null);
-    onFileChange(next);
+    onFilesChange(files.filter((_, i) => i !== index));
+    if (inputRef.current) inputRef.current.value = "";
   }
 
   return (
-    <div className={cn("space-y-2", className)}>
-      <div className="flex flex-wrap items-center gap-2">
+    <div
+      className={cn(
+        "support-attach",
+        variant === "admin" && "admin-support-attach",
+        className,
+      )}
+    >
+      <div className="support-attach-controls">
         <input
           ref={inputRef}
           id={inputId}
           type="file"
           accept={ACCEPT}
+          multiple
           className="sr-only"
-          disabled={disabled}
-          onChange={(e) => applyFile(e.target.files?.[0] ?? null)}
+          disabled={!canAddMore}
+          onChange={(e) => addFiles(e.target.files)}
         />
         <button
           type="button"
-          disabled={disabled}
+          disabled={!canAddMore}
           onClick={() => inputRef.current?.click()}
-          className="inline-flex items-center gap-2 rounded-lg border border-gold/45 bg-surface px-3 py-2 text-xs font-medium text-gold-light transition-colors hover:border-gold hover:bg-gold/10 disabled:opacity-50"
+          className={cn(
+            variant === "admin"
+              ? "admin-support-attach-btn"
+              : "inline-flex items-center gap-2 rounded-lg border border-gold/45 bg-surface px-3 py-2 text-xs font-medium text-gold-light transition-colors hover:border-gold hover:bg-gold/10 disabled:opacity-50",
+          )}
         >
-          <IconPaperclip className="h-4 w-4 shrink-0 text-gold" />
+          {variant === "widget" ? (
+            <IconPaperclip className="h-4 w-4 shrink-0 text-gold" />
+          ) : null}
           {label}
         </button>
-        <span className="text-[10px] text-muted-foreground">
-          JPG, PNG, WebP, PDF · max 5 MB
+        <span
+          className={cn(
+            variant === "admin"
+              ? "admin-support-attach-meta"
+              : "text-[10px] text-muted-foreground",
+          )}
+        >
+          JPG, PNG, WebP, PDF · max 5 MB · up to {SUPPORT_MAX_ATTACHMENTS}
         </span>
       </div>
 
       {error ? (
-        <p className="text-xs text-destructive" role="alert">
+        <p
+          className={cn(
+            variant === "admin"
+              ? "admin-support-alert admin-support-alert--error"
+              : "text-xs text-destructive",
+          )}
+          role="alert"
+        >
           {error}
         </p>
       ) : null}
 
-      {file ? (
-        <div className="rounded-lg border border-border bg-surface/80 p-3">
-          <div className="flex items-start justify-between gap-2">
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-xs font-medium text-foreground">
-                {file.name}
-              </p>
-              <p className="text-[10px] text-muted-foreground">
-                {(file.size / 1024).toFixed(1)} KB
-              </p>
-            </div>
-            <button
-              type="button"
+      {files.length > 0 ? (
+        <ul className="support-attach-thumbs" aria-label="Selected attachments">
+          {files.map((file, index) => (
+            <ThumbnailTile
+              key={fileKey(file)}
+              file={file}
               disabled={disabled}
-              onClick={() => {
-                applyFile(null);
-                if (inputRef.current) inputRef.current.value = "";
-              }}
-              className="shrink-0 rounded-md px-2 py-1 text-[10px] font-medium text-muted-foreground hover:bg-surface-elevated hover:text-foreground"
-            >
-              Remove
-            </button>
-          </div>
-          {previewUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={previewUrl}
-              alt="Attachment preview"
-              className="mt-3 max-h-28 w-full rounded-md border border-border object-cover"
+              variant={variant}
+              onRemove={() => removeAt(index)}
             />
-          ) : null}
-        </div>
+          ))}
+        </ul>
       ) : null}
     </div>
   );
+}
+
+/** Append selected files to FormData as `attachments`. */
+export function appendSupportAttachments(formData: FormData, files: File[]) {
+  for (const file of files) {
+    formData.append("attachments", file);
+  }
 }

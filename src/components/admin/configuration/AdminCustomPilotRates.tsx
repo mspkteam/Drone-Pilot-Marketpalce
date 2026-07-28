@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type {
   PilotRateDetail,
@@ -102,6 +102,13 @@ export function AdminCustomPilotRates({ canManage }: AdminCustomPilotRatesProps)
     const pilotId = searchParams.get("pilot");
     if (pilotId) {
       void selectPilotRef.current(pilotId);
+      // Focus the override panel so staff can edit percentage without hunting.
+      const timer = window.setTimeout(() => {
+        document
+          .getElementById("custom-pilot-rates")
+          ?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 80);
+      return () => window.clearTimeout(timer);
     }
   }, [searchParams]);
 
@@ -151,8 +158,19 @@ export function AdminCustomPilotRates({ canManage }: AdminCustomPilotRatesProps)
   }
 
   return (
-    <>
+    <div
+      id="custom-pilot-rates"
+      className={`admin-config-custom-rates${
+        detail ? " admin-config-custom-rates--focused" : ""
+      }`}
+    >
       <h3 className="admin-config-section-title">Custom pilot rates</h3>
+      {detail ? (
+        <p className="admin-config-pilot-focus-note" role="status">
+          Editing commission for <strong>{detail.displayName}</strong> — adjust
+          the percentage below and save.
+        </p>
+      ) : null}
 
       <div className="admin-config-pilot-search">
         <div className="admin-config-pilot-search-field">
@@ -353,6 +371,6 @@ export function AdminCustomPilotRates({ canManage }: AdminCustomPilotRatesProps)
           </Link>
         </div>
       )}
-    </>
+    </div>
   );
 }

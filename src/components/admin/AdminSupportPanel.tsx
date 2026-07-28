@@ -280,72 +280,80 @@ export function AdminSupportPanel({
 
   return (
     <aside className="admin-support-list-panel" aria-label="Support chats">
-      <div className="admin-support-list-head">
-        <h2 className="admin-support-list-title">Support Requests</h2>
-      </div>
-
-      <div className="admin-support-filters">
-        <input
-          type="search"
-          className="admin-support-search"
-          placeholder="Search users, emails, ticket IDs..."
-          value={searchQuery}
-          onChange={(event) => setSearchQuery(event.target.value)}
-          aria-label="Search support chats"
-        />
-        <div className="admin-support-filter-row">
-          <select
-            className="admin-support-select"
-            value={roleFilter}
-            onChange={(event) =>
-              setRoleFilter(event.target.value as SupportRequesterRole | "all")
-            }
-            aria-label="Filter by role"
-          >
-            <option value="all">All roles</option>
-            <option value="guest">Guest</option>
-            <option value="client">Client</option>
-            <option value="pilot">Pilot</option>
-            <option value="admin">Admin</option>
-          </select>
-          <select
-            className="admin-support-select"
-            value={dateFilter}
-            onChange={(event) =>
-              setDateFilter(event.target.value as DateFilter)
-            }
-            aria-label="Filter by date"
-          >
-            <option value="all">All dates</option>
-            <option value="7d">Last 7 days</option>
-            <option value="30d">Last 30 days</option>
-            <option value="90d">Last 90 days</option>
-          </select>
-          {hasActiveFilters ? (
-            <button
-              type="button"
-              className="admin-support-clear-btn"
-              onClick={clearFilters}
-            >
-              Clear filters
-            </button>
-          ) : null}
+      <div className="admin-support-toolbar">
+        <div className="admin-support-toolbar-top">
+          <h2 className="admin-support-list-title">Support Requests</h2>
         </div>
-      </div>
 
-      <div className="admin-support-status-pills">
-        {(["all", ...SUPPORT_CHAT_STATUSES] as const).map((status) => (
-          <button
-            key={status}
-            type="button"
-            className={`admin-support-status-pill${
-              filter === status ? " admin-support-status-pill--active" : ""
-            }`}
-            onClick={() => setFilter(status)}
-          >
-            {FILTER_LABELS[status]}
-          </button>
-        ))}
+        <div className="admin-support-filters">
+          <input
+            type="search"
+            className="admin-support-search"
+            placeholder="Search users, emails, ticket IDs..."
+            value={searchQuery}
+            onChange={(event) => setSearchQuery(event.target.value)}
+            aria-label="Search support chats"
+          />
+          <div className="admin-support-filter-row">
+            <select
+              className="admin-support-select"
+              value={roleFilter}
+              onChange={(event) =>
+                setRoleFilter(event.target.value as SupportRequesterRole | "all")
+              }
+              aria-label="Filter by role"
+            >
+              <option value="all">All roles</option>
+              <option value="guest">Guest</option>
+              <option value="client">Client</option>
+              <option value="pilot">Pilot</option>
+              <option value="admin">Admin</option>
+            </select>
+            <select
+              className="admin-support-select"
+              value={dateFilter}
+              onChange={(event) =>
+                setDateFilter(event.target.value as DateFilter)
+              }
+              aria-label="Filter by date"
+            >
+              <option value="all">All dates</option>
+              <option value="7d">Last 7 days</option>
+              <option value="30d">Last 30 days</option>
+              <option value="90d">Last 90 days</option>
+            </select>
+            {hasActiveFilters ? (
+              <button
+                type="button"
+                className="admin-support-clear-btn"
+                onClick={clearFilters}
+              >
+                Clear
+              </button>
+            ) : null}
+          </div>
+        </div>
+
+        <div
+          className="admin-support-status-pills"
+          role="tablist"
+          aria-label="Filter by chat status"
+        >
+          {(["all", ...SUPPORT_CHAT_STATUSES] as const).map((status) => (
+            <button
+              key={status}
+              type="button"
+              role="tab"
+              aria-selected={filter === status}
+              className={`admin-support-status-pill${
+                filter === status ? " admin-support-status-pill--active" : ""
+              }`}
+              onClick={() => setFilter(status)}
+            >
+              {FILTER_LABELS[status]}
+            </button>
+          ))}
+        </div>
       </div>
 
       {listContent}

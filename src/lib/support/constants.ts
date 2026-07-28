@@ -16,6 +16,9 @@ export const SUPPORT_MIME_TO_EXT: Record<SupportMimeType, string> = {
 
 export const SUPPORT_MAX_BYTES = 5 * 1024 * 1024;
 
+/** Max files selectable per message / new chat. */
+export const SUPPORT_MAX_ATTACHMENTS = 5;
+
 export const SUPPORT_CONFIRMATION_MESSAGE =
   "Thanks for reaching out. Our support team will catch up with you within 10–15 minutes. You can keep this chat open and continue the conversation here.";
 

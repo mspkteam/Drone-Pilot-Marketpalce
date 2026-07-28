@@ -1,7 +1,9 @@
 import type { PilotWing, WingDefinition } from "@/generated/prisma/client";
+import { defaultRarityForCode, isBadgeRarity } from "@/lib/admin/badge-display";
 import { prisma } from "@/lib/db";
 import { notifyAsync, sendNotification } from "@/lib/notifications/notify";
 import { membershipTierRank } from "@/lib/wings/conditions";
+import type { BadgeRarity } from "@/types/admin-badges";
 import type {
   AdminPilotWingDto,
   PilotWingDto,
@@ -27,6 +29,14 @@ function slugifyCode(name: string) {
     .replace(/^-|-$/g, "");
 }
 
+function resolveRarity(
+  stored: string | null | undefined,
+  code: string,
+): BadgeRarity {
+  if (isBadgeRarity(stored)) return stored;
+  return defaultRarityForCode(code);
+}
+
 function toDefinitionDto(
   row: WingDefinition & { _count?: { pilotWings: number } },
 ): WingDefinitionDto {
@@ -36,6 +46,7 @@ function toDefinitionDto(
     title: row.title,
     description: row.description,
     category: row.category as WingCategory,
+    rarity: resolveRarity(row.rarity, row.code),
     iconLabel: row.iconLabel,
     imageUrl: row.imageUrl,
     autoRule: row.autoRule as WingAutoRule | null,
@@ -79,6 +90,7 @@ export const DEFAULT_WING_DEFINITIONS: Array<{
   title: string;
   description: string;
   category: WingCategory;
+  rarity: BadgeRarity;
   iconLabel: string;
   imageUrl: string;
   autoRule: WingAutoRule;
@@ -92,6 +104,7 @@ export const DEFAULT_WING_DEFINITIONS: Array<{
     description:
       "Awarded to non-instructor staff performing duties furthering Aerospace Education.",
     category: "community",
+    rarity: "COMMON",
     iconLabel: "medal",
     imageUrl: "/wings/remote-aviation-crew-silver.png",
     autoRule: "manual_only",
@@ -103,6 +116,7 @@ export const DEFAULT_WING_DEFINITIONS: Array<{
     description:
       "Awarded to pilot members working toward their FAA Part 107 Remote Pilot Certificate or home country equivalent.",
     category: "milestone",
+    rarity: "UNCOMMON",
     iconLabel: "star-outline",
     imageUrl: "/wings/recreational-aviator-gold.png",
     autoRule: "active_membership",
@@ -114,6 +128,7 @@ export const DEFAULT_WING_DEFINITIONS: Array<{
     description:
       "Awarded upon passing the Part 107 written exam; gold wings after TSA background check and permanent certificate issuance.",
     category: "trust",
+    rarity: "EPIC",
     iconLabel: "star",
     imageUrl: "/wings/aviator-wings-basic-silver.png",
     autoRule: "manual_only",
@@ -124,6 +139,7 @@ export const DEFAULT_WING_DEFINITIONS: Array<{
     title: "Aviator Wings, Basic — Gold",
     description: "Awarded to FAA Part 107 Remote Pilot Certificate holders.",
     category: "trust",
+    rarity: "RARE",
     iconLabel: "award",
     imageUrl: "/wings/aviator-wings-basic-gold.png",
     autoRule: "approved_verification",
@@ -136,6 +152,7 @@ export const DEFAULT_WING_DEFINITIONS: Array<{
     description:
       "Awarded after 500 remote flight hours OR five Remote Air Service contracts with perfect rating.",
     category: "milestone",
+    rarity: "LEGENDARY",
     iconLabel: "trophy",
     imageUrl: "/wings/aviator-wings-senior.png",
     autoRule: "completed_bookings_count",
@@ -148,6 +165,7 @@ export const DEFAULT_WING_DEFINITIONS: Array<{
     description:
       "Awarded after 1,000 remote flight hours OR ten Remote Air Service contracts with perfect rating.",
     category: "milestone",
+    rarity: "MYTHIC",
     iconLabel: "trophy",
     imageUrl: "/wings/aviator-wings-master.png",
     autoRule: "manual_only",
@@ -159,6 +177,25 @@ const CANONICAL_WING_CODES = new Set(
   DEFAULT_WING_DEFINITIONS.map((def) => def.code),
 );
 
+/** One-shot style backfill after adding WingDefinition.rarity (default COMMON). */
+export async function backfillCanonicalWingRaritiesIfNeeded(): Promise<void> {
+  try {
+    for (const def of DEFAULT_WING_DEFINITIONS) {
+      if (def.rarity === "COMMON") continue;
+      await prisma.wingDefinition.updateMany({
+        where: { code: def.code, rarity: "COMMON" },
+        data: { rarity: def.rarity },
+      });
+    }
+  } catch (err) {
+    // Stale Prisma client (dev HMR) may not know `rarity` yet — never block the page.
+    console.warn(
+      "[wings] rarity backfill skipped:",
+      err instanceof Error ? err.message : err,
+    );
+  }
+}
+
 export async function ensureDefaultWingDefinitions(): Promise<void> {
   for (const def of DEFAULT_WING_DEFINITIONS) {
     await prisma.wingDefinition.upsert({
@@ -167,6 +204,7 @@ export async function ensureDefaultWingDefinitions(): Promise<void> {
         title: def.title,
         description: def.description,
         category: def.category,
+        rarity: def.rarity,
         iconLabel: def.iconLabel,
         imageUrl: def.imageUrl,
         autoRule: def.autoRule,
@@ -180,6 +218,7 @@ export async function ensureDefaultWingDefinitions(): Promise<void> {
         title: def.title,
         description: def.description,
         category: def.category,
+        rarity: def.rarity,
         iconLabel: def.iconLabel,
         imageUrl: def.imageUrl,
         autoRule: def.autoRule,
@@ -214,12 +253,14 @@ export async function createWingDefinition(input: {
   title: string;
   description: string;
   category: string;
+  rarity?: string;
   iconLabel?: string | null;
   imageUrl?: string | null;
   autoRule?: string | null;
   ruleParam?: string | null;
   threshold?: number | null;
   sortOrder?: number;
+  isActive?: boolean;
 }): Promise<
   | { ok: true; definition: WingDefinitionDto }
   | { ok: false; error: string }
@@ -238,16 +279,20 @@ export async function createWingDefinition(input: {
     return { ok: false, error: "Invalid category." };
   }
 
+  const code = (input.code?.trim() || slugifyCode(title)).slice(0, 64);
+  if (code.length < 2) {
+    return { ok: false, error: "Code is required." };
+  }
+
+  const rarity = isBadgeRarity(input.rarity)
+    ? input.rarity
+    : defaultRarityForCode(code);
+
   const autoRule = input.autoRule
     ? (input.autoRule as WingAutoRule)
     : ("manual_only" as WingAutoRule);
   if (!WING_AUTO_RULES.includes(autoRule)) {
     return { ok: false, error: "Invalid auto-assign rule." };
-  }
-
-  const code = (input.code?.trim() || slugifyCode(title)).slice(0, 64);
-  if (code.length < 2) {
-    return { ok: false, error: "Code is required." };
   }
 
   const existing = await prisma.wingDefinition.findUnique({ where: { code } });
@@ -261,13 +306,14 @@ export async function createWingDefinition(input: {
       title,
       description,
       category,
+      rarity,
       iconLabel: input.iconLabel?.trim() || null,
       imageUrl: input.imageUrl?.trim() || null,
       autoRule,
       ruleParam: input.ruleParam?.trim() || null,
       threshold: input.threshold ?? null,
       sortOrder: input.sortOrder ?? 100,
-      isActive: true,
+      isActive: input.isActive ?? true,
     },
     include: definitionInclude,
   });
@@ -281,6 +327,7 @@ export async function updateWingDefinition(
     title: string;
     description: string;
     category: string;
+    rarity: string;
     iconLabel: string | null;
     imageUrl: string | null;
     autoRule: string | null;
@@ -302,6 +349,10 @@ export async function updateWingDefinition(
     return { ok: false, error: "Invalid category." };
   }
 
+  if (input.rarity !== undefined && !isBadgeRarity(input.rarity)) {
+    return { ok: false, error: "Invalid rarity." };
+  }
+
   if (
     input.autoRule &&
     !WING_AUTO_RULES.includes(input.autoRule as WingAutoRule)
@@ -317,6 +368,7 @@ export async function updateWingDefinition(
         ? { description: input.description.trim() }
         : {}),
       ...(input.category !== undefined ? { category: input.category } : {}),
+      ...(input.rarity !== undefined ? { rarity: input.rarity } : {}),
       ...(input.iconLabel !== undefined
         ? { iconLabel: input.iconLabel?.trim() || null }
         : {}),

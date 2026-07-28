@@ -23,14 +23,14 @@ export function approvalStatusFilterTabs<
   ];
 }
 
-/** Admin job moderation: All → Pending → Open → Rejected */
+/** Admin job moderation: All → Awaiting review → Approved → Rejected */
 export function jobAdminStatusFilterTabs(): StatusFilterTab<
   "all" | "pending_approval" | "open" | "rejected"
 >[] {
   return [
     { value: "all", label: "All" },
-    { value: "pending_approval", label: "Pending" },
-    { value: "open", label: "Open" },
+    { value: "pending_approval", label: "Awaiting review" },
+    { value: "open", label: "Approved" },
     { value: "rejected", label: "Rejected" },
   ];
 }

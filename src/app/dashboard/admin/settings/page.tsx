@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { AdminConfigurationPortal } from "@/components/admin/configuration/AdminConfigurationPortal";
@@ -29,7 +30,9 @@ export default async function AdminSettingsPage() {
 
   return (
     <DashboardPageLayout className="admin-config-shell">
-      <AdminConfigurationPortal canManage={canManage} />
+      <Suspense fallback={<p className="admin-config-loading">Loading…</p>}>
+        <AdminConfigurationPortal canManage={canManage} />
+      </Suspense>
     </DashboardPageLayout>
   );
 }

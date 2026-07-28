@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { AdminBadgesWingsPortal } from "@/components/admin/badges/AdminBadgesWingsPortal";
@@ -26,7 +27,9 @@ export default async function AdminAchievementsPage() {
 
   return (
     <DashboardPageLayout className="admin-badges-shell">
-      <AdminBadgesWingsPortal canManage={canManage} />
+      <Suspense fallback={<p className="admin-badges-loading">Loading…</p>}>
+        <AdminBadgesWingsPortal canManage={canManage} />
+      </Suspense>
     </DashboardPageLayout>
   );
 }

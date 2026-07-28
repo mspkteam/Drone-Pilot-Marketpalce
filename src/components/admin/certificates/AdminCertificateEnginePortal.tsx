@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { AdminCertificateLivePreview } from "@/components/admin/certificates/AdminCertificateLivePreview";
 import { AdminCertificateTemplateCard } from "@/components/admin/certificates/AdminCertificateTemplateCard";
 import { AdminCertificateTemplateModal } from "@/components/admin/certificates/AdminCertificateTemplateModal";
@@ -26,6 +27,7 @@ type AdminCertificateEnginePortalProps = {
 export function AdminCertificateEnginePortal({
   canManageTemplates,
 }: AdminCertificateEnginePortalProps) {
+  const searchParams = useSearchParams();
   const [data, setData] = useState<AdminCertificateEngineDataDto | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -79,6 +81,23 @@ export function AdminCertificateEnginePortal({
   useEffect(() => {
     void load();
   }, [load]);
+
+  useEffect(() => {
+    const pilotId = searchParams.get("pilot");
+    if (!pilotId || !data?.pilots.some((pilot) => pilot.id === pilotId)) return;
+    setIssuePilotId(pilotId);
+    const pilot = data.pilots.find((item) => item.id === pilotId);
+    if (pilot?.licenseNumber) {
+      setIssueMemberNumber(pilot.licenseNumber);
+    }
+    const timer = window.setTimeout(() => {
+      issuedSectionRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }, 120);
+    return () => window.clearTimeout(timer);
+  }, [searchParams, data?.pilots]);
 
   const templates = data?.templates ?? [];
   const selectedTemplate =

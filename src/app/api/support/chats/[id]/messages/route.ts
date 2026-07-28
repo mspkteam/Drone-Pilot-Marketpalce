@@ -15,15 +15,21 @@ export async function POST(request: Request, context: RouteContext) {
 
   const contentType = request.headers.get("content-type") ?? "";
   let message = "";
-  let attachment: Awaited<
+  let attachments: Awaited<
     ReturnType<typeof parseSupportMessageForm>
-  >["attachment"] = null;
+  >["attachments"] = [];
 
   if (contentType.includes("multipart/form-data")) {
     const formData = await request.formData();
     const parsed = await parseSupportMessageForm(formData);
+    if (parsed.attachmentError) {
+      return NextResponse.json(
+        { error: parsed.attachmentError },
+        { status: 400 },
+      );
+    }
     message = parsed.message;
-    attachment = parsed.attachment;
+    attachments = parsed.attachments;
   } else {
     const body = await request.json();
     message = String(body.message ?? "");
@@ -41,7 +47,7 @@ export async function POST(request: Request, context: RouteContext) {
     senderRole,
     senderName,
     message,
-    attachment,
+    attachments,
   });
 
   if (!result.ok) {

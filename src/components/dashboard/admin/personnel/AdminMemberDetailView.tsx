@@ -102,17 +102,6 @@ export function AdminMemberDetailView({
               </p>
             ) : null}
           </div>
-          {canEdit ? (
-            <div className="admin-member-detail-hero-actions">
-              <button
-                type="button"
-                className="admin-personnel-btn-export"
-                onClick={() => setEditOpen(true)}
-              >
-                Account settings
-              </button>
-            </div>
-          ) : null}
         </div>
       </header>
 

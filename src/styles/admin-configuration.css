@@ -301,6 +301,29 @@
 }
 
 /* Custom pilot rates */
+.admin-config-custom-rates {
+  scroll-margin-top: 1.5rem;
+}
+
+.admin-config-custom-rates--focused {
+  margin-top: 0.5rem;
+  border: 1px solid rgba(216, 179, 57, 0.28);
+  border-radius: 0.5rem;
+  background: rgba(216, 179, 57, 0.04);
+  padding: 1rem 1rem 0.25rem;
+}
+
+.admin-config-pilot-focus-note {
+  margin: 0 0 1rem;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--color-text-soft);
+}
+
+.admin-config-pilot-focus-note strong {
+  color: var(--color-gold);
+}
+
 .admin-config-pilot-search {
   display: flex;
   align-items: stretch;

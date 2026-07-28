@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { AdminBadgeAssignModal } from "@/components/admin/badges/AdminBadgeAssignModal";
 import { AdminBadgeCard } from "@/components/admin/badges/AdminBadgeCard";
 import { AdminBadgeModal } from "@/components/admin/badges/AdminBadgeModal";
@@ -22,6 +23,8 @@ type AdminBadgesWingsPortalProps = {
 };
 
 export function AdminBadgesWingsPortal({ canManage }: AdminBadgesWingsPortalProps) {
+  const searchParams = useSearchParams();
+  const preselectedPilotId = searchParams.get("pilot") ?? "";
   const [data, setData] = useState<AdminBadgeEngineDataDto | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -96,6 +99,7 @@ export function AdminBadgesWingsPortal({ canManage }: AdminBadgesWingsPortalProp
         title: input.title,
         description: input.description,
         category: input.category,
+        rarity: input.rarity,
         iconLabel: iconLabelForType(input.iconType),
         imageUrl: input.imageUrl || null,
         autoRule: input.autoRule,
@@ -186,6 +190,10 @@ export function AdminBadgesWingsPortal({ canManage }: AdminBadgesWingsPortalProp
 
   const stats = data?.stats;
   const recentAwards = data?.recentAwards ?? [];
+  const preselectedPilot = useMemo(
+    () => data?.pilots.find((pilot) => pilot.id === preselectedPilotId) ?? null,
+    [data?.pilots, preselectedPilotId],
+  );
 
   if (loading) {
     return <p className="admin-badges-loading">Loading badges & wings…</p>;
@@ -193,6 +201,13 @@ export function AdminBadgesWingsPortal({ canManage }: AdminBadgesWingsPortalProp
 
   return (
     <div className="admin-badges-page">
+      {preselectedPilot ? (
+        <p className="admin-badges-banner admin-badges-banner--info" role="status">
+          Assigning for <strong>{preselectedPilot.displayName}</strong> (
+          {preselectedPilot.email}). Open a badge and choose Assign — the pilot is
+          already selected.
+        </p>
+      ) : null}
       <section
         className="admin-badges-hero admin-ops-bracket-card"
         aria-label="Badges and wings"
@@ -238,8 +253,6 @@ export function AdminBadgesWingsPortal({ canManage }: AdminBadgesWingsPortalProp
       {data?.usingMockBadges ? (
         <p className="admin-badges-banner admin-badges-banner--info" role="status">
           Showing sample badge cards until wing definitions exist in the database.
-          Create a badge to seed real data — rarity display is derived until a rarity
-          field is added to the schema.
         </p>
       ) : null}
 
@@ -378,6 +391,7 @@ export function AdminBadgesWingsPortal({ canManage }: AdminBadgesWingsPortalProp
         <AdminBadgeAssignModal
           badge={assignBadge}
           pilots={data?.pilots ?? []}
+          initialPilotId={preselectedPilotId || undefined}
           saving={assigning}
           error={modalError}
           onClose={() => {

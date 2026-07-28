@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import { getGradeCommissionRateForLabel } from "@/lib/admin/platform-settings";
 import { gradeLabelFromTierCode } from "@/lib/admin/pilot-rates";
+import { ensureClientProfileForUser } from "@/lib/admin/user-edit";
 import {
   parseClientProfilePreferences,
   type ClientProfilePreferences,
@@ -125,6 +126,8 @@ export type AdminMemberDetailDto = {
 export async function getMemberDetailForAdmin(
   userId: string,
 ): Promise<AdminMemberDetailDto | null> {
+  await ensureClientProfileForUser(userId);
+
   const user = await prisma.user.findUnique({
     where: { id: userId },
     include: {

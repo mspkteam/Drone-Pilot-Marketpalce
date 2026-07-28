@@ -135,17 +135,27 @@
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
 }
 
-.admin-support-list-head {
-  padding: 1rem 1.125rem;
-  border-bottom: 1px solid var(--color-border-divider);
+.admin-support-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  border-bottom: 1px solid var(--dashboard-card-border);
   background: var(--color-card-warm-alt);
+  padding: 1.25rem 1.25rem 1.125rem;
+}
+
+.admin-support-toolbar-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
 }
 
 .admin-support-list-title {
   margin: 0;
-  font-size: 0.8125rem;
+  font-size: 0.75rem;
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--color-text);
 }
@@ -154,25 +164,30 @@
   display: flex;
   flex-direction: column;
   gap: 0.625rem;
-  padding: 0.875rem 1.125rem;
-  border-bottom: 1px solid var(--color-border-divider);
+  margin: 0;
+  padding: 0;
+  border: none;
 }
 
 .admin-support-shell .admin-support-search {
   box-sizing: border-box;
   width: 100%;
-  height: 2.5rem;
+  min-height: 2.5rem;
+  height: auto;
   margin: 0;
   border: 1px solid var(--dashboard-card-border);
   border-radius: 0.375rem;
-  background: var(--color-bg-deeper);
-  padding: 0 0.75rem;
+  background-color: #2a2a28;
+  padding: 0 0.875rem 0 2.375rem;
   font-family: inherit;
   font-size: 0.8125rem;
   color: var(--color-text);
   outline: none;
   appearance: none;
   -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none'%3E%3Ccircle cx='7' cy='7' r='4.5' stroke='%238A847A' stroke-width='1.25'/%3E%3Cpath d='M10.5 10.5L13 13' stroke='%238A847A' stroke-width='1.25' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: 0.75rem center;
 }
 
 .admin-support-shell .admin-support-search::placeholder {
@@ -180,8 +195,8 @@
 }
 
 .admin-support-shell .admin-support-search:focus {
-  border-color: var(--color-gold);
-  box-shadow: 0 0 0 3px rgba(216, 179, 57, 0.14);
+  border-color: rgba(216, 179, 57, 0.45);
+  box-shadow: 0 0 0 2px rgba(216, 179, 57, 0.12);
 }
 
 .admin-support-filter-row {
@@ -193,48 +208,55 @@
 .admin-support-shell .admin-support-select {
   flex: 1 1 6.5rem;
   min-width: 0;
-  height: 2.25rem;
+  min-height: 2.375rem;
+  height: auto;
   margin: 0;
   border: 1px solid var(--dashboard-card-border);
   border-radius: 0.375rem;
-  background: var(--color-bg-deeper);
-  padding: 0 1.75rem 0 0.625rem;
+  background-color: #2a2a28;
+  padding: 0 1.875rem 0 0.75rem;
   font-family: inherit;
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
   color: var(--color-text);
   outline: none;
   appearance: none;
   -webkit-appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M3 4.5L6 7.5L9 4.5' stroke='%238A847A' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M3 4.5L6 7.5L9 4.5' stroke='%238A847A' stroke-width='1.25' stroke-linecap='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 0.5rem center;
+  background-position: right 0.625rem center;
   cursor: pointer;
 }
 
 .admin-support-shell .admin-support-select:focus {
-  border-color: var(--color-gold);
+  border-color: rgba(216, 179, 57, 0.45);
 }
 
 .admin-support-status-pills {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.375rem;
-  padding: 0 1.125rem 0.875rem;
-  border-bottom: 1px solid var(--color-border-divider);
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  border: none;
 }
 
 .admin-support-shell .admin-support-status-pill {
-  height: 1.875rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.125rem;
+  height: auto;
   margin: 0;
   border: 1px solid var(--dashboard-card-border);
-  border-radius: 9999px;
-  background: var(--color-panel);
-  padding: 0 0.75rem;
+  border-radius: 0.375rem;
+  background: #2a2a28;
+  padding: 0.4rem 0.75rem;
   font-family: inherit;
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   font-weight: 600;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  line-height: 1;
   color: var(--color-text-soft);
   cursor: pointer;
   transition:
@@ -244,34 +266,38 @@
 }
 
 .admin-support-shell .admin-support-status-pill:hover {
-  border-color: rgba(216, 179, 57, 0.25);
-  color: var(--color-gold);
+  border-color: rgba(216, 179, 57, 0.35);
+  color: var(--color-text);
 }
 
 .admin-support-shell .admin-support-status-pill--active {
-  border-color: rgba(216, 179, 57, 0.45);
-  background: rgba(216, 179, 57, 0.1);
+  border-color: rgba(216, 179, 57, 0.55);
+  background: rgba(216, 179, 57, 0.12);
   color: var(--color-gold);
 }
 
 .admin-support-shell .admin-support-clear-btn {
-  height: 2.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.375rem;
+  height: auto;
   margin: 0;
   border: 1px solid var(--dashboard-card-border);
   border-radius: 0.375rem;
   background: transparent;
-  padding: 0 0.75rem;
+  padding: 0 0.875rem;
   font-family: inherit;
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   font-weight: 600;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  text-transform: none;
   color: var(--color-text-soft);
   cursor: pointer;
 }
 
 .admin-support-shell .admin-support-clear-btn:hover {
-  border-color: rgba(216, 179, 57, 0.25);
+  border-color: rgba(216, 179, 57, 0.35);
   color: var(--color-gold);
 }
 
@@ -283,13 +309,13 @@
 
 .admin-support-list-error {
   margin: 0;
-  padding: 0.75rem 1.125rem;
+  padding: 0.875rem 1.25rem;
   font-size: 0.8125rem;
   color: var(--color-danger);
 }
 
 .admin-support-list-status {
-  padding: 1.125rem;
+  padding: 1.25rem;
   font-size: 0.875rem;
   color: var(--color-text-soft);
 }
@@ -302,7 +328,7 @@
   border-left: 3px solid transparent;
   border-bottom: 1px solid var(--color-border-divider);
   background: transparent;
-  padding: 1rem 1.125rem;
+  padding: 1rem 1.25rem;
   text-align: left;
   cursor: pointer;
   font-family: inherit;
@@ -735,8 +761,9 @@
 
 .admin-support-bubble-attachment img {
   display: block;
-  max-height: 9rem;
-  width: 100%;
+  max-height: 7.5rem;
+  width: auto;
+  max-width: 100%;
   object-fit: cover;
 }
 
@@ -862,49 +889,35 @@
 }
 
 .admin-support-attach-meta {
-  margin: 0.375rem 0 0;
-  font-size: 0.625rem;
-  color: var(--color-text-soft);
-}
-
-.admin-support-attach-preview {
-  margin-top: 0.625rem;
-  border: 1px solid var(--dashboard-card-border);
-  border-radius: 0.375rem;
-  background: var(--color-panel);
-  padding: 0.75rem;
-}
-
-.admin-support-attach-preview-name {
   margin: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--color-text);
-}
-
-.admin-support-attach-preview-size {
-  margin: 0.125rem 0 0;
   font-size: 0.625rem;
   color: var(--color-text-soft);
 }
 
-.admin-support-shell .admin-support-attach-remove {
-  margin-top: 0.5rem;
-  border: none;
-  background: transparent;
-  padding: 0;
-  font-family: inherit;
-  font-size: 0.625rem;
-  font-weight: 600;
-  color: var(--color-text-soft);
-  cursor: pointer;
+.admin-support-attach .support-attach-controls {
+  gap: 0.5rem;
 }
 
-.admin-support-shell .admin-support-attach-remove:hover {
-  color: var(--color-gold);
+.admin-support-attach .support-attach-thumbs {
+  margin-top: 0.125rem;
+}
+
+.admin-support-attach-thumb {
+  border-color: var(--dashboard-card-border);
+  background: var(--color-panel);
+}
+
+.admin-support-attach-thumb .support-attach-thumb-name {
+  color: var(--color-text-soft);
+}
+
+.admin-support-shell .admin-support-attach-thumb-remove {
+  background: rgba(0, 0, 0, 0.75);
+  color: #fff;
+}
+
+.admin-support-shell .admin-support-attach-thumb-remove:hover:not(:disabled) {
+  background: rgba(224, 122, 122, 0.9);
 }
 
 .admin-support-closed-note {

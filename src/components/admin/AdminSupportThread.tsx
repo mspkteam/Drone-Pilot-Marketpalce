@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   adminSenderLabel,
   formatSupportTicketId,
@@ -10,22 +10,15 @@ import {
   supportAttachmentHref,
 } from "@/components/support/support-chat-ui";
 import {
-  SUPPORT_ALLOWED_MIME_TYPES,
-  SUPPORT_MAX_BYTES,
-} from "@/lib/support/constants";
+  SupportAttachmentUpload,
+  appendSupportAttachments,
+} from "@/components/support/SupportAttachmentUpload";
 import type { SupportChatStatus, SupportChatThreadDto } from "@/types/support";
 import type { SupportRequesterRole } from "@/types/support";
 import { TypingIndicator } from "@/components/support/TypingIndicator";
 
 const POLL_MS = 2000;
 const TYPING_PULSE_MS = 1000;
-
-const ACCEPT = [
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-  "application/pdf",
-].join(",");
 
 const REQUESTER_ROLE_LABELS: Record<SupportRequesterRole, string> = {
   guest: "Guest",
@@ -41,115 +34,6 @@ type AdminSupportThreadProps = {
   refreshToken?: number;
   onBack?: () => void;
 };
-
-function validateClientFile(file: File): string | null {
-  if (!(SUPPORT_ALLOWED_MIME_TYPES as readonly string[]).includes(file.type)) {
-    return "Unsupported file type.";
-  }
-  if (file.size > SUPPORT_MAX_BYTES) {
-    return `File must be ${SUPPORT_MAX_BYTES / (1024 * 1024)} MB or smaller.`;
-  }
-  return null;
-}
-
-function ThemedAttachmentUpload({
-  file,
-  onFileChange,
-  disabled,
-}: {
-  file: File | null;
-  onFileChange: (file: File | null) => void;
-  disabled?: boolean;
-}) {
-  const inputId = useId();
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!file?.type.startsWith("image/")) {
-      setPreviewUrl(null);
-      return;
-    }
-    const url = URL.createObjectURL(file);
-    setPreviewUrl(url);
-    return () => URL.revokeObjectURL(url);
-  }, [file]);
-
-  function applyFile(next: File | null) {
-    if (!next) {
-      setError(null);
-      onFileChange(null);
-      return;
-    }
-    const err = validateClientFile(next);
-    if (err) {
-      setError(err);
-      onFileChange(null);
-      if (inputRef.current) inputRef.current.value = "";
-      return;
-    }
-    setError(null);
-    onFileChange(next);
-  }
-
-  return (
-    <div>
-      <input
-        ref={inputRef}
-        id={inputId}
-        type="file"
-        accept={ACCEPT}
-        className="sr-only"
-        disabled={disabled}
-        onChange={(e) => applyFile(e.target.files?.[0] ?? null)}
-      />
-      <button
-        type="button"
-        disabled={disabled}
-        className="admin-support-attach-btn"
-        onClick={() => inputRef.current?.click()}
-      >
-        Attach file
-      </button>
-      <p className="admin-support-attach-meta">
-        JPG, PNG, WebP, PDF · max 5 MB
-      </p>
-      {error ? (
-        <p className="admin-support-alert admin-support-alert--error" role="alert">
-          {error}
-        </p>
-      ) : null}
-      {file ? (
-        <div className="admin-support-attach-preview">
-          <p className="admin-support-attach-preview-name">{file.name}</p>
-          <p className="admin-support-attach-preview-size">
-            {(file.size / 1024).toFixed(1)} KB
-          </p>
-          {previewUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={previewUrl}
-              alt="Attachment preview"
-              className="admin-support-bubble-attachment"
-            />
-          ) : null}
-          <button
-            type="button"
-            disabled={disabled}
-            className="admin-support-attach-remove"
-            onClick={() => {
-              applyFile(null);
-              if (inputRef.current) inputRef.current.value = "";
-            }}
-          >
-            Remove
-          </button>
-        </div>
-      ) : null}
-    </div>
-  );
-}
 
 function ThemedSupportBubble({
   message,
@@ -189,7 +73,9 @@ function ThemedSupportBubble({
           {formatSupportMessageTime(message.createdAt)}
         </time>
       )}
-      <p className="admin-support-bubble-body">{message.message}</p>
+      {message.message !== "(attachment)" ? (
+        <p className="admin-support-bubble-body">{message.message}</p>
+      ) : null}
       {href && isImage ? (
         <a
           href={href}
@@ -226,7 +112,7 @@ export function AdminSupportThread({
   const [thread, setThread] = useState<SupportChatThreadDto | null>(null);
   const [reply, setReply] = useState("");
   const [status, setStatus] = useState<SupportChatStatus>("open");
-  const [file, setFile] = useState<File | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [savingStatus, setSavingStatus] = useState(false);
@@ -314,12 +200,12 @@ export function AdminSupportThread({
   async function sendReply(e: React.FormEvent) {
     e.preventDefault();
     if (readOnly || sending) return;
-    if (!reply.trim() && !file) return;
+    if (!reply.trim() && files.length === 0) return;
     setError(null);
     setSending(true);
     const formData = new FormData();
     formData.set("message", reply);
-    if (file) formData.set("attachment", file);
+    if (files.length > 0) appendSupportAttachments(formData, files);
 
     try {
       const res = await fetch(`/api/admin/support/chats/${chatId}/messages`, {
@@ -333,7 +219,7 @@ export function AdminSupportThread({
       }
       stopTypingPulse();
       setReply("");
-      setFile(null);
+      setFiles([]);
       await load({ silent: true });
     } catch {
       setError("Failed to send.");
@@ -399,7 +285,7 @@ export function AdminSupportThread({
     );
   }
 
-  const canSend = !sending && (reply.trim().length > 0 || file != null);
+  const canSend = !sending && (reply.trim().length > 0 || files.length > 0);
 
   const threadBody = (
     <>
@@ -550,10 +436,12 @@ export function AdminSupportThread({
             placeholder="Type your reply…"
           />
           <div className="admin-support-reply-actions">
-            <ThemedAttachmentUpload
-              file={file}
-              onFileChange={setFile}
+            <SupportAttachmentUpload
+              files={files}
+              onFilesChange={setFiles}
               disabled={sending}
+              variant="admin"
+              label="Attach files"
             />
             <button
               type="submit"
@@ -579,10 +467,12 @@ export function AdminSupportThread({
               placeholder="Type your reply…"
             />
           </label>
-          <ThemedAttachmentUpload
-            file={file}
-            onFileChange={setFile}
+          <SupportAttachmentUpload
+            files={files}
+            onFilesChange={setFiles}
             disabled={sending}
+            variant="admin"
+            label="Attach files"
           />
           <button
             type="submit"

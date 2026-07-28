@@ -11,6 +11,19 @@ export async function GET() {
     );
   }
 
-  const data = await getAdminBadgeEngineData();
-  return NextResponse.json(data);
+  try {
+    const data = await getAdminBadgeEngineData();
+    return NextResponse.json(data);
+  } catch (err) {
+    console.error("[badge-engine]", err);
+    return NextResponse.json(
+      {
+        error:
+          err instanceof Error
+            ? err.message
+            : "Failed to load badges.",
+      },
+      { status: 500 },
+    );
+  }
 }

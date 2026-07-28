@@ -8,6 +8,15 @@ export type BadgeRarity =
   | "LEGENDARY"
   | "MYTHIC";
 
+export const BADGE_RARITIES: readonly BadgeRarity[] = [
+  "COMMON",
+  "UNCOMMON",
+  "RARE",
+  "EPIC",
+  "LEGENDARY",
+  "MYTHIC",
+] as const;
+
 export type BadgeIconType =
   | "trophy"
   | "star"
@@ -15,6 +24,15 @@ export type BadgeIconType =
   | "medal"
   | "star-outline"
   | "award";
+
+export const BADGE_ICON_TYPES: readonly BadgeIconType[] = [
+  "trophy",
+  "star",
+  "lightning",
+  "medal",
+  "star-outline",
+  "award",
+] as const;
 
 export type AdminBadgeCardDto = WingDefinitionDto & {
   criteria: string;

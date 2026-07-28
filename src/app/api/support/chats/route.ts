@@ -33,18 +33,24 @@ export async function POST(request: Request) {
   let requesterName = "";
   let requesterEmail = "";
   let message = "";
-  let attachment: Awaited<
+  let attachments: Awaited<
     ReturnType<typeof parseSupportCreateForm>
-  >["attachment"] = null;
+  >["attachments"] = [];
 
   const contentType = request.headers.get("content-type") ?? "";
   if (contentType.includes("multipart/form-data")) {
     const formData = await request.formData();
     const parsed = await parseSupportCreateForm(formData);
+    if (parsed.attachmentError) {
+      return NextResponse.json(
+        { error: parsed.attachmentError },
+        { status: 400 },
+      );
+    }
     requesterName = parsed.requesterName;
     requesterEmail = parsed.requesterEmail;
     message = parsed.message;
-    attachment = parsed.attachment;
+    attachments = parsed.attachments;
   } else {
     const body = await request.json();
     requesterName = String(body.requesterName ?? "");
@@ -76,7 +82,7 @@ export async function POST(request: Request) {
     message,
     requesterUserId: session?.user?.id ?? null,
     requesterRole: role,
-    attachment,
+    attachments,
   });
 
   if (!result.ok) {

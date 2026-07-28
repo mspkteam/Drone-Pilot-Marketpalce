@@ -4,6 +4,43 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.26] — 2026-07-28
+
+### Fixed
+
+- Admin Achievements: rarity is persisted on `WingDefinition` and round-trips on create/edit/filter (Common/Uncommon no longer collapse)
+- Create wing respects Active checkbox; removed non-functional “Visible on profile” duplicate
+- Icon style selector wired to save; Rarest metric uses stored rarity tier
+
+### Changed
+
+- Default six wings seed/update with explicit rarity values
+
+---
+
+## [0.27.25] — 2026-07-28
+
+### Added
+
+- Admin Job Approval: status tabs for All / Awaiting review / Approved / Rejected
+- Clickable queue stats jump to matching status filter; URL `?status=` support
+- Status badges on mission rows; Approve/Reject only on awaiting-review jobs
+
+### Fixed
+
+- Job queue refresh after approve/reject reloads the active status list (no broken pending-only refresh)
+
+---
+
+## [0.27.24] — 2026-07-28
+
+### Fixed
+
+- Admin client profiles: draft ClientProfile is auto-created for client accounts missing onboarding, so every client gets the same full profile UI
+- Legacy `/dashboard/admin/clients` redirects to Fleet & Personnel client roster
+
+---
+
 ## [0.27.23] — 2026-07-27
 
 ### Added

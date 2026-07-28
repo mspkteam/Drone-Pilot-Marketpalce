@@ -1214,3 +1214,27 @@
   flex-direction: column;
   gap: 0.85rem;
 }
+
+.admin-pilot-wing-assign-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.admin-member-split {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+}
+
+@media (min-width: 960px) {
+  .admin-member-split {
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+    gap: 1.25rem;
+  }
+}
+
+.admin-member-split > .admin-member-section {
+  min-height: 100%;
+}

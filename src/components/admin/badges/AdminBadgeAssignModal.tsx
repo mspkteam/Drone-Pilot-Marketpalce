@@ -8,6 +8,7 @@ type PilotOption = { id: string; displayName: string; email: string };
 type AdminBadgeAssignModalProps = {
   badge: AdminBadgeCardDto;
   pilots: PilotOption[];
+  initialPilotId?: string;
   saving: boolean;
   error: string | null;
   onClose: () => void;
@@ -20,13 +21,14 @@ type AdminBadgeAssignModalProps = {
 export function AdminBadgeAssignModal({
   badge,
   pilots,
+  initialPilotId,
   saving,
   error,
   onClose,
   onAssign,
 }: AdminBadgeAssignModalProps) {
   const [search, setSearch] = useState("");
-  const [pilotId, setPilotId] = useState("");
+  const [pilotId, setPilotId] = useState(initialPilotId ?? "");
   const [note, setNote] = useState("");
 
   const filteredPilots = useMemo(() => {
@@ -38,6 +40,8 @@ export function AdminBadgeAssignModal({
         pilot.email.toLowerCase().includes(query),
     );
   }, [pilots, search]);
+
+  const preselected = pilots.find((pilot) => pilot.id === pilotId);
 
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -63,7 +67,15 @@ export function AdminBadgeAssignModal({
             Assign Badge
           </h2>
           <p className="admin-badges-modal-subtitle">
-            Award <strong>{badge.title}</strong> to a pilot manually.
+            Award <strong>{badge.title}</strong>
+            {preselected ? (
+              <>
+                {" "}
+                to <strong>{preselected.displayName}</strong>.
+              </>
+            ) : (
+              " to a pilot manually."
+            )}
           </p>
         </div>
 
@@ -114,8 +126,7 @@ export function AdminBadgeAssignModal({
             </div>
 
             <p className="admin-badges-hint">
-              Assignment notes are saved with the award. Expiration dates and evidence
-              links are planned.
+              Assignment notes are saved with the award and visible to admins.
             </p>
           </div>
 

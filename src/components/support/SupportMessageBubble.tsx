@@ -42,7 +42,7 @@ function AttachmentBlock({
         <img
           src={href}
           alt={message.attachmentFileName ?? "Attachment"}
-          className="max-h-36 w-full object-cover"
+          className="max-h-28 w-auto max-w-full object-cover"
         />
       </a>
     );
@@ -112,13 +112,15 @@ export function SupportMessageBubble({
           {formatSupportMessageTime(m.createdAt)}
         </time>
       )}
-      <p className="whitespace-pre-wrap leading-relaxed">
-        {animate && m.senderRole === "admin" && variant === "user" ? (
-          <TypewriterMessage text={m.message} animate />
-        ) : (
-          m.message
-        )}
-      </p>
+      {m.message !== "(attachment)" ? (
+        <p className="whitespace-pre-wrap leading-relaxed">
+          {animate && m.senderRole === "admin" && variant === "user" ? (
+            <TypewriterMessage text={m.message} animate />
+          ) : (
+            m.message
+          )}
+        </p>
+      ) : null}
       <AttachmentBlock message={m} guestToken={guestToken} />
     </div>
   );

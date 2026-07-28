@@ -1,15 +1,20 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { deriveRarity } from "@/lib/admin/badge-display";
+import { defaultRarityForCode, deriveRarity } from "@/lib/admin/badge-display";
 import type { WingDefinitionDto } from "@/types/wing";
+import type { BadgeRarity } from "@/types/admin-badges";
 
-function wing(code: string): WingDefinitionDto {
+function wing(
+  code: string,
+  overrides: Partial<WingDefinitionDto> = {},
+): WingDefinitionDto {
   return {
     id: "w1",
     code,
     title: code,
     description: "",
     category: "milestone",
+    rarity: "COMMON",
     iconLabel: null,
     imageUrl: null,
     autoRule: null,
@@ -20,12 +25,36 @@ function wing(code: string): WingDefinitionDto {
     awardedCount: 0,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
+    ...overrides,
   };
 }
 
 describe("deriveRarity", () => {
-  it("maps recreational aviator gold to uncommon and crew silver to common", () => {
-    assert.equal(deriveRarity(wing("recreational-aviator-gold")), "UNCOMMON");
-    assert.equal(deriveRarity(wing("remote-aviation-crew-silver")), "COMMON");
+  it("uses persisted rarity when present", () => {
+    assert.equal(
+      deriveRarity(wing("custom-wing", { rarity: "UNCOMMON" })),
+      "UNCOMMON",
+    );
+    assert.equal(
+      deriveRarity(wing("custom-wing", { rarity: "MYTHIC" })),
+      "MYTHIC",
+    );
+  });
+
+  it("maps canonical wing codes for seed defaults", () => {
+    assert.equal(defaultRarityForCode("recreational-aviator-gold"), "UNCOMMON");
+    assert.equal(defaultRarityForCode("remote-aviation-crew-silver"), "COMMON");
+    assert.equal(defaultRarityForCode("aviator-wings-master"), "MYTHIC");
+  });
+
+  it("falls back when rarity value is invalid", () => {
+    assert.equal(
+      deriveRarity(
+        wing("recreational-aviator-gold", {
+          rarity: "NOT_A_RARITY" as BadgeRarity,
+        }),
+      ),
+      "UNCOMMON",
+    );
   });
 });

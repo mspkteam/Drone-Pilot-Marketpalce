@@ -10,6 +10,7 @@ import {
 import {
   SUPPORT_CONFIRMATION_MESSAGE,
   SUPPORT_INACTIVITY_CLOSE_MESSAGE,
+  SUPPORT_MAX_ATTACHMENTS,
 } from "@/lib/support/constants";
 import {
   clearSupportTyping,
@@ -32,6 +33,45 @@ import {
 import type { UserRole } from "@/types/roles";
 import { isFullAdminRole } from "@/types/roles";
 import { isAdminRole } from "@/types/roles";
+import type { ParsedSupportAttachment } from "@/lib/support/parse";
+
+type SupportAttachmentInput = ParsedSupportAttachment;
+
+async function persistAttachmentOnMessage(
+  messageId: string,
+  attachment: SupportAttachmentInput,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  db: { supportChatMessage: { update: (...args: any[]) => Promise<unknown> } } = prisma,
+) {
+  const fileCheck = validateSupportFileBuffer(attachment.buffer, attachment.mime);
+  if (!fileCheck.ok) {
+    throw new Error(fileCheck.error);
+  }
+  const storedName = buildSupportFileName(messageId, fileCheck.mime);
+  await writeSupportFile(storedName, attachment.buffer);
+  await db.supportChatMessage.update({
+    where: { id: messageId },
+    data: {
+      attachmentUrl: storedName,
+      attachmentFileName: attachment.originalName,
+      attachmentMimeType: fileCheck.mime,
+    },
+  });
+  return storedName;
+}
+
+function normalizeAttachments(
+  attachments?: SupportAttachmentInput[] | null,
+  legacy?: SupportAttachmentInput | null,
+): SupportAttachmentInput[] {
+  const list =
+    attachments && attachments.length > 0
+      ? attachments
+      : legacy
+        ? [legacy]
+        : [];
+  return list.slice(0, SUPPORT_MAX_ATTACHMENTS);
+}
 
 function toMessageDto(m: SupportChatMessage): SupportChatMessageDto {
   return {
@@ -143,11 +183,9 @@ export async function createSupportChat(input: {
   message: string;
   requesterUserId?: string | null;
   requesterRole: SupportRequesterRole;
-  attachment?: {
-    buffer: Buffer;
-    mime: string;
-    originalName: string;
-  } | null;
+  attachments?: SupportAttachmentInput[] | null;
+  /** @deprecated Prefer `attachments`. */
+  attachment?: SupportAttachmentInput | null;
 }): Promise<
   | { ok: true; chat: SupportChatThreadDto; guestToken?: string }
   | { ok: false; error: string; status: 400 | 403 }
@@ -156,6 +194,8 @@ export async function createSupportChat(input: {
   if (!validated.ok) {
     return { ok: false, error: validated.error, status: 400 };
   }
+
+  const files = normalizeAttachments(input.attachments, input.attachment);
 
   const guestToken =
     input.requesterRole === "guest"
@@ -190,24 +230,21 @@ export async function createSupportChat(input: {
         },
       });
 
-      if (input.attachment) {
-        const fileCheck = validateSupportFileBuffer(
-          input.attachment.buffer,
-          input.attachment.mime,
-        );
-        if (!fileCheck.ok) {
-          throw new Error(fileCheck.error);
-        }
-        const storedName = buildSupportFileName(firstMessage.id, fileCheck.mime);
-        await writeSupportFile(storedName, input.attachment.buffer);
-        await tx.supportChatMessage.update({
-          where: { id: firstMessage.id },
+      if (files[0]) {
+        await persistAttachmentOnMessage(firstMessage.id, files[0], tx);
+      }
+
+      for (const extra of files.slice(1)) {
+        const extraMessage = await tx.supportChatMessage.create({
           data: {
-            attachmentUrl: storedName,
-            attachmentFileName: input.attachment.originalName,
-            attachmentMimeType: fileCheck.mime,
+            supportChatId: created.id,
+            senderUserId: input.requesterUserId ?? null,
+            senderRole: input.requesterRole,
+            senderName: validated.data.requesterName,
+            message: "(attachment)",
           },
         });
+        await persistAttachmentOnMessage(extraMessage.id, extra, tx);
       }
 
       await tx.supportChatMessage.create({
@@ -325,18 +362,17 @@ export async function sendSupportMessageAsRequester(
     senderRole: SupportRequesterRole;
     senderName: string;
     message: string;
-    attachment?: {
-      buffer: Buffer;
-      mime: string;
-      originalName: string;
-    } | null;
+    attachments?: SupportAttachmentInput[] | null;
+    /** @deprecated Prefer `attachments`. */
+    attachment?: SupportAttachmentInput | null;
   },
 ): Promise<
   | { ok: true; message: SupportChatMessageDto }
   | { ok: false; error: string; status: 403 | 404 | 400 }
 > {
   const text = input.message.trim();
-  if (text.length < 1 && !input.attachment) {
+  const files = normalizeAttachments(input.attachments, input.attachment);
+  if (text.length < 1 && files.length === 0) {
     return { ok: false, error: "Message or attachment is required.", status: 400 };
   }
 
@@ -351,36 +387,39 @@ export async function sendSupportMessageAsRequester(
     return { ok: false, error: "This support chat is closed.", status: 400 };
   }
 
-  const created = await prisma.supportChatMessage.create({
-    data: {
-      supportChatId: chatId,
-      senderUserId: input.userId,
-      senderRole: input.senderRole,
-      senderName: input.senderName,
-      message: text || "(attachment)",
-    },
-  });
-
-  let attachmentUrl: string | null = null;
-  if (input.attachment) {
-    const fileCheck = validateSupportFileBuffer(
-      input.attachment.buffer,
-      input.attachment.mime,
-    );
-    if (!fileCheck.ok) {
-      return { ok: false, error: fileCheck.error, status: 400 };
-    }
-    const storedName = buildSupportFileName(created.id, fileCheck.mime);
-    await writeSupportFile(storedName, input.attachment.buffer);
-    attachmentUrl = storedName;
-    await prisma.supportChatMessage.update({
-      where: { id: created.id },
+  let primaryId: string;
+  try {
+    const created = await prisma.supportChatMessage.create({
       data: {
-        attachmentUrl: storedName,
-        attachmentFileName: input.attachment.originalName,
-        attachmentMimeType: fileCheck.mime,
+        supportChatId: chatId,
+        senderUserId: input.userId,
+        senderRole: input.senderRole,
+        senderName: input.senderName,
+        message: text || "(attachment)",
       },
     });
+    primaryId = created.id;
+
+    if (files[0]) {
+      await persistAttachmentOnMessage(created.id, files[0]);
+    }
+
+    for (const extra of files.slice(1)) {
+      const extraMessage = await prisma.supportChatMessage.create({
+        data: {
+          supportChatId: chatId,
+          senderUserId: input.userId,
+          senderRole: input.senderRole,
+          senderName: input.senderName,
+          message: "(attachment)",
+        },
+      });
+      await persistAttachmentOnMessage(extraMessage.id, extra);
+    }
+  } catch (err) {
+    const message =
+      err instanceof Error ? err.message : "Could not send message.";
+    return { ok: false, error: message, status: 400 };
   }
 
   await prisma.supportChat.update({
@@ -395,7 +434,7 @@ export async function sendSupportMessageAsRequester(
   notifyAdminsNewSupportChat(chatId, input.senderName);
 
   const row = await prisma.supportChatMessage.findUnique({
-    where: { id: created.id },
+    where: { id: primaryId },
   });
   return { ok: true, message: toMessageDto(row!) };
 }
@@ -488,17 +527,15 @@ export async function sendSupportMessageAsAdmin(
   adminUserId: string,
   adminName: string,
   message: string,
-  attachment?: {
-    buffer: Buffer;
-    mime: string;
-    originalName: string;
-  } | null,
+  attachments?: SupportAttachmentInput[] | null,
+  legacyAttachment?: SupportAttachmentInput | null,
 ): Promise<
   | { ok: true; message: SupportChatMessageDto }
   | { ok: false; error: string; status: 403 | 404 | 400 }
 > {
   const text = message.trim();
-  if (text.length < 1 && !attachment) {
+  const files = normalizeAttachments(attachments, legacyAttachment);
+  if (text.length < 1 && files.length === 0) {
     return { ok: false, error: "Message or attachment is required.", status: 400 };
   }
 
@@ -507,34 +544,39 @@ export async function sendSupportMessageAsAdmin(
     return { ok: false, error: "Support chat not found.", status: 404 };
   }
 
-  const created = await prisma.supportChatMessage.create({
-    data: {
-      supportChatId: chatId,
-      senderUserId: adminUserId,
-      senderRole: "admin",
-      senderName: adminName,
-      message: text || "(attachment)",
-    },
-  });
-
-  if (attachment) {
-    const fileCheck = validateSupportFileBuffer(
-      attachment.buffer,
-      attachment.mime,
-    );
-    if (!fileCheck.ok) {
-      return { ok: false, error: fileCheck.error, status: 400 };
-    }
-    const storedName = buildSupportFileName(created.id, fileCheck.mime);
-    await writeSupportFile(storedName, attachment.buffer);
-    await prisma.supportChatMessage.update({
-      where: { id: created.id },
+  let primaryId: string;
+  try {
+    const created = await prisma.supportChatMessage.create({
       data: {
-        attachmentUrl: storedName,
-        attachmentFileName: attachment.originalName,
-        attachmentMimeType: fileCheck.mime,
+        supportChatId: chatId,
+        senderUserId: adminUserId,
+        senderRole: "admin",
+        senderName: adminName,
+        message: text || "(attachment)",
       },
     });
+    primaryId = created.id;
+
+    if (files[0]) {
+      await persistAttachmentOnMessage(created.id, files[0]);
+    }
+
+    for (const extra of files.slice(1)) {
+      const extraMessage = await prisma.supportChatMessage.create({
+        data: {
+          supportChatId: chatId,
+          senderUserId: adminUserId,
+          senderRole: "admin",
+          senderName: adminName,
+          message: "(attachment)",
+        },
+      });
+      await persistAttachmentOnMessage(extraMessage.id, extra);
+    }
+  } catch (err) {
+    const errMessage =
+      err instanceof Error ? err.message : "Could not send message.";
+    return { ok: false, error: errMessage, status: 400 };
   }
 
   await prisma.supportChat.update({
@@ -562,7 +604,7 @@ export async function sendSupportMessageAsAdmin(
   }
 
   const row = await prisma.supportChatMessage.findUnique({
-    where: { id: created.id },
+    where: { id: primaryId },
   });
   return { ok: true, message: toMessageDto(row!) };
 }

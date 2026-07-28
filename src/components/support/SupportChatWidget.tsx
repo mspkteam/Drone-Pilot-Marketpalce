@@ -2,7 +2,10 @@
 
 import { useSession } from "next-auth/react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { SupportAttachmentUpload } from "@/components/support/SupportAttachmentUpload";
+import {
+  SupportAttachmentUpload,
+  appendSupportAttachments,
+} from "@/components/support/SupportAttachmentUpload";
 import { SupportMessageBubble } from "@/components/support/SupportMessageBubble";
 import {
   formatSupportTicketId,
@@ -76,8 +79,8 @@ function SupportChatWidgetInner({
   const [reply, setReply] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [formFile, setFormFile] = useState<File | null>(null);
-  const [replyFile, setReplyFile] = useState<File | null>(null);
+  const [formFiles, setFormFiles] = useState<File[]>([]);
+  const [replyFiles, setReplyFiles] = useState<File[]>([]);
   const [animateMessageIds, setAnimateMessageIds] = useState<Set<string>>(
     () => new Set(),
   );
@@ -206,7 +209,7 @@ function SupportChatWidgetInner({
     setAnimateMessageIds(new Set());
     setThread(null);
     setReply("");
-    setReplyFile(null);
+    setReplyFiles([]);
     setView("closed");
     setHasUnread(false);
     setError(null);
@@ -297,7 +300,7 @@ function SupportChatWidgetInner({
       formData.set("requesterName", name.trim());
       formData.set("requesterEmail", email.trim());
       formData.set("message", message);
-      if (formFile) formData.set("attachment", formFile);
+      if (formFiles.length > 0) appendSupportAttachments(formData, formFiles);
 
       const res = await fetch("/api/support/chats", {
         method: "POST",
@@ -322,7 +325,7 @@ function SupportChatWidgetInner({
       setView("chat");
       setHasUnread(false);
       setMessage("");
-      setFormFile(null);
+      setFormFiles([]);
     } catch {
       setError("Could not start chat.");
     } finally {
@@ -333,14 +336,14 @@ function SupportChatWidgetInner({
   async function sendReply(e: React.FormEvent) {
     e.preventDefault();
     if (!chatId || loading) return;
-    if (!reply.trim() && !replyFile) return;
+    if (!reply.trim() && replyFiles.length === 0) return;
     setError(null);
     stopTypingPulse();
     setLoading(true);
     try {
       const formData = new FormData();
       formData.set("message", reply);
-      if (replyFile) formData.set("attachment", replyFile);
+      if (replyFiles.length > 0) appendSupportAttachments(formData, replyFiles);
 
       const headers: HeadersInit = {};
       if (guestToken) headers["X-Support-Guest-Token"] = guestToken;
@@ -357,7 +360,7 @@ function SupportChatWidgetInner({
       }
       await loadThread(chatId, guestToken);
       setReply("");
-      setReplyFile(null);
+      setReplyFiles([]);
     } catch {
       setError("Could not send message.");
     } finally {
@@ -373,7 +376,7 @@ function SupportChatWidgetInner({
     setAnimateMessageIds(new Set());
     setThread(null);
     setReply("");
-    setReplyFile(null);
+    setReplyFiles([]);
     setView("form");
     setHasUnread(false);
     setError(null);
@@ -434,7 +437,7 @@ function SupportChatWidgetInner({
   const isChatClosed = chatStatus === "closed";
   const isChatResolved = chatStatus === "resolved";
   const canSendReply =
-    !loading && (reply.trim().length > 0 || replyFile != null);
+    !loading && (reply.trim().length > 0 || replyFiles.length > 0);
 
   return (
     <div className="fixed bottom-4 right-4 z-[60] flex flex-col items-end gap-2 sm:bottom-6 sm:right-6">
@@ -537,13 +540,13 @@ function SupportChatWidgetInner({
               </label>
               <div className="mt-4">
                 <p className="mb-2 text-xs font-medium text-foreground">
-                  Attachment (optional)
+                  Attachments (optional)
                 </p>
                 <SupportAttachmentUpload
-                  file={formFile}
-                  onFileChange={setFormFile}
+                  files={formFiles}
+                  onFilesChange={setFormFiles}
                   disabled={loading}
-                  label="Attach image"
+                  label="Attach files"
                 />
               </div>
               <button
@@ -608,8 +611,8 @@ function SupportChatWidgetInner({
                   />
                   <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                     <SupportAttachmentUpload
-                      file={replyFile}
-                      onFileChange={setReplyFile}
+                      files={replyFiles}
+                      onFilesChange={setReplyFiles}
                       disabled={loading}
                       label="Attach"
                       className="flex-1"

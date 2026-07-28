@@ -1,6 +1,15 @@
 import { prisma } from "@/lib/db";
-import type { AdminBadgeStatsDto } from "@/types/admin-badges";
+import type { AdminBadgeStatsDto, BadgeRarity } from "@/types/admin-badges";
 import type { WingDefinitionDto } from "@/types/wing";
+
+const RARITY_RANK: Record<BadgeRarity, number> = {
+  COMMON: 1,
+  UNCOMMON: 2,
+  RARE: 3,
+  EPIC: 4,
+  LEGENDARY: 5,
+  MYTHIC: 6,
+};
 
 function growthSubtext(current: number, previous: number): string {
   if (previous <= 0) return current > 0 ? "+100%" : "—";
@@ -40,10 +49,12 @@ export async function getBadgeStatsForAdmin(
     (a, b) => b.awardedCount - a.awardedCount,
   );
   const mostEarned = sortedByAwarded[0];
-  const rarest =
-    sortedByAwarded.filter((def) => def.awardedCount > 0).sort(
-      (a, b) => a.awardedCount - b.awardedCount,
-    )[0] ?? sortedByAwarded[sortedByAwarded.length - 1];
+
+  const rarest = [...definitions].sort((a, b) => {
+    const rarityDiff = RARITY_RANK[b.rarity] - RARITY_RANK[a.rarity];
+    if (rarityDiff !== 0) return rarityDiff;
+    return a.awardedCount - b.awardedCount;
+  })[0];
 
   return {
     totalBadges: definitions.length,
@@ -55,7 +66,7 @@ export async function getBadgeStatsForAdmin(
       : "—",
     rarestTitle: rarest?.title ?? "—",
     rarestSubtext: rarest
-      ? `${rarest.awardedCount.toLocaleString()} holders`
+      ? `${rarest.rarity.charAt(0)}${rarest.rarity.slice(1).toLowerCase()} · ${rarest.awardedCount.toLocaleString()} holders`
       : "—",
     usingMockStats: false,
   };

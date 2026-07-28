@@ -1,3 +1,5 @@
+import type { BadgeRarity } from "@/types/admin-badges";
+
 export const WING_CATEGORIES = ["milestone", "trust", "community"] as const;
 
 export type WingCategory = (typeof WING_CATEGORIES)[number];
@@ -31,6 +33,7 @@ export type WingDefinitionDto = {
   title: string;
   description: string;
   category: WingCategory;
+  rarity: BadgeRarity;
   iconLabel: string | null;
   imageUrl: string | null;
   autoRule: WingAutoRule | null;

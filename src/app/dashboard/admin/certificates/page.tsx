@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { AdminCertificateEnginePortal } from "@/components/admin/certificates/AdminCertificateEnginePortal";
@@ -26,7 +27,9 @@ export default async function AdminCertificatesPage() {
 
   return (
     <DashboardPageLayout className="admin-certificates-shell">
-      <AdminCertificateEnginePortal canManageTemplates={canManageTemplates} />
+      <Suspense fallback={<p className="admin-certificates-loading">Loading…</p>}>
+        <AdminCertificateEnginePortal canManageTemplates={canManageTemplates} />
+      </Suspense>
     </DashboardPageLayout>
   );
 }

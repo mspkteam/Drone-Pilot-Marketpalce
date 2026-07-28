@@ -201,9 +201,14 @@ export function AdminClientMemberProfile({
           <div className="admin-pilot-profile-actions-row">
             <span className="admin-member-chip">Profile: {client.status}</span>
             <span className="admin-member-chip">Login: {accountStatus}</span>
-            {client.companyName?.trim() ? (
-              <span className="admin-member-chip">Enterprise</span>
-            ) : null}
+          {client.companyName?.trim() ? (
+            <span className="admin-member-chip">Enterprise</span>
+          ) : (
+            <span className="admin-member-chip">Individual</span>
+          )}
+          {client.status === "draft" ? (
+            <span className="admin-member-chip">Onboarding incomplete</span>
+          ) : null}
             {client.counts.openDisputes > 0 ? (
               <Link
                 href="/dashboard/admin/disputes"

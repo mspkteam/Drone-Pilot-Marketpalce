@@ -352,20 +352,20 @@ export function AdminPilotMemberProfile({
           ) : null}
           {pilot.commission ? (
             <Link
-              href={`/dashboard/admin/settings?pilot=${pilot.profileId}`}
+              href={`/dashboard/admin/settings?pilot=${pilot.profileId}#custom-pilot-rates`}
               className="admin-personnel-action"
             >
               Commission settings
             </Link>
           ) : null}
           <Link
-            href="/dashboard/admin/certificates"
+            href={`/dashboard/admin/certificates?pilot=${pilot.profileId}`}
             className="admin-personnel-action"
           >
             Issue certificate
           </Link>
           <Link
-            href="/dashboard/admin/achievements"
+            href={`/dashboard/admin/achievements?pilot=${pilot.profileId}`}
             className="admin-personnel-action"
           >
             Badge catalog
@@ -633,90 +633,92 @@ export function AdminPilotMemberProfile({
         ))}
       </section>
 
-      <section className="admin-member-section admin-ops-bracket-card">
-        <h2 className="admin-member-section-title">Wings &amp; badges</h2>
-        {pilot.wings.length ? (
-          <ul className="admin-member-list">
-            {pilot.wings.map((wing) => (
-              <li key={wing.id}>
-                <strong>{wing.title}</strong>
-                <span>
-                  {wing.code} · {formatDate(wing.earnedAt)}
-                </span>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="admin-member-empty">No wings or badges awarded yet.</p>
-        )}
+      <div className="admin-member-split">
+        <section className="admin-member-section admin-ops-bracket-card">
+          <h2 className="admin-member-section-title">Wings &amp; badges</h2>
+          {pilot.wings.length ? (
+            <ul className="admin-member-list">
+              {pilot.wings.map((wing) => (
+                <li key={wing.id}>
+                  <strong>{wing.title}</strong>
+                  <span>
+                    {wing.code} · {formatDate(wing.earnedAt)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="admin-member-empty">No wings or badges awarded yet.</p>
+          )}
 
-        {canAssignBadges ? (
-          <form
-            className="admin-pilot-wing-assign"
-            onSubmit={handleAssignWing}
-          >
-            <p className="admin-personnel-edit-hint">
-              Assign a wing or badge from the catalog to this pilot.
-            </p>
-            <div className="admin-pilot-profile-form-grid">
-              <label className="admin-personnel-edit-field">
-                <span>Wing / badge</span>
-                <select
-                  value={assignWingId}
-                  onChange={(e) => setAssignWingId(e.target.value)}
-                  disabled={assigningWing || loadingWings}
-                  required
-                >
-                  <option value="">
-                    {loadingWings ? "Loading…" : "Select wing or badge…"}
-                  </option>
-                  {assignableWings.map((def) => (
-                    <option key={def.id} value={def.id}>
-                      {def.title} ({def.code})
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="admin-personnel-edit-field">
-                <span>Note (optional)</span>
-                <input
-                  value={assignNote}
-                  onChange={(e) => setAssignNote(e.target.value)}
-                  placeholder="Reason for manual award"
-                  disabled={assigningWing}
-                />
-              </label>
-            </div>
-            <button
-              type="submit"
-              className="admin-personnel-edit-save"
-              disabled={assigningWing || !assignWingId}
+          {canAssignBadges ? (
+            <form
+              className="admin-pilot-wing-assign"
+              onSubmit={handleAssignWing}
             >
-              {assigningWing ? "Assigning…" : "Assign wing / badge"}
-            </button>
-          </form>
-        ) : null}
-      </section>
+              <p className="admin-personnel-edit-hint">
+                Assign a wing or badge from the catalog to this pilot.
+              </p>
+              <div className="admin-pilot-wing-assign-fields">
+                <label className="admin-personnel-edit-field">
+                  <span>Wing / badge</span>
+                  <select
+                    value={assignWingId}
+                    onChange={(e) => setAssignWingId(e.target.value)}
+                    disabled={assigningWing || loadingWings}
+                    required
+                  >
+                    <option value="">
+                      {loadingWings ? "Loading…" : "Select wing or badge…"}
+                    </option>
+                    {assignableWings.map((def) => (
+                      <option key={def.id} value={def.id}>
+                        {def.title} ({def.code})
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="admin-personnel-edit-field">
+                  <span>Note (optional)</span>
+                  <input
+                    value={assignNote}
+                    onChange={(e) => setAssignNote(e.target.value)}
+                    placeholder="Reason for manual award"
+                    disabled={assigningWing}
+                  />
+                </label>
+              </div>
+              <button
+                type="submit"
+                className="admin-personnel-edit-save"
+                disabled={assigningWing || !assignWingId}
+              >
+                {assigningWing ? "Assigning…" : "Assign wing / badge"}
+              </button>
+            </form>
+          ) : null}
+        </section>
 
-      <section className="admin-member-section admin-ops-bracket-card">
-        <h2 className="admin-member-section-title">Recent proposals</h2>
-        {pilot.recentApplications.length ? (
-          <ul className="admin-member-list">
-            {pilot.recentApplications.map((app) => (
-              <li key={app.id}>
-                <strong>{app.jobTitle}</strong>
-                <span>
-                  {app.status} · {app.currency}{" "}
-                  {app.proposedAmount.toLocaleString()} ·{" "}
-                  {formatDate(app.submittedAt)}
-                </span>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="admin-member-empty">No proposals yet.</p>
-        )}
-      </section>
+        <section className="admin-member-section admin-ops-bracket-card">
+          <h2 className="admin-member-section-title">Recent proposals</h2>
+          {pilot.recentApplications.length ? (
+            <ul className="admin-member-list">
+              {pilot.recentApplications.map((app) => (
+                <li key={app.id}>
+                  <strong>{app.jobTitle}</strong>
+                  <span>
+                    {app.status} · {app.currency}{" "}
+                    {app.proposedAmount.toLocaleString()} ·{" "}
+                    {formatDate(app.submittedAt)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="admin-member-empty">No proposals yet.</p>
+          )}
+        </section>
+      </div>
     </>
   );
 }

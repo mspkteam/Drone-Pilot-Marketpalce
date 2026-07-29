@@ -7,6 +7,9 @@ import type { WingDefinitionDto } from "@/types/wing";
 import { PilotStatusBadge } from "@/components/pilot/PilotStatusBadge";
 import { isPublicPilotProfileEnabled } from "@/lib/public-access";
 import type { AdminMemberDetailDto } from "@/lib/admin/member-detail";
+import { HONORARY_GRADE_OPTIONS } from "@/lib/admin/pilot-grades";
+import { MEMBERSHIP_TIER_DEFINITIONS } from "@/lib/membership/tiers";
+import { TIER_CODE_TO_PRICING_PLAN_CODE } from "@/lib/membership/pricing-tier-codes";
 import type { PilotProfileStatus } from "@/types/pilot";
 
 type PilotDetail = NonNullable<AdminMemberDetailDto["pilotDetail"]>;
@@ -89,6 +92,11 @@ export function AdminPilotMemberProfile({
   const [assignNote, setAssignNote] = useState("");
   const [assigningWing, setAssigningWing] = useState(false);
 
+  const [promoteTierCode, setPromoteTierCode] = useState(
+    pilot.membership?.tierCode ?? "A1_STUDENT",
+  );
+  const [promoting, setPromoting] = useState(false);
+
   const earnedWingDefinitionIds = useMemo(
     () => new Set(pilot.wings.map((wing) => wing.code)),
     [pilot.wings],
@@ -148,6 +156,7 @@ export function AdminPilotMemberProfile({
     );
     setStatus(pilot.status);
     setIsPublic(pilot.isPublic);
+    setPromoteTierCode(pilot.membership?.tierCode ?? "A1_STUDENT");
   }, [pilot]);
 
   function resetForm() {
@@ -169,6 +178,7 @@ export function AdminPilotMemberProfile({
     );
     setStatus(pilot.status);
     setIsPublic(pilot.isPublic);
+    setPromoteTierCode(pilot.membership?.tierCode ?? "A1_STUDENT");
     setError(null);
     setMessage(null);
   }
@@ -245,6 +255,42 @@ export function AdminPilotMemberProfile({
       setError("Action failed.");
     } finally {
       setModerating(false);
+    }
+  }
+
+  async function handlePromoteGrade(event: React.FormEvent) {
+    event.preventDefault();
+    if (!canEdit) return;
+    setPromoting(true);
+    setError(null);
+    setMessage(null);
+    try {
+      const res = await fetch(`/api/admin/pilots/${pilot.profileId}/grade`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tierCode: promoteTierCode }),
+      });
+      const json = (await res.json()) as {
+        error?: string;
+        tierName?: string;
+        pricingCode?: string;
+        enrolled?: boolean;
+      };
+      if (!res.ok) {
+        setError(json.error ?? "Could not update grade.");
+        return;
+      }
+      const label = json.tierName ?? json.pricingCode ?? promoteTierCode;
+      setMessage(
+        json.enrolled
+          ? `Membership enrolled at ${label}.`
+          : `Grade set to ${label}.`,
+      );
+      router.refresh();
+    } catch {
+      setError("Could not update grade.");
+    } finally {
+      setPromoting(false);
     }
   }
 
@@ -584,54 +630,115 @@ export function AdminPilotMemberProfile({
         </section>
       )}
 
-      <section className="admin-member-section admin-ops-bracket-card">
-        <h2 className="admin-member-section-title">Membership</h2>
-        {pilot.membership ? (
-          <dl className="admin-member-grid">
-            <Field
-              label="Grade"
-              value={`${pilot.membership.tierName} (${pilot.membership.tierCode})`}
-            />
-            <Field label="Subscription" value={pilot.membership.status} />
-            <Field
-              label="Can bid"
-              value={pilot.membership.canApply ? "Yes" : "No"}
-            />
-            <Field
-              label="Instructor"
-              value={pilot.membership.instructorEligible ? "Eligible" : "No"}
-            />
-            <Field
-              label="Job visibility delay"
-              value={`${pilot.membership.jobVisibilityDelayHours}h`}
-            />
-            <Field
-              label="Period ends"
-              value={formatDate(pilot.membership.periodEnd)}
-            />
-          </dl>
-        ) : (
-          <p className="admin-member-empty">No active membership.</p>
-        )}
-      </section>
+      <div className="admin-member-split admin-member-membership-row">
+        <section className="admin-member-section admin-ops-bracket-card">
+          <h2 className="admin-member-section-title">Membership</h2>
+          {pilot.membership ? (
+            <dl className="admin-member-grid">
+              <Field
+                label="Grade"
+                value={`${pilot.membership.tierName} (${
+                  TIER_CODE_TO_PRICING_PLAN_CODE[pilot.membership.tierCode] ??
+                  pilot.membership.tierCode
+                })`}
+              />
+              <Field label="Subscription" value={pilot.membership.status} />
+              <Field
+                label="Can bid"
+                value={pilot.membership.canApply ? "Yes" : "No"}
+              />
+              <Field
+                label="Instructor"
+                value={pilot.membership.instructorEligible ? "Eligible" : "No"}
+              />
+              <Field
+                label="Job visibility delay"
+                value={`${pilot.membership.jobVisibilityDelayHours}h`}
+              />
+              <Field
+                label="Period ends"
+                value={formatDate(pilot.membership.periodEnd)}
+              />
+            </dl>
+          ) : (
+            <p className="admin-member-empty">No active membership.</p>
+          )}
 
-      <section className="admin-member-stats-row" aria-label="Pilot activity">
-        {[
-          ["Applications", pilot.counts.applications],
-          ["Bookings", pilot.counts.bookings],
-          ["Certificates", pilot.counts.certificates],
-          ["Reviews", pilot.counts.reviews],
-        ].map(([label, value]) => (
-          <article
-            key={label as string}
-            className="admin-member-stat admin-ops-bracket-card"
-          >
-            <span className="admin-member-stat-accent" aria-hidden />
-            <p className="admin-member-stat-label">{label}</p>
-            <p className="admin-member-stat-value">{value}</p>
-          </article>
-        ))}
-      </section>
+          {canEdit ? (
+            <form
+              className="admin-pilot-wing-assign"
+              onSubmit={handlePromoteGrade}
+            >
+              <p className="admin-personnel-edit-hint">
+                Manually promote or set this pilot&apos;s grade. A-1 through A-6
+                are live; A-7–A-10 are invitation-only and not assignable yet.
+              </p>
+              <div className="admin-pilot-wing-assign-fields">
+                <label className="admin-personnel-edit-field">
+                  <span>Grade</span>
+                  <select
+                    value={promoteTierCode}
+                    onChange={(e) => setPromoteTierCode(e.target.value)}
+                    disabled={promoting}
+                    required
+                  >
+                    {MEMBERSHIP_TIER_DEFINITIONS.map((tier) => {
+                      const pricing =
+                        TIER_CODE_TO_PRICING_PLAN_CODE[tier.code] ?? tier.code;
+                      return (
+                        <option key={tier.code} value={tier.code}>
+                          {pricing} — {tier.name.replace(/^A-\d+\s/, "")}
+                        </option>
+                      );
+                    })}
+                    {HONORARY_GRADE_OPTIONS.map((grade) => (
+                      <option
+                        key={grade.pricingCode}
+                        value={grade.pricingCode}
+                        disabled
+                      >
+                        {grade.pricingCode} — {grade.title} (invitation only)
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+              <button
+                type="submit"
+                className="admin-personnel-edit-save"
+                disabled={
+                  promoting ||
+                  (pilot.membership?.tierCode != null &&
+                    promoteTierCode === pilot.membership.tierCode)
+                }
+              >
+                {promoting ? "Updating…" : "Set grade"}
+              </button>
+            </form>
+          ) : null}
+        </section>
+
+        <section
+          className="admin-member-stats-panel"
+          aria-label="Pilot activity"
+        >
+          {[
+            ["Applications", pilot.counts.applications],
+            ["Bookings", pilot.counts.bookings],
+            ["Certificates", pilot.counts.certificates],
+            ["Reviews", pilot.counts.reviews],
+          ].map(([label, value]) => (
+            <article
+              key={label as string}
+              className="admin-member-stat admin-ops-bracket-card"
+            >
+              <span className="admin-member-stat-accent" aria-hidden />
+              <p className="admin-member-stat-label">{label}</p>
+              <p className="admin-member-stat-value">{value}</p>
+            </article>
+          ))}
+        </section>
+      </div>
 
       <div className="admin-member-split">
         <section className="admin-member-section admin-ops-bracket-card">

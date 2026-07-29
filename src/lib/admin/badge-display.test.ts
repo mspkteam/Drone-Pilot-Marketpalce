@@ -44,6 +44,8 @@ describe("deriveRarity", () => {
   it("maps canonical wing codes for seed defaults", () => {
     assert.equal(defaultRarityForCode("recreational-aviator-gold"), "UNCOMMON");
     assert.equal(defaultRarityForCode("remote-aviation-crew-silver"), "COMMON");
+    assert.equal(defaultRarityForCode("aviator-wings-basic-silver"), "RARE");
+    assert.equal(defaultRarityForCode("aviator-wings-basic-gold"), "EPIC");
     assert.equal(defaultRarityForCode("aviator-wings-master"), "MYTHIC");
   });
 

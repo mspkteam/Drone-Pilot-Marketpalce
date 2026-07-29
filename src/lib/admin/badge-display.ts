@@ -11,8 +11,8 @@ import type { WingDefinitionDto } from "@/types/wing";
 const RARITY_BY_CODE: Record<string, BadgeRarity> = {
   "recreational-aviator-gold": "UNCOMMON",
   "remote-aviation-crew-silver": "COMMON",
-  "aviator-wings-basic-gold": "RARE",
-  "aviator-wings-basic-silver": "EPIC",
+  "aviator-wings-basic-gold": "EPIC",
+  "aviator-wings-basic-silver": "RARE",
   "aviator-wings-senior": "LEGENDARY",
   "aviator-wings-master": "MYTHIC",
   "golden-wings": "LEGENDARY",

@@ -606,11 +606,12 @@ export function resolveOverlayText(
     case "gradeOrTitle":
       return values.gradeOrTitle?.trim() || "[GRADE]";
     case "certificateNumber": {
-      if (!values.certificateNumber) return "CERTIFICATE NO.";
+      // Background artwork already prints “CERTIFICATE NO.” — overlay is digits only.
+      if (!values.certificateNumber) return "000075";
       const short =
         values.certificateNumber.replace(/^DPM-\d+-/, "").replace(/^0+/, "") ||
         values.certificateNumber;
-      return `CERTIFICATE NO. ${short}`;
+      return short;
     }
     case "memberNumber": {
       const num = values.memberNumber?.trim();

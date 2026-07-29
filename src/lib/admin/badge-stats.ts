@@ -1,15 +1,7 @@
 import { prisma } from "@/lib/db";
-import type { AdminBadgeStatsDto, BadgeRarity } from "@/types/admin-badges";
+import type { AdminBadgeStatsDto } from "@/types/admin-badges";
+import { BADGE_RARITY_RANK } from "@/types/admin-badges";
 import type { WingDefinitionDto } from "@/types/wing";
-
-const RARITY_RANK: Record<BadgeRarity, number> = {
-  COMMON: 1,
-  UNCOMMON: 2,
-  RARE: 3,
-  EPIC: 4,
-  LEGENDARY: 5,
-  MYTHIC: 6,
-};
 
 function growthSubtext(current: number, previous: number): string {
   if (previous <= 0) return current > 0 ? "+100%" : "—";
@@ -51,7 +43,7 @@ export async function getBadgeStatsForAdmin(
   const mostEarned = sortedByAwarded[0];
 
   const rarest = [...definitions].sort((a, b) => {
-    const rarityDiff = RARITY_RANK[b.rarity] - RARITY_RANK[a.rarity];
+    const rarityDiff = BADGE_RARITY_RANK[b.rarity] - BADGE_RARITY_RANK[a.rarity];
     if (rarityDiff !== 0) return rarityDiff;
     return a.awardedCount - b.awardedCount;
   })[0];

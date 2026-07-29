@@ -1063,6 +1063,33 @@
   gap: 0.85rem;
 }
 
+.admin-member-membership-row {
+  align-items: stretch;
+}
+
+.admin-member-stats-panel {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+@media (min-width: 960px) {
+  .admin-member-membership-row > .admin-member-section {
+    height: 100%;
+  }
+
+  .admin-member-stats-panel {
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+    height: 100%;
+    align-self: stretch;
+  }
+
+  .admin-member-stats-panel > .admin-member-stat {
+    height: 100%;
+    min-height: 0;
+  }
+}
+
 .admin-member-stat {
   position: relative;
   display: flex;

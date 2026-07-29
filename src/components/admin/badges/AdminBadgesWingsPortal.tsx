@@ -12,6 +12,7 @@ import type {
   BadgeFormInput,
   BadgeRarity,
 } from "@/types/admin-badges";
+import { BADGE_RARITIES, BADGE_RARITY_RANK } from "@/types/admin-badges";
 import type { AdminPilotWingDto } from "@/types/wing";
 
 function isPositiveGrowth(subtext: string): boolean {
@@ -70,17 +71,24 @@ export function AdminBadgesWingsPortal({ canManage }: AdminBadgesWingsPortalProp
   const filteredBadges = useMemo(() => {
     const badges = data?.badges ?? [];
     const query = search.trim().toLowerCase();
-    return badges.filter((badge) => {
-      if (rarityFilter !== "ALL" && badge.rarity !== rarityFilter) return false;
-      if (activeFilter === "ACTIVE" && !badge.isActive) return false;
-      if (activeFilter === "INACTIVE" && badge.isActive) return false;
-      if (!query) return true;
-      return (
-        badge.title.toLowerCase().includes(query) ||
-        badge.criteria.toLowerCase().includes(query) ||
-        badge.code.toLowerCase().includes(query)
-      );
-    });
+    return badges
+      .filter((badge) => {
+        if (rarityFilter !== "ALL" && badge.rarity !== rarityFilter) return false;
+        if (activeFilter === "ACTIVE" && !badge.isActive) return false;
+        if (activeFilter === "INACTIVE" && badge.isActive) return false;
+        if (!query) return true;
+        return (
+          badge.title.toLowerCase().includes(query) ||
+          badge.criteria.toLowerCase().includes(query) ||
+          badge.code.toLowerCase().includes(query)
+        );
+      })
+      .sort((a, b) => {
+        const rarityDiff =
+          BADGE_RARITY_RANK[a.rarity] - BADGE_RARITY_RANK[b.rarity];
+        if (rarityDiff !== 0) return rarityDiff;
+        return a.sortOrder - b.sortOrder || a.title.localeCompare(b.title);
+      });
   }, [data?.badges, search, rarityFilter, activeFilter]);
 
   async function handleSaveBadge(input: BadgeFormInput) {
@@ -310,12 +318,11 @@ export function AdminBadgesWingsPortal({ canManage }: AdminBadgesWingsPortalProp
           }
         >
           <option value="ALL">All rarities</option>
-          <option value="COMMON">Common</option>
-          <option value="UNCOMMON">Uncommon</option>
-          <option value="RARE">Rare</option>
-          <option value="EPIC">Epic</option>
-          <option value="LEGENDARY">Legendary</option>
-          <option value="MYTHIC">Mythic</option>
+          {BADGE_RARITIES.map((value) => (
+            <option key={value} value={value}>
+              {value.charAt(0) + value.slice(1).toLowerCase()}
+            </option>
+          ))}
         </select>
         <select
           className="admin-badges-filter"

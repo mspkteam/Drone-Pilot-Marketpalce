@@ -4,6 +4,21 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.27] — 2026-07-29
+
+### Added
+
+- Admin pilot profile: manual **Set grade** control (A-1–A-6 promote/demote or enroll if no membership)
+- `POST /api/admin/pilots/[id]/grade` for admin grade override
+- A-7–A-10 listed as disabled invitation-only options in the grade picker
+
+### Fixed
+
+- Certificate builder overlay: certificate number field renders digits only (background already has “CERTIFICATE NO.”)
+- Badge rarity order: Basic Silver = Rare, Basic Gold = Epic (Common → Mythic progression)
+
+---
+
 ## [0.27.26] — 2026-07-28
 
 ### Fixed

@@ -128,7 +128,7 @@ export const DEFAULT_WING_DEFINITIONS: Array<{
     description:
       "Awarded upon passing the Part 107 written exam; gold wings after TSA background check and permanent certificate issuance.",
     category: "trust",
-    rarity: "EPIC",
+    rarity: "RARE",
     iconLabel: "star",
     imageUrl: "/wings/aviator-wings-basic-silver.png",
     autoRule: "manual_only",
@@ -139,7 +139,7 @@ export const DEFAULT_WING_DEFINITIONS: Array<{
     title: "Aviator Wings, Basic — Gold",
     description: "Awarded to FAA Part 107 Remote Pilot Certificate holders.",
     category: "trust",
-    rarity: "RARE",
+    rarity: "EPIC",
     iconLabel: "award",
     imageUrl: "/wings/aviator-wings-basic-gold.png",
     autoRule: "approved_verification",
@@ -177,13 +177,15 @@ const CANONICAL_WING_CODES = new Set(
   DEFAULT_WING_DEFINITIONS.map((def) => def.code),
 );
 
-/** One-shot style backfill after adding WingDefinition.rarity (default COMMON). */
+/** Keep canonical wing rarities aligned with the catalog progression. */
 export async function backfillCanonicalWingRaritiesIfNeeded(): Promise<void> {
   try {
     for (const def of DEFAULT_WING_DEFINITIONS) {
-      if (def.rarity === "COMMON") continue;
       await prisma.wingDefinition.updateMany({
-        where: { code: def.code, rarity: "COMMON" },
+        where: {
+          code: def.code,
+          NOT: { rarity: def.rarity },
+        },
         data: { rarity: def.rarity },
       });
     }

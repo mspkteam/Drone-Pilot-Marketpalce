@@ -11,6 +11,7 @@ import {
   listPilotsForCertificateAssign,
 } from "@/lib/certificates/certificate";
 import { prisma } from "@/lib/db";
+import { backfillMissingMemberNumbers } from "@/lib/members/assign-member-number";
 import type {
   AdminCertificateEngineDataDto,
   AdminCertificateTemplateCardDto,
@@ -33,11 +34,11 @@ export async function ensureCanonicalCertificateTemplates(): Promise<void> {
         title: canon.title,
         description: canon.description,
         bodyTemplate: canon.bodyTemplate,
-        backgroundImageUrl: canon.backgroundImageUrl,
-        layoutKey: canon.layoutKey,
         autoRule: canon.autoRule,
         threshold: canon.threshold ?? null,
         isActive: canon.isActive,
+        // Preserve admin artwork + placement. Overwriting these on every page
+        // load wiped uploaded certificates and saved overlays after reload.
       },
       create: {
         name: canon.name,
@@ -57,6 +58,11 @@ export async function ensureCanonicalCertificateTemplates(): Promise<void> {
 
 export async function getAdminCertificateEngineData(): Promise<AdminCertificateEngineDataDto> {
   await ensureCanonicalCertificateTemplates();
+  try {
+    await backfillMissingMemberNumbers();
+  } catch {
+    /* non-fatal — column may not exist until migrate */
+  }
 
   const [dbTemplates, certificates, pilots] = await Promise.all([
     listCertificateTemplates(),

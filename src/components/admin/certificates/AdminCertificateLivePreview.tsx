@@ -27,8 +27,8 @@ export function AdminCertificateLivePreview({
           }
           gradeOrTitle={template.previewGrade}
           memberName="Jonathan Doe"
-          memberNumber="29083"
-          certificateNumber="DPM-2026-000075"
+          memberNumber="001000"
+          certificateNumber="DPM-2026-000001"
           issuedAt={new Date("2026-01-01")}
         />
       </div>

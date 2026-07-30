@@ -8,6 +8,7 @@ import {
   migrateLegacyFontRole,
   type CertificateFontKey,
 } from "@/lib/certificates/fonts";
+import { formatMemberNumber, looksLikeMemberNumber } from "@/lib/members/member-number";
 
 export type CertificateOverlayField =
   | "pilotName"
@@ -73,31 +74,24 @@ const WINGS_AWARD_LAYOUT: Omit<CertificateLayout, "key"> = {
       align: "center",
     },
     {
+      // Digits on the “RAS MEMBER NUMBER & AWARD DATE” blank (after #)
       field: "memberNumber",
-      x: 78,
-      y: 86,
-      maxWidth: 12,
+      x: 72,
+      y: 85.5,
+      maxWidth: 24,
       fontSize: 14,
       font: "arial",
       align: "left",
     },
     {
-      field: "awardDateShort",
-      x: 90,
-      y: 86,
-      maxWidth: 12,
-      fontSize: 14,
-      font: "arial",
-      align: "left",
-    },
-    {
+      // Digits only over sample after printed “CERTIFICATE NO.”
       field: "certificateNumber",
-      x: 88,
-      y: 94,
-      maxWidth: 22,
+      x: 86.5,
+      y: 96,
+      maxWidth: 12,
       fontSize: 12,
       font: "engravers",
-      align: "right",
+      align: "left",
       uppercase: true,
     },
   ],
@@ -131,10 +125,11 @@ export const CERTIFICATE_LAYOUTS: Record<string, CertificateLayout> = {
       },
       {
         field: "certificateNumber",
-        x: 18,
-        y: 92,
-        maxWidth: 40,
-        fontSize: 16,
+        // Digits immediately after printed “CERTIFICATE NUMBER:” (label ends ~30.7%)
+        x: 31.8,
+        y: 92.6,
+        maxWidth: 28,
+        fontSize: 15,
         font: "engravers",
         align: "left",
         uppercase: true,
@@ -167,10 +162,11 @@ export const CERTIFICATE_LAYOUTS: Record<string, CertificateLayout> = {
       },
       {
         field: "certificateNumber",
-        x: 22,
-        y: 88,
-        maxWidth: 35,
-        fontSize: 16,
+        // Digits immediately after printed “TCCN [AUTOMATED]:” (label ends ~32%)
+        x: 34,
+        y: 86.2,
+        maxWidth: 28,
+        fontSize: 15,
         font: "arial",
         align: "left",
       },
@@ -356,12 +352,42 @@ export function parseOverlayPositionsJson(
       if (rec.weight === "bold" || rec.weight === "normal") {
         override.weight = rec.weight;
       }
-      out.push(override);
+      out.push(migrateStaleCertificateNumberOverride(override));
     }
     return out.length ? out : null;
   } catch {
     return null;
   }
+}
+
+/** Nudge known outdated default cert-# placements to sit after printed labels. */
+function migrateStaleCertificateNumberOverride(
+  override: OverlayFieldOverride,
+): OverlayFieldOverride {
+  if (override.field !== "certificateNumber") return override;
+  const stale: Array<{
+    x: number;
+    y: number;
+    next: Pick<OverlayFieldOverride, "x" | "y" | "align">;
+  }> = [
+    { x: 30, y: 88, next: { x: 34, y: 86.2, align: "left" } },
+    { x: 32, y: 92, next: { x: 31.8, y: 92.6, align: "left" } },
+    { x: 84, y: 92.5, next: { x: 86.5, y: 96, align: "left" } },
+  ];
+  for (const entry of stale) {
+    if (
+      Math.abs(override.x - entry.x) < 0.35 &&
+      Math.abs(override.y - entry.y) < 0.35
+    ) {
+      return {
+        ...override,
+        x: entry.next.x,
+        y: entry.next.y,
+        align: entry.next.align ?? override.align,
+      };
+    }
+  }
+  return override;
 }
 
 export function sanitizeOverlayOverrides(
@@ -606,17 +632,21 @@ export function resolveOverlayText(
     case "gradeOrTitle":
       return values.gradeOrTitle?.trim() || "[GRADE]";
     case "certificateNumber": {
-      // Background artwork already prints “CERTIFICATE NO.” — overlay is digits only.
-      if (!values.certificateNumber) return "000075";
-      const short =
-        values.certificateNumber.replace(/^DPM-\d+-/, "").replace(/^0+/, "") ||
-        values.certificateNumber;
-      return short;
+      // Background artwork already prints the label — overlay is digits only.
+      if (!values.certificateNumber) return "000001";
+      const digits = values.certificateNumber.replace(/\D/g, "");
+      if (!digits) return "000001";
+      return digits.slice(-6).padStart(6, "0");
     }
     case "memberNumber": {
-      const num = values.memberNumber?.trim();
-      if (num) return num.startsWith("#") ? num : `# ${num}`;
-      return "#";
+      // Wings forms: one blank for “RAS MEMBER NUMBER & AWARD DATE”
+      // Never print names/licenses — digits only (6-digit RAS member #).
+      const raw = values.memberNumber?.trim().replace(/^#\s*/, "") ?? "";
+      const num = looksLikeMemberNumber(raw) ? formatMemberNumber(raw) : "";
+      const date = formatShortAwardDate(issued);
+      if (num && date) return `${num}  ${date}`;
+      if (num) return num;
+      return date || "001000";
     }
     case "issuedAt":
       return issued

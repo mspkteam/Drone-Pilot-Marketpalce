@@ -75,7 +75,7 @@ Example: A-4 fee paid $89.99 → A-6 fee $129.99 → charge **$40.00** only.
 | A-5 | First Officer | 2 years |
 | A-6 | Captain | 3 years |
 
-### Honorary / leadership (later)
+### Honorary / leadership (later — Milestone 3+)
 
 | Code | Title |
 |------|-------|
@@ -85,6 +85,13 @@ Example: A-4 fee paid $89.99 → A-6 fee $129.99 → charge **$40.00** only.
 | A-10 | Commodore |
 
 Invitation/honorary advancement — **not in current build scope**.
+
+**To enable A-7–A-10 later we need:**
+1. `SubscriptionPlan` rows (or honorary flag) for A-7–A-10
+2. Admin “Set grade” unlock for invitation-only assignment (no self-serve Fast Forward)
+3. Certificate templates / promotion art for honorary ranks (if client provides)
+4. Visibility / marketplace rule confirmation (usually same as A-6 or restricted)
+5. Captain’s Club vs honorary list UX (separate or extended)
 
 ---
 

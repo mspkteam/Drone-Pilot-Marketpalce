@@ -262,14 +262,19 @@ function renderPngCertificatePdf(
 
       applyPdfFont(doc, field.font, field.weight);
 
-      doc
-        .fontSize(fontSize)
-        .fillColor("#111111")
-        .text(text, x, yCenter - fontSize / 2, {
-          width: maxW,
-          align,
-          lineBreak: false,
-        });
+      doc.fontSize(fontSize).fillColor("#111111");
+
+      const textOpts: PDFKit.Mixins.TextOptions = {
+        width: maxW,
+        align,
+        lineBreak: false,
+        ...(field.letterSpacing
+          ? { characterSpacing: field.letterSpacing }
+          : {}),
+      };
+      // Match CSS translateY(-50%): center the text block on the saved Y%.
+      const textHeight = doc.heightOfString(text, textOpts);
+      doc.text(text, x, yCenter - textHeight / 2, textOpts);
     }
 
     doc.end();

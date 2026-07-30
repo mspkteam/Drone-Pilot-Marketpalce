@@ -15,6 +15,8 @@ model User {
   passwordHash    String
   role            String
   status          String         @default("active")
+  /// Platform RAS member number (6 digits, starts at 001000). Pilots and clients.
+  memberNumber    String?        @unique
   /// Admin note when account is held for review / ToS (not shown to the user).
   moderationNote  String?
   emailVerifiedAt DateTime?

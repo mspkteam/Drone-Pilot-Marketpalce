@@ -57,6 +57,15 @@ async function main() {
       },
     });
 
+    if (
+      (user.role === "pilot" || user.role === "client") &&
+      !record.memberNumber
+    ) {
+      const { assignMemberNumberToUser } = await import(
+        "@/lib/members/assign-member-number"
+      );
+      await assignMemberNumberToUser(record.id);
+    }
     if (user.role === "moderator" || user.role === "admin") {
       // Demo staff + new records get full operational access.
       // "limited" is only kept when a Super Admin already set it on a non-demo account.
@@ -216,6 +225,12 @@ async function main() {
         status: "active",
       },
     });
+    if (!record.memberNumber) {
+      const { assignMemberNumberToUser } = await import(
+        "@/lib/members/assign-member-number"
+      );
+      await assignMemberNumberToUser(record.id);
+    }
     const now = new Date();
     const profile = await prisma.pilotProfile.upsert({
       where: { userId: record.id },

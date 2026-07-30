@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   CERTIFICATE_FONT_CSS,
   type CertificateFontKey,
@@ -115,6 +115,50 @@ export function CertificateCanvas({
     [baseLayout, onOverlayPositionsChange],
   );
 
+  // Arrow-key nudge for the selected field (Shift = fine step).
+  useEffect(() => {
+    if (!editable || !selectedField || !baseLayout || !onOverlayPositionsChange) {
+      return;
+    }
+
+    function onKeyDown(event: KeyboardEvent) {
+      if (
+        event.target instanceof HTMLElement &&
+        (event.target.tagName === "INPUT" ||
+          event.target.tagName === "TEXTAREA" ||
+          event.target.tagName === "SELECT" ||
+          event.target.isContentEditable)
+      ) {
+        return;
+      }
+
+      const step = event.shiftKey ? 0.2 : 1;
+      let dx = 0;
+      let dy = 0;
+      if (event.key === "ArrowLeft") dx = -step;
+      else if (event.key === "ArrowRight") dx = step;
+      else if (event.key === "ArrowUp") dy = -step;
+      else if (event.key === "ArrowDown") dy = step;
+      else return;
+
+      event.preventDefault();
+      const current =
+        overridesRef.current?.find((o) => o.field === selectedField) ??
+        baseLayout!.fields.find((f) => f.field === selectedField);
+      if (!current) return;
+      updateFieldPosition(selectedField!, current.x + dx, current.y + dy);
+    }
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [
+    editable,
+    selectedField,
+    baseLayout,
+    onOverlayPositionsChange,
+    updateFieldPosition,
+  ]);
+
   function handlePointerDown(
     event: React.PointerEvent<HTMLSpanElement>,
     field: CertificateOverlayField,
@@ -162,7 +206,7 @@ export function CertificateCanvas({
   const values: CertificateOverlayValues = {
     pilotName: memberName,
     gradeOrTitle: gradeOrTitle ?? undefined,
-    certificateNumber: certificateNumber ?? "DPM-2026-000075",
+    certificateNumber: certificateNumber ?? "DPM-2026-000001",
     memberNumber: memberNumber ?? undefined,
     issuedAt: issued,
   };

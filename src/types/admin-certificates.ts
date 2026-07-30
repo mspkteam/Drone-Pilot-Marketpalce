@@ -32,6 +32,7 @@ export type AdminCertificateEngineDataDto = {
     displayName: string;
     email: string;
     licenseNumber: string;
+    memberNumber: string | null;
   }>;
   usingMockTemplates: boolean;
 };

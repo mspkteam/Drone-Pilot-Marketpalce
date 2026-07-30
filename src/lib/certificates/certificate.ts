@@ -23,6 +23,11 @@ import {
 } from "@/lib/certificates/manual-issue";
 import { applyTemplate, renderCertificatePdf } from "@/lib/certificates/pdf";
 import { writeCertificatePdf } from "@/lib/certificates/storage";
+import { assignMemberNumberToUser } from "@/lib/members/assign-member-number";
+import {
+  formatMemberNumber,
+  looksLikeMemberNumber,
+} from "@/lib/members/member-number";
 import { evaluateAndAssignWings } from "@/lib/wings/wings";
 import type {
   AdminPilotCertificateDto,
@@ -256,22 +261,34 @@ export async function listCertificatesForAdmin(): Promise<AdminPilotCertificateD
     include: {
       template: { select: { name: true } },
       pilotProfile: {
-        include: { user: { select: { email: true } } },
+        include: { user: { select: { email: true, memberNumber: true } } },
       },
     },
     orderBy: { issuedAt: "desc" },
   });
 
-  return rows.map((c) => ({
-    ...toPilotCertDto(c),
-    pilotEmail: c.pilotProfile.user.email,
-  }));
+  return rows.map((c) => {
+    const platformMember = c.pilotProfile.user.memberNumber
+      ? formatMemberNumber(c.pilotProfile.user.memberNumber)
+      : null;
+    const stored = c.licenseNumber?.trim() || null;
+    const memberDisplay = looksLikeMemberNumber(stored)
+      ? formatMemberNumber(stored!)
+      : platformMember;
+
+    return {
+      ...toPilotCertDto(c),
+      // Always surface a real RAS member # in the audit trail (never a name).
+      licenseNumber: memberDisplay,
+      pilotEmail: c.pilotProfile.user.email,
+    };
+  });
 }
 
 export async function listPilotsForCertificateAssign() {
   const pilots = await prisma.pilotProfile.findMany({
     where: { status: { in: ["approved", "pending_review"] } },
-    include: { user: { select: { email: true } } },
+    include: { user: { select: { email: true, memberNumber: true } } },
     orderBy: { displayName: "asc" },
   });
   return pilots.map((p) => ({
@@ -279,6 +296,9 @@ export async function listPilotsForCertificateAssign() {
     displayName: p.displayName,
     email: p.user.email,
     licenseNumber: p.licenseNumber,
+    memberNumber: p.user.memberNumber
+      ? formatMemberNumber(p.user.memberNumber)
+      : null,
   }));
 }
 
@@ -430,7 +450,9 @@ export async function issueCertificateToPilot(
 > {
   const pilot = await prisma.pilotProfile.findUnique({
     where: { id: pilotProfileId },
-    include: { user: { select: { id: true, email: true } } },
+    include: {
+      user: { select: { id: true, email: true, memberNumber: true } },
+    },
   });
   if (!pilot) {
     return { ok: false, error: "Pilot not found.", status: 404 };
@@ -457,7 +479,7 @@ export async function issueCertificateToPilot(
 
   const memberNumberOverride =
     typeof options.memberNumber === "string" && options.memberNumber.trim()
-      ? options.memberNumber.trim()
+      ? options.memberNumber.trim().replace(/^#\s*/, "")
       : null;
 
   if (
@@ -474,8 +496,22 @@ export async function issueCertificateToPilot(
     };
   }
 
+  let platformMemberNumber = pilot.user.memberNumber
+    ? formatMemberNumber(pilot.user.memberNumber)
+    : null;
+  if (!platformMemberNumber) {
+    platformMemberNumber = await assignMemberNumberToUser(pilot.user.id);
+  }
+
+  const overrideIsNumeric =
+    memberNumberOverride != null && looksLikeMemberNumber(memberNumberOverride);
+
   const manualFields = getManualIssueFieldsFromTemplate(template);
-  if (manualFields.includes("memberNumber") && !memberNumberOverride && !pilot.licenseNumber?.trim()) {
+  if (
+    manualFields.includes("memberNumber") &&
+    !overrideIsNumeric &&
+    !platformMemberNumber
+  ) {
     return {
       ok: false,
       error: "Member number is required for this certificate template.",
@@ -484,14 +520,23 @@ export async function issueCertificateToPilot(
   }
 
   const certificateNumber = await generateCertificateNumber();
-  const memberNumber =
-    memberNumberOverride ?? (pilot.licenseNumber?.trim() || undefined);
+  const memberNumber = overrideIsNumeric
+    ? formatMemberNumber(memberNumberOverride!)
+    : platformMemberNumber;
+
+  if (!memberNumber) {
+    return {
+      ok: false,
+      error: "Could not resolve a platform member number for this pilot.",
+      status: 400,
+    };
+  }
 
   let pdfBuffer: Buffer;
   try {
     const body = applyTemplate(template.bodyTemplate, {
       pilotName: pilot.displayName,
-      licenseNumber: memberNumber ?? pilot.licenseNumber,
+      licenseNumber: memberNumber,
       certificateNumber,
       issueDate: issuedAt.toLocaleDateString("en-US"),
       templateName: template.name,
@@ -527,7 +572,8 @@ export async function issueCertificateToPilot(
       pilotProfileId,
       templateId,
       pilotDisplayName: pilot.displayName,
-      licenseNumber: memberNumber ?? pilot.licenseNumber,
+      // Store RAS member # only — never free-text license / name.
+      licenseNumber: memberNumber,
       awardGrade: grade,
       issuedAt,
       issuedByUserId,
@@ -638,17 +684,47 @@ export async function getCertificateWithTemplate(
   });
 }
 
+async function resolveStoredCertificateMemberNumber(
+  cert: CertificateWithTemplate,
+): Promise<string | null> {
+  if (looksLikeMemberNumber(cert.licenseNumber)) {
+    return formatMemberNumber(cert.licenseNumber!);
+  }
+
+  const pilot = await prisma.pilotProfile.findUnique({
+    where: { id: cert.pilotProfileId },
+    select: { user: { select: { id: true, memberNumber: true } } },
+  });
+  if (!pilot) return null;
+
+  let member = pilot.user.memberNumber
+    ? formatMemberNumber(pilot.user.memberNumber)
+    : null;
+  if (!member) {
+    member = await assignMemberNumberToUser(pilot.user.id);
+  }
+
+  if (member && cert.licenseNumber !== member) {
+    await prisma.pilotCertificate.update({
+      where: { id: cert.id },
+      data: { licenseNumber: member },
+    });
+  }
+
+  return member;
+}
+
 async function renderStoredCertificatePdf(
   cert: CertificateWithTemplate,
 ): Promise<Buffer> {
   const template = cert.template;
   const issuedAt =
     cert.issuedAt instanceof Date ? cert.issuedAt : new Date(cert.issuedAt);
-  const memberNumber = cert.licenseNumber?.trim() || undefined;
+  const memberNumber = await resolveStoredCertificateMemberNumber(cert);
   const grade = cert.awardGrade;
   const body = applyTemplate(template.bodyTemplate, {
     pilotName: cert.pilotDisplayName,
-    licenseNumber: memberNumber ?? cert.licenseNumber ?? "",
+    licenseNumber: memberNumber ?? "",
     certificateNumber: cert.certificateNumber,
     issueDate: issuedAt.toLocaleDateString("en-US"),
     templateName: template.name,
@@ -664,7 +740,7 @@ async function renderStoredCertificatePdf(
     backgroundImageUrl: template.backgroundImageUrl,
     layoutKey: template.layoutKey ?? template.slug,
     gradeOrTitle: grade,
-    memberNumber,
+    memberNumber: memberNumber ?? undefined,
     overlayPositions: parseOverlayPositionsJson(template.overlayPositionsJson),
   });
 }

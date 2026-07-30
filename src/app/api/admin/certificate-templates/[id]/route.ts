@@ -36,10 +36,13 @@ export async function PATCH(request: Request, context: RouteContext) {
       isActive: body.isActive as boolean | undefined,
       backgroundImageUrl: body.backgroundImageUrl as string | null | undefined,
       layoutKey: body.layoutKey as string | null | undefined,
-      overlayPositions: (body.overlayPositions as
-        | import("@/lib/certificates/layouts").OverlayFieldOverride[]
-        | null
-        | undefined) ?? null,
+      ...(Object.prototype.hasOwnProperty.call(body, "overlayPositions")
+        ? {
+            overlayPositions: (body.overlayPositions as
+              | import("@/lib/certificates/layouts").OverlayFieldOverride[]
+              | null) ?? null,
+          }
+        : {}),
       autoRule: body.autoRule as string | null | undefined,
       ruleParam: body.ruleParam as string | null | undefined,
       threshold: body.threshold as number | null | undefined,

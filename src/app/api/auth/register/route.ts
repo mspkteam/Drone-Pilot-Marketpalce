@@ -52,6 +52,13 @@ export async function POST(request: Request) {
       select: { id: true, email: true, role: true },
     });
 
+    if (role === "pilot" || role === "client") {
+      const { assignMemberNumberToUser } = await import(
+        "@/lib/members/assign-member-number"
+      );
+      await assignMemberNumberToUser(user.id);
+    }
+
     triggerWelcome(user.id, role);
 
     return NextResponse.json(

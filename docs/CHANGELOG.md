@@ -4,6 +4,36 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.28] — 2026-07-30
+
+### Added
+
+- Platform **RAS member numbers** on `User` (6 digits, starting at `001000`) for pilots and clients; assigned on register and backfilled for existing accounts
+- Certificate issue uses platform member number (not free-text license / name)
+
+### Changed
+
+- Replaced all six fillable certificate background PNGs with latest client artwork
+- Overlay defaults: certificate number digits aligned after printed labels; wings member line is `######  MM/DD/YY`
+- Issued certificates audit trail moved above Manual issue and always renders when engine data loads
+- Certificate studio is a single fullscreen placement workspace (upload + fields + details + canvas)
+- Default cert-number placements nudged after printed labels (recreational / promotion / wings); stale saved coords auto-migrated
+- Issued list UI strengthened (count badge, clearer rows); audit trail always shows RAS member # when available
+
+### Fixed
+
+- Certificate builder: saved overlay positions were wiped on every Certificates page load (canonical ensure no longer clears `overlayPositionsJson` / artwork)
+- Member overlay no longer prefixes `#` or falls back to lengthy license strings / names
+- Certificate number overlay uses zero-padded 6-digit sequence (label stays on artwork)
+- PDF download resolves platform member # (and repairs stored value) when an old issue saved a name/license
+- Issue flow refuses to store non-numeric member identifiers on `PilotCertificate.licenseNumber`
+
+### Changed
+
+- Certificate builder UX: step guide, field presets, nudge pad, quick align, A+/A− size, keyboard arrows, advanced numbers collapsed
+
+---
+
 ## [0.27.27] — 2026-07-29
 
 ### Added

@@ -27,6 +27,7 @@ export async function seedMembershipTiers(prisma: PrismaClient) {
     await prisma.subscriptionPlan.upsert({
       where: { slug: tier.slug },
       update: {
+        code: tier.code,
         name: tier.name,
         slug: tier.slug,
         priceYearly: tier.priceYearly,

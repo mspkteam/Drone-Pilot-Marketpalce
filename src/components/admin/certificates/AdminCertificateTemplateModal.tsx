@@ -150,18 +150,35 @@ export function AdminCertificateTemplateModal({
     setUploading(true);
     setUploadError(null);
     try {
-      const form = new FormData();
-      form.append("file", file);
-      form.append("name", name || file.name);
+      // JSON + base64 avoids Next.js 16 Turbopack treating multipart POSTs as
+      // Server Actions ("Server action not found" / false 404).
+      const bytes = new Uint8Array(await file.arrayBuffer());
+      let binary = "";
+      const chunk = 0x8000;
+      for (let i = 0; i < bytes.length; i += chunk) {
+        binary += String.fromCharCode(...bytes.subarray(i, i + chunk));
+      }
       const res = await fetch("/api/admin/certificate-templates/upload", {
         method: "POST",
-        body: form,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mimeType: file.type || "image/png",
+          dataBase64: btoa(binary),
+          name: name || file.name,
+        }),
       });
-      const json = (await res.json()) as {
-        url?: string;
-        layoutKey?: string;
-        error?: string;
-      };
+      const text = await res.text();
+      let json: { url?: string; layoutKey?: string; error?: string } = {};
+      try {
+        json = JSON.parse(text) as typeof json;
+      } catch {
+        setUploadError(
+          res.ok
+            ? "Upload failed."
+            : "Upload failed (server returned an unexpected response). Refresh and try again.",
+        );
+        return;
+      }
       if (!res.ok || !json.url) {
         setUploadError(json.error ?? "Upload failed.");
         return;

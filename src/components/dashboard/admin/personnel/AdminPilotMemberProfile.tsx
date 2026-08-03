@@ -8,7 +8,7 @@ import { PilotStatusBadge } from "@/components/pilot/PilotStatusBadge";
 import { isPublicPilotProfileEnabled } from "@/lib/public-access";
 import type { AdminMemberDetailDto } from "@/lib/admin/member-detail";
 import { HONORARY_GRADE_OPTIONS } from "@/lib/admin/pilot-grades";
-import { MEMBERSHIP_TIER_DEFINITIONS } from "@/lib/membership/tiers";
+import { LIVE_MEMBERSHIP_TIER_DEFINITIONS } from "@/lib/membership/tiers";
 import { TIER_CODE_TO_PRICING_PLAN_CODE } from "@/lib/membership/pricing-tier-codes";
 import type { PilotProfileStatus } from "@/types/pilot";
 
@@ -19,6 +19,7 @@ type AdminPilotMemberProfileProps = {
   pilot: PilotDetail;
   canEdit: boolean;
   canAssignBadges?: boolean;
+  isSuperAdmin?: boolean;
 };
 
 function formatDate(iso: string | null | undefined): string {
@@ -51,6 +52,7 @@ export function AdminPilotMemberProfile({
   pilot,
   canEdit,
   canAssignBadges = false,
+  isSuperAdmin = false,
 }: AdminPilotMemberProfileProps) {
   const router = useRouter();
   const [editing, setEditing] = useState(false);
@@ -671,7 +673,10 @@ export function AdminPilotMemberProfile({
             >
               <p className="admin-personnel-edit-hint">
                 Manually promote or set this pilot&apos;s grade. A-1 through A-6
-                are live; A-7–A-10 are invitation-only and not assignable yet.
+                are available to staff with edit access.
+                {isSuperAdmin
+                  ? " A-7–A-10 are invitation-only and may be assigned by Super Admin."
+                  : " A-7–A-10 are invitation-only (Super Admin only)."}
               </p>
               <div className="admin-pilot-wing-assign-fields">
                 <label className="admin-personnel-edit-field">
@@ -682,7 +687,7 @@ export function AdminPilotMemberProfile({
                     disabled={promoting}
                     required
                   >
-                    {MEMBERSHIP_TIER_DEFINITIONS.map((tier) => {
+                    {LIVE_MEMBERSHIP_TIER_DEFINITIONS.map((tier) => {
                       const pricing =
                         TIER_CODE_TO_PRICING_PLAN_CODE[tier.code] ?? tier.code;
                       return (
@@ -694,10 +699,11 @@ export function AdminPilotMemberProfile({
                     {HONORARY_GRADE_OPTIONS.map((grade) => (
                       <option
                         key={grade.pricingCode}
-                        value={grade.pricingCode}
-                        disabled
+                        value={grade.tierCode}
+                        disabled={!isSuperAdmin}
                       >
-                        {grade.pricingCode} — {grade.title} (invitation only)
+                        {grade.pricingCode} — {grade.title}
+                        {isSuperAdmin ? "" : " (Super Admin only)"}
                       </option>
                     ))}
                   </select>

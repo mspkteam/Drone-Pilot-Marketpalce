@@ -1,4 +1,9 @@
 import { NextResponse } from "next/server";
+import {
+  canAssignGradeCode,
+  isHonoraryGradeCode,
+  resolveAnyAdminGradeTierCode,
+} from "@/lib/admin/pilot-grades";
 import { adminSetPilotGrade } from "@/lib/admin/pilots";
 import { requireAdminPermission } from "@/lib/auth/require-admin-permission";
 
@@ -20,12 +25,31 @@ export async function POST(request: Request, context: RouteContext) {
     return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
   }
 
-  const tierCode =
+  const tierCodeRaw =
     typeof body.tierCode === "string" ? body.tierCode.trim() : "";
+  if (!tierCodeRaw) {
+    return NextResponse.json(
+      { error: "tierCode is required (A-1 … A-10)." },
+      { status: 400 },
+    );
+  }
+
+  const tierCode = resolveAnyAdminGradeTierCode(tierCodeRaw);
   if (!tierCode) {
     return NextResponse.json(
-      { error: "tierCode is required (A-1 … A-6)." },
+      { error: "Invalid grade. Choose A-1 through A-10." },
       { status: 400 },
+    );
+  }
+
+  if (!canAssignGradeCode(authResult.role, tierCode)) {
+    return NextResponse.json(
+      {
+        error: isHonoraryGradeCode(tierCode)
+          ? "A-7–A-10 invitation grades can only be assigned by a Super Admin."
+          : "You do not have permission to assign this grade.",
+      },
+      { status: 403 },
     );
   }
 

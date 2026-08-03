@@ -12,6 +12,7 @@ type AdminMemberDetailViewProps = {
   member: AdminMemberDetailDto;
   canEdit: boolean;
   canAssignBadges?: boolean;
+  isSuperAdmin?: boolean;
 };
 
 function formatDate(iso: string | null | undefined): string {
@@ -27,6 +28,7 @@ export function AdminMemberDetailView({
   member,
   canEdit,
   canAssignBadges = false,
+  isSuperAdmin = false,
 }: AdminMemberDetailViewProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -111,6 +113,7 @@ export function AdminMemberDetailView({
           pilot={pilotDetail}
           canEdit={canEdit}
           canAssignBadges={canAssignBadges}
+          isSuperAdmin={isSuperAdmin}
         />
       ) : null}
 

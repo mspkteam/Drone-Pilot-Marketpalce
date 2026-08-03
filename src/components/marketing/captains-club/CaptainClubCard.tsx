@@ -39,7 +39,9 @@ export function CaptainClubCard({ captain }: CaptainClubCardProps) {
       <div className="captains-club-card-badges">
         {captain.badges.map((badge) => (
           <span key={badge} className="captains-club-badge">
-            {getCaptainBadgeLabel(badge)}
+            {badge === "captain"
+              ? captain.tierLabel
+              : getCaptainBadgeLabel(badge)}
           </span>
         ))}
       </div>

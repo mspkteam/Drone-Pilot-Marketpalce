@@ -13,6 +13,8 @@ function sampleCaptain(overrides: Partial<CaptainClubPilot> = {}): CaptainClubPi
     id: "captain-1",
     initials: "AM",
     name: "Alex Morgan",
+    lastName: "Morgan",
+    memberNumber: "001000",
     location: "Denver, CO",
     regionGroup: "North America",
     rating: 4.9,
@@ -21,6 +23,9 @@ function sampleCaptain(overrides: Partial<CaptainClubPilot> = {}): CaptainClubPi
     bio: "Corporate SAR captain.",
     badges: ["captain", "verified", "certified", "insured"],
     tierLabel: "A-6 CAPTAIN",
+    tierCode: "A6_CAPTAIN",
+    wingTypeLabel: "",
+    wingSortKey: "~",
     serviceIds: ["inspection"],
     specialtyLabels: ["Inspection"],
     profileHref: "/pilots/captain-1",
@@ -55,17 +60,37 @@ describe("captains club directory", () => {
     assert.equal(filterCaptainsClub(captains, "", null, "inspection").length, 1);
   });
 
-  it("sorts by rating and name", () => {
+  it("sorts by rating, name, member number, and last name", () => {
     const captains = [
-      sampleCaptain({ id: "a", name: "Zed", rating: 4.2, reviewCount: 1 }),
-      sampleCaptain({ id: "b", name: "Amy", rating: 4.9, reviewCount: 3 }),
+      sampleCaptain({
+        id: "a",
+        name: "Zed Young",
+        lastName: "Young",
+        memberNumber: "001200",
+        rating: 4.2,
+        reviewCount: 1,
+      }),
+      sampleCaptain({
+        id: "b",
+        name: "Amy Adams",
+        lastName: "Adams",
+        memberNumber: "001050",
+        rating: 4.9,
+        reviewCount: 3,
+      }),
     ];
 
     const byRating = sortCaptainsClub(captains, "highest_rated");
     assert.equal(byRating[0]?.id, "b");
 
     const byName = sortCaptainsClub(captains, "name_asc");
-    assert.equal(byName[0]?.name, "Amy");
+    assert.equal(byName[0]?.name, "Amy Adams");
+
+    const byMember = sortCaptainsClub(captains, "member_number");
+    assert.equal(byMember[0]?.id, "b");
+
+    const byLast = sortCaptainsClub(captains, "last_name_asc");
+    assert.equal(byLast[0]?.lastName, "Adams");
   });
 
   it("builds live stats from captain rows", () => {

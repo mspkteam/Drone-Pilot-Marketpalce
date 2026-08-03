@@ -72,8 +72,12 @@ export function filterCaptainsClub(
 
     const searchable = [
       captain.name,
+      captain.lastName,
+      captain.memberNumber ?? "",
       captain.location,
       captain.bio ?? "",
+      captain.tierLabel,
+      captain.wingTypeLabel,
       ...captain.specialtyLabels,
     ]
       .join(" ")
@@ -95,6 +99,24 @@ export function sortCaptainsClub(
         return a.name.localeCompare(b.name);
       case "name_desc":
         return b.name.localeCompare(a.name);
+      case "last_name_asc": {
+        const byLast = a.lastName.localeCompare(b.lastName);
+        return byLast !== 0 ? byLast : a.name.localeCompare(b.name);
+      }
+      case "last_name_desc": {
+        const byLast = b.lastName.localeCompare(a.lastName);
+        return byLast !== 0 ? byLast : a.name.localeCompare(b.name);
+      }
+      case "member_number": {
+        const aNum = a.memberNumber ?? "999999";
+        const bNum = b.memberNumber ?? "999999";
+        const byMember = aNum.localeCompare(bNum);
+        return byMember !== 0 ? byMember : a.name.localeCompare(b.name);
+      }
+      case "wing_type": {
+        const byWing = a.wingSortKey.localeCompare(b.wingSortKey);
+        return byWing !== 0 ? byWing : a.name.localeCompare(b.name);
+      }
       case "most_reviews":
         return b.reviewCount - a.reviewCount;
       case "highest_rated":

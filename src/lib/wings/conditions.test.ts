@@ -33,6 +33,7 @@ describe("wing award conditions catalog", () => {
   it("ranks membership tiers A-1 through A-6", () => {
     assert.equal(membershipTierRank("A1_STUDENT"), 1);
     assert.equal(membershipTierRank("A6_CAPTAIN"), 6);
+    assert.equal(membershipTierRank("A10_COMMODORE"), 10);
     assert.ok(
       membershipTierRank("A4_SENIOR_FLIGHT_OFFICER") >
         membershipTierRank("A2_JUNIOR_FLIGHT_OFFICER"),

@@ -248,7 +248,12 @@ export async function getMemberDetailForAdmin(
     user.email;
 
   const roleLabel = pilot
-    ? tier?.code === "A5_FIRST_OFFICER" || tier?.code === "A6_CAPTAIN"
+    ? tier?.code === "A5_FIRST_OFFICER" ||
+        tier?.code === "A6_CAPTAIN" ||
+        tier?.code === "A7_SENIOR_CAPTAIN" ||
+        tier?.code === "A8_MASTER_CAPTAIN" ||
+        tier?.code === "A9_FLEET_CAPTAIN" ||
+        tier?.code === "A10_COMMODORE"
       ? "Elite Pilot"
       : tier?.instructorEligible
         ? "Squadron Lead"

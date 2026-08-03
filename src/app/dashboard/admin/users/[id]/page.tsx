@@ -47,6 +47,7 @@ export default async function AdminMemberDetailPage({ params }: PageProps) {
     "assign",
     permissionConfig,
   );
+  const isSuperAdmin = role === "super_admin";
 
   return (
     <DashboardPageLayout className="admin-personnel-shell">
@@ -54,6 +55,7 @@ export default async function AdminMemberDetailPage({ params }: PageProps) {
         member={member}
         canEdit={canEdit}
         canAssignBadges={canAssignBadges}
+        isSuperAdmin={isSuperAdmin}
       />
     </DashboardPageLayout>
   );

@@ -10,6 +10,11 @@ const TIER_CODE_TO_RANK_KEY: Record<string, RankAssetKey> = {
   A4_SENIOR_FLIGHT_OFFICER: "a4",
   A5_FIRST_OFFICER: "a5",
   A6_CAPTAIN: "a6",
+  // Honorary grades reuse Captain rank art until dedicated assets exist.
+  A7_SENIOR_CAPTAIN: "a6",
+  A8_MASTER_CAPTAIN: "a6",
+  A9_FLEET_CAPTAIN: "a6",
+  A10_COMMODORE: "a6",
 };
 
 export function getRankKeyForTierCode(tierCode: string): RankAssetKey | null {

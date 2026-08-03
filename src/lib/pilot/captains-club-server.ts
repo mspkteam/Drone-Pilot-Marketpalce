@@ -2,6 +2,11 @@ import "server-only";
 
 import { prisma } from "@/lib/db";
 import { CAPTAINS_CLUB_ROUTES } from "@/lib/marketing/captains-club-content";
+import { formatMemberNumber } from "@/lib/members/member-number";
+import {
+  CAPTAINS_CLUB_TIER_CODES,
+} from "@/lib/membership/tiers";
+import { TIER_CODE_TO_PRICING_PLAN_CODE } from "@/lib/membership/pricing-tier-codes";
 import {
   buildCaptainClubStats,
   regionGroupForCountry,
@@ -12,9 +17,9 @@ import { averageRating } from "@/lib/reviews/review";
 import { parseServicesOffered } from "@/lib/pilot/profile";
 import { PILOT_SERVICE_OPTIONS, type PilotServiceId } from "@/types/pilot";
 import type { CaptainClubPilot, CaptainClubStats } from "@/types/captains-club";
+import { BADGE_RARITY_RANK } from "@/types/admin-badges";
 
 const ACTIVE_SUBSCRIPTION_STATUSES = ["active", "trialing"] as const;
-const CAPTAIN_TIER_CODE = "A6_CAPTAIN";
 
 const SERVICE_LABELS = Object.fromEntries(
   PILOT_SERVICE_OPTIONS.map((option) => [option.id, option.label]),
@@ -25,6 +30,12 @@ function initialsFromName(name: string): string {
   if (parts.length === 0) return "P";
   if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
   return `${parts[0][0] ?? ""}${parts[1][0] ?? ""}`.toUpperCase();
+}
+
+function lastNameFromDisplayName(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "";
+  return parts[parts.length - 1] ?? "";
 }
 
 function formatLocation(
@@ -53,6 +64,42 @@ function buildBadges(input: {
   return badges;
 }
 
+function tierLabelForCode(tierCode: string, planName: string): string {
+  const pricing = TIER_CODE_TO_PRICING_PLAN_CODE[tierCode];
+  if (!pricing) return planName.toUpperCase();
+  const title = planName.replace(/^A-\d+\s+/i, "").trim();
+  return `${pricing} ${title}`.toUpperCase();
+}
+
+function pickHighestRarityWing(
+  wings: Array<{ title: string; rarity: string }>,
+): { wingTypeLabel: string; wingSortKey: string } {
+  if (wings.length === 0) {
+    return { wingTypeLabel: "", wingSortKey: "~" };
+  }
+
+  let best = wings[0]!;
+  let bestRank = BADGE_RARITY_RANK[best.rarity as keyof typeof BADGE_RARITY_RANK] ?? -1;
+  for (const wing of wings.slice(1)) {
+    const rank =
+      BADGE_RARITY_RANK[wing.rarity as keyof typeof BADGE_RARITY_RANK] ?? -1;
+    if (
+      rank > bestRank ||
+      (rank === bestRank && wing.title.localeCompare(best.title) < 0)
+    ) {
+      best = wing;
+      bestRank = rank;
+    }
+  }
+
+  // Higher rarity first when sorting ascending on wingSortKey → use inverted rank.
+  const inverted = String(999 - bestRank).padStart(3, "0");
+  return {
+    wingTypeLabel: best.title,
+    wingSortKey: `${inverted}:${best.title.toLowerCase()}`,
+  };
+}
+
 export async function listCaptainsClubPilots(): Promise<CaptainClubPilot[]> {
   const pilots = await prisma.pilotProfile.findMany({
     where: {
@@ -61,16 +108,30 @@ export async function listCaptainsClubPilots(): Promise<CaptainClubPilot[]> {
       subscriptions: {
         some: {
           status: { in: [...ACTIVE_SUBSCRIPTION_STATUSES] },
-          subscriptionPlan: { code: CAPTAIN_TIER_CODE },
+          subscriptionPlan: {
+            code: { in: [...CAPTAINS_CLUB_TIER_CODES] },
+          },
         },
       },
     },
     include: {
+      user: { select: { memberNumber: true } },
       verifications: {
         where: { status: "approved" },
         select: { type: true },
       },
       certificates: { select: { id: true }, take: 1 },
+      wings: {
+        include: {
+          wingDefinition: { select: { title: true, rarity: true } },
+        },
+      },
+      subscriptions: {
+        where: { status: { in: [...ACTIVE_SUBSCRIPTION_STATUSES] } },
+        include: { subscriptionPlan: { select: { code: true, name: true } } },
+        orderBy: { createdAt: "desc" },
+        take: 5,
+      },
     },
     orderBy: { displayName: "asc" },
   });
@@ -103,10 +164,31 @@ export async function listCaptainsClubPilots(): Promise<CaptainClubPilot[]> {
     const ratings = reviewMap.get(pilot.id) ?? [];
     const average = averageRating(ratings.map((rating) => ({ rating })));
 
+    const clubSub = pilot.subscriptions.find((sub) => {
+      const code = sub.subscriptionPlan.code;
+      return (
+        typeof code === "string" &&
+        (CAPTAINS_CLUB_TIER_CODES as readonly string[]).includes(code)
+      );
+    });
+    const tierCode = clubSub?.subscriptionPlan.code ?? "A6_CAPTAIN";
+    const planName = clubSub?.subscriptionPlan.name ?? "A-6 Captain";
+
+    const { wingTypeLabel, wingSortKey } = pickHighestRarityWing(
+      pilot.wings.map((entry) => ({
+        title: entry.wingDefinition.title,
+        rarity: entry.wingDefinition.rarity,
+      })),
+    );
+
     return {
       id: pilot.id,
       initials: initialsFromName(pilot.displayName),
       name: pilot.displayName,
+      lastName: lastNameFromDisplayName(pilot.displayName),
+      memberNumber: pilot.user.memberNumber
+        ? formatMemberNumber(pilot.user.memberNumber)
+        : null,
       location: formatLocation(
         pilot.locationCity,
         pilot.locationRegion,
@@ -122,7 +204,10 @@ export async function listCaptainsClubPilots(): Promise<CaptainClubPilot[]> {
         hasApprovedInsurance: approvedTypes.has("insurance"),
         hasCertificate: pilot.certificates.length > 0,
       }),
-      tierLabel: "A-6 CAPTAIN",
+      tierLabel: tierLabelForCode(tierCode, planName),
+      tierCode,
+      wingTypeLabel,
+      wingSortKey,
       serviceIds,
       specialtyLabels,
       profileHref: CAPTAINS_CLUB_ROUTES.pilotProfile(pilot.id),

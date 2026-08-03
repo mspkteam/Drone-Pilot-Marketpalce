@@ -4,6 +4,28 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.30] — 2026-08-03
+
+### Fixed
+
+- Certificate Studio image upload: send JSON/base64 instead of multipart FormData so Next.js 16 + Turbopack no longer returns a false “Server action not found” / Upload failed on create
+
+---
+
+## [0.27.29] — 2026-08-03
+
+### Added
+
+- Honorary grades **A-7–A-10** (Senior Captain → Commodore): seeded membership plans with A-6 marketplace visibility, **no fee**, excluded from Fast Forward
+- Super Admin–only assignment of A-7–A-10 from pilot profile grade picker
+- Captain’s Club includes A-6–A-10; new sorts: member number, last name A–Z/Z–A, wing type awarded
+
+### Changed
+
+- Documented client-confirmed A-7–A-10 rules in IMPLEMENTATION_CONTEXT
+
+---
+
 ## [0.27.28] — 2026-07-30
 
 ### Added

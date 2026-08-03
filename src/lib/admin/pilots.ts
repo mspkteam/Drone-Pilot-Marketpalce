@@ -1,7 +1,7 @@
 ﻿import { prisma } from "@/lib/db";
 import { toMembershipTierDto } from "@/lib/membership/membership";
 import {
-  resolveAdminAssignableTierCode,
+  resolveAnyAdminGradeTierCode,
 } from "@/lib/admin/pilot-grades";
 import { TIER_CODE_TO_PRICING_PLAN_CODE } from "@/lib/membership/pricing-tier-codes";
 import { notifyAsync, sendNotification } from "@/lib/notifications/notify";
@@ -13,7 +13,11 @@ import { PILOT_PROFILE_STATUSES } from "@/types/pilot";
 export {
   ADMIN_ASSIGNABLE_TIER_CODES,
   HONORARY_GRADE_OPTIONS,
+  HONORARY_TIER_CODES,
+  canAssignGradeCode,
+  isHonoraryGradeCode,
   resolveAdminAssignableTierCode,
+  resolveAnyAdminGradeTierCode,
 } from "@/lib/admin/pilot-grades";
 
 const ACTIVE_MEMBERSHIP = ["active", "trialing"] as const;
@@ -25,19 +29,18 @@ function addYears(date: Date, years: number) {
 }
 
 /**
- * Admin override: set pilot membership grade to any A-1…A-6 (promote or demote).
+ * Admin override: set pilot membership grade (A-1…A-6, or A-7…A-10 for Super Admin).
  * Creates an active membership year if none exists.
  */
 export async function adminSetPilotGrade(
   pilotProfileId: string,
   tierCodeInput: string,
 ) {
-  const tierCode = resolveAdminAssignableTierCode(tierCodeInput);
+  const tierCode = resolveAnyAdminGradeTierCode(tierCodeInput);
   if (!tierCode) {
     return {
       ok: false as const,
-      error:
-        "Invalid grade. Choose A-1 through A-6. A-7–A-10 are invitation-only and not available yet.",
+      error: "Invalid grade. Choose A-1 through A-10.",
       status: 400 as const,
     };
   }
@@ -50,9 +53,16 @@ export async function adminSetPilotGrade(
     return { ok: false as const, error: "Pilot not found.", status: 404 as const };
   }
 
-  const plan = await prisma.subscriptionPlan.findFirst({
+  let plan = await prisma.subscriptionPlan.findFirst({
     where: { code: tierCode, isActive: true },
   });
+  if (!plan) {
+    const { seedMembershipTiers } = await import("@/lib/membership/seed-tiers");
+    await seedMembershipTiers(prisma);
+    plan = await prisma.subscriptionPlan.findFirst({
+      where: { code: tierCode, isActive: true },
+    });
+  }
   if (!plan) {
     return {
       ok: false as const,

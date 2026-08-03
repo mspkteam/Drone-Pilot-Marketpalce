@@ -2,8 +2,39 @@
 
 import type { CaptainClubPilot } from "@/types/captains-club";
 
+function homeCaptain(
+  partial: Omit<
+    CaptainClubPilot,
+    | "lastName"
+    | "memberNumber"
+    | "tierCode"
+    | "wingTypeLabel"
+    | "wingSortKey"
+  > &
+    Partial<
+      Pick<
+        CaptainClubPilot,
+        | "lastName"
+        | "memberNumber"
+        | "tierCode"
+        | "wingTypeLabel"
+        | "wingSortKey"
+      >
+    >,
+): CaptainClubPilot {
+  const parts = partial.name.trim().split(/\s+/);
+  return {
+    lastName: parts[parts.length - 1] ?? "",
+    memberNumber: null,
+    tierCode: "A6_CAPTAIN",
+    wingTypeLabel: "",
+    wingSortKey: "~",
+    ...partial,
+  };
+}
+
 export const HOME_FEATURED_CAPTAINS: readonly CaptainClubPilot[] = [
-  {
+  homeCaptain({
     id: "home-captain-alex",
     initials: "AM",
     name: "Alex Morgan",
@@ -18,8 +49,8 @@ export const HOME_FEATURED_CAPTAINS: readonly CaptainClubPilot[] = [
     serviceIds: ["inspection"],
     specialtyLabels: ["Inspection"],
     profileHref: "/captains-club",
-  },
-  {
+  }),
+  homeCaptain({
     id: "home-captain-sarah",
     initials: "SM",
     name: "Sarah Mitchell",
@@ -34,8 +65,8 @@ export const HOME_FEATURED_CAPTAINS: readonly CaptainClubPilot[] = [
     serviceIds: ["aerial_video"],
     specialtyLabels: ["Aerial Photography"],
     profileHref: "/captains-club",
-  },
-  {
+  }),
+  homeCaptain({
     id: "home-captain-james",
     initials: "JW",
     name: "James Walker",
@@ -50,8 +81,8 @@ export const HOME_FEATURED_CAPTAINS: readonly CaptainClubPilot[] = [
     serviceIds: ["surveying"],
     specialtyLabels: ["Surveying & mapping"],
     profileHref: "/captains-club",
-  },
-  {
+  }),
+  homeCaptain({
     id: "home-captain-daniel",
     initials: "DR",
     name: "Daniel Ruiz",
@@ -66,5 +97,5 @@ export const HOME_FEATURED_CAPTAINS: readonly CaptainClubPilot[] = [
     serviceIds: ["events"],
     specialtyLabels: ["Events"],
     profileHref: "/captains-club",
-  },
-] as const;
+  }),
+];

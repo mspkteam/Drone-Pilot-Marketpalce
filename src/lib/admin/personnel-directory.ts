@@ -10,7 +10,14 @@ import {
   type UserRole,
 } from "@/types/roles";
 
-const ELITE_TIER_CODES = new Set(["A5_FIRST_OFFICER", "A6_CAPTAIN"]);
+const ELITE_TIER_CODES = new Set([
+  "A5_FIRST_OFFICER",
+  "A6_CAPTAIN",
+  "A7_SENIOR_CAPTAIN",
+  "A8_MASTER_CAPTAIN",
+  "A9_FLEET_CAPTAIN",
+  "A10_COMMODORE",
+]);
 
 function formatTimeAgo(date: Date): string {
   const diffMs = Date.now() - date.getTime();

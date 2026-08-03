@@ -2,7 +2,7 @@ import { listPilotFastForwardTiers } from "@/lib/membership/pilot-membership-cat
 import { VERIFICATION_TYPES } from "@/types/verification";
 import type { WingAutoRule } from "@/types/wing";
 
-/** Grade rank for “at least A-n” comparisons (A-1 = 1 … A-6 = 6). */
+/** Grade rank for “at least A-n” comparisons (A-1 = 1 … A-10 = 10). */
 export const MEMBERSHIP_TIER_RANK: Record<string, number> = {
   A1_STUDENT: 1,
   A2_JUNIOR_FLIGHT_OFFICER: 2,
@@ -10,6 +10,10 @@ export const MEMBERSHIP_TIER_RANK: Record<string, number> = {
   A4_SENIOR_FLIGHT_OFFICER: 4,
   A5_FIRST_OFFICER: 5,
   A6_CAPTAIN: 6,
+  A7_SENIOR_CAPTAIN: 7,
+  A8_MASTER_CAPTAIN: 8,
+  A9_FLEET_CAPTAIN: 9,
+  A10_COMMODORE: 10,
 };
 
 export type WingConditionField =

@@ -75,7 +75,7 @@ Example: A-4 fee paid $89.99 → A-6 fee $129.99 → charge **$40.00** only.
 | A-5 | First Officer | 2 years |
 | A-6 | Captain | 3 years |
 
-### Honorary / leadership (later — Milestone 3+)
+### Honorary / leadership (A-7 – A-10) — live
 
 | Code | Title |
 |------|-------|
@@ -84,14 +84,13 @@ Example: A-4 fee paid $89.99 → A-6 fee $129.99 → charge **$40.00** only.
 | A-9 | Fleet Captain |
 | A-10 | Commodore |
 
-Invitation/honorary advancement — **not in current build scope**.
+**Client-confirmed rules (Aug 2026):**
 
-**To enable A-7–A-10 later we need:**
-1. `SubscriptionPlan` rows (or honorary flag) for A-7–A-10
-2. Admin “Set grade” unlock for invitation-only assignment (no self-serve Fast Forward)
-3. Certificate templates / promotion art for honorary ranks (if client provides)
-4. Visibility / marketplace rule confirmation (usually same as A-6 or restricted)
-5. Captain’s Club vs honorary list UX (separate or extended)
+1. **Assignment:** Super Admin manual only — no pilot self-upgrade / Fast Forward; **no fee**
+2. **Marketplace visibility:** same as A-6 Captain (0h delay, can view + apply)
+3. **Captain’s Club:** included with A-6; directory sorts include member number, last name, and wing type awarded
+4. **Certificates:** none for these grades
+5. **Staff:** moderators/admins with `users.edit` may set A-1–A-6 only; A-7–A-10 require `super_admin`
 
 ---
 

@@ -7,8 +7,8 @@ function priceYearlyForTier(tierCode: string): number {
   return totalAtSignupUsd(getFastForwardFeeUsd(tierCode));
 }
 
-/** Canonical A-1 … A-6 pilot membership tier definitions (seed + tests). */
-export const MEMBERSHIP_TIER_DEFINITIONS = [
+/** Live A-1 … A-6 pilot membership tier definitions (seed + Fast Forward). */
+export const LIVE_MEMBERSHIP_TIER_DEFINITIONS = [
   {
     code: "A1_STUDENT",
     slug: "a1-student",
@@ -19,6 +19,7 @@ export const MEMBERSHIP_TIER_DEFINITIONS = [
     canApply: false,
     instructorEligible: false,
     sortOrder: 1,
+    honorary: false as const,
     features: [
       "View approved jobs 48 hours after posting",
       "View-only — upgrade to A-2+ to submit bids",
@@ -35,6 +36,7 @@ export const MEMBERSHIP_TIER_DEFINITIONS = [
     canApply: true,
     instructorEligible: false,
     sortOrder: 2,
+    honorary: false as const,
     features: [
       "View jobs 36 hours after approval",
       "Submit bids and applications",
@@ -51,6 +53,7 @@ export const MEMBERSHIP_TIER_DEFINITIONS = [
     canApply: true,
     instructorEligible: false,
     sortOrder: 3,
+    honorary: false as const,
     features: [
       "View jobs 24 hours after approval",
       "Submit bids and applications",
@@ -66,6 +69,7 @@ export const MEMBERSHIP_TIER_DEFINITIONS = [
     canApply: true,
     instructorEligible: true,
     sortOrder: 4,
+    honorary: false as const,
     features: [
       "View jobs 12 hours after approval",
       "Submit bids and applications",
@@ -82,6 +86,7 @@ export const MEMBERSHIP_TIER_DEFINITIONS = [
     canApply: true,
     instructorEligible: true,
     sortOrder: 5,
+    honorary: false as const,
     features: [
       "View jobs 6 hours after approval",
       "Submit bids and applications",
@@ -98,6 +103,7 @@ export const MEMBERSHIP_TIER_DEFINITIONS = [
     canApply: true,
     instructorEligible: true,
     sortOrder: 6,
+    honorary: false as const,
     features: [
       "Immediate job visibility on approval",
       "Submit bids and applications",
@@ -107,5 +113,101 @@ export const MEMBERSHIP_TIER_DEFINITIONS = [
   },
 ] as const;
 
+/**
+ * Invitation-only leadership grades (A-7 … A-10).
+ * Same marketplace visibility as A-6; no fee; Super Admin assign only.
+ */
+export const HONORARY_MEMBERSHIP_TIER_DEFINITIONS = [
+  {
+    code: "A7_SENIOR_CAPTAIN",
+    slug: "a7-senior-captain",
+    name: "A-7 Senior Captain",
+    priceYearly: 0,
+    jobVisibilityDelayHours: 0,
+    canViewJobs: true,
+    canApply: true,
+    instructorEligible: true,
+    sortOrder: 7,
+    honorary: true as const,
+    features: [
+      "Invitation-only honorary grade",
+      "Same marketplace access as A-6 Captain",
+      "Listed in Captain's Club",
+    ],
+  },
+  {
+    code: "A8_MASTER_CAPTAIN",
+    slug: "a8-master-captain",
+    name: "A-8 Master Captain",
+    priceYearly: 0,
+    jobVisibilityDelayHours: 0,
+    canViewJobs: true,
+    canApply: true,
+    instructorEligible: true,
+    sortOrder: 8,
+    honorary: true as const,
+    features: [
+      "Invitation-only honorary grade",
+      "Same marketplace access as A-6 Captain",
+      "Listed in Captain's Club",
+    ],
+  },
+  {
+    code: "A9_FLEET_CAPTAIN",
+    slug: "a9-fleet-captain",
+    name: "A-9 Fleet Captain",
+    priceYearly: 0,
+    jobVisibilityDelayHours: 0,
+    canViewJobs: true,
+    canApply: true,
+    instructorEligible: true,
+    sortOrder: 9,
+    honorary: true as const,
+    features: [
+      "Invitation-only honorary grade",
+      "Same marketplace access as A-6 Captain",
+      "Listed in Captain's Club",
+    ],
+  },
+  {
+    code: "A10_COMMODORE",
+    slug: "a10-commodore",
+    name: "A-10 Commodore",
+    priceYearly: 0,
+    jobVisibilityDelayHours: 0,
+    canViewJobs: true,
+    canApply: true,
+    instructorEligible: true,
+    sortOrder: 10,
+    honorary: true as const,
+    features: [
+      "Invitation-only honorary grade",
+      "Same marketplace access as A-6 Captain",
+      "Listed in Captain's Club",
+    ],
+  },
+] as const;
+
+/** All membership tiers including honorary (seed + visibility). */
+export const MEMBERSHIP_TIER_DEFINITIONS = [
+  ...LIVE_MEMBERSHIP_TIER_DEFINITIONS,
+  ...HONORARY_MEMBERSHIP_TIER_DEFINITIONS,
+] as const;
+
 export type MembershipTierCode =
   (typeof MEMBERSHIP_TIER_DEFINITIONS)[number]["code"];
+
+export type LiveMembershipTierCode =
+  (typeof LIVE_MEMBERSHIP_TIER_DEFINITIONS)[number]["code"];
+
+export type HonoraryMembershipTierCode =
+  (typeof HONORARY_MEMBERSHIP_TIER_DEFINITIONS)[number]["code"];
+
+/** Captain's Club + marketplace-elite plan codes (A-6 and honorary). */
+export const CAPTAINS_CLUB_TIER_CODES = [
+  "A6_CAPTAIN",
+  "A7_SENIOR_CAPTAIN",
+  "A8_MASTER_CAPTAIN",
+  "A9_FLEET_CAPTAIN",
+  "A10_COMMODORE",
+] as const;

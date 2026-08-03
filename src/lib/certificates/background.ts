@@ -35,12 +35,27 @@ function toAbsoluteAssetUrl(backgroundImageUrl: string, base: string): string {
 
 /**
  * Load certificate background PNG for PDF rendering.
- * Tries local public/ first, then fetches from deployed app URLs (Vercel-safe).
+ * Absolute URLs (e.g. Vercel Blob) fetch directly; relative paths try local
+ * public/ then deployed app URLs.
  */
 export async function loadCertificateBackground(
   backgroundImageUrl: string | null | undefined,
 ): Promise<Buffer | null> {
   if (!backgroundImageUrl?.trim()) return null;
+
+  if (/^https?:\/\//i.test(backgroundImageUrl)) {
+    try {
+      const response = await fetch(backgroundImageUrl, {
+        cache: "force-cache",
+      });
+      if (response.ok) {
+        return Buffer.from(await response.arrayBuffer());
+      }
+    } catch {
+      // Fall through.
+    }
+    return null;
+  }
 
   const localPath = resolveLocalPublicPath(backgroundImageUrl);
   try {

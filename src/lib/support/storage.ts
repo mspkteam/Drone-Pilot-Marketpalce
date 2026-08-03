@@ -1,25 +1,15 @@
-import fs from "fs/promises";
-import path from "path";
 import {
   SUPPORT_ALLOWED_MIME_TYPES,
   SUPPORT_MAX_BYTES,
   SUPPORT_MIME_TO_EXT,
   type SupportMimeType,
 } from "@/lib/support/constants";
+import {
+  readPrivateAsset,
+  writePrivateAsset,
+} from "@/lib/storage/private-asset";
 
-const SUPPORT_DIR = path.join(process.cwd(), "storage", "support");
-
-export function getSupportStorageDir() {
-  return SUPPORT_DIR;
-}
-
-export function resolveSupportPath(fileName: string) {
-  return path.join(SUPPORT_DIR, path.basename(fileName));
-}
-
-export async function ensureSupportStorageDir() {
-  await fs.mkdir(SUPPORT_DIR, { recursive: true });
-}
+const FOLDER = "support";
 
 export function isAllowedSupportMime(mime: string): mime is SupportMimeType {
   return (SUPPORT_ALLOWED_MIME_TYPES as readonly string[]).includes(mime);
@@ -55,12 +45,13 @@ export async function writeSupportFile(
   fileName: string,
   buffer: Buffer,
 ): Promise<string> {
-  await ensureSupportStorageDir();
-  const fullPath = resolveSupportPath(fileName);
-  await fs.writeFile(fullPath, buffer);
-  return fileName;
+  return writePrivateAsset({
+    folder: FOLDER,
+    fileName,
+    buffer,
+  });
 }
 
 export async function readSupportFile(fileName: string): Promise<Buffer> {
-  return fs.readFile(resolveSupportPath(fileName));
+  return readPrivateAsset(FOLDER, fileName);
 }

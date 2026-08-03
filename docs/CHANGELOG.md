@@ -4,6 +4,17 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.31] — 2026-08-03
+
+### Added
+
+- **Vercel Blob** for uploads when `BLOB_READ_WRITE_TOKEN` is set:
+  - Public: certificate artwork, wings, shop, CMS
+  - Private: support attachments, verification docs, delivery files, issued certificate PDFs
+  - Local `/public` or `/storage` fallback without the token
+
+---
+
 ## [0.27.30] — 2026-08-03
 
 ### Fixed

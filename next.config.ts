@@ -17,6 +17,12 @@ const nextConfig: NextConfig = {
   allowedDevOrigins: ["192.168.137.1", "127.0.0.1"],
   images: {
     formats: ["image/avif", "image/webp"],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "*.public.blob.vercel-storage.com",
+      },
+    ],
   },
   experimental: {
     optimizePackageImports: ["next-auth"],

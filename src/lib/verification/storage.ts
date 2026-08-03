@@ -1,26 +1,15 @@
-import fs from "fs/promises";
-import path from "path";
 import {
   VERIFICATION_ALLOWED_MIME_TYPES,
   VERIFICATION_MIME_TO_EXT,
   VERIFICATION_MAX_BYTES,
   type VerificationMimeType,
 } from "@/lib/verification/constants";
+import {
+  readPrivateAsset,
+  writePrivateAsset,
+} from "@/lib/storage/private-asset";
 
-const VERIFICATION_DIR = path.join(process.cwd(), "storage", "verifications");
-
-export function getVerificationStorageDir() {
-  return VERIFICATION_DIR;
-}
-
-export function resolveVerificationPath(fileName: string) {
-  const safe = path.basename(fileName);
-  return path.join(VERIFICATION_DIR, safe);
-}
-
-export async function ensureVerificationStorageDir() {
-  await fs.mkdir(VERIFICATION_DIR, { recursive: true });
-}
+const FOLDER = "verifications";
 
 export function isAllowedVerificationMime(
   mime: string,
@@ -32,7 +21,10 @@ export function extensionForMime(mime: VerificationMimeType): string {
   return VERIFICATION_MIME_TO_EXT[mime];
 }
 
-export function buildStoredFileName(verificationId: string, mime: VerificationMimeType) {
+export function buildStoredFileName(
+  verificationId: string,
+  mime: VerificationMimeType,
+) {
   return `${verificationId}.${extensionForMime(mime)}`;
 }
 
@@ -62,13 +54,13 @@ export async function writeVerificationFile(
   fileName: string,
   buffer: Buffer,
 ): Promise<string> {
-  await ensureVerificationStorageDir();
-  const fullPath = resolveVerificationPath(fileName);
-  await fs.writeFile(fullPath, buffer);
-  return fileName;
+  return writePrivateAsset({
+    folder: FOLDER,
+    fileName,
+    buffer,
+  });
 }
 
 export async function readVerificationFile(fileName: string): Promise<Buffer> {
-  const fullPath = resolveVerificationPath(fileName);
-  return fs.readFile(fullPath);
+  return readPrivateAsset(FOLDER, fileName);
 }

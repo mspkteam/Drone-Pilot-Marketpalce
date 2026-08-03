@@ -1,12 +1,9 @@
-import fs from "fs/promises";
-import path from "path";
+import { writePublicAsset } from "@/lib/storage/public-asset";
 
 /**
- * Certificate artwork under /public/certificates — served at `/certificates/<file>`.
- * Seeded RAS fillables live here; admin uploads write additional custom backgrounds.
+ * Certificate artwork: seeded fillables under /public/certificates;
+ * admin uploads go to Vercel Blob when configured, else local public/.
  */
-const CERT_IMAGE_DIR = path.join(process.cwd(), "public", "certificates");
-const CERT_IMAGE_PUBLIC_PREFIX = "/certificates";
 
 export const CERT_IMAGE_MAX_BYTES = 8 * 1024 * 1024;
 
@@ -52,13 +49,16 @@ export async function writeCertificateBackgroundImage(
   mime: string,
   nameHint?: string | null,
 ): Promise<string> {
-  await fs.mkdir(CERT_IMAGE_DIR, { recursive: true });
   const ext = CERT_IMAGE_EXT_BY_MIME[mime] ?? "png";
   const base =
     nameHint && slugify(nameHint)
       ? `custom-${slugify(nameHint)}-${Date.now()}`
       : `custom-${Date.now()}`;
   const fileName = `${base}.${ext}`;
-  await fs.writeFile(path.join(CERT_IMAGE_DIR, fileName), buffer);
-  return `${CERT_IMAGE_PUBLIC_PREFIX}/${fileName}`;
+  return writePublicAsset({
+    folder: "certificates",
+    fileName,
+    buffer,
+    contentType: mime,
+  });
 }

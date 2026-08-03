@@ -1,32 +1,22 @@
-import fs from "fs/promises";
-import path from "path";
+import {
+  readPrivateAsset,
+  writePrivateAsset,
+} from "@/lib/storage/private-asset";
 
-const CERT_DIR = path.join(process.cwd(), "storage", "certificates");
-
-export function getCertificateStorageDir() {
-  return CERT_DIR;
-}
-
-export function resolveCertificatePath(pdfFileName: string) {
-  const safe = path.basename(pdfFileName);
-  return path.join(CERT_DIR, safe);
-}
-
-export async function ensureCertificateStorageDir() {
-  await fs.mkdir(CERT_DIR, { recursive: true });
-}
+const FOLDER = "certificates";
 
 export async function writeCertificatePdf(
   fileName: string,
   buffer: Buffer,
 ): Promise<string> {
-  await ensureCertificateStorageDir();
-  const fullPath = resolveCertificatePath(fileName);
-  await fs.writeFile(fullPath, buffer);
-  return fileName;
+  return writePrivateAsset({
+    folder: FOLDER,
+    fileName,
+    buffer,
+    contentType: "application/pdf",
+  });
 }
 
 export async function readCertificatePdf(pdfFileName: string): Promise<Buffer> {
-  const fullPath = resolveCertificatePath(pdfFileName);
-  return fs.readFile(fullPath);
+  return readPrivateAsset(FOLDER, pdfFileName);
 }

@@ -1,14 +1,9 @@
-import fs from "fs/promises";
-import path from "path";
+import { writePublicAsset } from "@/lib/storage/public-asset";
 
 /**
- * Wing artwork lives under /public/wings so it is served as a static asset at
- * `/wings/<file>`. Admins can either drop PNG files here manually (named after
- * the wing code, e.g. `aviator-wings-senior.png`) or upload through the Edit
- * modal, which writes the file here and stores the returned path on the wing.
+ * Wing artwork: seed/manual files under /public/wings; admin uploads use
+ * Vercel Blob when configured, else local public/.
  */
-const WING_IMAGE_DIR = path.join(process.cwd(), "public", "wings");
-const WING_IMAGE_PUBLIC_PREFIX = "/wings";
 
 export const WING_IMAGE_MAX_BYTES = 2 * 1024 * 1024;
 
@@ -55,10 +50,14 @@ export async function writeWingImage(
   mime: string,
   codeHint?: string | null,
 ): Promise<string> {
-  await fs.mkdir(WING_IMAGE_DIR, { recursive: true });
   const ext = WING_IMAGE_EXT_BY_MIME[mime] ?? "png";
-  const base = codeHint && slugify(codeHint) ? slugify(codeHint) : `wing-${Date.now()}`;
+  const base =
+    codeHint && slugify(codeHint) ? slugify(codeHint) : `wing-${Date.now()}`;
   const fileName = `${base}.${ext}`;
-  await fs.writeFile(path.join(WING_IMAGE_DIR, fileName), buffer);
-  return `${WING_IMAGE_PUBLIC_PREFIX}/${fileName}`;
+  return writePublicAsset({
+    folder: "wings",
+    fileName,
+    buffer,
+    contentType: mime,
+  });
 }

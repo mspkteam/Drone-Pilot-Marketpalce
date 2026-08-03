@@ -24,6 +24,7 @@ Set these in the Vercel project **Settings → Environment Variables** (Producti
 | `DIRECT_URL` or `DATABASE_URL_UNPOOLED` | **Yes** | Neon **direct** connection (for build `db push`) |
 | `AUTH_SECRET` | **Yes** | Random string (32+ chars). Generate: `openssl rand -base64 32` |
 | `AUTH_URL` | **Yes** | Your Vercel URL, e.g. `https://your-project.vercel.app` |
+| `BLOB_READ_WRITE_TOKEN` | **Yes** (for uploads) | From Vercel Blob store `drone-pilot-marketpalce-blob` (Storage → Blob). Persists public admin media **and** private files (support, verifications, deliveries, issued PDFs) on Vercel. |
 
 **Do not set** `SMTP_URL` or any Stripe keys. Emails log to the build/runtime console only; payments use internal demo pay.
 

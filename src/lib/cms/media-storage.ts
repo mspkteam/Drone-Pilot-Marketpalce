@@ -1,18 +1,9 @@
-import fs from "fs/promises";
-import path from "path";
+import { writePublicAsset } from "@/lib/storage/public-asset";
 
 /**
- * CMS media (featured images and downloadable resource files) lives under
- * /public/cms so it is served as a static asset at `/cms/<file>`. Admins upload
- * through the article/resource editors, which write the file here and store the
- * returned path on the record.
- *
- * Note: on serverless hosts (Vercel) the filesystem is ephemeral — uploaded
- * files persist for local/dev and self-hosted deployments. Mirrors the wing
- * image storage pattern (`src/lib/wings/image-storage.ts`).
+ * CMS media (featured images and resource files).
+ * Vercel Blob when `BLOB_READ_WRITE_TOKEN` is set; otherwise /public/cms.
  */
-const CMS_MEDIA_DIR = path.join(process.cwd(), "public", "cms");
-const CMS_MEDIA_PUBLIC_PREFIX = "/cms";
 
 export type CmsMediaKind = "image" | "file";
 
@@ -81,11 +72,14 @@ export async function writeCmsMedia(
   mime: string,
   nameHint?: string | null,
 ): Promise<string> {
-  await fs.mkdir(CMS_MEDIA_DIR, { recursive: true });
   const ext = extMapFor(kind)[mime] ?? (kind === "image" ? "png" : "bin");
   const base =
     nameHint && slugify(nameHint) ? slugify(nameHint) : `cms-${kind}`;
   const fileName = `${base}-${Date.now().toString(36)}.${ext}`;
-  await fs.writeFile(path.join(CMS_MEDIA_DIR, fileName), buffer);
-  return `${CMS_MEDIA_PUBLIC_PREFIX}/${fileName}`;
+  return writePublicAsset({
+    folder: "cms",
+    fileName,
+    buffer,
+    contentType: mime,
+  });
 }

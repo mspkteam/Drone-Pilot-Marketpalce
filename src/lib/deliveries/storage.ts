@@ -1,31 +1,24 @@
-import fs from "fs/promises";
-import path from "path";
 import {
   DELIVERY_ALLOWED_MIME_TYPES,
   DELIVERY_MAX_BYTES,
   DELIVERY_MIME_TO_EXT,
   type DeliveryMimeType,
 } from "@/lib/deliveries/constants";
+import {
+  readPrivateAsset,
+  writePrivateAsset,
+} from "@/lib/storage/private-asset";
 
-const DELIVERY_DIR = path.join(process.cwd(), "storage", "deliveries");
-
-export function getDeliveryStorageDir() {
-  return DELIVERY_DIR;
-}
-
-export function resolveDeliveryPath(fileName: string) {
-  return path.join(DELIVERY_DIR, path.basename(fileName));
-}
-
-export async function ensureDeliveryStorageDir() {
-  await fs.mkdir(DELIVERY_DIR, { recursive: true });
-}
+const FOLDER = "deliveries";
 
 export function isAllowedDeliveryMime(mime: string): mime is DeliveryMimeType {
   return (DELIVERY_ALLOWED_MIME_TYPES as readonly string[]).includes(mime);
 }
 
-export function buildStoredDeliveryFileName(itemId: string, mime: DeliveryMimeType) {
+export function buildStoredDeliveryFileName(
+  itemId: string,
+  mime: DeliveryMimeType,
+) {
   return `${itemId}.${DELIVERY_MIME_TO_EXT[mime]}`;
 }
 
@@ -55,12 +48,13 @@ export async function writeDeliveryFile(
   fileName: string,
   buffer: Buffer,
 ): Promise<string> {
-  await ensureDeliveryStorageDir();
-  const fullPath = resolveDeliveryPath(fileName);
-  await fs.writeFile(fullPath, buffer);
-  return fileName;
+  return writePrivateAsset({
+    folder: FOLDER,
+    fileName,
+    buffer,
+  });
 }
 
 export async function readDeliveryFile(fileName: string): Promise<Buffer> {
-  return fs.readFile(resolveDeliveryPath(fileName));
+  return readPrivateAsset(FOLDER, fileName);
 }

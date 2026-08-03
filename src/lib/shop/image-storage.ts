@@ -1,13 +1,10 @@
-import fs from "fs/promises";
-import path from "path";
 import {
   SHOP_IMAGE_MAX_BYTES,
   SHOP_IMAGES_PER_PRODUCT_MAX,
 } from "@/lib/shop/constants";
+import { writePublicAsset } from "@/lib/storage/public-asset";
 
-/** Product gallery images under /public/shop/products */
-const SHOP_IMAGE_DIR = path.join(process.cwd(), "public", "shop", "products");
-const SHOP_IMAGE_PUBLIC_PREFIX = "/shop/products";
+/** Product gallery images — Blob when configured, else /public/shop/products */
 
 export { SHOP_IMAGE_MAX_BYTES, SHOP_IMAGES_PER_PRODUCT_MAX };
 const SHOP_IMAGE_EXT_BY_MIME: Record<string, string> = {
@@ -52,13 +49,16 @@ export async function writeShopProductImage(
   mime: string,
   nameHint?: string | null,
 ): Promise<string> {
-  await fs.mkdir(SHOP_IMAGE_DIR, { recursive: true });
   const ext = SHOP_IMAGE_EXT_BY_MIME[mime] ?? "jpg";
   const base =
     nameHint && slugify(nameHint)
       ? `${slugify(nameHint)}-${Date.now()}`
       : `product-${Date.now()}`;
   const fileName = `${base}.${ext}`;
-  await fs.writeFile(path.join(SHOP_IMAGE_DIR, fileName), buffer);
-  return `${SHOP_IMAGE_PUBLIC_PREFIX}/${fileName}`;
+  return writePublicAsset({
+    folder: "shop/products",
+    fileName,
+    buffer,
+    contentType: mime,
+  });
 }

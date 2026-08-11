@@ -85,7 +85,7 @@ export const PILOT_MOCK_LOCKED_JOBS: readonly PilotMockLockedJob[] = [
   {
     id: "mock-locked-1",
     title: "Deep Forest Conservation Mapping",
-    requirement: "REQUIRES A-4 CERTIFIED",
+    requirement: "REQUIRES A-4 GRADE",
     unlockAt: new Date(Date.now() + 3 * 3600 * 1000 + 11 * 60 * 1000 + 20 * 1000).toISOString(),
   },
   {

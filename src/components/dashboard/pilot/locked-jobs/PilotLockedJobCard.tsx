@@ -7,27 +7,19 @@ type PilotLockedJobCardProps = {
   job: PilotLockedJobCard;
 };
 
-function LockIcon() {
-  return (
-    <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden>
-      <rect x="2" y="4.5" width="6" height="4.5" rx="0.5" stroke="currentColor" strokeWidth="1" />
-      <path
-        d="M3.25 4.5V3.25a1.75 1.75 0 013.5 0V4.5"
-        stroke="currentColor"
-        strokeWidth="1"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
 export function PilotLockedJobCardView({ job }: PilotLockedJobCardProps) {
   return (
     <article className="pilot-locked-jobs-card">
-      <div>
+      <div className="pilot-locked-jobs-card-body">
         <div className="pilot-locked-jobs-card-top">
           <span className="pilot-locked-jobs-pill">
-            <LockIcon />
+            <img
+              src="/icons/pilot-dashboard/locked-lock.svg"
+              alt=""
+              width={13}
+              height={16}
+              className="pilot-locked-jobs-pill-icon"
+            />
             LOCKED
           </span>
           <span className="pilot-locked-jobs-budget">{job.budget}</span>
@@ -43,10 +35,6 @@ export function PilotLockedJobCardView({ job }: PilotLockedJobCardProps) {
             className="pilot-locked-jobs-countdown-value"
           />
         </div>
-
-        <p className="pilot-locked-jobs-requirement">
-          REQUIRES: {job.requirement}
-        </p>
       </div>
 
       <Link

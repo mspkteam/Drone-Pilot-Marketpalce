@@ -1,4 +1,4 @@
-﻿import type { Job, JobApplication } from "@/generated/prisma/client";
+import type { Job, JobApplication } from "@/generated/prisma/client";
 import { canWithdrawApplication } from "@/lib/applications/status";
 import {
   parseProposalDetails,
@@ -54,6 +54,7 @@ const A1_APPLY_MESSAGE =
 export type PilotJobsQueryFilters = {
   q?: string;
   category?: string;
+  location?: string;
   budgetMin?: number;
   budgetMax?: number;
 };
@@ -81,6 +82,19 @@ function filterOpenJob(
   if (filters.budgetMax != null) {
     const jobMin = job.budgetMin ?? job.budgetMax;
     if (jobMin != null && jobMin > filters.budgetMax) return false;
+  }
+
+  if (filters.location) {
+    const locationHaystack = [
+      job.locationLabel,
+      job.locationCity,
+      job.locationRegion,
+      job.locationCountry,
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+    if (!locationHaystack.includes(filters.location.toLowerCase())) return false;
   }
 
   if (filters.q) {

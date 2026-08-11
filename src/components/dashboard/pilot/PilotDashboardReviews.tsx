@@ -10,12 +10,28 @@ type PilotDashboardReviewsProps = {
 };
 
 function Stars({ value }: { value: number }) {
+  if (value >= 5) {
+    return (
+      <span className="pilot-dashboard-stars" aria-label="5 out of 5 stars">
+        <img
+          src="/icons/pilot-dashboard/stars.svg"
+          alt=""
+          className="pilot-dashboard-stars-img"
+          width={109}
+          height={20}
+        />
+      </span>
+    );
+  }
+
   return (
     <span className="pilot-dashboard-stars" aria-label={`${value} out of 5 stars`}>
       {Array.from({ length: 5 }, (_, i) => (
         <span
           key={i}
-          className={i < value ? "pilot-dashboard-star pilot-dashboard-star--on" : "pilot-dashboard-star"}
+          className={
+            i < value ? "pilot-dashboard-star pilot-dashboard-star--on" : "pilot-dashboard-star"
+          }
           aria-hidden
         >
           ★
@@ -38,7 +54,9 @@ export function PilotDashboardReviews({
   return (
     <section className="pilot-dashboard-panel pilot-dashboard-panel--warm pilot-dashboard-bracket-card">
       <div className="pilot-dashboard-panel-head">
-        <h2 className="pilot-dashboard-panel-title pilot-dashboard-panel-title--reviews">Reviews</h2>
+        <h2 className="pilot-dashboard-panel-title pilot-dashboard-panel-title--reviews">
+          Reviews
+        </h2>
         <Link href={PILOT_DASHBOARD_ROUTES.reviews} className="pilot-dashboard-panel-link">
           VIEW ALL →
         </Link>

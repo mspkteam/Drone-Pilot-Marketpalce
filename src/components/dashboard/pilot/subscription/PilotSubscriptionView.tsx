@@ -7,14 +7,20 @@ import {
   mergeFastForwardCards,
   PilotFastForwardCards,
 } from "@/components/dashboard/pilot/subscription/PilotFastForwardCards";
+import { PilotInstructorAddonSection } from "@/components/dashboard/pilot/subscription/PilotInstructorAddonSection";
+import type { InstructorProfilePreview } from "@/components/dashboard/pilot/subscription/PilotInstructorAddonSection";
 import { SubscriptionStatusBadge } from "@/components/subscriptions/SubscriptionStatusBadge";
+import type { InstructorAddonStatus } from "@/lib/membership/instructor-addon";
 import {
   formatMembershipUsd,
   getFastForwardFeeUsd,
+  getFastForwardTier,
+  getPricingCodeForTierCode,
   getUpgradeDifferenceUsd,
   listPilotFastForwardTiers,
   PILOT_ANNUAL_MEMBERSHIP_BENEFITS,
   PILOT_ANNUAL_MEMBERSHIP_FEE_USD,
+  PILOT_INSTRUCTOR_ADDON_FEE_USD,
 } from "@/lib/membership/pilot-membership-catalog";
 import { formatJobVisibilityDelay } from "@/lib/subscriptions/status";
 import type { MembershipTierDto } from "@/types/membership";
@@ -29,18 +35,32 @@ export function PilotSubscriptionView() {
   const [subscription, setSubscription] = useState<PilotSubscriptionDto | null>(
     null,
   );
+  const [instructorStatus, setInstructorStatus] =
+    useState<InstructorAddonStatus>("locked");
+  const [instructorPeriodEnd, setInstructorPeriodEnd] = useState<string | null>(
+    null,
+  );
+  const [instructorPreview, setInstructorPreview] = useState<InstructorProfilePreview>({
+    displayName: "Pilot",
+    bio: null,
+    flightSchool: null,
+    trainingLocation: null,
+    averageRating: null,
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
   async function load() {
-    const [plansRes, subRes] = await Promise.all([
+    const [plansRes, subRes, instructorRes] = await Promise.all([
       fetch("/api/pilot/subscription/plans"),
       fetch("/api/pilot/subscription"),
+      fetch("/api/pilot/subscription/instructor"),
     ]);
     const plansData = await plansRes.json();
     const subData = await subRes.json();
+    const instructorData = await instructorRes.json();
 
     if (plansData.error) {
       setError(plansData.error);
@@ -49,6 +69,27 @@ export function PilotSubscriptionView() {
     }
     if (!subData.error) {
       setSubscription(subData.subscription ?? null);
+    }
+    if (!instructorData.error) {
+      setInstructorStatus(instructorData.status ?? "locked");
+      setInstructorPeriodEnd(
+        instructorData.profile?.instructorAddonPeriodEnd ?? null,
+      );
+      if (instructorData.preview) {
+        setInstructorPreview({
+          displayName: instructorData.preview.displayName ?? "Pilot",
+          bio: instructorData.preview.bio ?? null,
+          flightSchool: instructorData.preview.flightSchool ?? null,
+          trainingLocation: instructorData.preview.trainingLocation ?? null,
+          averageRating: instructorData.preview.averageRating ?? null,
+        });
+      } else if (instructorData.profile?.displayName) {
+        setInstructorPreview((prev) => ({
+          ...prev,
+          displayName: instructorData.profile.displayName,
+          bio: instructorData.profile.bio ?? null,
+        }));
+      }
     }
   }
 
@@ -71,26 +112,26 @@ export function PilotSubscriptionView() {
   const currentTierCode = subscription?.plan.code ?? null;
 
   const upgradeExample = useMemo(() => {
+    const targetTier = "A6_CAPTAIN";
+    const targetFee = getFastForwardFeeUsd(targetTier);
+    const targetLabel = getPricingCodeForTierCode(targetTier) ?? "A-6";
+
     if (!currentTierCode) {
+      const creditTier = "A4_SENIOR_FLIGHT_OFFICER";
       return {
-        targetLabel: "A-6",
-        targetFee: getFastForwardFeeUsd("A6_CAPTAIN"),
-        creditFee: getFastForwardFeeUsd("A4_SENIOR_FLIGHT_OFFICER"),
-        difference: getUpgradeDifferenceUsd(
-          "A4_SENIOR_FLIGHT_OFFICER",
-          "A6_CAPTAIN",
-        ),
+        targetLabel,
+        targetFee,
+        creditLabel: getPricingCodeForTierCode(creditTier) ?? "A-4",
+        creditFee: getFastForwardFeeUsd(creditTier),
+        difference: getUpgradeDifferenceUsd(creditTier, targetTier),
       };
     }
 
-    const currentFee = getFastForwardFeeUsd(currentTierCode);
-    const targetTier = "A6_CAPTAIN";
-    const targetFee = getFastForwardFeeUsd(targetTier);
-
     return {
-      targetLabel: "A-6",
+      targetLabel,
       targetFee,
-      creditFee: currentFee,
+      creditLabel: getPricingCodeForTierCode(currentTierCode) ?? currentTierCode,
+      creditFee: getFastForwardFeeUsd(currentTierCode),
       difference: getUpgradeDifferenceUsd(currentTierCode, targetTier),
     };
   }, [currentTierCode]);
@@ -112,6 +153,7 @@ export function PilotSubscriptionView() {
       }
 
       setSubscription(data.subscription);
+      await load();
       if (data.enrolled) {
         setSuccess(
           `Membership enrolled (demo). Annual fee ${formatMembershipUsd(PILOT_ANNUAL_MEMBERSHIP_FEE_USD)} recorded.`,
@@ -151,6 +193,7 @@ export function PilotSubscriptionView() {
         return;
       }
       setSubscription(null);
+      await load();
       router.refresh();
     } catch {
       setError("Failed to cancel.");
@@ -159,7 +202,47 @@ export function PilotSubscriptionView() {
     }
   }
 
+  async function handleInstructor(active: boolean) {
+    setError(null);
+    setSuccess(null);
+    setActionLoading(active ? "instructor-on" : "instructor-off");
+    try {
+      const res = await fetch("/api/pilot/subscription/instructor", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ active }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error ?? "Failed to update instructor add-on.");
+        return;
+      }
+      setInstructorStatus(data.status);
+      setInstructorPeriodEnd(data.profile?.instructorAddonPeriodEnd ?? null);
+      if (data.preview) {
+        setInstructorPreview((prev) => ({
+          ...prev,
+          ...data.preview,
+          averageRating: data.preview.averageRating ?? prev.averageRating,
+        }));
+      }
+      setSuccess(
+        active
+          ? `Instructor add-on activated (demo). Annual fee ${formatMembershipUsd(PILOT_INSTRUCTOR_ADDON_FEE_USD)}.`
+          : "Instructor add-on cancelled.",
+      );
+      router.refresh();
+    } catch {
+      setError("Failed to update instructor add-on.");
+    } finally {
+      setActionLoading(null);
+    }
+  }
+
   const activePlan = subscription?.plan;
+  const currentTitle = currentTierCode
+    ? getFastForwardTier(currentTierCode)?.shortTitle
+    : null;
 
   return (
     <div className="pilot-subscription-page">
@@ -167,31 +250,34 @@ export function PilotSubscriptionView() {
         className="pilot-subscription-hero pilot-subscription-bracket-card"
         aria-label="Membership overview"
       >
-        <p className="pilot-subscription-eyebrow">Business / Membership</p>
-        <h1 className="pilot-subscription-title">
-          Remote Air Service Membership Plans
-        </h1>
-        <p className="pilot-subscription-hero-lead">
-          One annual membership. Fast Forward your grade with a one-time upgrade.
-        </p>
+        <div className="pilot-subscription-hero-row">
+          <div>
+            <p className="pilot-subscription-eyebrow">Business / Membership</p>
+            <h1 className="pilot-subscription-title">
+              Remote Air Service Membership Plans
+            </h1>
+            <p className="pilot-subscription-hero-lead">
+              One annual membership. Fast Forward your grade with a one-time upgrade.
+            </p>
+          </div>
+          <Link href="/pricing" className="pilot-subscription-plan-btn pilot-subscription-plan-btn--select">
+            Compare grades
+          </Link>
+        </div>
       </section>
 
       <section
         className="pilot-subscription-info pilot-subscription-bracket-card"
         aria-label="Membership billing"
       >
-        <div className="pilot-subscription-info-copy">
-          <p className="pilot-subscription-info-title">
+        <ul className="pilot-subscription-info-list pilot-subscription-info-list--full">
+          <li>
             All pilots pay the same annual membership fee of{" "}
             {formatMembershipUsd(PILOT_ANNUAL_MEMBERSHIP_FEE_USD)}.
-          </p>
-          <p className="pilot-subscription-info-sub">
-            Upgrade anytime: pay only the difference
-          </p>
-        </div>
-        <ul className="pilot-subscription-info-list">
+          </li>
           <li>Upgrade (Fast Forward) fees are one-time payments only.</li>
-          <li>Membership is billed annually</li>
+          <li>Later upgrades: pay only the difference between Fast Forward fees.</li>
+          <li>Membership is billed annually. Instructor is a separate annual add-on.</li>
         </ul>
       </section>
 
@@ -223,11 +309,15 @@ export function PilotSubscriptionView() {
                   </p>
                   <h2 className="pilot-subscription-current-title">
                     {activePlan.name}
+                    {currentTitle ? ` · ${currentTitle}` : null}
                   </h2>
                   <p className="pilot-subscription-current-code">
                     Annual {formatMembershipUsd(PILOT_ANNUAL_MEMBERSHIP_FEE_USD)}
                     /year · Fast Forward{" "}
                     {formatMembershipUsd(getFastForwardFeeUsd(activePlan.code))}
+                    {instructorStatus === "active"
+                      ? ` · Instructor ${formatMembershipUsd(PILOT_INSTRUCTOR_ADDON_FEE_USD)}/year`
+                      : ""}
                   </p>
                 </div>
                 <SubscriptionStatusBadge
@@ -257,6 +347,16 @@ export function PilotSubscriptionView() {
                   </dd>
                 </div>
                 <div>
+                  <dt>Instructor</dt>
+                  <dd>
+                    {instructorStatus === "active"
+                      ? "Active"
+                      : instructorStatus === "available"
+                        ? "Eligible"
+                        : "Locked (A-4+)"}
+                  </dd>
+                </div>
+                <div>
                   <dt>Renews</dt>
                   <dd>
                     {new Date(subscription!.currentPeriodEnd).toLocaleDateString()}
@@ -282,7 +382,8 @@ export function PilotSubscriptionView() {
 
           <section className="pilot-subscription-section" aria-label="Annual membership">
             <h2 className="pilot-subscription-section-title">
-              1. Annual membership
+              Annual membership
+              <span>Required for all pilots</span>
             </h2>
             <div className="pilot-subscription-annual pilot-subscription-bracket-card">
               <div className="pilot-subscription-annual-main">
@@ -333,7 +434,8 @@ export function PilotSubscriptionView() {
 
           <section className="pilot-subscription-section" aria-label="Fast Forward upgrades">
             <h2 className="pilot-subscription-section-title">
-              2. Fast Forward Upgrades (One-time fee — start at a higher grade)
+              Fast Forward upgrades
+              <span>One-time fee — start at a higher grade</span>
             </h2>
             <PilotFastForwardCards
               cards={fastForwardCards}
@@ -353,7 +455,7 @@ export function PilotSubscriptionView() {
                 Already upgraded? Pay only the difference.
               </h2>
               <p className="pilot-subscription-diff-copy">
-                Upgrade anytime and only pay the difference.
+                Upgrade anytime and only pay the difference between Fast Forward fees.
               </p>
             </div>
             <dl className="pilot-subscription-diff-grid">
@@ -362,14 +464,44 @@ export function PilotSubscriptionView() {
                 <dd>{formatMembershipUsd(upgradeExample.targetFee)}</dd>
               </div>
               <div>
-                <dt>Your current credit</dt>
+                <dt>Already paid {upgradeExample.creditLabel}</dt>
                 <dd>— {formatMembershipUsd(upgradeExample.creditFee)}</dd>
               </div>
               <div>
-                <dt>You pay</dt>
+                <dt>Amount due</dt>
                 <dd>{formatMembershipUsd(upgradeExample.difference)}</dd>
               </div>
             </dl>
+          </section>
+
+          <PilotInstructorAddonSection
+            status={instructorStatus}
+            preview={instructorPreview}
+            periodEnd={instructorPeriodEnd}
+            actionLoading={
+              actionLoading === "instructor-on" ||
+              actionLoading === "instructor-off"
+            }
+            onActivate={() => handleInstructor(true)}
+            onCancel={() => handleInstructor(false)}
+          />
+
+          <section
+            className="pilot-subscription-uniform pilot-subscription-bracket-card"
+            aria-label="Uniform policy"
+          >
+            <div>
+              <h2 className="pilot-subscription-uniform-title">
+                Uniform Wear &amp; Appearance Policy is required.
+              </h2>
+              <p className="pilot-subscription-uniform-copy">
+                Uniform items are sold separately in the pilot shop. Policy review
+                remains required for membership benefits.
+              </p>
+            </div>
+            <Link href="/safety" className="pilot-subscription-btn-outline">
+              View Policy
+            </Link>
           </section>
 
           <section
@@ -400,12 +532,6 @@ export function PilotSubscriptionView() {
               </p>
             </div>
           </section>
-
-          <div className="pilot-subscription-footer-link">
-            <Link href="/pricing" className="pilot-subscription-btn-outline">
-              Compare public pricing →
-            </Link>
-          </div>
         </>
       )}
     </div>

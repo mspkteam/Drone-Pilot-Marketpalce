@@ -27,7 +27,7 @@ export default async function PilotProfilePage() {
   }
 
   return (
-    <DashboardPageLayout className="profile-onboarding-shell">
+    <DashboardPageLayout className="profile-onboarding-shell pilot-profile-shell">
       <PilotProfileCompletionView
         profile={profileDto}
         insuranceVerified={insuranceVerified}

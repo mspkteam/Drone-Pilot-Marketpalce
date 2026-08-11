@@ -58,7 +58,7 @@ export function PilotMyProposalsView() {
 
   return (
     <div className="pilot-proposals-page">
-      <header className="pilot-proposals-header">
+      <header className="pilot-proposals-header pilot-proposals-bracket-card">
         <p className="pilot-proposals-eyebrow">OPERATIONS / PROPOSALS</p>
         <h1 className="pilot-proposals-title">My Proposals</h1>
       </header>
@@ -77,22 +77,27 @@ export function PilotMyProposalsView() {
 
       <div className="pilot-proposals-tabs-wrap">
         <div className="pilot-proposals-tabs" role="tablist" aria-label="Proposal status">
-          {PILOT_PROPOSAL_TAB_ORDER.map((status) => (
-            <button
-              key={status}
-              type="button"
-              role="tab"
-              aria-selected={activeTab === status}
-              className={
-                activeTab === status
-                  ? "pilot-proposals-tab pilot-proposals-tab--active"
-                  : "pilot-proposals-tab"
-              }
-              onClick={() => setActiveTab(status)}
-            >
-              {status === "REVISED" ? "Revised" : status} - {counts[status]}
-            </button>
-          ))}
+          {PILOT_PROPOSAL_TAB_ORDER.map((status) => {
+            const label = status === "REVISED" ? "Revised" : status;
+            const count = counts[status];
+            const isActive = activeTab === status;
+            return (
+              <button
+                key={status}
+                type="button"
+                role="tab"
+                aria-selected={isActive}
+                className={
+                  isActive
+                    ? "pilot-proposals-tab pilot-proposals-tab--active"
+                    : "pilot-proposals-tab"
+                }
+                onClick={() => setActiveTab(status)}
+              >
+                {label} - {count}
+              </button>
+            );
+          })}
         </div>
       </div>
 

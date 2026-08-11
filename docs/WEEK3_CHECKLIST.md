@@ -1,8 +1,9 @@
 # Week 3 — Pilot Checklist
 
+**Week 3 status:** **In progress** — **Figma design-first** for pilot dashboard screens, then functionality gap-close  
 **Active milestone:** Week 3 / Milestone 3 — Pilot (`ACTIVE_MILESTONE = 3`)  
-**Week 3 status:** **Complete** — core loop + secondary pilot modules (mock removal)  
 **Plan reference:** [`PLATFORM_MILESTONE_PLAN.md`](PLATFORM_MILESTONE_PLAN.md) § Milestone 3  
+**Figma map:** [`WEEK3_FIGMA_PILOT.md`](WEEK3_FIGMA_PILOT.md)  
 **Demo script:** [`WEEK3_DEMO_SCRIPT.md`](WEEK3_DEMO_SCRIPT.md)
 
 ---
@@ -19,7 +20,7 @@ Pilots discover approved jobs, submit proposals, manage contracts, deliver work,
 
 | # | Work item | Priority | Status |
 |---|-----------|----------|--------|
-| 3.0 | `ACTIVE_MILESTONE = 3`; pilot routes unlocked | **High** | Done |
+| 3.0 | `ACTIVE_MILESTONE = 3`; core pilot ops unlocked; remaining modules Week-4-locked until resume | **High** | Done |
 | 3.1 | Marketplace — live jobs API (no mock fallback) | **High** | Done |
 | 3.2 | Marketplace server filters | Medium | Done (`q`, `category`, `budgetMin`, `budgetMax`) |
 | 3.3 | Locked jobs — server-authoritative countdown | **High** | Done (live API; no mock fallback) |

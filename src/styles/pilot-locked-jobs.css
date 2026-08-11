@@ -1,4 +1,4 @@
-/* Pilot Locked Jobs — tier-delayed missions */
+/* Pilot Locked Jobs — Figma 808:18477 layout, site color tokens */
 
 .pilot-locked-jobs-shell.dashboard-page {
   display: flex;
@@ -9,44 +9,73 @@
 }
 
 .pilot-locked-jobs-page {
+  display: flex;
   width: 100%;
   min-width: 0;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.pilot-locked-jobs-bracket-card {
+  position: relative;
+}
+
+.pilot-locked-jobs-bracket-card::before,
+.pilot-locked-jobs-bracket-card::after {
+  content: "";
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  pointer-events: none;
+}
+
+.pilot-locked-jobs-bracket-card::before {
+  top: 14px;
+  left: 14px;
+  border-top: 1px solid rgba(244, 241, 234, 0.22);
+  border-left: 1px solid rgba(244, 241, 234, 0.22);
+}
+
+.pilot-locked-jobs-bracket-card::after {
+  right: 14px;
+  bottom: 14px;
+  border-right: 1px solid rgba(244, 241, 234, 0.22);
+  border-bottom: 1px solid rgba(244, 241, 234, 0.22);
 }
 
 .pilot-locked-jobs-header {
-  margin-bottom: 1.5rem;
   border: 1px solid var(--dashboard-card-border);
-  border-radius: 0.625rem;
+  border-radius: 0.375rem;
   background: var(--color-card-warm);
-  padding: 1.625rem;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+  padding: 1.5625rem;
 }
 
 .pilot-locked-jobs-eyebrow {
   margin: 0;
-  font-size: 0.6875rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
+  font-size: 0.7rem;
+  font-weight: 400;
+  letter-spacing: 0.084em;
+  text-transform: uppercase;
   color: var(--color-text-soft);
 }
 
 .pilot-locked-jobs-title {
-  margin: 0.5rem 0 0;
-  font-size: clamp(2rem, 3vw, 2.625rem);
-  font-weight: 800;
-  line-height: 1.1;
+  margin: 0.25rem 0 0;
+  font-size: clamp(1.75rem, 3vw, 2.25rem);
+  font-weight: 600;
+  line-height: 1.11;
+  letter-spacing: -0.001em;
   color: var(--color-text);
 }
 
 .pilot-locked-jobs-notice {
   display: flex;
   align-items: center;
-  gap: 0.875rem;
-  margin-bottom: 1.75rem;
+  gap: 0.6875rem;
   border: 1px solid var(--dashboard-card-border);
-  border-radius: 0.5rem;
+  border-radius: 0.375rem;
   background: var(--color-card-warm);
-  padding: 1.125rem 1.5rem;
+  padding: 1.5625rem;
 }
 
 @media (max-width: 640px) {
@@ -57,38 +86,26 @@
 }
 
 .pilot-locked-jobs-notice-icon {
-  display: inline-flex;
+  display: block;
+  width: 19px;
+  height: 16px;
   flex-shrink: 0;
-  color: var(--color-gold);
 }
 
 .pilot-locked-jobs-notice-copy {
-  min-width: 0;
-}
-
-.pilot-locked-jobs-notice-primary {
   margin: 0;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  color: var(--color-gold);
-}
-
-.pilot-locked-jobs-notice-secondary {
-  margin: 0.375rem 0 0;
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  color: var(--color-text-soft);
-}
-
-.pilot-locked-jobs-notice-gold {
+  min-width: 0;
+  font-size: 0.7rem;
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
   color: var(--color-gold);
 }
 
 .pilot-locked-jobs-tier-note,
 .pilot-locked-jobs-banner {
-  margin: -0.75rem 0 1.25rem;
+  margin: 0;
   font-size: 0.8125rem;
   color: var(--color-text-muted);
 }
@@ -121,7 +138,6 @@
 @media (min-width: 640px) {
   .pilot-locked-jobs-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1.0625rem;
   }
 }
 
@@ -135,18 +151,25 @@
   display: flex;
   min-height: 18.75rem;
   flex-direction: column;
-  justify-content: space-between;
-  border: 1px solid var(--dashboard-card-border);
+  gap: 1rem;
+  border: 1px solid rgba(49, 45, 40, 0.6);
   border-radius: 0.75rem;
   background: var(--color-card-warm);
-  padding: 1.375rem;
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+  padding: 1.3125rem;
+  box-shadow: 0 10px 30px -20px rgba(0, 0, 0, 0.6);
   transition: border-color 0.2s ease, transform 0.2s ease;
 }
 
 .pilot-locked-jobs-card:hover {
   border-color: rgba(216, 179, 57, 0.28);
   transform: translateY(-2px);
+}
+
+.pilot-locked-jobs-card-body {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-width: 0;
 }
 
 .pilot-locked-jobs-card-top {
@@ -159,39 +182,48 @@
 .pilot-locked-jobs-pill {
   display: inline-flex;
   align-items: center;
-  gap: 0.375rem;
+  gap: 0.25rem;
+  height: 1.4375rem;
   border-radius: 999px;
-  border: 1px solid var(--color-border-divider);
-  background: var(--color-border-divider);
-  padding: 0.375rem 0.625rem;
+  border: 1px solid rgba(49, 45, 40, 0.42);
+  background: rgba(39, 35, 32, 0.6);
+  padding: 0 0.5625rem;
   font-size: 0.6875rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  color: var(--color-text-muted);
+  font-weight: 400;
+  letter-spacing: 0;
+  color: #a49d94;
+}
+
+.pilot-locked-jobs-pill-icon {
+  display: block;
+  width: 13px;
+  height: 16px;
+  flex-shrink: 0;
 }
 
 .pilot-locked-jobs-budget {
-  font-size: 0.9375rem;
-  font-weight: 700;
+  font-size: 0.875rem;
+  font-weight: 600;
   color: var(--color-gold);
 }
 
 .pilot-locked-jobs-card-title {
-  margin: 1.125rem 0 0;
-  font-size: 1.125rem;
-  font-weight: 700;
-  line-height: 1.35;
+  margin: 1rem 0 0;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.5;
   color: var(--color-text);
 }
 
 .pilot-locked-jobs-reason {
-  margin: 0.5rem 0 0;
-  font-size: 0.8125rem;
-  color: var(--color-text-soft);
+  margin: 0.25rem 0 0;
+  font-size: 0.75rem;
+  line-height: 1.333;
+  color: #a49d94;
 }
 
 .pilot-locked-jobs-countdown-box {
-  margin: 1.25rem 0;
+  margin-top: 1rem;
   border: 1px solid var(--color-gold);
   border-radius: 0.5625rem;
   padding: 0.875rem;
@@ -203,7 +235,7 @@
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.08em;
-  color: var(--color-text);
+  color: var(--color-gold);
 }
 
 .pilot-locked-jobs-countdown-value {
@@ -216,25 +248,18 @@
   color: var(--color-gold);
 }
 
-.pilot-locked-jobs-requirement {
-  margin: 0 0 1.25rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  color: var(--color-text-muted);
-}
-
 .pilot-locked-jobs-cta {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 100%;
-  min-height: 2.625rem;
-  border-radius: 0.5625rem;
+  height: 2rem;
+  margin-top: auto;
+  border-radius: 0.625rem;
   background: var(--color-gold);
-  font-size: 0.8125rem;
-  font-weight: 800;
-  color: var(--color-bg-deeper);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #110c09;
   text-decoration: none;
   transition: background 0.15s ease;
 }
@@ -244,7 +269,6 @@
 }
 
 .pilot-locked-jobs-empty {
-  margin-top: 1.5rem;
   border: 1px solid var(--dashboard-card-border);
   border-radius: 0.75rem;
   background: var(--color-card-warm);

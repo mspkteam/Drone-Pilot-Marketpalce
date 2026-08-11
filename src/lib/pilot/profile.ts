@@ -37,6 +37,9 @@ export function toPilotProfileDto(profile: PilotProfile): PilotProfileDto {
     licenseCountry: profile.licenseCountry,
     isPublic: profile.isPublic,
     status: profile.status as PilotProfileStatus,
+    instructorAddonActive: profile.instructorAddonActive,
+    instructorAddonPeriodEnd:
+      profile.instructorAddonPeriodEnd?.toISOString() ?? null,
     complianceAcceptedAt: profile.complianceAcceptedAt?.toISOString() ?? null,
     onboardingCompletedAt:
       profile.onboardingCompletedAt?.toISOString() ?? null,

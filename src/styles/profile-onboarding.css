@@ -1,10 +1,13 @@
-/* Profile / onboarding completion — pilot & client */
+/* Profile / onboarding completion — pilot & client
+   Pilot Profile Figma Main 808:19441 — layout from Figma, site tokens */
 
-.profile-onboarding-shell.dashboard-page {
+.profile-onboarding-shell.dashboard-page,
+.pilot-profile-shell.dashboard-page {
   display: flex;
   flex-direction: column;
   width: 100%;
   max-width: none;
+  gap: 0;
 }
 
 .profile-onboarding-page {
@@ -15,9 +18,73 @@
   min-width: 0;
 }
 
+/* Corner bracket accents — marketplace pattern */
+.profile-onboarding-bracket-card {
+  position: relative;
+}
+
+.profile-onboarding-bracket-card::before,
+.profile-onboarding-bracket-card::after {
+  content: "";
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  pointer-events: none;
+}
+
+.profile-onboarding-bracket-card::before {
+  top: 14px;
+  left: 14px;
+  border-top: 1px solid rgba(244, 241, 234, 0.22);
+  border-left: 1px solid rgba(244, 241, 234, 0.22);
+}
+
+.profile-onboarding-bracket-card::after {
+  right: 14px;
+  bottom: 14px;
+  border-right: 1px solid rgba(244, 241, 234, 0.22);
+  border-bottom: 1px solid rgba(244, 241, 234, 0.22);
+}
+
+.profile-onboarding-header {
+  border: 1px solid var(--dashboard-card-border);
+  border-radius: 0.375rem;
+  background: var(--color-card-warm);
+  padding: 1.5625rem;
+}
+
+.profile-onboarding-eyebrow {
+  margin: 0;
+  font-size: 0.7rem;
+  font-weight: 400;
+  letter-spacing: 0.084em;
+  text-transform: uppercase;
+  color: var(--color-text-soft);
+}
+
+.profile-onboarding-page-title {
+  margin: 0.25rem 0 0;
+  font-size: clamp(1.75rem, 3vw, 2.25rem);
+  font-weight: 600;
+  line-height: 1.11;
+  letter-spacing: -0.001em;
+  color: var(--color-text);
+}
+
+.profile-onboarding-status-line {
+  margin: 0.625rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+}
+
+.profile-onboarding-status-value {
+  color: var(--color-gold);
+  font-weight: 600;
+}
+
 .profile-onboarding-layout {
   display: grid;
-  gap: 1.25rem;
+  gap: 1.5rem;
   grid-template-columns: minmax(0, 1fr);
   align-items: start;
 }
@@ -31,15 +98,15 @@
 .profile-onboarding-main {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1.5rem;
   min-width: 0;
 }
 
 .profile-onboarding-section {
   border: 1px solid var(--dashboard-card-border);
-  border-radius: 0.625rem;
+  border-radius: 0.75rem;
   background: var(--color-card-warm);
-  padding: 1.375rem 1.5rem;
+  padding: 1.5625rem;
   min-width: 0;
 }
 
@@ -48,7 +115,15 @@
   font-size: 0.6875rem;
   font-weight: 700;
   letter-spacing: 0.14em;
+  text-transform: uppercase;
   color: var(--color-gold);
+}
+
+.profile-onboarding-section-copy {
+  margin: -0.5rem 0 1rem;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--color-text-muted);
 }
 
 .profile-onboarding-identity-grid {
@@ -121,10 +196,15 @@
 }
 
 .profile-onboarding-label {
-  font-size: 0.625rem;
+  font-size: 0.6875rem;
   font-weight: 600;
   letter-spacing: 0.1em;
+  text-transform: uppercase;
   color: var(--color-text-soft);
+}
+
+.profile-onboarding-fields--spaced {
+  margin-top: 1rem;
 }
 
 .profile-onboarding-input-wrap {
@@ -149,7 +229,7 @@
 .profile-onboarding-select {
   width: 100%;
   border: 1px solid var(--color-border-strong);
-  border-radius: 0.4375rem;
+  border-radius: 0.375rem;
   background: var(--color-bg-deeper);
   padding: 0.625rem 0.75rem;
   font-size: 0.875rem;
@@ -185,7 +265,7 @@
 
 .profile-onboarding-chip {
   border: 1px solid var(--dashboard-card-border);
-  border-radius: 9999px;
+  border-radius: 0.375rem;
   background: var(--color-bg-deeper);
   padding: 0.4375rem 0.875rem;
   font-size: 0.75rem;
@@ -193,6 +273,99 @@
   color: var(--color-text-muted);
   cursor: pointer;
   transition: border-color 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+}
+
+/* Drones & equipment tag rows */
+.profile-onboarding-equipment {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.profile-onboarding-equipment-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.profile-onboarding-equipment-label {
+  margin: 0;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-soft);
+}
+
+.profile-onboarding-equipment-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.profile-onboarding-equip-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  border: 1px solid rgba(216, 179, 57, 0.35);
+  border-radius: 0.375rem;
+  background: rgba(216, 179, 57, 0.08);
+  padding: 0.375rem 0.625rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-gold);
+}
+
+.profile-onboarding-equip-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.125rem;
+  height: 1.125rem;
+  padding: 0;
+  border: none;
+  border-radius: 0.25rem;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.profile-onboarding-equip-remove:hover:not(:disabled) {
+  color: var(--color-danger);
+}
+
+.profile-onboarding-equip-remove:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.profile-onboarding-equip-add {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border: 1px dashed rgba(244, 241, 234, 0.22);
+  border-radius: 0.375rem;
+  background: var(--color-bg-deeper);
+  color: var(--color-gold);
+  font-size: 1.125rem;
+  font-weight: 400;
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.profile-onboarding-equip-add:hover:not(:disabled) {
+  border-color: rgba(216, 179, 57, 0.45);
+}
+
+.profile-onboarding-equip-add:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .profile-onboarding-chip:hover:not(:disabled) {
@@ -228,7 +401,7 @@
   justify-content: center;
   aspect-ratio: 1;
   border: 1px solid var(--dashboard-card-border);
-  border-radius: 0.5rem;
+  border-radius: 0.375rem;
   background: var(--color-bg-deeper);
   color: var(--color-text-soft);
   cursor: pointer;
@@ -253,16 +426,263 @@
   line-height: 1;
 }
 
+.profile-onboarding-sidebar-stack {
+  position: sticky;
+  top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  min-width: 0;
+}
+
 .profile-onboarding-sidebar {
   position: sticky;
   top: 1rem;
 }
 
+.profile-onboarding-sidebar-stack .profile-onboarding-sidebar {
+  position: static;
+}
+
 .profile-onboarding-strength-card {
   border: 1px solid var(--dashboard-card-border);
-  border-radius: 0.625rem;
+  border-radius: 0.75rem;
   background: var(--color-card-warm-alt);
-  padding: 1.375rem 1.25rem;
+  padding: 1.5625rem 1.25rem;
+}
+
+/* Add Payload Equipment — Figma 954:1804 layout, site tokens */
+.profile-onboarding-payload-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  border: 1px solid var(--dashboard-card-border);
+  border-radius: 0.375rem;
+  background: var(--color-card-warm);
+  padding: 2rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.profile-onboarding-payload-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.profile-onboarding-payload-title {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 2;
+  color: var(--color-gold);
+}
+
+.profile-onboarding-payload-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-top: 0.25rem;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.profile-onboarding-payload-close:hover:not(:disabled) {
+  color: var(--color-text);
+}
+
+.profile-onboarding-payload-close:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.profile-onboarding-payload-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  min-width: 0;
+}
+
+.profile-onboarding-payload-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6875rem;
+  min-width: 0;
+}
+
+.profile-onboarding-payload-input {
+  border-radius: 0.125rem;
+  padding: 0.875rem 1.0625rem;
+  font-size: 0.75rem;
+}
+
+.profile-onboarding-payload-input:focus,
+.profile-onboarding-payload-input:not(:placeholder-shown) {
+  border-color: var(--color-gold);
+  box-shadow: none;
+}
+
+.profile-onboarding-payload-hint {
+  margin: 0;
+  font-size: 0.6875rem;
+  line-height: 1.6;
+  color: var(--color-text-muted);
+}
+
+.profile-onboarding-char-count {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin: 0;
+  padding-top: 1.0625rem;
+  border-top: 1px solid rgba(244, 241, 234, 0.05);
+  font-size: 0.625rem;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-soft);
+}
+
+.profile-onboarding-char-count--active {
+  color: var(--color-gold);
+}
+
+.profile-onboarding-char-count-left {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.profile-onboarding-char-check {
+  flex-shrink: 0;
+  color: var(--color-gold);
+}
+
+.profile-onboarding-char-count-num {
+  flex-shrink: 0;
+  letter-spacing: 0;
+}
+
+.profile-onboarding-examples {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.profile-onboarding-examples-label {
+  margin: 0;
+  font-size: 0.625rem;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.profile-onboarding-example-chips {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.profile-onboarding-example-chip {
+  border: 1px solid rgba(244, 241, 234, 0.05);
+  border-radius: 0.125rem;
+  background: rgba(61, 61, 61, 0.3);
+  padding: 0.4375rem 0.8125rem;
+  font-size: 0.6875rem;
+  font-weight: 400;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.profile-onboarding-example-chip:hover:not(:disabled) {
+  border-color: rgba(216, 179, 57, 0.35);
+  color: var(--color-gold);
+}
+
+.profile-onboarding-example-chip:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.profile-onboarding-payload-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 1rem;
+  margin-top: 0;
+}
+
+.profile-onboarding-payload-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.4375rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease, opacity 0.15s ease;
+}
+
+.profile-onboarding-payload-btn--ghost {
+  border: 1px solid rgba(244, 241, 234, 0.2);
+  background: transparent;
+  color: var(--color-text);
+}
+
+.profile-onboarding-payload-btn--ghost:hover:not(:disabled) {
+  border-color: rgba(216, 179, 57, 0.35);
+}
+
+.profile-onboarding-payload-btn--gold {
+  border: 1px solid transparent;
+  background: var(--color-gold);
+  color: var(--color-cta-dark);
+  min-width: 7.25rem;
+}
+
+.profile-onboarding-payload-btn--gold:hover:not(:disabled) {
+  background: var(--color-gold-soft);
+}
+
+.profile-onboarding-payload-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.profile-onboarding-compliance {
+  margin-top: 1.25rem;
+}
+
+.profile-onboarding-public-toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  margin-top: 1.25rem;
+  font-size: 0.875rem;
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.profile-onboarding-public-toggle input {
+  margin-top: 0.2rem;
+  accent-color: var(--color-gold);
 }
 
 .profile-onboarding-strength-title {
@@ -348,18 +768,24 @@
   align-items: center;
   justify-content: center;
   height: 2.5rem;
-  border-radius: 0.4375rem;
+  border-radius: 0.375rem;
   border: 1px solid rgba(244, 241, 234, 0.14);
   background: var(--color-panel-deep);
   padding: 0 1.125rem;
   font-size: 0.8125rem;
   font-weight: 600;
   color: var(--color-text);
+  text-decoration: none;
   transition: border-color 0.15s ease;
 }
 
-.profile-onboarding-btn-outline:hover {
+.profile-onboarding-btn-outline:hover:not(:disabled) {
   border-color: rgba(216, 179, 57, 0.35);
+}
+
+.profile-onboarding-btn-outline:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
 .profile-onboarding-btn-gold {
@@ -367,7 +793,7 @@
   align-items: center;
   justify-content: center;
   height: 2.5rem;
-  border-radius: 0.4375rem;
+  border-radius: 0.375rem;
   border: 1px solid rgba(216, 179, 57, 0.35);
   background: var(--color-gold);
   padding: 0 1.25rem;

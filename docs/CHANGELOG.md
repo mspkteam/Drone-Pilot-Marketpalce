@@ -4,6 +4,92 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.41] — 2026-08-11
+
+### Changed
+
+- **Pilot nav pause:** lock Verification, Portfolio, Reviews, Earnings, Membership, Uniform Shop, Support, and Settings behind Week 4 until Figma UI resume
+
+---
+
+## [0.27.40] — 2026-08-11
+
+### Changed
+
+- **Pilot Profile UI** (`/dashboard/pilot/profile`): Figma Main `808:19441` — marketplace header chrome, drones/equipment + payload panel, section order, site color tokens
+
+---
+
+## [0.27.39] — 2026-08-11
+
+### Changed
+
+- **Pilot job detail** (`/dashboard/pilot/jobs/[id]`): marketplace-aligned layout — bracket header, mission/action cards, site tokens
+
+---
+
+## [0.27.38] — 2026-08-11
+
+### Changed
+
+- **Pilot proposal detail** (`/dashboard/pilot/proposals/[id]`): marketplace-aligned layout — bracket header, card grid, field rows, site tokens
+
+---
+
+## [0.27.37] — 2026-08-11
+
+### Changed
+
+- **Pilot My Proposals UI** (`/dashboard/pilot/proposals`): Figma Main `808:18982` — header/tabs/table chrome, uppercase status pills, site color tokens
+
+---
+
+## [0.27.36] — 2026-08-11
+
+### Changed
+
+- **Pilot Locked Jobs UI** (`/dashboard/pilot/locked-jobs`): Figma Main `808:18477` — title/notice chrome, locked cards, live countdown, site color tokens
+
+---
+
+## [0.27.35] — 2026-08-11
+
+### Changed
+
+- **Pilot Mission Marketplace UI** (`/dashboard/pilot/jobs`): Figma Main `808:17880` — header/toolbar, six filter pills, mission card hierarchy, site color tokens
+- Marketplace filters: LOCATION query param, DEADLINE client sort/filter; GRADE/DISTANCE deferred with note panels
+
+---
+
+## [0.27.34] — 2026-08-10
+
+### Added
+
+- **Pilot membership Instructor add-on** (Figma `1160:4705`): $199.99/year, A-4+ gate, demo activate/cancel API, listing preview UI
+- Catalog helpers + tests for instructor eligibility and genuine membership prices
+
+### Changed
+
+- Membership page layout aligned to Figma Main (annual, Fast Forward statuses, upgrade-difference, uniform policy, footer blocks) using site color tokens
+
+---
+
+## [0.27.33] — 2026-08-10
+
+### Changed
+
+- **Pilot dashboard Main UI** (`/dashboard/pilot`): Figma frame `808:17230` alignment — tokens, hero CTAs/icons, job chips, panel headers, reviews, activity icons (APIs unchanged)
+
+---
+
+## [0.27.32] — 2026-08-04
+
+### Changed
+
+- **Milestone 3 — Pilot unlocked:** `ACTIVE_MILESTONE = 3`; membership + earnings pilot routes moved from M4 → M3 (Stripe still deferred)
+
+---
+
 ## [0.27.31] — 2026-08-03
 
 ### Added

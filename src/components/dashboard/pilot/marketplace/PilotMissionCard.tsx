@@ -5,72 +5,76 @@ type PilotMissionCardProps = {
   mission: MissionCard;
 };
 
-function PinIcon() {
-  return (
-    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden>
-      <path
-        d="M6 1a3 3 0 00-3 3c0 2.25 3 6 3 6s3-3.75 3-6a3 3 0 00-3-3z"
-        stroke="currentColor"
-        strokeWidth="1"
-      />
-      <circle cx="6" cy="4" r="1" fill="currentColor" />
-    </svg>
-  );
-}
-
 export function PilotMissionCardView({ mission }: PilotMissionCardProps) {
   const ctaLabel = mission.hasApplied
     ? "View Proposal"
     : mission.canApply
-      ? "Submit Proposal →"
+      ? "View & Submit Proposal"
       : "View Mission";
 
   return (
     <article className="pilot-marketplace-card">
-      <div className="pilot-marketplace-card-top">
-        <span className="pilot-marketplace-avatar" aria-hidden>
-          {mission.initials}
-        </span>
-        <span className="pilot-marketplace-category">{mission.category}</span>
-      </div>
+      <div className="pilot-marketplace-card-body">
+        <div className="pilot-marketplace-card-row">
+          <span className="pilot-marketplace-avatar" aria-hidden>
+            {mission.initials}
+          </span>
 
-      <h3 className="pilot-marketplace-card-title">{mission.title}</h3>
+          <div className="pilot-marketplace-card-main">
+            <span className="pilot-marketplace-category">{mission.category}</span>
+            <h3 className="pilot-marketplace-card-title">{mission.title}</h3>
 
-      <p className="pilot-marketplace-client">
-        <span>{mission.clientName}</span>
-        <span className="pilot-marketplace-rating" aria-label={`Rating ${mission.rating}`}>
-          <span className="pilot-marketplace-star" aria-hidden>
-            ★
-          </span>{" "}
-          {mission.rating}
-        </span>
-      </p>
+            <div className="pilot-marketplace-client-row">
+              <span className="pilot-marketplace-client-name">{mission.clientName}</span>
+              <span
+                className="pilot-marketplace-rating"
+                aria-label={`Rating ${mission.rating}`}
+              >
+                <img
+                  src="/icons/pilot-dashboard/marketplace-star.svg"
+                  alt=""
+                  width={14}
+                  height={14}
+                  className="pilot-marketplace-star-icon"
+                />
+                {mission.rating}
+              </span>
+            </div>
 
-      <p className="pilot-marketplace-location">
-        <PinIcon />
-        {mission.location}
-      </p>
-
-      <div className="pilot-marketplace-meta">
-        <div>
-          <p className="pilot-marketplace-meta-label">DEADLINE</p>
-          <p className="pilot-marketplace-meta-value">{mission.deadline}</p>
+            <p className="pilot-marketplace-location">
+              <img
+                src="/icons/pilot-dashboard/location.svg"
+                alt=""
+                width={12}
+                height={12}
+                className="pilot-marketplace-pin-icon"
+              />
+              {mission.location}
+            </p>
+          </div>
         </div>
-        <div className="pilot-marketplace-meta-budget">
-          <p className="pilot-marketplace-meta-label pilot-marketplace-meta-label--budget">
-            BUDGET
+
+        <div className="pilot-marketplace-meta">
+          <div>
+            <p className="pilot-marketplace-meta-label">DEADLINE</p>
+            <p className="pilot-marketplace-meta-value">{mission.deadline}</p>
+          </div>
+          <div className="pilot-marketplace-meta-budget">
+            <p className="pilot-marketplace-meta-label pilot-marketplace-meta-label--budget">
+              BUDGET
+            </p>
+            <p className="pilot-marketplace-budget">{mission.budget}</p>
+          </div>
+        </div>
+
+        <p className="pilot-marketplace-license">LICENSE: {mission.license}</p>
+
+        {!mission.canApply && !mission.hasApplied && mission.eligibilityNote ? (
+          <p className="pilot-marketplace-eligibility" role="status">
+            {mission.eligibilityNote}
           </p>
-          <p className="pilot-marketplace-budget">{mission.budget}</p>
-        </div>
+        ) : null}
       </div>
-
-      <p className="pilot-marketplace-license">LICENSE: {mission.license}</p>
-
-      {!mission.canApply && !mission.hasApplied && mission.eligibilityNote ? (
-        <p className="pilot-marketplace-eligibility" role="status">
-          {mission.eligibilityNote}
-        </p>
-      ) : null}
 
       <Link href={mission.href} className="pilot-marketplace-cta">
         {ctaLabel}

@@ -137,15 +137,18 @@ export function PilotFastForwardCards({
               {formatMembershipUsd(card.fastForwardFeeUsd)}
             </p>
 
-            {!hasActiveSubscription && card.fastForwardFeeUsd > 0 ? (
+            {!hasActiveSubscription ? (
               <div className="pilot-subscription-ff-signup-total">
                 <div>
                   <p className="pilot-subscription-ff-signup-label">
                     Total at signup
                   </p>
                   <p className="pilot-subscription-ff-signup-breakdown">
-                    ({formatMembershipUsd(PILOT_ANNUAL_MEMBERSHIP_FEE_USD)} membership +{" "}
-                    {formatMembershipUsd(card.fastForwardFeeUsd)})
+                    ({formatMembershipUsd(PILOT_ANNUAL_MEMBERSHIP_FEE_USD)} membership
+                    {card.fastForwardFeeUsd > 0
+                      ? ` + ${formatMembershipUsd(card.fastForwardFeeUsd)}`
+                      : ""}
+                    )
                   </p>
                 </div>
                 <p className="pilot-subscription-ff-signup-amount">

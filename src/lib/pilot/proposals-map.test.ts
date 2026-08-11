@@ -11,11 +11,11 @@ describe("pilot proposals map", () => {
       mapApplicationStatusToUi("submitted", "2026-06-01T12:00:00.000Z"),
       "REVISED",
     );
-    assert.equal(proposalBadgeLabel("REVISED"), "Shortlisted");
+    assert.equal(proposalBadgeLabel("REVISED"), "SHORTLISTED");
   });
 
   it("keeps unsubmitted applications in Pending tab", () => {
     assert.equal(mapApplicationStatusToUi("submitted", null), "PENDING");
-    assert.equal(proposalBadgeLabel("PENDING"), "Pending");
+    assert.equal(proposalBadgeLabel("PENDING"), "PENDING");
   });
 });

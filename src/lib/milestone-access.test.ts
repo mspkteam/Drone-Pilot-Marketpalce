@@ -38,8 +38,8 @@ afterEach(() => {
 });
 
 describe("milestone access", () => {
-  it("defaults to milestone 2", () => {
-    assert.equal(getActiveMilestone(), 2);
+  it("defaults to milestone 3", () => {
+    assert.equal(getActiveMilestone(), 3);
   });
 
   it("respects NEXT_PUBLIC_MILESTONE_ACTIVE override", () => {
@@ -51,7 +51,7 @@ describe("milestone access", () => {
 
   it("ignores invalid milestone env values", () => {
     process.env.MILESTONE_ACTIVE = "99";
-    assert.equal(getActiveMilestone(), 2);
+    assert.equal(getActiveMilestone(), 3);
   });
 
   it("treats marketing paths as public", () => {
@@ -80,6 +80,7 @@ describe("milestone access", () => {
   });
 
   it("locks pilot marketplace at milestone 2", () => {
+    process.env.NEXT_PUBLIC_MILESTONE_ACTIVE = "2";
     const access = evaluateMilestoneAccess("/dashboard/pilot/jobs", "pilot");
     assert.equal(access.allowed, false);
     assert.equal(access.requiredMilestone, 3);
@@ -90,6 +91,44 @@ describe("milestone access", () => {
     const access = evaluateMilestoneAccess("/dashboard/pilot/jobs", "pilot");
     assert.equal(access.allowed, true);
     assert.equal(access.requiredMilestone, 3);
+  });
+
+  it("locks deferred pilot modules (Business / Account / remaining Pilot items) until Week 4", () => {
+    process.env.NEXT_PUBLIC_MILESTONE_ACTIVE = "3";
+    assert.equal(
+      evaluateMilestoneAccess("/dashboard/pilot/subscription", "pilot").allowed,
+      false,
+    );
+    assert.equal(
+      evaluateMilestoneAccess("/dashboard/pilot/payments", "pilot").allowed,
+      false,
+    );
+    assert.equal(
+      evaluateMilestoneAccess("/dashboard/pilot/verifications", "pilot").allowed,
+      false,
+    );
+    assert.equal(
+      evaluateMilestoneAccess("/dashboard/pilot/portfolio", "pilot").allowed,
+      false,
+    );
+    assert.equal(
+      evaluateMilestoneAccess("/dashboard/pilot/reviews", "pilot").allowed,
+      false,
+    );
+    assert.equal(
+      evaluateMilestoneAccess("/dashboard/pilot/support", "pilot").allowed,
+      false,
+    );
+    assert.equal(
+      evaluateMilestoneAccess("/dashboard/pilot/settings", "pilot").allowed,
+      false,
+    );
+    assert.equal(
+      evaluateMilestoneAccess("/dashboard/pilot/shop", "pilot").allowed,
+      false,
+    );
+    assert.equal(isNavHrefLocked("/dashboard/pilot/subscription"), true);
+    assert.equal(isNavHrefLocked("/dashboard/pilot/profile"), false);
   });
 
   it("keeps client onboarding always unlocked", () => {
@@ -109,7 +148,8 @@ describe("milestone access", () => {
   });
 
   it("marks locked nav hrefs for future milestones", () => {
-    assert.equal(isNavHrefLocked("/dashboard/pilot/jobs"), true);
+    assert.equal(isNavHrefLocked("/dashboard/pilot/jobs"), false);
+    assert.equal(isNavHrefLocked("/dashboard/pilot/shop"), true);
     assert.equal(isNavHrefLocked("/dashboard/admin"), false);
     assert.equal(isNavHrefLocked("/dashboard/client/jobs"), false);
   });

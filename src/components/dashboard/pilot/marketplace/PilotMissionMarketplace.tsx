@@ -4,36 +4,56 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { PilotMissionCardView } from "@/components/dashboard/pilot/marketplace/PilotMissionCard";
 import { mapOpenJobToMissionCard } from "@/lib/pilot/marketplace-map";
-import type { PilotJobsListResponse } from "@/types/application";
+import type { PilotJobsListResponse, PilotOpenJobDto } from "@/types/application";
 import { JOB_CATEGORIES } from "@/types/job";
+import { cn } from "@/lib/utils";
 
 const JOBS_API = "/api/pilot/jobs" as const;
 
-const FILTER_PILLS = ["SERVICE", "BUDGET"] as const;
+const FILTER_PILLS = [
+  "LOCATION",
+  "SERVICE",
+  "BUDGET",
+  "DEADLINE",
+  "GRADE",
+  "DISTANCE",
+] as const;
 type FilterPill = (typeof FILTER_PILLS)[number];
 
-function SearchIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
-      <circle cx="7" cy="7" r="4.5" stroke="currentColor" strokeWidth="1.25" />
-      <path d="M10.5 10.5L14 14" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" />
-    </svg>
-  );
-}
+type DeadlineMode = "all" | "soonest" | "dated" | "flexible";
 
 function buildJobsUrl(options: {
   q: string;
+  location: string;
   category: string;
   budgetMin: string;
   budgetMax: string;
 }): string {
   const params = new URLSearchParams();
   if (options.q.trim()) params.set("q", options.q.trim());
+  if (options.location.trim()) params.set("location", options.location.trim());
   if (options.category) params.set("category", options.category);
   if (options.budgetMin.trim()) params.set("budgetMin", options.budgetMin.trim());
   if (options.budgetMax.trim()) params.set("budgetMax", options.budgetMax.trim());
   const query = params.toString();
   return query ? `${JOBS_API}?${query}` : JOBS_API;
+}
+
+function applyDeadlineFilter(
+  jobs: PilotOpenJobDto[],
+  mode: DeadlineMode,
+): PilotOpenJobDto[] {
+  if (mode === "all") return jobs;
+  if (mode === "dated") return jobs.filter((job) => job.scheduledDate != null);
+  if (mode === "flexible") return jobs.filter((job) => job.scheduledDate == null);
+  return [...jobs].sort((a, b) => {
+    if (!a.scheduledDate && !b.scheduledDate) return 0;
+    if (!a.scheduledDate) return 1;
+    if (!b.scheduledDate) return -1;
+    return (
+      new Date(a.scheduledDate).getTime() - new Date(b.scheduledDate).getTime()
+    );
+  });
 }
 
 export function PilotMissionMarketplace() {
@@ -43,14 +63,22 @@ export function PilotMissionMarketplace() {
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState<FilterPill | null>(null);
+  const [location, setLocation] = useState("");
+  const [debouncedLocation, setDebouncedLocation] = useState("");
   const [category, setCategory] = useState("");
   const [budgetMin, setBudgetMin] = useState("");
   const [budgetMax, setBudgetMax] = useState("");
+  const [deadlineMode, setDeadlineMode] = useState<DeadlineMode>("all");
 
   useEffect(() => {
     const timer = window.setTimeout(() => setDebouncedSearch(search), 300);
     return () => window.clearTimeout(timer);
   }, [search]);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setDebouncedLocation(location), 300);
+    return () => window.clearTimeout(timer);
+  }, [location]);
 
   const loadJobs = useCallback(async () => {
     setLoading(true);
@@ -59,9 +87,10 @@ export function PilotMissionMarketplace() {
       const res = await fetch(
         buildJobsUrl({
           q: debouncedSearch,
-          category: activeFilter === "SERVICE" ? category : "",
-          budgetMin: activeFilter === "BUDGET" ? budgetMin : "",
-          budgetMax: activeFilter === "BUDGET" ? budgetMax : "",
+          location: debouncedLocation,
+          category,
+          budgetMin,
+          budgetMax,
         }),
       );
       const json = await res.json();
@@ -75,16 +104,16 @@ export function PilotMissionMarketplace() {
     } finally {
       setLoading(false);
     }
-  }, [activeFilter, budgetMax, budgetMin, category, debouncedSearch]);
+  }, [budgetMax, budgetMin, category, debouncedLocation, debouncedSearch]);
 
   useEffect(() => {
     void loadJobs();
   }, [loadJobs]);
 
-  const missions = useMemo(
-    () => (data?.jobs ?? []).map(mapOpenJobToMissionCard),
-    [data?.jobs],
-  );
+  const missions = useMemo(() => {
+    const filtered = applyDeadlineFilter(data?.jobs ?? [], deadlineMode);
+    return filtered.map(mapOpenJobToMissionCard);
+  }, [data?.jobs, deadlineMode]);
 
   if (loading && !data) {
     return <p className="pilot-marketplace-muted">Loading mission marketplace…</p>;
@@ -104,14 +133,20 @@ export function PilotMissionMarketplace() {
 
   return (
     <div className="pilot-marketplace-page">
-      <header className="pilot-marketplace-header">
+      <header className="pilot-marketplace-header pilot-marketplace-bracket-card">
         <p className="pilot-marketplace-eyebrow">OPERATIONS / MARKETPLACE</p>
         <h1 className="pilot-marketplace-title">Mission Marketplace</h1>
       </header>
 
-      <div className="pilot-marketplace-toolbar">
+      <div className="pilot-marketplace-toolbar pilot-marketplace-bracket-card">
         <label className="pilot-marketplace-search">
-          <SearchIcon />
+          <img
+            src="/icons/pilot-dashboard/marketplace-search.svg"
+            alt=""
+            width={16}
+            height={16}
+            className="pilot-marketplace-search-icon"
+          />
           <input
             type="search"
             value={search}
@@ -126,11 +161,10 @@ export function PilotMissionMarketplace() {
             <button
               key={pill}
               type="button"
-              className={
-                activeFilter === pill
-                  ? "pilot-marketplace-filter pilot-marketplace-filter--active"
-                  : "pilot-marketplace-filter"
-              }
+              className={cn(
+                "pilot-marketplace-filter",
+                activeFilter === pill && "pilot-marketplace-filter--active",
+              )}
               onClick={() =>
                 setActiveFilter((current) => (current === pill ? null : pill))
               }
@@ -140,6 +174,19 @@ export function PilotMissionMarketplace() {
           ))}
         </div>
       </div>
+
+      {activeFilter === "LOCATION" ? (
+        <label className="pilot-marketplace-filter-field">
+          <span>Location</span>
+          <input
+            type="search"
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
+            placeholder="City, region, or site…"
+            className="pilot-marketplace-filter-input"
+          />
+        </label>
+      ) : null}
 
       {activeFilter === "SERVICE" ? (
         <label className="pilot-marketplace-filter-field">
@@ -182,6 +229,35 @@ export function PilotMissionMarketplace() {
             />
           </label>
         </div>
+      ) : null}
+
+      {activeFilter === "DEADLINE" ? (
+        <label className="pilot-marketplace-filter-field">
+          <span>Deadline</span>
+          <select
+            value={deadlineMode}
+            onChange={(e) => setDeadlineMode(e.target.value as DeadlineMode)}
+            className="pilot-marketplace-filter-select"
+          >
+            <option value="all">All missions</option>
+            <option value="soonest">Soonest first</option>
+            <option value="dated">Has scheduled date</option>
+            <option value="flexible">Flexible / TBD</option>
+          </select>
+        </label>
+      ) : null}
+
+      {activeFilter === "GRADE" ? (
+        <p className="pilot-marketplace-filter-note" role="status">
+          Grade controls when approved jobs unlock for your membership.{" "}
+          <Link href="/dashboard/pilot/subscription">View membership →</Link>
+        </p>
+      ) : null}
+
+      {activeFilter === "DISTANCE" ? (
+        <p className="pilot-marketplace-filter-note" role="status">
+          Distance filter needs pilot and job geo coordinates — coming later.
+        </p>
       ) : null}
 
       {data?.membership ? (

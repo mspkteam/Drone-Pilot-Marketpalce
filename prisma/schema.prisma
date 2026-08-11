@@ -74,6 +74,9 @@ model PilotProfile {
   licenseCountry        String?
   isPublic              Boolean             @default(false)
   status                String              @default("draft")
+  /** Demo instructor add-on flag until Stripe (M316). */
+  instructorAddonActive Boolean             @default(false)
+  instructorAddonPeriodEnd DateTime?
   complianceAcceptedAt  DateTime?
   onboardingCompletedAt DateTime?
   commissionOverrideEnabled   Boolean   @default(false)

@@ -24,7 +24,9 @@ export function PilotDashboardHero({ data }: PilotDashboardHeroProps) {
           </h1>
           <p className="pilot-dashboard-hero-desc">
             You have{" "}
-            <span className="pilot-dashboard-gold">{jobCount} new recommended {jobLabel}</span>{" "}
+            <span className="pilot-dashboard-gold">
+              {jobCount} new recommended {jobLabel}
+            </span>{" "}
             and {proposalCount} {proposalLabel} awaiting client response. Airspace
             clear for operations.
           </p>
@@ -35,12 +37,19 @@ export function PilotDashboardHero({ data }: PilotDashboardHeroProps) {
             </span>
             {data.isVerified ? (
               <span className="pilot-dashboard-badge pilot-dashboard-badge--verified">
-                ✓ VERIFIED
+                <img
+                  src="/icons/pilot-dashboard/verified-check.svg"
+                  alt=""
+                  className="pilot-dashboard-badge-icon"
+                  width={12}
+                  height={12}
+                />
+                Verified
               </span>
             ) : null}
             {data.membershipDaysLeft != null ? (
               <span className="pilot-dashboard-badge pilot-dashboard-badge--gold">
-                MEMBERSHIP · {data.membershipDaysLeft}D LEFT
+                Membership · {data.membershipDaysLeft}d left
               </span>
             ) : null}
           </div>
@@ -48,16 +57,44 @@ export function PilotDashboardHero({ data }: PilotDashboardHeroProps) {
 
         <div className="pilot-dashboard-hero-actions">
           <Link href={PILOT_DASHBOARD_ROUTES.browseJobs} className="pilot-dashboard-btn-primary">
-            Browse Jobs →
+            Browse Jobs
+            <img
+              src="/icons/pilot-dashboard/arrow-primary.svg"
+              alt=""
+              className="pilot-dashboard-btn-icon"
+              width={16}
+              height={16}
+            />
           </Link>
           <Link href={PILOT_DASHBOARD_ROUTES.profile} className="pilot-dashboard-btn-outline">
-            Complete Profile →
+            Complete Profile
+            <img
+              src="/icons/pilot-dashboard/arrow-outline.svg"
+              alt=""
+              className="pilot-dashboard-btn-icon"
+              width={16}
+              height={16}
+            />
           </Link>
           <Link href={PILOT_DASHBOARD_ROUTES.verifications} className="pilot-dashboard-btn-outline">
-            Upload Documents →
+            Upload Documents
+            <img
+              src="/icons/pilot-dashboard/arrow-outline.svg"
+              alt=""
+              className="pilot-dashboard-btn-icon"
+              width={16}
+              height={16}
+            />
           </Link>
           <Link href={PILOT_DASHBOARD_ROUTES.earnings} className="pilot-dashboard-btn-outline">
-            View Earnings →
+            View Earnings
+            <img
+              src="/icons/pilot-dashboard/arrow-outline.svg"
+              alt=""
+              className="pilot-dashboard-btn-icon"
+              width={16}
+              height={16}
+            />
           </Link>
         </div>
       </div>

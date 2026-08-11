@@ -98,35 +98,43 @@ export function PilotProposalDetailView({ initial }: PilotProposalDetailViewProp
     : application.proposedAmount;
 
   return (
-    <div className="pilot-submit-page">
-      <header className="pilot-submit-header">
-        <div className="pilot-submit-header-nav">
-          <Link href="/dashboard/pilot/proposals" className="pilot-submit-back">
-            ← Back to My Proposals
-          </Link>
-        </div>
-        <p className="pilot-submit-eyebrow">OPERATIONS / PROPOSALS</p>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem", alignItems: "center" }}>
-          <h1 className="pilot-submit-title" style={{ margin: 0 }}>
-            {application.job.title}
-          </h1>
+    <div className="pilot-proposal-detail-page">
+      <header className="pilot-proposal-detail-header pilot-proposals-bracket-card">
+        <Link href="/dashboard/pilot/proposals" className="pilot-proposal-detail-back">
+          ← Back to My Proposals
+        </Link>
+        <p className="pilot-proposal-detail-eyebrow">OPERATIONS / PROPOSALS</p>
+        <div className="pilot-proposal-detail-title-row">
+          <h1 className="pilot-proposal-detail-title">{application.job.title}</h1>
           <PilotProposalStatusBadge status={uiStatus} label={badgeLabel} />
         </div>
-        <p className="pilot-submit-desc">
-          {application.job.locationLabel} · Submitted {formatDate(application.submittedAt)}
+        <p className="pilot-proposal-detail-meta">
+          {application.job.locationLabel}
+          <span aria-hidden> · </span>
+          Submitted {formatDate(application.submittedAt)}
+          <span aria-hidden> · </span>
+          {application.job.clientDisplayName}
         </p>
       </header>
 
       {error ? (
-        <p className="pilot-submit-error" role="alert">
+        <p className="pilot-proposals-banner pilot-proposals-banner--error" role="alert">
           {error}
         </p>
       ) : null}
 
-      <div className="pilot-submit-main">
-        <section className="pilot-submit-job-card">
-          <h2 className="pilot-submit-form-title">Mission</h2>
-          <dl className="pilot-submit-job-meta">
+      <div className="pilot-proposal-detail-grid-layout">
+        <section className="pilot-proposal-detail-card">
+          <div className="pilot-proposal-detail-card-head">
+            <h2 className="pilot-proposal-detail-card-title">Mission</h2>
+            <Link
+              href={`/dashboard/pilot/jobs/${application.jobId}`}
+              className="pilot-proposal-detail-link"
+            >
+              View listing →
+            </Link>
+          </div>
+          <dl className="pilot-proposal-detail-fields">
             <div>
               <dt>Client</dt>
               <dd>{application.job.clientDisplayName}</dd>
@@ -137,40 +145,33 @@ export function PilotProposalDetailView({ initial }: PilotProposalDetailViewProp
             </div>
             <div>
               <dt>Budget</dt>
-              <dd>{budget ?? "TBD"}</dd>
+              <dd className="pilot-proposal-detail-value-gold">{budget ?? "TBD"}</dd>
             </div>
             <div>
               <dt>Scheduled</dt>
               <dd>{formatDate(application.job.scheduledDate)}</dd>
             </div>
           </dl>
-          <div className="pilot-submit-job-copy" style={{ marginTop: "1rem" }}>
-            <div>
-              <h3>Description</h3>
-              <p>{application.job.description}</p>
-            </div>
+          <div className="pilot-proposal-detail-copy">
+            <h3>Description</h3>
+            <p>{application.job.description}</p>
             {application.job.requirements ? (
-              <div>
+              <>
                 <h3>Requirements</h3>
                 <p>{application.job.requirements}</p>
-              </div>
+              </>
             ) : null}
           </div>
-          <Link
-            href={`/dashboard/pilot/jobs/${application.jobId}`}
-            className="pilot-submit-side-link"
-            style={{ display: "inline-block", marginTop: "1rem" }}
-          >
-            View marketplace listing →
-          </Link>
         </section>
 
-        <section className="pilot-submit-job-card">
-          <h2 className="pilot-submit-form-title">Proposal summary</h2>
-          <dl className="pilot-proposal-detail-grid pilot-proposal-detail-dl">
+        <section className="pilot-proposal-detail-card">
+          <h2 className="pilot-proposal-detail-card-title">Proposal summary</h2>
+          <dl className="pilot-proposal-detail-fields">
             <div>
               <dt>Proposed amount</dt>
-              <dd>{formatMoney(application.proposedAmount, application.currency)}</dd>
+              <dd className="pilot-proposal-detail-value-gold">
+                {formatMoney(application.proposedAmount, application.currency)}
+              </dd>
             </div>
             <div>
               <dt>Estimated delivery</dt>
@@ -183,162 +184,164 @@ export function PilotProposalDetailView({ initial }: PilotProposalDetailViewProp
               </div>
             ) : null}
             {details?.deliverables?.length ? (
-              <div>
+              <div className="pilot-proposal-detail-fields-span">
                 <dt>Deliverables</dt>
                 <dd>{details.deliverables.join(", ")}</dd>
               </div>
             ) : null}
           </dl>
           {application.message ? (
-            <>
-              <h3 className="pilot-submit-subcard-title" style={{ marginTop: "1.25rem" }}>
-                Cover message
-              </h3>
-              <p className="pilot-submit-desc" style={{ whiteSpace: "pre-wrap" }}>
-                {application.message}
-              </p>
-            </>
+            <div className="pilot-proposal-detail-copy">
+              <h3>Cover message</h3>
+              <p className="pilot-proposal-detail-pre">{application.message}</p>
+            </div>
           ) : null}
           {details?.experience ? (
-            <>
-              <h3 className="pilot-submit-subcard-title" style={{ marginTop: "1.25rem" }}>
-                Experience
-              </h3>
-              <p className="pilot-submit-desc" style={{ whiteSpace: "pre-wrap" }}>
-                {details.experience}
-              </p>
-            </>
+            <div className="pilot-proposal-detail-copy">
+              <h3>Experience</h3>
+              <p className="pilot-proposal-detail-pre">{details.experience}</p>
+            </div>
           ) : null}
         </section>
-
-        {details?.operationalPlan ? (
-          <section className="pilot-submit-subcard">
-            <h3 className="pilot-submit-subcard-title">Operational plan</h3>
-            <dl className="pilot-proposal-detail-grid pilot-proposal-detail-dl">
-              <div>
-                <dt>Projected mileage</dt>
-                <dd>{details.operationalPlan.projectedMileage}</dd>
-              </div>
-              <div>
-                <dt>Flight time</dt>
-                <dd>{details.operationalPlan.flightTimeEstimate}</dd>
-              </div>
-              <div>
-                <dt>Flights</dt>
-                <dd>{details.operationalPlan.numberOfFlights}</dd>
-              </div>
-              <div>
-                <dt>Crew</dt>
-                <dd>{details.operationalPlan.crewCount}</dd>
-              </div>
-              <div>
-                <dt>Equipment</dt>
-                <dd>{details.operationalPlan.droneEquipment}</dd>
-              </div>
-              {details.operationalPlan.groundSupport ? (
-                <div>
-                  <dt>Ground support</dt>
-                  <dd>{details.operationalPlan.groundSupport}</dd>
-                </div>
-              ) : null}
-            </dl>
-          </section>
-        ) : null}
-
-        {details?.compliance ? (
-          <section className="pilot-submit-subcard">
-            <h3 className="pilot-submit-subcard-title">Compliance &amp; travel</h3>
-            <dl className="pilot-proposal-detail-dl">
-              <div>
-                <dt>Permits / waivers</dt>
-                <dd>{details.compliance.permitsWaivers}</dd>
-              </div>
-              <div>
-                <dt>Travel / lodging</dt>
-                <dd>{details.compliance.travelLodging}</dd>
-              </div>
-              <div>
-                <dt>Safety plan</dt>
-                <dd>{details.compliance.safetyPlan}</dd>
-              </div>
-              {details.assumptions ? (
-                <div>
-                  <dt>Additional notes</dt>
-                  <dd>{details.assumptions}</dd>
-                </div>
-              ) : null}
-            </dl>
-          </section>
-        ) : null}
-
-        {details?.pricingBreakdown ? (
-          <section className="pilot-submit-subcard">
-            <h3 className="pilot-submit-subcard-title">Pricing breakdown</h3>
-            <dl className="pilot-proposal-detail-grid pilot-proposal-detail-dl">
-              <div>
-                <dt>Flight operations</dt>
-                <dd>
-                  {formatMoney(details.pricingBreakdown.flightOperations, application.currency)}
-                </dd>
-              </div>
-              <div>
-                <dt>Travel mileage</dt>
-                <dd>
-                  {formatMoney(details.pricingBreakdown.travelMileage, application.currency)}
-                </dd>
-              </div>
-              <div>
-                <dt>Equipment / batteries</dt>
-                <dd>
-                  {formatMoney(details.pricingBreakdown.equipmentBatteries, application.currency)}
-                </dd>
-              </div>
-              <div>
-                <dt>Planning / delivery</dt>
-                <dd>
-                  {formatMoney(details.pricingBreakdown.planningDelivery, application.currency)}
-                </dd>
-              </div>
-              <div>
-                <dt>Total</dt>
-                <dd>{formatMoney(pricingTotal, application.currency)}</dd>
-              </div>
-            </dl>
-          </section>
-        ) : null}
-
-        {details?.portfolioLinks?.length ? (
-          <section className="pilot-submit-job-card">
-            <h2 className="pilot-submit-form-title">Portfolio links</h2>
-            <ul className="pilot-submit-steps" style={{ listStyle: "none", paddingLeft: 0 }}>
-              {details.portfolioLinks.map((link) => (
-                <li key={link}>
-                  <a href={link} target="_blank" rel="noreferrer" className="pilot-submit-side-link">
-                    {link}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </section>
-        ) : null}
-
-        {canWithdraw ? (
-          <section className="pilot-submit-job-card">
-            <h2 className="pilot-submit-form-title">Withdraw proposal</h2>
-            <p className="pilot-submit-desc">
-              Remove your pending offer from client review. This cannot be undone.
-            </p>
-            <button
-              type="button"
-              className="pilot-proposal-withdraw-btn"
-              disabled={withdrawing}
-              onClick={() => void handleWithdraw()}
-            >
-              {withdrawing ? "Withdrawing…" : "Withdraw proposal"}
-            </button>
-          </section>
-        ) : null}
       </div>
+
+      {details?.operationalPlan ? (
+        <section className="pilot-proposal-detail-card">
+          <h2 className="pilot-proposal-detail-card-title">Operational plan</h2>
+          <dl className="pilot-proposal-detail-fields">
+            <div>
+              <dt>Projected mileage</dt>
+              <dd>{details.operationalPlan.projectedMileage}</dd>
+            </div>
+            <div>
+              <dt>Flight time</dt>
+              <dd>{details.operationalPlan.flightTimeEstimate}</dd>
+            </div>
+            <div>
+              <dt>Flights</dt>
+              <dd>{details.operationalPlan.numberOfFlights}</dd>
+            </div>
+            <div>
+              <dt>Crew</dt>
+              <dd>{details.operationalPlan.crewCount}</dd>
+            </div>
+            <div className="pilot-proposal-detail-fields-span">
+              <dt>Equipment</dt>
+              <dd>{details.operationalPlan.droneEquipment}</dd>
+            </div>
+            {details.operationalPlan.groundSupport ? (
+              <div className="pilot-proposal-detail-fields-span">
+                <dt>Ground support</dt>
+                <dd>{details.operationalPlan.groundSupport}</dd>
+              </div>
+            ) : null}
+          </dl>
+        </section>
+      ) : null}
+
+      {details?.compliance ? (
+        <section className="pilot-proposal-detail-card">
+          <h2 className="pilot-proposal-detail-card-title">Compliance &amp; travel</h2>
+          <dl className="pilot-proposal-detail-stack">
+            <div>
+              <dt>Permits / waivers</dt>
+              <dd>{details.compliance.permitsWaivers}</dd>
+            </div>
+            <div>
+              <dt>Travel / lodging</dt>
+              <dd>{details.compliance.travelLodging}</dd>
+            </div>
+            <div>
+              <dt>Safety plan</dt>
+              <dd>{details.compliance.safetyPlan}</dd>
+            </div>
+            {details.assumptions ? (
+              <div>
+                <dt>Additional notes</dt>
+                <dd>{details.assumptions}</dd>
+              </div>
+            ) : null}
+          </dl>
+        </section>
+      ) : null}
+
+      {details?.pricingBreakdown ? (
+        <section className="pilot-proposal-detail-card">
+          <h2 className="pilot-proposal-detail-card-title">Pricing breakdown</h2>
+          <dl className="pilot-proposal-detail-fields">
+            <div>
+              <dt>Flight operations</dt>
+              <dd>
+                {formatMoney(details.pricingBreakdown.flightOperations, application.currency)}
+              </dd>
+            </div>
+            <div>
+              <dt>Travel mileage</dt>
+              <dd>
+                {formatMoney(details.pricingBreakdown.travelMileage, application.currency)}
+              </dd>
+            </div>
+            <div>
+              <dt>Equipment / batteries</dt>
+              <dd>
+                {formatMoney(
+                  details.pricingBreakdown.equipmentBatteries,
+                  application.currency,
+                )}
+              </dd>
+            </div>
+            <div>
+              <dt>Planning / delivery</dt>
+              <dd>
+                {formatMoney(details.pricingBreakdown.planningDelivery, application.currency)}
+              </dd>
+            </div>
+            <div className="pilot-proposal-detail-fields-span">
+              <dt>Total</dt>
+              <dd className="pilot-proposal-detail-value-gold">
+                {formatMoney(pricingTotal, application.currency)}
+              </dd>
+            </div>
+          </dl>
+        </section>
+      ) : null}
+
+      {details?.portfolioLinks?.length ? (
+        <section className="pilot-proposal-detail-card">
+          <h2 className="pilot-proposal-detail-card-title">Portfolio links</h2>
+          <ul className="pilot-proposal-detail-links">
+            {details.portfolioLinks.map((link) => (
+              <li key={link}>
+                <a
+                  href={link}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="pilot-proposal-detail-link"
+                >
+                  {link}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+
+      {canWithdraw ? (
+        <section className="pilot-proposal-detail-card pilot-proposal-detail-card--danger">
+          <h2 className="pilot-proposal-detail-card-title">Withdraw proposal</h2>
+          <p className="pilot-proposal-detail-help">
+            Remove your pending offer from client review. This cannot be undone.
+          </p>
+          <button
+            type="button"
+            className="pilot-proposal-detail-withdraw"
+            disabled={withdrawing}
+            onClick={() => void handleWithdraw()}
+          >
+            {withdrawing ? "Withdrawing…" : "Withdraw proposal"}
+          </button>
+        </section>
+      ) : null}
     </div>
   );
 }

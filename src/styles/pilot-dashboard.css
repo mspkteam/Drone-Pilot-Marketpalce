@@ -1,4 +1,6 @@
-/* Pilot Dashboard overview — aviation mission-control layout */
+/* Pilot Dashboard overview — Figma Main 808:17230
+ * Layout/structure from Figma; colors from site :root tokens (globals.css).
+ */
 
 .pilot-dashboard-shell.dashboard-page {
   display: flex;
@@ -9,6 +11,26 @@
 }
 
 .pilot-dashboard-page {
+  /* Aliases only — map layout slots to the live brand palette */
+  --pd-card: var(--color-card-warm);
+  --pd-card-alt: var(--color-card-warm-alt);
+  --pd-border: var(--dashboard-card-border);
+  --pd-gold: var(--color-gold);
+  --pd-gold-wash: rgba(216, 179, 57, 0.08);
+  --pd-gold-ring: var(--color-border-gold);
+  --pd-text: var(--color-text);
+  --pd-muted: var(--color-text-soft);
+  --pd-success: var(--color-success-bright);
+  --pd-success-wash: var(--color-success-muted);
+  --pd-success-ring: rgba(34, 197, 94, 0.45);
+  --pd-danger: var(--color-danger);
+  --pd-danger-wash: var(--color-danger-muted);
+  --pd-danger-ring: rgba(239, 68, 68, 0.45);
+  --pd-bracket: rgba(244, 241, 234, 0.22);
+  --pd-btn-border: var(--color-border-strong);
+  --pd-radius: 0.625rem;
+  --pd-radius-sm: 0.5rem;
+
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -16,13 +38,7 @@
   min-width: 0;
 }
 
-@media (min-width: 768px) {
-  .pilot-dashboard-page {
-    gap: 1.75rem;
-  }
-}
-
-/* Corner bracket accents */
+/* Corner bracket accents — site layout (inset L-marks, matches admin/ops) */
 .pilot-dashboard-bracket-card {
   position: relative;
 }
@@ -34,31 +50,31 @@
   width: 14px;
   height: 14px;
   pointer-events: none;
-  z-index: 1;
+  z-index: 3;
 }
 
 .pilot-dashboard-bracket-card::before {
   top: 10px;
   left: 10px;
-  border-top: 1px solid rgba(244, 241, 234, 0.22);
-  border-left: 1px solid rgba(244, 241, 234, 0.22);
+  border-top: 1px solid var(--pd-bracket);
+  border-left: 1px solid var(--pd-bracket);
 }
 
 .pilot-dashboard-bracket-card::after {
   right: 10px;
   bottom: 10px;
-  border-right: 1px solid rgba(244, 241, 234, 0.22);
-  border-bottom: 1px solid rgba(244, 241, 234, 0.22);
+  border-right: 1px solid var(--pd-bracket);
+  border-bottom: 1px solid var(--pd-bracket);
 }
 
 /* Hero */
 .pilot-dashboard-hero {
+  position: relative;
   overflow: hidden;
-  border: 1px solid var(--dashboard-card-border);
-  border-radius: 0.625rem;
-  background: var(--color-card-warm);
-  padding: 1.75rem;
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--pd-border);
+  border-radius: var(--pd-radius);
+  background: var(--pd-card);
+  padding: 1.5625rem;
 }
 
 .pilot-dashboard-hero-glow {
@@ -96,80 +112,89 @@
 
 .pilot-dashboard-eyebrow {
   margin: 0;
-  font-size: 0.6875rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  color: var(--color-text-soft);
+  font-size: 0.7rem;
+  font-weight: 400;
+  letter-spacing: 0.084em;
+  text-transform: uppercase;
+  color: var(--pd-muted);
 }
 
 .pilot-dashboard-hero-title {
-  margin: 0.625rem 0 0;
-  font-size: clamp(1.625rem, 2.4vw, 2.125rem);
-  font-weight: 800;
-  line-height: 1.15;
-  color: var(--color-text);
+  margin: 0.25rem 0 0;
+  font-size: clamp(1.75rem, 2.5vw, 2.25rem);
+  font-weight: 600;
+  line-height: 1.11;
+  letter-spacing: -0.001em;
+  color: var(--pd-text);
 }
 
 .pilot-dashboard-hero-desc {
-  margin: 0.75rem 0 0;
+  margin: 0.25rem 0 0;
   max-width: 36rem;
-  font-size: 0.9375rem;
-  line-height: 1.6;
-  color: var(--color-text-muted);
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--pd-muted);
 }
 
 .pilot-dashboard-gold {
-  color: var(--color-gold);
-  font-weight: 600;
+  color: var(--pd-gold);
+  font-weight: 400;
 }
 
 .pilot-dashboard-badges {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
-  margin-top: 1.125rem;
+  margin-top: 0.75rem;
 }
 
 .pilot-dashboard-badge {
   display: inline-flex;
   align-items: center;
-  height: 1.625rem;
+  gap: 0.25rem;
+  height: 1.375rem;
   border-radius: 999px;
-  padding: 0 0.75rem;
-  font-size: 0.625rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  padding: 0 0.5625rem;
+  font-size: 0.7rem;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 
 .pilot-dashboard-badge--gold {
-  border: 1px solid rgba(216, 179, 57, 0.45);
-  background: rgba(216, 179, 57, 0.08);
-  color: var(--color-gold);
+  border: 1px solid var(--pd-gold-ring);
+  background: var(--pd-gold-wash);
+  color: var(--pd-gold);
 }
 
 .pilot-dashboard-badge--verified {
-  border: 1px solid rgba(34, 197, 94, 0.45);
-  background: rgba(34, 197, 94, 0.1);
-  color: var(--color-success-bright);
+  border: 1px solid var(--pd-success-ring);
+  background: var(--pd-success-wash);
+  color: var(--pd-success);
+}
+
+.pilot-dashboard-badge-icon {
+  display: block;
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
 }
 
 .pilot-dashboard-hero-actions {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.625rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(2, 2.625rem);
+  gap: 0.75rem;
   flex-shrink: 0;
+  align-self: flex-start;
   width: 100%;
-  max-width: 16.5rem;
+  max-width: 21.825rem;
 }
 
-@media (min-width: 480px) {
+@media (max-width: 479px) {
   .pilot-dashboard-hero-actions {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 899px) {
-  .pilot-dashboard-hero-actions {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: none;
     max-width: none;
   }
 }
@@ -178,11 +203,14 @@
 .pilot-dashboard-btn-outline {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  min-height: 2.5rem;
-  border-radius: 0.5rem;
-  padding: 0 0.875rem;
-  font-size: 0.75rem;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  min-height: 2.625rem;
+  border-radius: var(--pd-radius-sm);
+  padding: 0 0.8125rem;
+  font-size: 0.875rem;
   font-weight: 700;
   text-decoration: none;
   white-space: nowrap;
@@ -190,8 +218,10 @@
 }
 
 .pilot-dashboard-btn-primary {
-  border: 1px solid rgba(216, 179, 57, 0.35);
-  background: var(--color-gold);
+  justify-content: center;
+  gap: 0.625rem;
+  border: 1px solid var(--color-border-gold);
+  background: var(--pd-gold);
   color: var(--color-cta-dark);
 }
 
@@ -200,14 +230,23 @@
 }
 
 .pilot-dashboard-btn-outline {
-  border: 1px solid var(--color-border-strong);
+  justify-content: space-between;
+  gap: 0.5rem;
+  border: 1px solid var(--pd-btn-border);
   background: var(--color-bg-soft);
-  color: var(--color-gold);
+  color: var(--pd-gold);
 }
 
 .pilot-dashboard-btn-outline:hover {
-  border-color: rgba(216, 179, 57, 0.35);
+  border-color: var(--color-border-gold);
   background: rgba(216, 179, 57, 0.06);
+}
+
+.pilot-dashboard-btn-icon {
+  display: block;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
 }
 
 /* Stats */
@@ -231,35 +270,38 @@
 
 .pilot-dashboard-stat-card {
   display: flex;
-  min-height: 6.875rem;
+  min-height: 6.925rem;
   flex-direction: column;
-  justify-content: center;
-  border: 1px solid var(--dashboard-card-border);
-  border-radius: 0.625rem;
-  background: var(--color-card-warm);
-  padding: 1.25rem;
+  justify-content: flex-start;
+  gap: 0.25rem;
+  border: 1px solid var(--pd-border);
+  border-radius: var(--pd-radius);
+  background: var(--pd-card);
+  padding: 1.0625rem;
 }
 
 .pilot-dashboard-stat-label {
   margin: 0;
-  font-size: 0.625rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  color: var(--color-text-soft);
+  font-size: 0.7rem;
+  font-weight: 400;
+  letter-spacing: 0.084em;
+  text-transform: uppercase;
+  color: var(--pd-muted);
 }
 
 .pilot-dashboard-stat-value {
-  margin: 0.5rem 0 0;
-  font-size: 1.75rem;
-  font-weight: 800;
-  line-height: 1;
-  color: var(--color-gold);
+  margin: 0;
+  font-size: 1.875rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--pd-gold);
 }
 
 .pilot-dashboard-stat-sub {
-  margin: 0.5rem 0 0;
+  margin: 0;
   font-size: 0.75rem;
-  color: var(--color-text-soft);
+  line-height: 1.333;
+  color: var(--pd-muted);
 }
 
 /* Main grid */
@@ -286,15 +328,14 @@
 
 /* Panels */
 .pilot-dashboard-panel {
-  border: 1px solid var(--dashboard-card-border);
-  border-radius: 0.625rem;
-  background: var(--color-card-warm);
-  padding: 1.25rem 1.375rem;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+  border: 1px solid var(--pd-border);
+  border-radius: var(--pd-radius);
+  background: var(--pd-card);
+  padding: 0 1rem 1.0625rem;
 }
 
 .pilot-dashboard-panel--warm {
-  background: var(--color-card-warm-alt);
+  background: var(--pd-card);
 }
 
 .pilot-dashboard-panel-head {
@@ -303,54 +344,66 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
-  margin-bottom: 1rem;
+  margin: 0 -1rem 1rem;
+  padding: 0.75rem 1rem 0.8125rem;
+  border-bottom: 1px solid var(--pd-border);
 }
 
 .pilot-dashboard-panel-title {
   margin: 0;
-  font-size: 0.75rem;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  color: var(--color-gold);
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--pd-gold);
 }
 
 .pilot-dashboard-panel-title--solo {
-  margin-bottom: 1rem;
+  display: block;
+  margin: 0 -1rem 1rem;
+  padding: 0.75rem 1rem 0.8125rem;
+  border-bottom: 1px solid var(--pd-border);
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--pd-gold);
 }
 
 .pilot-dashboard-panel-title--reviews {
-  color: var(--color-text);
-  font-size: 0.9375rem;
-  letter-spacing: 0.04em;
+  text-transform: none;
+  letter-spacing: 0.05em;
+  font-weight: 500;
 }
 
 .pilot-dashboard-panel-title--gold {
-  color: var(--color-gold);
+  color: var(--pd-gold);
 }
 
 .pilot-dashboard-panel-link {
-  font-size: 0.6875rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: var(--color-text-soft);
+  font-size: 0.7rem;
+  font-weight: 400;
+  letter-spacing: 0.084em;
+  text-transform: uppercase;
+  color: var(--pd-muted);
   text-decoration: none;
 }
 
 .pilot-dashboard-panel-link:hover {
-  color: var(--color-gold);
+  color: var(--pd-gold);
 }
 
 .pilot-dashboard-panel-note {
   margin: -0.25rem 0 0.875rem;
   font-size: 0.6875rem;
   line-height: 1.45;
-  color: var(--color-text-soft);
+  color: var(--pd-muted);
 }
 
 .pilot-dashboard-muted {
   margin: 0;
   font-size: 0.875rem;
-  color: var(--color-text-muted);
+  color: var(--pd-muted);
 }
 
 /* Recommended jobs */
@@ -367,10 +420,10 @@
 }
 
 .pilot-dashboard-job-card {
-  border: 1px solid var(--dashboard-card-border);
-  border-radius: 0.5rem;
-  background: var(--color-bg-soft);
-  padding: 1rem;
+  border: 1px solid var(--pd-border);
+  border-radius: var(--pd-radius-sm);
+  background: transparent;
+  padding: 1.0625rem;
 }
 
 .pilot-dashboard-job-top {
@@ -383,36 +436,63 @@
 .pilot-dashboard-job-category {
   display: inline-flex;
   border-radius: 999px;
-  border: 1px solid var(--color-border-strong);
-  padding: 0.125rem 0.5rem;
-  font-size: 0.5625rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: var(--color-text-muted);
+  border: 1px solid var(--pd-gold-ring);
+  background: var(--pd-gold-wash);
+  padding: 0.1875rem 0.5625rem;
+  font-size: 0.7rem;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--pd-gold);
+}
+
+.pilot-dashboard-job-category--green {
+  border-color: var(--pd-success-ring);
+  background: var(--pd-success-wash);
+  color: var(--pd-success);
+}
+
+.pilot-dashboard-job-category--neutral {
+  border-color: var(--pd-border);
+  background: #211f1c;
+  color: var(--pd-text);
 }
 
 .pilot-dashboard-job-price {
-  font-size: 0.875rem;
-  font-weight: 800;
-  color: var(--color-gold);
+  font-size: 1.25rem;
+  font-weight: 400;
+  line-height: 1.4;
+  color: var(--pd-gold);
 }
 
 .pilot-dashboard-job-title {
-  margin: 0.625rem 0 0;
-  font-size: 0.875rem;
-  font-weight: 700;
-  line-height: 1.35;
-  color: var(--color-text);
+  margin: 0.28125rem 0 0;
+  font-size: 1.125rem;
+  font-weight: 500;
+  line-height: 1.39;
+  color: var(--pd-text);
 }
 
 .pilot-dashboard-job-location,
 .pilot-dashboard-job-time {
   display: inline-flex;
   align-items: center;
-  gap: 0.375rem;
-  margin: 0.375rem 0 0;
-  font-size: 0.6875rem;
-  color: var(--color-text-soft);
+  gap: 0.25rem;
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--pd-muted);
+}
+
+.pilot-dashboard-job-location {
+  margin-top: 0.25rem;
+  padding-bottom: 0.53125rem;
+}
+
+.pilot-dashboard-job-meta-icon {
+  display: block;
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
 }
 
 .pilot-dashboard-job-footer {
@@ -421,15 +501,21 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
-  margin-top: 0.75rem;
-  padding-top: 0.75rem;
-  border-top: 1px solid var(--dashboard-card-border);
+  margin-top: 0;
+  padding-top: 0.8125rem;
+  border-top: 1px solid var(--pd-border);
+}
+
+.pilot-dashboard-job-time {
+  font-size: 0.7rem;
+  letter-spacing: 0.084em;
+  text-transform: uppercase;
 }
 
 .pilot-dashboard-job-action {
-  font-size: 0.6875rem;
-  font-weight: 700;
-  color: var(--color-gold);
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--pd-gold);
   text-decoration: none;
 }
 
@@ -444,7 +530,7 @@
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 0.625rem;
+  gap: 0.75rem;
 }
 
 .pilot-dashboard-locked-row {
@@ -453,25 +539,27 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
-  border: 1px solid var(--dashboard-card-border);
-  border-radius: 0.5rem;
-  background: var(--color-bg-soft);
-  padding: 0.875rem 1rem;
+  border: 1px solid var(--pd-border);
+  border-radius: var(--pd-radius-sm);
+  background: var(--pd-card);
+  padding: 0.8125rem;
 }
 
 .pilot-dashboard-locked-title {
   margin: 0;
   font-size: 0.875rem;
-  font-weight: 700;
-  color: var(--color-text);
+  font-weight: 500;
+  line-height: 1.43;
+  color: var(--pd-text);
 }
 
 .pilot-dashboard-locked-req {
-  margin: 0.25rem 0 0;
-  font-size: 0.5625rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  color: var(--color-text-soft);
+  margin: 0.125rem 0 0;
+  font-size: 0.7rem;
+  font-weight: 400;
+  letter-spacing: 0.084em;
+  text-transform: uppercase;
+  color: var(--pd-muted);
 }
 
 .pilot-dashboard-locked-timer {
@@ -483,31 +571,32 @@
 
 .pilot-dashboard-countdown-value {
   font-size: 1rem;
-  font-weight: 800;
+  font-weight: 500;
   font-variant-numeric: tabular-nums;
-  color: var(--color-gold);
+  line-height: 1.5;
+  color: var(--pd-gold);
 }
 
 .pilot-dashboard-locked-label {
-  margin-top: 0.125rem;
-  font-size: 0.5625rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  color: var(--color-text-soft);
+  margin-top: 0;
+  font-size: 0.7rem;
+  font-weight: 400;
+  letter-spacing: 0.084em;
+  text-transform: uppercase;
+  color: var(--pd-muted);
 }
 
 /* Profile strength */
 .pilot-dashboard-strength-body {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1.5rem;
 }
 
 @media (min-width: 560px) {
   .pilot-dashboard-strength-body {
     flex-direction: row;
     align-items: center;
-    gap: 1.5rem;
   }
 }
 
@@ -517,8 +606,8 @@
 
 .pilot-dashboard-strength-ring {
   display: flex;
-  width: 6.5rem;
-  height: 6.5rem;
+  width: 6rem;
+  height: 6rem;
   align-items: center;
   justify-content: center;
   border-radius: 999px;
@@ -526,18 +615,19 @@
 
 .pilot-dashboard-strength-ring-inner {
   display: flex;
-  width: 5.25rem;
-  height: 5.25rem;
+  width: 4.75rem;
+  height: 4.75rem;
   align-items: center;
   justify-content: center;
   border-radius: 999px;
-  background: var(--color-card-warm);
+  background: var(--pd-card);
 }
 
 .pilot-dashboard-strength-pct {
-  font-size: 1.25rem;
-  font-weight: 800;
-  color: var(--color-gold);
+  font-size: 1.5rem;
+  font-weight: 400;
+  line-height: 1.33;
+  color: var(--pd-gold);
 }
 
 .pilot-dashboard-strength-list {
@@ -546,6 +636,9 @@
   list-style: none;
   flex: 1 1 auto;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
 }
 
 .pilot-dashboard-strength-row {
@@ -553,92 +646,103 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid var(--color-border-divider);
-}
-
-.pilot-dashboard-strength-row:last-child {
+  padding: 0;
   border-bottom: 0;
 }
 
 .pilot-dashboard-strength-label {
-  font-size: 0.8125rem;
-  color: var(--color-text);
+  font-size: 0.875rem;
+  color: var(--pd-text);
 }
 
 .pilot-dashboard-strength-pill {
   flex-shrink: 0;
   border-radius: 999px;
-  padding: 0.125rem 0.5rem;
-  font-size: 0.5625rem;
-  font-weight: 800;
-  letter-spacing: 0.06em;
+  border: 1px solid transparent;
+  padding: 0.1875rem 0.5625rem;
+  font-size: 0.7rem;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 
 .pilot-dashboard-strength-pill--done {
-  background: rgba(34, 197, 94, 0.12);
-  color: var(--color-success-bright);
+  border-color: var(--pd-success-ring);
+  background: var(--pd-success-wash);
+  color: var(--pd-success);
 }
 
 .pilot-dashboard-strength-pill--partial {
-  background: rgba(216, 179, 57, 0.12);
-  color: var(--color-gold);
+  border-color: var(--pd-gold-ring);
+  background: var(--pd-gold-wash);
+  color: var(--pd-gold);
 }
 
 .pilot-dashboard-strength-pill--missing {
-  background: rgba(239, 68, 68, 0.12);
-  color: var(--color-danger);
+  border-color: var(--pd-danger-ring);
+  background: var(--pd-danger-wash);
+  color: var(--pd-danger);
 }
 
 /* Reviews */
 .pilot-dashboard-rating-summary {
-  margin-bottom: 1rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid var(--dashboard-card-border);
+  margin-bottom: 0.75rem;
+  padding: 0.75rem 0.8125rem;
+  border: 1px solid var(--pd-border);
+  border-radius: var(--pd-radius-sm);
+  background: var(--pd-card-alt);
 }
 
 .pilot-dashboard-rating-value {
-  margin: 0;
+  margin: 0 0 0.375rem;
   font-size: 1.5rem;
-  font-weight: 800;
-  color: var(--color-text);
+  font-weight: 700;
+  letter-spacing: 0.015em;
+  line-height: 1.25;
+  color: var(--pd-text);
 }
 
 .pilot-dashboard-stars {
   display: inline-flex;
   gap: 0.125rem;
-  margin-top: 0.25rem;
+}
+
+.pilot-dashboard-stars-img {
+  display: block;
+  width: 109px;
+  height: 20px;
 }
 
 .pilot-dashboard-star {
   font-size: 0.875rem;
-  color: rgba(244, 241, 234, 0.2);
+  color: rgba(241, 238, 231, 0.2);
 }
 
 .pilot-dashboard-star--on {
-  color: var(--color-gold);
+  color: var(--pd-gold);
 }
 
 .pilot-dashboard-rating-bar {
   margin-top: 0.625rem;
-  height: 0.375rem;
+  height: 0.25rem;
   border-radius: 999px;
-  background: var(--dashboard-card-border);
+  background: #000;
   overflow: hidden;
 }
 
 .pilot-dashboard-rating-bar-fill {
   height: 100%;
   border-radius: 999px;
-  background: linear-gradient(90deg, var(--color-gold), var(--color-gold-soft));
+  background: var(--pd-gold);
 }
 
 .pilot-dashboard-rating-meta {
-  margin: 0.5rem 0 0;
-  font-size: 0.5625rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  color: var(--color-text-soft);
+  margin: 0.25rem 0 0;
+  font-size: 0.7rem;
+  font-weight: 400;
+  letter-spacing: 0.084em;
+  text-transform: uppercase;
+  color: var(--pd-muted);
 }
 
 .pilot-dashboard-review-list {
@@ -648,10 +752,10 @@
 }
 
 .pilot-dashboard-review-card {
-  border: 1px solid var(--dashboard-card-border);
-  border-radius: 0.5rem;
-  background: rgba(0, 0, 0, 0.22);
-  padding: 0.875rem;
+  border: 1px solid var(--pd-border);
+  border-radius: var(--pd-radius-sm);
+  background: transparent;
+  padding: 0.8125rem;
 }
 
 .pilot-dashboard-review-head {
@@ -664,24 +768,26 @@
 
 .pilot-dashboard-review-title {
   margin: 0;
-  font-size: 0.8125rem;
-  font-weight: 700;
-  color: var(--color-text);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--pd-text);
 }
 
 .pilot-dashboard-review-date {
-  font-size: 0.5625rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: var(--color-text-soft);
+  font-size: 0.7rem;
+  font-weight: 400;
+  letter-spacing: 0.084em;
+  text-transform: uppercase;
+  color: var(--pd-muted);
 }
 
 .pilot-dashboard-review-text {
   margin: 0.5rem 0 0;
-  font-size: 0.625rem;
+  font-size: 0.7rem;
   line-height: 1.55;
   letter-spacing: 0.02em;
-  color: var(--color-text-muted);
+  text-transform: uppercase;
+  color: var(--pd-muted);
 }
 
 /* Activity feed */
@@ -691,7 +797,7 @@
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 1rem;
 }
 
 .pilot-dashboard-activity-row {
@@ -702,47 +808,161 @@
 
 .pilot-dashboard-activity-icon {
   display: inline-flex;
-  width: 1.5rem;
-  height: 1.5rem;
+  width: 1.75rem;
+  height: 1.75rem;
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
   border-radius: 0.25rem;
-  font-size: 0.625rem;
-  font-weight: 800;
+  background: transparent;
 }
 
-.pilot-dashboard-activity-icon--success {
-  background: rgba(34, 197, 94, 0.12);
-  color: var(--color-success-bright);
-}
-
-.pilot-dashboard-activity-icon--gold {
-  background: rgba(216, 179, 57, 0.12);
-  color: var(--color-gold);
-}
-
-.pilot-dashboard-activity-icon--warning {
-  background: rgba(216, 179, 57, 0.12);
-  color: var(--color-gold);
-}
-
-.pilot-dashboard-activity-icon--muted {
-  background: var(--color-border-divider);
-  color: var(--color-text-soft);
+.pilot-dashboard-activity-icon img {
+  display: block;
+  width: 16px;
+  height: 16px;
 }
 
 .pilot-dashboard-activity-text {
   margin: 0;
-  font-size: 0.8125rem;
-  line-height: 1.45;
-  color: var(--color-text);
+  font-size: 0.875rem;
+  line-height: 1.43;
+  color: var(--pd-text);
 }
 
 .pilot-dashboard-activity-time {
-  margin: 0.25rem 0 0;
-  font-size: 0.5625rem;
+  margin: 0.125rem 0 0;
+  font-size: 0.7rem;
+  font-weight: 400;
+  letter-spacing: 0.084em;
+  text-transform: uppercase;
+  color: var(--pd-muted);
+}
+
+/* -- Beat shared dashboard-theme overrides (Figma 808:17230) -- */
+.dashboard-app .pilot-dashboard-page .pilot-dashboard-hero {
+  border: 1px solid var(--pd-border);
+  border-radius: var(--pd-radius);
+  background: var(--pd-card);
+  box-shadow: none;
+  padding: 1.5625rem;
+}
+
+.dashboard-app .pilot-dashboard-page .pilot-dashboard-hero-glow {
+  background: radial-gradient(
+    ellipse 50% 90% at 92% 50%,
+    rgba(216, 179, 57, 0.14),
+    transparent 68%
+  );
+}
+
+.dashboard-app .pilot-dashboard-page .pilot-dashboard-eyebrow {
+  font-size: 0.7rem;
+  font-weight: 400;
+  letter-spacing: 0.084em;
+  color: var(--pd-muted);
+}
+
+.dashboard-app .pilot-dashboard-page .pilot-dashboard-hero-title {
+  font-size: clamp(1.75rem, 2.5vw, 2.25rem);
+  font-weight: 600;
+  letter-spacing: -0.001em;
+  line-height: 1.11;
+  color: var(--pd-text);
+}
+
+.dashboard-app .pilot-dashboard-page .pilot-dashboard-hero-desc {
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--pd-muted);
+}
+
+.dashboard-app .pilot-dashboard-page .pilot-dashboard-badge--gold {
+  font-size: 0.7rem;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  color: var(--pd-gold);
+  border: 1px solid var(--pd-gold-ring);
+  background: var(--pd-gold-wash);
+}
+
+.dashboard-app .pilot-dashboard-page .pilot-dashboard-btn-primary {
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  min-height: 2.625rem;
+  border-radius: var(--pd-radius-sm);
+  border: 1px solid var(--color-border-gold);
+  background: var(--pd-gold);
+  color: var(--color-cta-dark);
+  font-size: 0.875rem;
   font-weight: 700;
-  letter-spacing: 0.08em;
-  color: var(--color-text-soft);
+  justify-content: center;
+  gap: 0.625rem;
+}
+
+.dashboard-app .pilot-dashboard-page .pilot-dashboard-btn-outline {
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  min-height: 2.625rem;
+  border-radius: var(--pd-radius-sm);
+  border: 1px solid var(--pd-btn-border);
+  background: var(--color-bg-soft);
+  color: var(--pd-gold);
+  font-size: 0.875rem;
+  font-weight: 700;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.dashboard-app .pilot-dashboard-page .pilot-dashboard-btn-outline:hover {
+  border-color: var(--color-border-gold);
+  background: rgba(216, 179, 57, 0.06);
+  color: var(--color-gold-soft);
+}
+
+.dashboard-app .pilot-dashboard-page .pilot-dashboard-stat-card {
+  border: 1px solid var(--pd-border);
+  border-radius: var(--pd-radius);
+  background: var(--pd-card);
+  min-height: 6.925rem;
+}
+
+.dashboard-app .pilot-dashboard-page .pilot-dashboard-stat-card:hover {
+  border-color: var(--pd-border);
+}
+
+.dashboard-app .pilot-dashboard-page .pilot-dashboard-stat-label {
+  font-size: 0.7rem;
+  font-weight: 400;
+  letter-spacing: 0.084em;
+  color: var(--pd-muted);
+}
+
+.dashboard-app .pilot-dashboard-page .pilot-dashboard-stat-value {
+  font-size: 1.875rem;
+  font-weight: 600;
+  color: var(--pd-gold);
+}
+
+.dashboard-app .pilot-dashboard-page .pilot-dashboard-panel,
+.dashboard-app .pilot-dashboard-page .pilot-dashboard-panel--warm {
+  border: 1px solid var(--pd-border);
+  border-radius: var(--pd-radius);
+  background: var(--pd-card);
+  box-shadow: none;
+}
+
+.dashboard-app .pilot-dashboard-page .pilot-dashboard-panel-title,
+.dashboard-app .pilot-dashboard-page .pilot-dashboard-panel-title--solo {
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--pd-gold);
+}
+
+.dashboard-app .pilot-dashboard-page .pilot-dashboard-panel-title--reviews {
+  font-weight: 500;
+  text-transform: none;
 }

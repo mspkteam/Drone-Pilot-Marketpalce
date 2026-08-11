@@ -11,7 +11,106 @@ Workflow: [`FIGMA_IMPLEMENTATION_WORKFLOW.md`](FIGMA_IMPLEMENTATION_WORKFLOW.md)
 
 | Screens implemented | Missing modules logged | Last updated |
 |--------------------|------------------------|--------------|
-| 16 | 7 | 2026-07-07 |
+| 22 | 7 | 2026-08-11 |
+
+---
+
+#### Pilot Profile — Main
+
+| Field | Value |
+|-------|--------|
+| **Date** | 2026-08-11 |
+| **Figma frame** | Main `808:19441` (parent Profile `808:19119`) |
+| **Figma URL** | https://www.figma.com/design/6E3XlFsDuajsjYjf4LiOPZ/remote-air-service?node-id=808-19441 |
+| **Route** | `/dashboard/pilot/profile` |
+| **Status** | Implemented (UI pass) |
+
+**Components created:** —  
+**Components reused:** `PilotProfileCompletionView`, `ProfileStrengthPanel`, `POST/PATCH /api/pilot/profile`  
+**Notes:** Layout from Figma; site color tokens. Header chrome `OPERATIONS / PROFILE`; Identity → Bio → Drones & Equipment → Services → Portfolio; sidebar strength + add-payload panel (local chips). Call sign / drones / payloads / avatar files UI-only until schema. Shell Back/bell unchanged.
+
+---
+
+#### Pilot My Proposals — Main
+
+| Field | Value |
+|-------|--------|
+| **Date** | 2026-08-11 |
+| **Figma frame** | Main `808:18982` (parent My Proposals `808:18659`) |
+| **Figma URL** | https://www.figma.com/design/6E3XlFsDuajsjYjf4LiOPZ/remote-air-service?node-id=808-18982 |
+| **Route** | `/dashboard/pilot/proposals` |
+| **Status** | Implemented (UI pass) |
+
+**Components created:** —  
+**Components reused:** `PilotMyProposalsView`, `PilotProposalStatusBadge`, `GET /api/pilot/applications`  
+**Notes:** Layout from Figma; site color tokens. Status tabs with counts; uppercase badges (SHORTLISTED for Revised tab). Shell Back/bell unchanged.
+
+---
+
+#### Pilot Locked Jobs — Main
+
+| Field | Value |
+|-------|--------|
+| **Date** | 2026-08-11 |
+| **Figma frame** | Main `808:18477` (parent Locked Jobs `808:18154`) |
+| **Figma URL** | https://www.figma.com/design/6E3XlFsDuajsjYjf4LiOPZ/remote-air-service?node-id=808-18477 |
+| **Route** | `/dashboard/pilot/locked-jobs` |
+| **Status** | Implemented (UI pass) |
+
+**Components created:** —  
+**Components reused:** `PilotLockedJobsView`, `PilotLockedJobCardView`, `PilotCountdownTimer`, `GET /api/pilot/jobs`  
+**Assets:** `public/icons/pilot-dashboard/locked-crown.svg`, `locked-lock.svg`  
+**Notes:** Layout from Figma; site color tokens. Grade-visibility notice copy; live unlock countdown; CTA to membership. Shell Back/bell unchanged. `REQUIRES` row removed (not in Figma).
+
+---
+
+#### Pilot Mission Marketplace — Main
+
+| Field | Value |
+|-------|--------|
+| **Date** | 2026-08-11 |
+| **Figma frame** | Main `808:17880` (parent Mission Marketplace `808:17557`) |
+| **Figma URL** | https://www.figma.com/design/6E3XlFsDuajsjYjf4LiOPZ/remote-air-service?node-id=808-17880 |
+| **Route** | `/dashboard/pilot/jobs` |
+| **Status** | Implemented (UI pass) |
+
+**Components created:** —  
+**Components reused:** `PilotMissionMarketplace`, `PilotMissionCardView`, `GET /api/pilot/jobs`  
+**Assets:** `public/icons/pilot-dashboard/marketplace-search.svg`, `marketplace-star.svg`; pin via `location.svg`  
+**Notes:** Layout from Figma; site color tokens. Filters: LOCATION (API), SERVICE, BUDGET, DEADLINE (client). GRADE/DISTANCE deferred panels. CTA “View & Submit Proposal”. Shell Back/bell unchanged. Client rating still placeholder 4.9 (M86).
+
+---
+
+#### Pilot Membership — Main
+
+| Field | Value |
+|-------|--------|
+| **Date** | 2026-08-10 |
+| **Figma frame** | Main `1160:4705` (parent Membership `1160:4704`) |
+| **Figma URL** | https://www.figma.com/design/6E3XlFsDuajsjYjf4LiOPZ/remote-air-service?node-id=1160-4705 |
+| **Route** | `/dashboard/pilot/subscription` |
+| **Status** | Implemented (layout + instructor + prices/statuses) |
+
+**Components created:** `PilotInstructorAddonSection`, `instructor-addon.ts`, `GET/POST /api/pilot/subscription/instructor`  
+**Components reused:** `PilotSubscriptionView`, `PilotFastForwardCards`, membership catalog  
+**Notes:** Layout from Figma; site color tokens. Genuine prices: $99.99/yr, FF fees, instructor $199.99/yr A-4+. Statuses: Current / Recommended / Starting Grade / upgrade difference / instructor locked|available|active. Stripe still demo.
+
+---
+
+#### Pilot Dashboard — Main
+
+| Field | Value |
+|-------|--------|
+| **Date** | 2026-08-10 |
+| **Figma frame** | Main `808:17230` (parent dashboard `808:16888`) |
+| **Figma URL** | https://www.figma.com/design/6E3XlFsDuajsjYjf4LiOPZ/remote-air-service?node-id=808-17230 |
+| **Route** | `/dashboard/pilot` |
+| **Status** | Implemented (UI pass) |
+
+**Components created:** —  
+**Components reused:** `PilotDashboardOverview`, Hero, Stats, RecommendedJobs, LockedJobs, ProfileStrength, Reviews, ActivityFeed  
+**Assets:** `public/icons/pilot-dashboard/*` (Figma SVGs)  
+**Notes:** UI layout pass only (site color tokens); shortlisted count / membership days / on-time % deferred. Parent shell sidebar not in this node. Color rule: Figma layout + site `:root` palette.
 
 ---
 

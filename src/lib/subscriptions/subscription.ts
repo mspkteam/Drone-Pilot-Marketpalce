@@ -1,7 +1,8 @@
-﻿import { getFastForwardFeeUsd } from "@/lib/membership/pilot-membership-catalog";
+import { evaluatePilotAwards } from "@/lib/certificates/certificate";
+import { syncInstructorAddonWithMembership } from "@/lib/membership/instructor-addon";
+import { getFastForwardFeeUsd } from "@/lib/membership/pilot-membership-catalog";
 import { toMembershipTierDto } from "@/lib/membership/membership";
 import { prisma } from "@/lib/db";
-import { evaluatePilotAwards } from "@/lib/certificates/certificate";
 import type {
   PilotSubscriptionDto,
   SubscriptionStatus,
@@ -140,6 +141,11 @@ export async function setPilotMembershipTier(
   });
 
   await evaluatePilotAwards(pilotProfileId);
+  await syncInstructorAddonWithMembership(
+    pilotProfileId,
+    updated.subscriptionPlan.code,
+    true,
+  );
 
   return {
     ok: true,
@@ -196,6 +202,8 @@ export async function cancelPilotSubscription(
     data: { status: "cancelled" },
     include: { subscriptionPlan: true },
   });
+
+  await syncInstructorAddonWithMembership(pilotProfileId, null, false);
 
   return { ok: true, subscription: toSubscriptionDto(updated) };
 }

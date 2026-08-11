@@ -7,7 +7,7 @@ import {
   getPilotProfileByUserId,
   isOnboardingComplete,
 } from "@/lib/pilot/profile";
-import "@/styles/pilot-submit-proposal.css";
+import "@/styles/pilot-proposals.css";
 
 export const metadata = { title: "Proposal details" };
 
@@ -37,7 +37,7 @@ export default async function PilotProposalDetailPage({ params }: PageProps) {
   }
 
   return (
-    <DashboardPageLayout className="pilot-submit-shell">
+    <DashboardPageLayout className="pilot-proposals-shell">
       <PilotProposalDetailView initial={application} />
     </DashboardPageLayout>
   );

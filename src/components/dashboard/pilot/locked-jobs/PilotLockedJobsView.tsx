@@ -9,20 +9,6 @@ import type { PilotJobsListResponse } from "@/types/application";
 
 const JOBS_API = "/api/pilot/jobs" as const;
 
-function CrownIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden>
-      <path
-        d="M2.5 13.5h13M3.5 11.5L5 5.5l2.5 2 2-3.5 2 3.5 2.5-2 1.5 6"
-        stroke="currentColor"
-        strokeWidth="1.25"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
 export function PilotLockedJobsView() {
   const [data, setData] = useState<PilotJobsListResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -65,25 +51,28 @@ export function PilotLockedJobsView() {
 
   return (
     <div className="pilot-locked-jobs-page">
-      <header className="pilot-locked-jobs-header">
+      <header className="pilot-locked-jobs-header pilot-locked-jobs-bracket-card">
         <p className="pilot-locked-jobs-eyebrow">OPERATIONS / LOCKED</p>
         <h1 className="pilot-locked-jobs-title">Locked Jobs</h1>
       </header>
 
-      <div className="pilot-locked-jobs-notice" role="status">
-        <span className="pilot-locked-jobs-notice-icon" aria-hidden>
-          <CrownIcon />
-        </span>
-        <div className="pilot-locked-jobs-notice-copy">
-          <p className="pilot-locked-jobs-notice-primary">
-            THESE JOBS WILL UNLOCK SOON BASED ON YOUR CURRENT PILOT LEVEL.
-          </p>
-          <p className="pilot-locked-jobs-notice-secondary">
-            UPGRADE TO{" "}
-            <span className="pilot-locked-jobs-notice-gold">A-4 CERTIFIED OR HIGHER</span>{" "}
-            FOR INSTANT ACCESS TO HIGH-TIER MISSIONS.
-          </p>
-        </div>
+      <div
+        className="pilot-locked-jobs-notice pilot-locked-jobs-bracket-card"
+        role="status"
+      >
+        <img
+          src="/icons/pilot-dashboard/locked-crown.svg"
+          alt=""
+          width={19}
+          height={16}
+          className="pilot-locked-jobs-notice-icon"
+        />
+        <p className="pilot-locked-jobs-notice-copy">
+          These jobs unlock based on Remote Air Service job-posting visibility by
+          grade.
+          <br />
+          Upgrade to A-4 Senior Flight Officer or higher for faster job visibility.
+        </p>
       </div>
 
       {data?.membership ? (

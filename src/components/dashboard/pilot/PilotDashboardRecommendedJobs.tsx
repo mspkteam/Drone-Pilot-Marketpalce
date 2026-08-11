@@ -7,26 +7,18 @@ type PilotDashboardRecommendedJobsProps = {
   usingMock: boolean;
 };
 
-function LocationIcon() {
-  return (
-    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden>
-      <path
-        d="M6 1a3 3 0 00-3 3c0 2.25 3 6 3 6s3-3.75 3-6a3 3 0 00-3-3z"
-        stroke="currentColor"
-        strokeWidth="1"
-      />
-      <circle cx="6" cy="4" r="1" fill="currentColor" />
-    </svg>
-  );
-}
-
-function ClockIcon() {
-  return (
-    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden>
-      <circle cx="6" cy="6" r="4.25" stroke="currentColor" strokeWidth="1" />
-      <path d="M6 3.5V6l1.75 1.25" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
-    </svg>
-  );
+function categoryTone(category: string): "gold" | "green" | "neutral" {
+  const value = category.toUpperCase();
+  if (value.includes("AGRICULTURE") || value.includes("AGRI")) return "green";
+  if (
+    value.includes("ENERGY") ||
+    value.includes("OTHER") ||
+    value.includes("EVENTS") ||
+    value.includes("REAL ESTATE")
+  ) {
+    return "neutral";
+  }
+  return "gold";
 }
 
 export function PilotDashboardRecommendedJobs({
@@ -54,28 +46,50 @@ export function PilotDashboardRecommendedJobs({
         </p>
       ) : (
         <div className="pilot-dashboard-jobs-grid">
-          {jobs.map((job) => (
-            <article key={job.id} className="pilot-dashboard-job-card">
-              <div className="pilot-dashboard-job-top">
-                <span className="pilot-dashboard-job-category">{job.category}</span>
-                <span className="pilot-dashboard-job-price">{job.price}</span>
-              </div>
-              <h3 className="pilot-dashboard-job-title">{job.title}</h3>
-              <p className="pilot-dashboard-job-location">
-                <LocationIcon />
-                {job.location}
-              </p>
-              <div className="pilot-dashboard-job-footer">
-                <span className="pilot-dashboard-job-time">
-                  <ClockIcon />
-                  {job.time}
-                </span>
-                <Link href={job.href} className="pilot-dashboard-job-action">
-                  {job.hasApplied ? "View Proposal →" : "Submit Proposal →"}
-                </Link>
-              </div>
-            </article>
-          ))}
+          {jobs.map((job) => {
+            const tone = categoryTone(job.category);
+            const categoryClass =
+              tone === "green"
+                ? "pilot-dashboard-job-category pilot-dashboard-job-category--green"
+                : tone === "neutral"
+                  ? "pilot-dashboard-job-category pilot-dashboard-job-category--neutral"
+                  : "pilot-dashboard-job-category";
+
+            return (
+              <article key={job.id} className="pilot-dashboard-job-card">
+                <div className="pilot-dashboard-job-top">
+                  <span className={categoryClass}>{job.category}</span>
+                  <span className="pilot-dashboard-job-price">{job.price}</span>
+                </div>
+                <h3 className="pilot-dashboard-job-title">{job.title}</h3>
+                <p className="pilot-dashboard-job-location">
+                  <img
+                    src="/icons/pilot-dashboard/location.svg"
+                    alt=""
+                    className="pilot-dashboard-job-meta-icon"
+                    width={12}
+                    height={12}
+                  />
+                  {job.location}
+                </p>
+                <div className="pilot-dashboard-job-footer">
+                  <span className="pilot-dashboard-job-time">
+                    <img
+                      src="/icons/pilot-dashboard/clock.svg"
+                      alt=""
+                      className="pilot-dashboard-job-meta-icon"
+                      width={12}
+                      height={12}
+                    />
+                    {job.time}
+                  </span>
+                  <Link href={job.href} className="pilot-dashboard-job-action">
+                    {job.hasApplied ? "View Proposal →" : "Submit Proposal →"}
+                  </Link>
+                </div>
+              </article>
+            );
+          })}
         </div>
       )}
     </section>

@@ -36,6 +36,8 @@ export type PilotProfileDto = {
   licenseCountry: string | null;
   isPublic: boolean;
   status: PilotProfileStatus;
+  instructorAddonActive: boolean;
+  instructorAddonPeriodEnd: string | null;
   complianceAcceptedAt: string | null;
   onboardingCompletedAt: string | null;
   createdAt: string;

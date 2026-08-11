@@ -1,7 +1,7 @@
 import type { UserRole } from "@/types/roles";
 
 /** Official 5-week delivery schedule — change this (or env) to unlock the next milestone. */
-export const ACTIVE_MILESTONE = 2;
+export const ACTIVE_MILESTONE = 3;
 
 export type MilestoneStatus = "locked" | "in_progress" | "complete";
 
@@ -42,7 +42,7 @@ export const MILESTONE_DEFINITIONS: readonly MilestoneDefinition[] = [
     weekLabel: "Week 3",
     title: "Pilot",
     dateRange: "16 Jul – 20 Jul 2026",
-    status: "locked",
+    status: "in_progress",
     summary:
       "Marketplace, proposals, contracts, delivery, membership, messages, portfolio, reviews, shop, and verifications.",
     lockedMessage:
@@ -366,31 +366,10 @@ export const ROUTE_MILESTONE_RULES: readonly RouteMilestoneRule[] = [
     allowedRoles: ["pilot"],
   },
   {
-    pathPrefix: "/dashboard/pilot/portfolio",
-    milestone: 3,
-    featureKey: "pilot.portfolio",
-    featureLabel: "Portfolio Gallery",
-    allowedRoles: ["pilot"],
-  },
-  {
-    pathPrefix: "/dashboard/pilot/verifications",
-    milestone: 3,
-    featureKey: "pilot.verifications",
-    featureLabel: "Verifications",
-    allowedRoles: ["pilot"],
-  },
-  {
     pathPrefix: "/dashboard/pilot/profile",
     milestone: 3,
     featureKey: "pilot.profile",
     featureLabel: "Pilot Profile & Strength",
-    allowedRoles: ["pilot"],
-  },
-  {
-    pathPrefix: "/dashboard/pilot/reviews",
-    milestone: 3,
-    featureKey: "pilot.reviews",
-    featureLabel: "Pilot Reviews",
     allowedRoles: ["pilot"],
   },
   {
@@ -408,20 +387,6 @@ export const ROUTE_MILESTONE_RULES: readonly RouteMilestoneRule[] = [
     allowedRoles: ["pilot"],
   },
   {
-    pathPrefix: "/dashboard/pilot/support",
-    milestone: 3,
-    featureKey: "pilot.support",
-    featureLabel: "Pilot Support",
-    allowedRoles: ["pilot"],
-  },
-  {
-    pathPrefix: "/dashboard/pilot/settings",
-    milestone: 3,
-    featureKey: "pilot.settings",
-    featureLabel: "Pilot Settings",
-    allowedRoles: ["pilot"],
-  },
-  {
     pathPrefix: "/dashboard/pilot",
     milestone: 3,
     featureKey: "pilot.dashboard",
@@ -429,7 +394,42 @@ export const ROUTE_MILESTONE_RULES: readonly RouteMilestoneRule[] = [
     allowedRoles: ["pilot"],
   },
 
-  // ——— Week 4 — Pilot payments / shop / membership ———
+  // ——— Deferred pilot modules (resume after current UI pass; Week 4 badge) ———
+  {
+    pathPrefix: "/dashboard/pilot/portfolio",
+    milestone: 4,
+    featureKey: "pilot.portfolio",
+    featureLabel: "Portfolio Gallery",
+    allowedRoles: ["pilot"],
+  },
+  {
+    pathPrefix: "/dashboard/pilot/verifications",
+    milestone: 4,
+    featureKey: "pilot.verifications",
+    featureLabel: "Verifications",
+    allowedRoles: ["pilot"],
+  },
+  {
+    pathPrefix: "/dashboard/pilot/reviews",
+    milestone: 4,
+    featureKey: "pilot.reviews",
+    featureLabel: "Pilot Reviews",
+    allowedRoles: ["pilot"],
+  },
+  {
+    pathPrefix: "/dashboard/pilot/support",
+    milestone: 4,
+    featureKey: "pilot.support",
+    featureLabel: "Pilot Support",
+    allowedRoles: ["pilot"],
+  },
+  {
+    pathPrefix: "/dashboard/pilot/settings",
+    milestone: 4,
+    featureKey: "pilot.settings",
+    featureLabel: "Pilot Settings",
+    allowedRoles: ["pilot"],
+  },
   {
     pathPrefix: "/dashboard/pilot/payments",
     milestone: 4,
@@ -438,17 +438,19 @@ export const ROUTE_MILESTONE_RULES: readonly RouteMilestoneRule[] = [
     allowedRoles: ["pilot"],
   },
   {
-    pathPrefix: "/dashboard/pilot/shop",
-    milestone: 4,
-    featureKey: "pilot.shop",
-    featureLabel: "Uniform Shop Checkout",
-    allowedRoles: ["pilot"],
-  },
-  {
     pathPrefix: "/dashboard/pilot/subscription",
     milestone: 4,
     featureKey: "pilot.subscription",
     featureLabel: "Membership & Upgrades",
+    allowedRoles: ["pilot"],
+  },
+
+  // ——— Week 4 — Pilot shop checkout ———
+  {
+    pathPrefix: "/dashboard/pilot/shop",
+    milestone: 4,
+    featureKey: "pilot.shop",
+    featureLabel: "Uniform Shop Checkout",
     allowedRoles: ["pilot"],
   },
 ] as const;

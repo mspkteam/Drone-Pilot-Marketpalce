@@ -75,9 +75,9 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 1rem 2rem;
-  border: 1px solid var(--dashboard-card-border);
+  border: 1px solid #213257;
   border-radius: 0.625rem;
-  background: var(--color-card-warm-alt);
+  background: #131b2f;
   padding: 1.25rem 1.5rem;
 }
 
@@ -113,9 +113,19 @@
 
 .pilot-subscription-section-title {
   margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
   font-size: 1.0625rem;
   font-weight: 700;
   color: var(--color-text);
+}
+
+.pilot-subscription-section-title span {
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--color-text-soft);
 }
 
 .pilot-subscription-annual {
@@ -383,9 +393,9 @@
   align-items: center;
   justify-content: space-between;
   gap: 1rem 2rem;
-  border: 1px solid var(--dashboard-card-border);
+  border: 1px solid #2e6a3d;
   border-radius: 0.625rem;
-  background: var(--color-card-warm-alt);
+  background: #12381b;
   padding: 1.25rem 1.5rem;
 }
 
@@ -756,6 +766,390 @@
 .pilot-subscription-plan-btn--select:disabled {
   cursor: not-allowed;
   opacity: 0.45;
+}
+
+.pilot-subscription-hero-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem 1.5rem;
+}
+
+.pilot-subscription-hero-row .pilot-subscription-plan-btn {
+  width: auto;
+  min-width: 10rem;
+  padding: 0 1.25rem;
+  text-decoration: none;
+}
+
+.pilot-subscription-info-list--full {
+  width: 100%;
+  display: grid;
+  gap: 0.5rem;
+}
+
+@media (min-width: 768px) {
+  .pilot-subscription-info-list--full {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.pilot-subscription-info-list--full li {
+  position: relative;
+  padding-left: 1rem;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: var(--color-text-muted);
+}
+
+.pilot-subscription-info-list--full li::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  color: var(--color-gold);
+}
+
+.pilot-subscription-instructor {
+  display: grid;
+  gap: 1.5rem;
+  border: 1px solid var(--color-border-gold);
+  border-radius: 0.75rem;
+  background: var(--color-card-warm);
+  padding: 1.5rem;
+}
+
+@media (min-width: 960px) {
+  .pilot-subscription-instructor {
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
+.pilot-subscription-instructor-title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--color-text);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.pilot-subscription-instructor-title span {
+  color: var(--color-gold);
+}
+
+.pilot-subscription-instructor-eligibility {
+  margin: 0.5rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+}
+
+.pilot-subscription-instructor-price {
+  margin-top: 1rem;
+  border: 1px solid rgba(221, 176, 73, 0.34);
+  border-radius: 0.45rem;
+  background: #231f15;
+  padding: 0.875rem 1rem;
+}
+
+.pilot-subscription-instructor-price-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.pilot-subscription-instructor-price-label {
+  margin: 0;
+  font-size: 0.625rem;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  color: var(--color-gold);
+}
+
+.pilot-subscription-instructor-price-value {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--color-gold);
+}
+
+.pilot-subscription-instructor-price-value span {
+  font-size: 0.625rem;
+  font-weight: 400;
+  color: #fff;
+}
+
+.pilot-subscription-instructor-price-note,
+.pilot-subscription-instructor-price-foot {
+  margin: 0.5rem 0 0;
+  font-size: 0.55rem;
+  line-height: 1.35;
+  color: rgba(241, 238, 231, 0.7);
+}
+
+.pilot-subscription-instructor-progress {
+  margin-top: 0.625rem;
+  border-radius: 0.45rem;
+  border: 0;
+  background: #453b1a;
+  padding: 0.5rem 0.875rem;
+  font-size: 0.55rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-align: center;
+  color: #ecbd3a;
+}
+
+.pilot-subscription-instructor-progress--locked {
+  opacity: 1;
+}
+
+.pilot-subscription-instructor-progress--active {
+  border: 1px solid rgba(67, 185, 102, 0.4);
+  background: rgba(67, 185, 102, 0.15);
+  color: #43b966;
+}
+
+.pilot-subscription-instructor-benefits {
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.pilot-subscription-instructor-benefits li {
+  position: relative;
+  padding-left: 1.25rem;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: var(--color-text-muted);
+}
+
+.pilot-subscription-instructor-benefits li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: var(--color-gold);
+  font-weight: 700;
+}
+
+.pilot-subscription-instructor-actions {
+  margin-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1rem;
+}
+
+.pilot-subscription-instructor-renews {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--color-text-soft);
+}
+
+.pilot-subscription-instructor .pilot-subscription-plan-btn {
+  margin-top: 1rem;
+  max-width: 24rem;
+}
+
+.pilot-subscription-instructor-preview {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  padding: 0 0 0 1.25rem;
+  border-left: 1px solid rgba(244, 241, 234, 0.12);
+}
+
+.pilot-subscription-instructor-preview-eyebrow {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--color-text);
+}
+
+.pilot-subscription-instructor-preview-fields {
+  margin: 0.875rem 0 0;
+}
+
+.pilot-subscription-instructor-preview-fields > div {
+  display: grid;
+  grid-template-columns: 6.5rem minmax(0, 1fr);
+  gap: 0.75rem;
+  align-items: start;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid rgba(244, 241, 234, 0.12);
+}
+
+.pilot-subscription-instructor-preview-fields > div:first-child {
+  border-top: 1px solid rgba(244, 241, 234, 0.12);
+}
+
+.pilot-subscription-instructor-preview-fields dt {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--color-text-heading);
+}
+
+.pilot-subscription-instructor-preview-fields dd {
+  margin: 0;
+  font-size: 0.75rem;
+  line-height: 1.25;
+  color: rgba(245, 241, 234, 0.67);
+}
+
+.pilot-subscription-instructor-preview-status {
+  display: grid;
+  grid-template-columns: 6.5rem minmax(0, 1fr);
+  gap: 0.75rem;
+  align-items: center;
+  margin-top: 0;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid rgba(244, 241, 234, 0.12);
+}
+
+.pilot-subscription-instructor-preview-status-label {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-heading);
+}
+
+.pilot-subscription-instructor-listed {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  height: 1.375rem;
+  border-radius: 999px;
+  padding: 0 0.5625rem;
+  font-size: 0.7rem;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.pilot-subscription-instructor-listed--on {
+  border: 1px solid rgba(67, 185, 102, 0.4);
+  background: rgba(67, 185, 102, 0.15);
+  color: #43b966;
+}
+
+.pilot-subscription-instructor-listed--off {
+  border: 1px solid var(--dashboard-card-border);
+  background: transparent;
+  color: var(--color-text-soft);
+}
+
+.pilot-subscription-instructor-listed-icon {
+  display: block;
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+}
+
+.pilot-subscription-instructor-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  border: 1px solid rgba(221, 176, 73, 0.34);
+  border-radius: 0.625rem;
+  background: #231f15;
+  padding: 1.25rem 1.125rem;
+}
+
+.pilot-subscription-instructor-avatar {
+  display: inline-flex;
+  width: 4.75rem;
+  height: 4.75rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--color-gold);
+  color: #110c09;
+  font-size: 1rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.pilot-subscription-instructor-card-name {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--color-text-heading);
+}
+
+.pilot-subscription-instructor-card-role {
+  margin: 0.125rem 0 0;
+  font-size: 0.75rem;
+  line-height: 1.25;
+  color: #a49d94;
+}
+
+.pilot-subscription-instructor-card-stars {
+  display: block;
+  margin: 0.375rem 0 0;
+  width: 83px;
+  height: 15px;
+}
+
+.pilot-subscription-uniform {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border: 1px solid #213257;
+  border-radius: 0.625rem;
+  background: #131b2f;
+  padding: 1.25rem 1.5rem;
+}
+
+.pilot-subscription-uniform-title {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.pilot-subscription-uniform-copy {
+  margin: 0.375rem 0 0;
+  max-width: 36rem;
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+}
+
+.pilot-subscription-uniform .pilot-subscription-btn-outline {
+  text-decoration: none;
+  border-color: #7195e8;
+  background: #142a55;
+  color: #f4f1ea;
+}
+
+.pilot-subscription-uniform .pilot-subscription-btn-outline:hover {
+  border-color: #7195e8;
+  background: #1a3568;
+  color: #fff;
+}
+
+.pilot-subscription-diff-grid dd {
+  color: var(--color-gold);
+}
+
+.pilot-subscription-diff-grid > div:last-child dd {
+  color: var(--color-success-bright);
 }
 
 @media (max-width: 639px) {

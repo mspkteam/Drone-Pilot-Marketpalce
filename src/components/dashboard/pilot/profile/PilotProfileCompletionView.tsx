@@ -36,7 +36,14 @@ type PilotUiExtras = {
   localChipIds: string[];
   portfolioSlots: (string | null)[];
   avatarPreview: string | null;
+  mainDrones: string[];
+  payloads: string[];
+  payloadDraft: string;
+  payloadPanelOpen: boolean;
 };
+
+const PAYLOAD_MAX = 22;
+const PAYLOAD_EXAMPLES = ["LiDAR Scanner", "Thermal Imaging Camera"] as const;
 
 function formatLocation(city: string, region: string): string {
   return [city, region].filter((p) => p.trim()).join(", ");
@@ -74,6 +81,10 @@ function buildExtras(profile: PilotProfileDto | null): PilotUiExtras {
     localChipIds: [],
     portfolioSlots: [null, null, null, null],
     avatarPreview: null,
+    mainDrones: [],
+    payloads: [],
+    payloadDraft: "",
+    payloadPanelOpen: true,
   };
 }
 
@@ -180,6 +191,25 @@ export function PilotProfileCompletionView({
     setPortfolioIndex(null);
   }
 
+  function addMainDroneFromEquipment() {
+    const name = extras.droneEquipment.trim();
+    if (!name || extras.mainDrones.includes(name)) return;
+    patchExtras({
+      mainDrones: [...extras.mainDrones, name],
+      droneEquipment: "",
+    });
+  }
+
+  function addPayload() {
+    const name = extras.payloadDraft.trim();
+    if (!name || name.length > PAYLOAD_MAX || extras.payloads.includes(name)) return;
+    patchExtras({
+      payloads: [...extras.payloads, name],
+      payloadDraft: "",
+      payloadPanelOpen: false,
+    });
+  }
+
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
@@ -222,14 +252,18 @@ export function PilotProfileCompletionView({
 
   return (
     <form className="profile-onboarding-page" onSubmit={(e) => void handleSave(e)}>
-      {profile ? (
-        <p className="text-sm text-ras-muted">
-          Status:{" "}
-          <span className="font-semibold text-gold">
-            {getProfileStatusLabel(profile.status)}
-          </span>
-        </p>
-      ) : null}
+      <header className="profile-onboarding-header profile-onboarding-bracket-card">
+        <p className="profile-onboarding-eyebrow">OPERATIONS / PROFILE</p>
+        <h1 className="profile-onboarding-page-title">Pilot Profile</h1>
+        {profile ? (
+          <p className="profile-onboarding-status-line">
+            Status:{" "}
+            <span className="profile-onboarding-status-value">
+              {getProfileStatusLabel(profile.status)}
+            </span>
+          </p>
+        ) : null}
+      </header>
 
       {error ? (
         <p className="profile-onboarding-banner profile-onboarding-banner--error" role="alert">
@@ -293,9 +327,10 @@ export function PilotProfileCompletionView({
                     id="callSign"
                     className="profile-onboarding-input"
                     value={extras.callSign}
-                    onChange={(e) => patchExtras({ callSign: e.target.value })}
+                    maxLength={12}
+                    onChange={(e) => patchExtras({ callSign: e.target.value.slice(0, 12) })}
                     disabled={!canEdit || loading}
-                    placeholder="CDR. STERLING"
+                    placeholder="Max 12 characters"
                   />
                 </div>
                 <div className="profile-onboarding-field">
@@ -329,19 +364,6 @@ export function PilotProfileCompletionView({
                     placeholder="120 mi"
                   />
                 </div>
-                <div className="profile-onboarding-field">
-                  <label className="profile-onboarding-label" htmlFor="locationCountry">
-                    COUNTRY
-                  </label>
-                  <input
-                    id="locationCountry"
-                    className="profile-onboarding-input"
-                    value={form.locationCountry}
-                    onChange={(e) => patchForm({ locationCountry: e.target.value })}
-                    disabled={!canEdit || loading}
-                    required
-                  />
-                </div>
               </div>
             </div>
           </section>
@@ -354,10 +376,10 @@ export function PilotProfileCompletionView({
                 value={form.bio}
                 onChange={(e) => patchForm({ bio: e.target.value })}
                 disabled={!canEdit || loading}
-                placeholder="Senior remote pilot with operational experience..."
+                placeholder="FAA Part 107 remote pilot with operational experience..."
               />
             </div>
-            <div className="profile-onboarding-fields profile-onboarding-fields--3" style={{ marginTop: "1rem" }}>
+            <div className="profile-onboarding-fields profile-onboarding-fields--3 profile-onboarding-fields--spaced">
               <div className="profile-onboarding-field">
                 <label className="profile-onboarding-label" htmlFor="hourlyRate">
                   HOURLY RATE
@@ -387,6 +409,12 @@ export function PilotProfileCompletionView({
                   onChange={(e) => patchExtras({ droneEquipment: e.target.value })}
                   disabled={!canEdit || loading}
                   placeholder="DJI Matrice 350 RTK"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      addMainDroneFromEquipment();
+                    }
+                  }}
                 />
               </div>
               <div className="profile-onboarding-field">
@@ -401,6 +429,84 @@ export function PilotProfileCompletionView({
                   disabled={!canEdit || loading}
                   placeholder="English, German"
                 />
+              </div>
+            </div>
+          </section>
+
+          <section className="profile-onboarding-section">
+            <h2 className="profile-onboarding-section-title">Drones &amp; Equipment</h2>
+            <p className="profile-onboarding-section-copy">
+              Manage drones and payload equipment in your immediate inventory.
+            </p>
+            <div className="profile-onboarding-equipment">
+              <div className="profile-onboarding-equipment-block">
+                <p className="profile-onboarding-equipment-label">MAIN DRONES</p>
+                <div className="profile-onboarding-equipment-row">
+                  {extras.mainDrones.map((drone) => (
+                    <span key={drone} className="profile-onboarding-equip-tag">
+                      {drone} (Main)
+                      <button
+                        type="button"
+                        className="profile-onboarding-equip-remove"
+                        aria-label={`Remove ${drone}`}
+                        disabled={!canEdit || loading}
+                        onClick={() =>
+                          patchExtras({
+                            mainDrones: extras.mainDrones.filter((d) => d !== drone),
+                          })
+                        }
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))}
+                  <button
+                    type="button"
+                    className="profile-onboarding-equip-add"
+                    disabled={!canEdit || loading || !extras.droneEquipment.trim()}
+                    onClick={addMainDroneFromEquipment}
+                    title="Add from Drone Equipment field"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+              <div className="profile-onboarding-equipment-block">
+                <p className="profile-onboarding-equipment-label">PAYLOADS / ATTACHMENTS</p>
+                <div className="profile-onboarding-equipment-row">
+                  {extras.payloads.map((item) => (
+                    <span key={item} className="profile-onboarding-equip-tag">
+                      {item}
+                      <button
+                        type="button"
+                        className="profile-onboarding-equip-remove"
+                        aria-label={`Remove ${item}`}
+                        disabled={!canEdit || loading}
+                        onClick={() =>
+                          patchExtras({
+                            payloads: extras.payloads.filter((p) => p !== item),
+                          })
+                        }
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))}
+                  <button
+                    type="button"
+                    className="profile-onboarding-equip-add"
+                    disabled={!canEdit || loading}
+                    onClick={() => {
+                      patchExtras({ payloadPanelOpen: true });
+                      requestAnimationFrame(() => {
+                        document.getElementById("payloadDraft")?.focus();
+                      });
+                    }}
+                    title="Add payload equipment"
+                  >
+                    +
+                  </button>
+                </div>
               </div>
             </div>
           </section>
@@ -499,9 +605,22 @@ export function PilotProfileCompletionView({
                   disabled={!canEdit || loading}
                 />
               </div>
+              <div className="profile-onboarding-field">
+                <label className="profile-onboarding-label" htmlFor="locationCountry">
+                  COUNTRY
+                </label>
+                <input
+                  id="locationCountry"
+                  className="profile-onboarding-input"
+                  value={form.locationCountry}
+                  onChange={(e) => patchForm({ locationCountry: e.target.value })}
+                  disabled={!canEdit || loading}
+                  required
+                />
+              </div>
             </div>
             {showCompliance ? (
-              <div style={{ marginTop: "1rem" }}>
+              <div className="profile-onboarding-compliance">
                 <ComplianceChecklist
                   value={form.complianceAcknowledged}
                   onChange={(complianceAcknowledged) =>
@@ -512,13 +631,12 @@ export function PilotProfileCompletionView({
               </div>
             ) : null}
             {profile?.status === "approved" ? (
-              <label className="mt-4 flex items-start gap-2 text-sm text-ras-muted">
+              <label className="profile-onboarding-public-toggle">
                 <input
                   type="checkbox"
                   checked={form.isPublic}
                   onChange={(e) => patchForm({ isPublic: e.target.checked })}
                   disabled={!canEdit || loading}
-                  className="mt-1"
                 />
                 <span>List my profile in the public pilot directory</span>
               </label>
@@ -526,12 +644,138 @@ export function PilotProfileCompletionView({
           </section>
         </div>
 
-        <ProfileStrengthPanel
-          title="PROFILE STRENGTH"
-          pct={strength.pct}
-          subtitle="PROFILE COMPLETE"
-          items={strength.items}
-        />
+        <div className="profile-onboarding-sidebar-stack">
+          <ProfileStrengthPanel
+            title="PROFILE STRENGTH"
+            pct={strength.pct}
+            subtitle="PROFILE COMPLETE"
+            items={strength.items}
+          />
+
+          {extras.payloadPanelOpen ? (
+          <aside className="profile-onboarding-payload-card">
+            <div className="profile-onboarding-payload-head">
+              <h2 className="profile-onboarding-payload-title">Add Payload Equipment</h2>
+              <button
+                type="button"
+                className="profile-onboarding-payload-close"
+                aria-label="Close add payload panel"
+                disabled={!canEdit || loading}
+                onClick={() =>
+                  patchExtras({ payloadPanelOpen: false, payloadDraft: "" })
+                }
+              >
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden>
+                  <path
+                    d="M5 5l10 10M15 5L5 15"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              </button>
+            </div>
+
+            <div className="profile-onboarding-payload-body">
+              <div className="profile-onboarding-payload-field">
+                <label className="profile-onboarding-label" htmlFor="payloadDraft">
+                  EQUIPMENT GENERIC NAME
+                </label>
+                <input
+                  id="payloadDraft"
+                  className="profile-onboarding-input profile-onboarding-payload-input"
+                  value={extras.payloadDraft}
+                  maxLength={PAYLOAD_MAX}
+                  onChange={(e) =>
+                    patchExtras({ payloadDraft: e.target.value.slice(0, PAYLOAD_MAX) })
+                  }
+                  disabled={!canEdit || loading}
+                  placeholder="Thermal Imaging Camera"
+                />
+                <p className="profile-onboarding-payload-hint">
+                  Use the retail market generic name only. No long descriptions.
+                </p>
+              </div>
+
+              <div
+                className={`profile-onboarding-char-count${
+                  extras.payloadDraft.length > 0 ? " profile-onboarding-char-count--active" : ""
+                }`}
+              >
+                <span className="profile-onboarding-char-count-left">
+                  {extras.payloadDraft.length > 0 ? (
+                    <svg
+                      className="profile-onboarding-char-check"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      aria-hidden
+                    >
+                      <path
+                        d="M3.5 8.25l3 3 6-6.5"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  ) : null}
+                  MAXIMUM {PAYLOAD_MAX} CHARACTERS
+                </span>
+                <span className="profile-onboarding-char-count-num">
+                  {extras.payloadDraft.length} / {PAYLOAD_MAX}
+                </span>
+              </div>
+
+              <div className="profile-onboarding-examples">
+                <p className="profile-onboarding-examples-label">EXAMPLES</p>
+                <div className="profile-onboarding-example-chips">
+                  {PAYLOAD_EXAMPLES.map((example) => (
+                    <button
+                      key={example}
+                      type="button"
+                      className="profile-onboarding-example-chip"
+                      disabled={!canEdit || loading}
+                      onClick={() =>
+                        patchExtras({ payloadDraft: example.slice(0, PAYLOAD_MAX) })
+                      }
+                    >
+                      {example}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="profile-onboarding-payload-actions">
+              <button
+                type="button"
+                className="profile-onboarding-payload-btn profile-onboarding-payload-btn--ghost"
+                disabled={!canEdit || loading}
+                onClick={() =>
+                  patchExtras({ payloadPanelOpen: false, payloadDraft: "" })
+                }
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="profile-onboarding-payload-btn profile-onboarding-payload-btn--gold"
+                disabled={
+                  !canEdit ||
+                  loading ||
+                  !extras.payloadDraft.trim() ||
+                  extras.payloadDraft.trim().length > PAYLOAD_MAX
+                }
+                onClick={addPayload}
+              >
+                Add equipment
+              </button>
+            </div>
+          </aside>
+          ) : null}
+        </div>
       </div>
 
       <div className="profile-onboarding-actions">
@@ -540,13 +784,18 @@ export function PilotProfileCompletionView({
             Preview Public Profile
           </Link>
         ) : (
-          <button type="button" className="profile-onboarding-btn-outline" disabled title="Available after approval">
+          <button
+            type="button"
+            className="profile-onboarding-btn-outline"
+            disabled
+            title="Available after approval when profile is public"
+          >
             Preview Public Profile
           </button>
         )}
         {canEdit ? (
           <button type="submit" className="profile-onboarding-btn-gold" disabled={loading}>
-            {loading ? "Saving…" : needsOnboarding ? "Save Profile" : "Save Profile"}
+            {loading ? "Saving…" : "Save Profile"}
           </button>
         ) : null}
       </div>

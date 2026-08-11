@@ -48,8 +48,8 @@ export function mapApplicationStatusToUi(
 export function proposalBadgeLabel(
   status: PilotProposalUiStatus,
 ): string {
-  if (status === "REVISED") return "Shortlisted";
-  return status.charAt(0) + status.slice(1).toLowerCase();
+  if (status === "REVISED") return "SHORTLISTED";
+  return status;
 }
 
 function formatProposalId(applicationId: string): string {

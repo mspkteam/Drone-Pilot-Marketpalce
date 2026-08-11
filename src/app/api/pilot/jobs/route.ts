@@ -16,6 +16,7 @@ function parseFilters(searchParams: URLSearchParams): PilotJobsQueryFilters {
   return {
     q: searchParams.get("q")?.trim() || undefined,
     category: searchParams.get("category")?.trim() || undefined,
+    location: searchParams.get("location")?.trim() || undefined,
     budgetMin: parseOptionalNumber(searchParams.get("budgetMin")),
     budgetMax: parseOptionalNumber(searchParams.get("budgetMax")),
   };

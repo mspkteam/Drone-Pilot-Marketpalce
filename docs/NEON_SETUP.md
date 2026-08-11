@@ -56,7 +56,7 @@ In the Vercel project (**mspkteam/Drone-Pilot-Marketpalce**), set **Environment 
 
 Do **not** set `DATABASE_URL=file:./dev.db` on Vercel.
 
-Build command (in `vercel.json`) runs `prisma db push` and seed against Neon.
+Build command (in `vercel.json`) runs `prisma db push --accept-data-loss` and seed against Neon.
 
 ## 5. Optional: migrations
 

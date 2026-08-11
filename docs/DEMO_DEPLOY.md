@@ -46,7 +46,7 @@ Optional: set `AUTH_URL` to your exact Vercel URL (e.g. `https://your-app.vercel
 
 ## Build
 
-`vercel.json` runs: `prisma generate`, `prisma db push`, seed (`npx tsx prisma/seed.ts`), then `next build`.
+`vercel.json` runs: `prisma generate`, `prisma db push --accept-data-loss`, seed (`npx tsx prisma/seed.ts`), then `next build`. (`--accept-data-loss` is required for non-interactive CI when Prisma warns about new unique indexes such as `User.memberNumber`.)
 
 ## Demo logins (after seed)
 

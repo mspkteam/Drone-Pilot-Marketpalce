@@ -4,6 +4,14 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.42] — 2026-08-11
+
+### Fixed
+
+- **Vercel build:** `prisma db push --accept-data-loss` so CI can apply `User.memberNumber` unique index without interactive confirm
+
+---
+
 ## [0.27.41] — 2026-08-11
 
 ### Changed

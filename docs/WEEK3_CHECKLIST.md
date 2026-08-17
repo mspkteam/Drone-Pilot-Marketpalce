@@ -20,12 +20,12 @@ Pilots discover approved jobs, submit proposals, manage contracts, deliver work,
 
 | # | Work item | Priority | Status |
 |---|-----------|----------|--------|
-| 3.0 | `ACTIVE_MILESTONE = 3`; core pilot ops unlocked; remaining modules Week-4-locked until resume | **High** | Done |
+| 3.0 | `ACTIVE_MILESTONE = 3`; remaining Week 3 pilot screens unlocked and Figma-aligned | **High** | Done |
 | 3.1 | Marketplace — live jobs API (no mock fallback) | **High** | Done |
 | 3.2 | Marketplace server filters | Medium | Done (`q`, `category`, `budgetMin`, `budgetMax`) |
 | 3.3 | Locked jobs — server-authoritative countdown | **High** | Done (live API; no mock fallback) |
 | 3.4 | Tier / cert eligibility enforcement on cards | Medium | Done (tier block reason on cards) |
-| 3.5 | Submit proposal — extended bid form (Figma 808:9084) | **High** | Done |
+| 3.5 | Submit proposal — Figma `1171:4661` + terms popup `1171:5545` | **High** | Done |
 | 3.6 | My Proposals — status tabs + Revised (shortlisted) | **High** | Done |
 | 3.7 | Proposal detail route `/dashboard/pilot/proposals/[id]` | **High** | Done |
 | 3.8 | Withdraw proposal — UI + API | **High** | Done |
@@ -38,8 +38,8 @@ Pilots discover approved jobs, submit proposals, manage contracts, deliver work,
 | 3.15 | Messages UI — conversations API | Medium | Done (no mock fallback) |
 | 3.16 | Portfolio gallery — CRUD + persistence | Medium | Done (`portfolioJson` + API) |
 | 3.17 | Verifications grid — full catalog | Medium | Done (catalog always; no mock statuses) |
-| 3.18 | Profile strength — live portfolio count | Medium | Done (avatar upload deferred M107) |
-| 3.19 | Reviews · shop polish | Low | Done (live API / empty states) |
+| 3.18 | Profile strength — live portfolio count | Medium | Done (`portfolioJson`; extras avatar in `profileExtrasJson`) |
+| 3.19 | Reviews · shop polish | Low | Done (Figma `808:22235` shop + live catalog) |
 | 3.20 | Contract planning screen (6 stages, M307) | Low | Deferred (Phase 7+ per ADR) |
 | 3.21 | Instructor dashboard / Request Wings / add-on (M316) | Low | Deferred |
 
@@ -49,6 +49,8 @@ Pilots discover approved jobs, submit proposals, manage contracts, deliver work,
 
 | Date | Item | Status |
 |------|------|--------|
+| 2026-08-17 | Profile extras persist + shop Figma `808:22235` | Done |
+| 2026-08-17 | Submit Proposal Figma `1171:4661` + terms overlay `1171:5545` | Done |
 | 2026-06-02 | Submit Proposal flow (Figma 808:3828, 808:4459) | Done |
 | 2026-06-02 | My Proposals Revised tab; proposal metadata + validation | Done |
 | 2026-06-02 | Membership redesign — catalog, Fast Forward, pay-the-difference | Done |

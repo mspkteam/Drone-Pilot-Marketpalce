@@ -60,6 +60,17 @@ describe("validateApplicationInput", () => {
     assert.match(result.error, /accuracy and compliance/i);
   });
 
+  it("allows operational plan without projected mileage", () => {
+    const result = validateApplicationInput({
+      ...validBase,
+      operationalPlan: {
+        ...validBase.operationalPlan,
+        projectedMileage: "",
+      },
+    });
+    assert.equal(result.ok, true);
+  });
+
   it("requires operational plan fields", () => {
     const result = validateApplicationInput({
       ...validBase,

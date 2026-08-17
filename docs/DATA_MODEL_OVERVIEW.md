@@ -62,7 +62,8 @@ erDiagram
 | serviceRadiusKm | Number |
 | servicesOffered | Array / tags (e.g. real estate, inspection) |
 | hourlyRateMin, hourlyRateMax | Optional |
-| portfolioUrls | Array |
+| portfolioJson | JSON array of flight-gallery items (`PilotPortfolioItem`) |
+| profileExtrasJson | JSON: call sign, languages, drones, payloads, extra chips, avatar data-URL |
 | licenseNumber | String |
 | isPublic | Boolean |
 | commissionOverrideEnabled | Boolean — Super Admin per-pilot commission override active |

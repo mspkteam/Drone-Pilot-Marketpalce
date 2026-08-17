@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { PilotVerificationDocumentCardView } from "./PilotVerificationDocumentCard";
 import {
@@ -113,16 +112,12 @@ export function PilotVerificationDocumentsView() {
 
   return (
     <div className="pilot-verification-page">
-      <Link href="/dashboard/pilot/profile" className="pilot-verification-back">
-        ← Back
-      </Link>
-
-      <header className="pilot-verification-header">
+      <header className="pilot-verification-header pilot-verification-bracket-card">
         <p className="pilot-verification-eyebrow">PILOT / VERIFICATION</p>
         <h1 className="pilot-verification-title">Identity &amp; License Verification</h1>
       </header>
 
-      <div className="pilot-verification-notice">
+      <div className="pilot-verification-notice pilot-verification-bracket-card">
         <div className="pilot-verification-notice-copy">
           <span className="pilot-verification-notice-icon">
             <DocumentStackIcon />

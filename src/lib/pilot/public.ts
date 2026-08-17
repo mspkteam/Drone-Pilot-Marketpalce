@@ -3,6 +3,8 @@ import { listCertificatesForPilot } from "@/lib/certificates/certificate";
 import { getPilotMembershipSummary } from "@/lib/membership/membership";
 import { averageRating } from "@/lib/reviews/review";
 import { parseServicesOffered } from "@/lib/pilot/profile";
+import { parseProfileExtrasJson } from "@/lib/pilot/profile-extras";
+import { parsePortfolioJson } from "@/lib/pilot/portfolio";
 import { getApprovedVerificationTypes } from "@/lib/verification/verification";
 import { listPublicPilotWings } from "@/lib/wings/wings";
 import type { PilotServiceId } from "@/types/pilot";
@@ -149,9 +151,16 @@ export async function getPublicPilotById(
       }
     : null;
 
+  const extras = parseProfileExtrasJson(profile.profileExtrasJson);
+
   return {
     ...toListItem(profile, stat),
     serviceRadiusKm: profile.serviceRadiusKm,
+    callSign: extras.callSign.trim() || null,
+    avatarUrl: extras.avatarUrl,
+    mainDrones: extras.mainDrones,
+    payloads: extras.payloads,
+    portfolio: parsePortfolioJson(profile.portfolioJson),
     verifiedTypes,
     recentReviews,
     wings,

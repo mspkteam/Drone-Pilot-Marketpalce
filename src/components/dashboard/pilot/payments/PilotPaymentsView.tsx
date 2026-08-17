@@ -80,9 +80,10 @@ export function PilotPaymentsView({ commissionRatePercent }: PilotPaymentsViewPr
 
   return (
     <div className="pilot-payments-page">
-      <header className="pilot-payments-header">
+      <header className="pilot-payments-header pilot-payments-bracket-card">
         <div className="pilot-payments-header-copy">
-          <h1 className="pilot-payments-title">Payments</h1>
+          <p className="pilot-payments-eyebrow">BUSINESS / EARNINGS</p>
+          <h1 className="pilot-payments-title">Earnings</h1>
           <p className="pilot-payments-subtitle">
             Earnings from completed jobs ({commissionRatePercent}% platform fee deducted).
           </p>

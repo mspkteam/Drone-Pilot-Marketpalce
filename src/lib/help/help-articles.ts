@@ -6,7 +6,7 @@ import type { HelpArticle, HelpArticleAudience } from "@/types/help-article";
 const HELP_ARTICLES_SEED: HelpArticle[] = [
   {
     id: "help-pilot-ranks",
-    title: "How do pilot ranks A-1 to A-6 work?",
+    title: "How do Remote Air Service grades A-1 to A-6 work?",
     slug: "how-pilot-ranks-a1-to-a6-work",
     category: "Membership",
     summary:

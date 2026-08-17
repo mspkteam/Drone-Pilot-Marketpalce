@@ -1,4 +1,5 @@
 import type { PilotServiceId } from "@/types/pilot";
+import type { PilotPortfolioItem } from "@/lib/pilot/portfolio";
 import type { SubscriptionStatus } from "@/types/subscription";
 import type { VerificationType } from "@/types/verification";
 import type { PublicPilotWingDto } from "@/types/wing";
@@ -44,6 +45,11 @@ export type PublicPilotListItemDto = {
 
 export type PublicPilotProfileDto = PublicPilotListItemDto & {
   serviceRadiusKm: number | null;
+  callSign: string | null;
+  avatarUrl: string | null;
+  mainDrones: string[];
+  payloads: string[];
+  portfolio: PilotPortfolioItem[];
   verifiedTypes: VerificationType[];
   recentReviews: PublicPilotReviewDto[];
   wings: PublicPilotWingDto[];

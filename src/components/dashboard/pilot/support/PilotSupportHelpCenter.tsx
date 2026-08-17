@@ -109,16 +109,12 @@ export function PilotSupportHelpCenter() {
 
   return (
     <div className="pilot-support-page">
-      <Link href="/dashboard/pilot" className="pilot-support-back">
-        ← Back
-      </Link>
-
-      <header className="pilot-support-header">
+      <header className="pilot-support-header pilot-support-bracket-card">
         <p className="pilot-support-eyebrow">ACCOUNT / SUPPORT</p>
         <h1 className="pilot-support-title">Support &amp; Help Center</h1>
       </header>
 
-      <section className="pilot-support-hero" aria-label="Help search">
+      <section className="pilot-support-hero pilot-support-bracket-card" aria-label="Help search">
         <LifebuoyIcon />
         <h2 className="pilot-support-hero-title">How can ground control help?</h2>
         <label className="pilot-support-search-wrap">

@@ -5,7 +5,6 @@ import { useCallback, useEffect, useState } from "react";
 import { PilotPortfolioAddModal } from "./PilotPortfolioAddModal";
 import { PilotPortfolioCard } from "./PilotPortfolioCard";
 import {
-  PILOT_PORTFOLIO_ROUTES,
   type PilotPortfolioDraft,
   type PilotPortfolioItem,
 } from "@/lib/pilot/portfolio";
@@ -71,18 +70,16 @@ export function PilotPortfolioView() {
 
   return (
     <div className="pilot-portfolio-page">
-      <Link href={PILOT_PORTFOLIO_ROUTES.profile} className="pilot-portfolio-back">
-        ← Back
-      </Link>
-
-      <header className="pilot-portfolio-header">
+      <header className="pilot-portfolio-header pilot-portfolio-bracket-card">
         <p className="pilot-portfolio-eyebrow">PILOT / PORTFOLIO</p>
         <h1 className="pilot-portfolio-title-main">Portfolio / Flight Gallery</h1>
       </header>
 
-      <div className="pilot-portfolio-intro">
+      <div className="pilot-portfolio-intro pilot-portfolio-bracket-card">
         <p className="pilot-portfolio-intro-text">
-          Showcase your best work to clients browsing the marketplace.
+          Showcase your best work to clients browsing the marketplace. Gallery items
+          appear on your{" "}
+          <Link href="/dashboard/pilot/profile">Pilot Profile</Link> and public listing.
         </p>
         <button
           type="button"

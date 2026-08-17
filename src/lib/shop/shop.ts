@@ -313,18 +313,17 @@ export async function listActiveProductsForShop(
     wingCodes: new Set(wings.map((w) => w.code)),
   };
 
-  return rows
-    .filter((row) =>
-      pilotMeetsProductEligibility(
-        {
-          minTierCode: row.minTierCode,
-          exactTierCode: row.exactTierCode,
-          requiredWingCode: row.requiredWingCode,
-        },
-        pilot,
-      ),
-    )
-    .map(toProductDto);
+  return rows.map((row) => {
+    const eligible = pilotMeetsProductEligibility(
+      {
+        minTierCode: row.minTierCode,
+        exactTierCode: row.exactTierCode,
+        requiredWingCode: row.requiredWingCode,
+      },
+      pilot,
+    );
+    return { ...toProductDto(row), eligible };
+  });
 }
 
 export async function listProductsForAdmin(): Promise<UniformProductDto[]> {
@@ -1099,54 +1098,103 @@ export async function updateOrderByAdmin(
 }
 
 export async function seedUniformCatalog(): Promise<void> {
-  const products = [
+  const products: Array<{
+    name: string;
+    description: string;
+    imageUrl: string | null;
+    sortOrder: number;
+    minTierCode?: string | null;
+    variants: Array<{
+      sku: string;
+      label: string;
+      size: string | null;
+      color: string | null;
+      price: number;
+      stock: number;
+    }>;
+  }> = [
     {
-      name: "Pilot Performance Polo",
-      description:
-        "Breathable marketplace-branded polo for client-facing operations and field work.",
+      name: "A-3 Flight Officer Epaulettes",
+      description: "Grade epaulettes purchased separately from the uniform shirt.",
+      imageUrl: "/shop/epaulettes.png",
+      sortOrder: 10,
       variants: [
-        { sku: "POLO-S-BLK", label: "S / Black", size: "S", color: "Black", price: 42, stock: 25 },
-        { sku: "POLO-M-BLK", label: "M / Black", size: "M", color: "Black", price: 42, stock: 40 },
-        { sku: "POLO-L-BLK", label: "L / Black", size: "L", color: "Black", price: 42, stock: 35 },
-        { sku: "POLO-XL-BLK", label: "XL / Black", size: "XL", color: "Black", price: 42, stock: 20 },
+        { sku: "EPAU-A3", label: "A-3 pair", size: null, color: "Gold", price: 45, stock: 40 },
       ],
     },
     {
-      name: "Flight Crew Softshell Jacket",
-      description:
-        "Lightweight softshell with embroidered logo — wind-resistant for outdoor missions.",
+      name: "Official RAS Patch",
+      description: "Official Remote Air Service embroidered patch.",
+      imageUrl: null,
+      sortOrder: 20,
       variants: [
-        { sku: "JKT-M-NVY", label: "M / Navy", size: "M", color: "Navy", price: 89, stock: 15 },
-        { sku: "JKT-L-NVY", label: "L / Navy", size: "L", color: "Navy", price: 89, stock: 18 },
-        { sku: "JKT-XL-NVY", label: "XL / Navy", size: "XL", color: "Navy", price: 89, stock: 12 },
+        { sku: "PATCH-RAS", label: "One size", size: "OSFA", color: null, price: 15, stock: 80 },
       ],
     },
     {
-      name: "Hi-Vis Operations Cap",
-      description: "Structured cap with gold accent stitching and adjustable strap.",
+      name: "Holographic Pilot ID Card",
+      description: "Holographic membership ID card for uniform wear.",
+      imageUrl: "/shop/pilot-id.png",
+      sortOrder: 30,
       variants: [
-        { sku: "CAP-OSFA", label: "One size", size: "OSFA", color: "Gold/Black", price: 24, stock: 50 },
+        { sku: "ID-HOLO", label: "Standard", size: null, color: null, price: 30, stock: 60 },
+      ],
+    },
+    {
+      name: "Command Flight Jacket",
+      description: "Command flight jacket for client-facing operations.",
+      imageUrl: "/shop/flight-shirt.png",
+      sortOrder: 40,
+      variants: [
+        { sku: "JKT-CMD-M", label: "M", size: "M", color: "Black", price: 99.99, stock: 15 },
+        { sku: "JKT-CMD-L", label: "L", size: "L", color: "Black", price: 99.99, stock: 18 },
+        { sku: "JKT-CMD-XL", label: "XL", size: "XL", color: "Black", price: 99.99, stock: 12 },
+      ],
+    },
+    {
+      name: "Operations Cap",
+      description: "Structured operations cap with gold accent stitching.",
+      imageUrl: null,
+      sortOrder: 50,
+      variants: [
+        { sku: "CAP-OPS", label: "One size", size: "OSFA", color: "Gold/Black", price: 28, stock: 50 },
+      ],
+    },
+    {
+      name: "Captain Black Polo",
+      description:
+        "Customizable with pilot wings and name. May be worn on jobs instead of the white pilot shirt uniform.",
+      imageUrl: "/shop/pilot-wings.png",
+      sortOrder: 60,
+      minTierCode: "A6_CAPTAIN",
+      variants: [
+        { sku: "POLO-A6-M", label: "M / Black", size: "M", color: "Black", price: 99.99, stock: 20 },
+        { sku: "POLO-A6-L", label: "L / Black", size: "L", color: "Black", price: 99.99, stock: 20 },
+        { sku: "POLO-A6-XL", label: "XL / Black", size: "XL", color: "Black", price: 99.99, stock: 16 },
       ],
     },
   ];
 
-  for (let i = 0; i < products.length; i++) {
-    const p = products[i];
+  for (const p of products) {
     const slug = slugify(p.name);
     const product = await prisma.uniformProduct.upsert({
       where: { slug },
       update: {
         name: p.name,
         description: p.description,
+        imageUrl: p.imageUrl,
         isActive: true,
-        sortOrder: i * 10,
+        sortOrder: p.sortOrder,
+        minTierCode: p.minTierCode ?? null,
       },
       create: {
         name: p.name,
         slug,
         description: p.description,
+        imageUrl: p.imageUrl,
         isActive: true,
-        sortOrder: i * 10,
+        sortOrder: p.sortOrder,
+        minTierCode: p.minTierCode ?? null,
       },
     });
 
@@ -1174,4 +1222,10 @@ export async function seedUniformCatalog(): Promise<void> {
       });
     }
   }
+
+  const keepSlugs = products.map((p) => slugify(p.name));
+  await prisma.uniformProduct.updateMany({
+    where: { slug: { notIn: keepSlugs }, isActive: true },
+    data: { isActive: false },
+  });
 }

@@ -1,3 +1,6 @@
+import type { PilotProfileExtras } from "@/lib/pilot/profile-extras";
+import type { PilotPortfolioItem } from "@/lib/pilot/portfolio";
+
 export const PILOT_PROFILE_STATUSES = [
   "draft",
   "pending_review",
@@ -35,6 +38,8 @@ export type PilotProfileDto = {
   licenseNumber: string;
   licenseCountry: string | null;
   isPublic: boolean;
+  extras: PilotProfileExtras;
+  portfolio: PilotPortfolioItem[];
   status: PilotProfileStatus;
   instructorAddonActive: boolean;
   instructorAddonPeriodEnd: string | null;

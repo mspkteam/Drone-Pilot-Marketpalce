@@ -59,7 +59,7 @@ function parseOperationalPlanInput(
       ? Math.floor(input.crewCount)
       : 1;
 
-  if (!projectedMileage || !flightTimeEstimate || !droneEquipment) {
+  if (!flightTimeEstimate || !droneEquipment) {
     return null;
   }
 
@@ -81,12 +81,20 @@ function parseComplianceInput(
   const permitsWaivers = input.permitsWaivers?.trim() || null;
   const travelLodging = input.travelLodging?.trim() || null;
   const safetyPlan = input.safetyPlan?.trim() || null;
+  const insuranceCoverage = input.insuranceCoverage?.trim() || null;
+  const otherRequirements = input.otherRequirements?.trim() || null;
 
   if (!permitsWaivers || !travelLodging || !safetyPlan) {
     return null;
   }
 
-  return { permitsWaivers, travelLodging, safetyPlan };
+  return {
+    permitsWaivers,
+    travelLodging,
+    safetyPlan,
+    insuranceCoverage,
+    otherRequirements,
+  };
 }
 
 function parsePricingInput(
@@ -214,8 +222,7 @@ export function validateApplicationInput(
   if (!operationalPlan) {
     return {
       ok: false,
-      error:
-        "Complete operational plan fields: mileage, flight time, and equipment.",
+      error: "Complete operational plan fields: flight time and equipment.",
     };
   }
 

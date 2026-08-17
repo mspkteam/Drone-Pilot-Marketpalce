@@ -230,13 +230,9 @@ export function PilotAccountSettings() {
 
   return (
     <div className="pilot-settings-page">
-      <Link href="/dashboard/pilot" className="pilot-settings-back">
-        ← Back
-      </Link>
-
-      <header className="pilot-settings-header">
+      <header className="pilot-settings-header pilot-settings-bracket-card">
         <p className="pilot-settings-eyebrow">ACCOUNT / SETTINGS</p>
-        <h1 className="pilot-settings-title">Pilot Settings</h1>
+        <h1 className="pilot-settings-title">Flight Officer Settings</h1>
       </header>
 
       {error ? (
@@ -451,15 +447,20 @@ export function PilotAccountSettings() {
             </form>
           </section>
 
-          <section id="pilot-settings-danger" className="pilot-settings-card">
-            <h2 className="pilot-settings-card-title">DANGER ZONE</h2>
+          <section
+            id="pilot-settings-danger"
+            className="pilot-settings-card pilot-settings-card--danger"
+          >
+            <h2 className="pilot-settings-card-title pilot-settings-card-title--danger">
+              DANGER ZONE
+            </h2>
             <div className="pilot-settings-danger-row">
               <div>
-                <p className="pilot-settings-danger-title">Deactivate account</p>
+                <p className="pilot-settings-danger-title">Delete account</p>
                 <p className="pilot-settings-danger-copy">
-                  Your account will be deactivated first. You can reactivate it within 30
-                  days by logging back in. After 30 days, the account and related profile
-                  data are scheduled for deletion according to platform policy.
+                  Account deletion removes the profile from client visibility. You can
+                  reactivate within 30 days and retain your grade. After 30 days the
+                  account is permanently removed.
                 </p>
               </div>
               <button

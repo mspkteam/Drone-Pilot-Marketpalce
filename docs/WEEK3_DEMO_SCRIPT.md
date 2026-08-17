@@ -29,13 +29,14 @@ Run locally after `npm run db:setup` (or `db:push` + `db:seed`).
 
 1. As **pilot@dronepilot.local**, open an unlocked job → **Submit Proposal** (`/dashboard/pilot/jobs/[id]/proposal`).
 2. Complete:
-   - Estimated hours/days + delivery date
-   - Cover message + deliverables
-   - Operational plan (mileage, flight time, equipment)
-   - Compliance (permits, travel, safety plan)
-   - Pricing breakdown (totals must match)
-   - Accuracy confirmation + off-platform terms
-3. Submit → redirected to **My Proposals** with success.
+   - Proposed amount + estimated hours/days + delivery date
+   - Deliverables, crew, equipment
+   - Operational plan / approach
+   - Travel, flight time, compliance Yes/No fields
+   - Pricing breakdown (must match proposed amount)
+   - Off-platform terms checkbox
+3. **Submit Application** → Terms overlay → check acknowledgment → **Confirm & Submit**.
+4. Redirected to **My Proposals** with success.
 
 **Pass:** `POST /api/pilot/jobs/[id]/applications` returns 201; proposal appears in Pending tab.
 

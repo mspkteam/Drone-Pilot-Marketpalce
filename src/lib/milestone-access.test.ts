@@ -93,41 +93,41 @@ describe("milestone access", () => {
     assert.equal(access.requiredMilestone, 3);
   });
 
-  it("locks deferred pilot modules (Business / Account / remaining Pilot items) until Week 4", () => {
+  it("unlocks remaining Week 3 pilot modules at milestone 3", () => {
     process.env.NEXT_PUBLIC_MILESTONE_ACTIVE = "3";
     assert.equal(
       evaluateMilestoneAccess("/dashboard/pilot/subscription", "pilot").allowed,
-      false,
+      true,
     );
     assert.equal(
       evaluateMilestoneAccess("/dashboard/pilot/payments", "pilot").allowed,
-      false,
+      true,
     );
     assert.equal(
       evaluateMilestoneAccess("/dashboard/pilot/verifications", "pilot").allowed,
-      false,
+      true,
     );
     assert.equal(
       evaluateMilestoneAccess("/dashboard/pilot/portfolio", "pilot").allowed,
-      false,
+      true,
     );
     assert.equal(
       evaluateMilestoneAccess("/dashboard/pilot/reviews", "pilot").allowed,
-      false,
+      true,
     );
     assert.equal(
       evaluateMilestoneAccess("/dashboard/pilot/support", "pilot").allowed,
-      false,
+      true,
     );
     assert.equal(
       evaluateMilestoneAccess("/dashboard/pilot/settings", "pilot").allowed,
-      false,
+      true,
     );
     assert.equal(
       evaluateMilestoneAccess("/dashboard/pilot/shop", "pilot").allowed,
-      false,
+      true,
     );
-    assert.equal(isNavHrefLocked("/dashboard/pilot/subscription"), true);
+    assert.equal(isNavHrefLocked("/dashboard/pilot/subscription"), false);
     assert.equal(isNavHrefLocked("/dashboard/pilot/profile"), false);
   });
 
@@ -149,7 +149,7 @@ describe("milestone access", () => {
 
   it("marks locked nav hrefs for future milestones", () => {
     assert.equal(isNavHrefLocked("/dashboard/pilot/jobs"), false);
-    assert.equal(isNavHrefLocked("/dashboard/pilot/shop"), true);
+    assert.equal(isNavHrefLocked("/dashboard/pilot/shop"), false);
     assert.equal(isNavHrefLocked("/dashboard/admin"), false);
     assert.equal(isNavHrefLocked("/dashboard/client/jobs"), false);
   });

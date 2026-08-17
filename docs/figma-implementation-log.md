@@ -11,7 +11,124 @@ Workflow: [`FIGMA_IMPLEMENTATION_WORKFLOW.md`](FIGMA_IMPLEMENTATION_WORKFLOW.md)
 
 | Screens implemented | Missing modules logged | Last updated |
 |--------------------|------------------------|--------------|
-| 22 | 7 | 2026-08-11 |
+| 30 | 7 | 2026-08-17 |
+
+---
+
+#### Pilot Submit Proposal
+
+| Field | Value |
+|-------|--------|
+| **Date** | 2026-08-17 |
+| **Figma frame** | `1171:4661` (container) / overlay `1171:5545` |
+| **Figma URL** | https://www.figma.com/design/6E3XlFsDuajsjYjf4LiOPZ/remote-air-service?node-id=1171-4661 |
+| **Route** | `/dashboard/pilot/jobs/[id]/proposal` |
+| **Status** | Implemented (UI + functionality pass) |
+
+**Components reused:** `PilotSubmitProposalView`, `POST /api/pilot/jobs/[id]/applications`, live terms copy (`TERMS_INTRO` + `TermsLegalBody`)  
+**Notes:** Layout from Figma; site color tokens. Job description/requirements and order summary from live job + post-project metadata. Submit Application validates then opens terms overlay (`1171:5545` dim + blur). Confirm & Submit posts the proposal. Shell Back/bell unchanged.
+
+---
+
+#### Pilot Settings
+
+| Field | Value |
+|-------|--------|
+| **Date** | 2026-08-17 |
+| **Figma frame** | `808:23194` |
+| **Figma URL** | https://www.figma.com/design/6E3XlFsDuajsjYjf4LiOPZ/remote-air-service?node-id=808-23194 |
+| **Route** | `/dashboard/pilot/settings` |
+| **Status** | Implemented (UI pass) |
+
+**Components reused:** `PilotAccountSettings`, account/password APIs  
+**Notes:** Layout from Figma; site color tokens. Title **Flight Officer Settings**. Danger Zone 30-day reactivation (not Stripe). Notification category toggles still deferred. Shell Back/bell unchanged.
+
+---
+
+#### Pilot Support & Help Center
+
+| Field | Value |
+|-------|--------|
+| **Date** | 2026-08-17 |
+| **Figma frame** | `808:22755` |
+| **Figma URL** | https://www.figma.com/design/6E3XlFsDuajsjYjf4LiOPZ/remote-air-service?node-id=808-22755 |
+| **Route** | `/dashboard/pilot/support` |
+| **Status** | Implemented (UI pass) |
+
+**Components reused:** `PilotSupportHelpCenter`, help article seed, support chat widget  
+**Notes:** Layout from Figma; site color tokens. Search + popular articles + Ground Control ticket + open tickets. Shell Back/bell unchanged.
+
+---
+
+#### Pilot Uniform & Insignia Shop
+
+| Field | Value |
+|-------|--------|
+| **Date** | 2026-08-17 |
+| **Figma frame** | Uniform `808:22234` / Container `808:22235` |
+| **Figma URL** | https://www.figma.com/design/6E3XlFsDuajsjYjf4LiOPZ/remote-air-service?node-id=808-22235 |
+| **Route** | `/dashboard/pilot/shop` |
+| **Status** | Implemented (UI + catalog wiring) |
+
+**Components reused:** `PilotUniformShop`, shop products/orders APIs  
+**Notes:** Layout from Container `808:22235`; site color tokens. 3-col cards + CART aside; ineligible polo shown locked (`UNLOCKED AT A-6 CAPTAIN`); **+ ADD** / **Configure Polo**. Catalog seeded to Figma SKUs. Stripe later. Shell Back/bell unchanged.
+
+---
+
+#### Pilot Reviews — Main
+
+| Field | Value |
+|-------|--------|
+| **Date** | 2026-08-17 |
+| **Figma frame** | Main `808:23643` (parent reviews `808:23642`) |
+| **Figma URL** | https://www.figma.com/design/6E3XlFsDuajsjYjf4LiOPZ/remote-air-service?node-id=808-23643 |
+| **Route** | `/dashboard/pilot/reviews` |
+| **Status** | Implemented (UI pass) |
+
+**Components reused:** `PilotReviewsView`, `GET /api/pilot/reviews`  
+**Notes:** Layout from Figma; site color tokens. Summary + list + Review Dispute → contracts, Review Reset → support (no reset API). Shell Back/bell unchanged.
+
+---
+
+#### Pilot Portfolio / Flight Gallery — Main
+
+| Field | Value |
+|-------|--------|
+| **Date** | 2026-08-17 |
+| **Figma frame** | Main `808:21066` (parent Portfolio `808:21065`) |
+| **Figma URL** | https://www.figma.com/design/6E3XlFsDuajsjYjf4LiOPZ/remote-air-service?node-id=808-21066 |
+| **Route** | `/dashboard/pilot/portfolio` |
+| **Status** | Implemented (UI pass) |
+
+**Components reused:** `PilotPortfolioView`, `GET/POST /api/pilot/portfolio`  
+**Assets:** `public/icons/pilot-dashboard/portfolio-play.svg`  
+**Notes:** Layout from Figma; site color tokens. Header + Add Item bar + 3-col cards (VIDEO play overlay / PHOTOSET). Shell Back/bell unchanged.
+
+---
+
+#### Pilot Earnings (no dedicated Figma frame)
+
+| Field | Value |
+|-------|--------|
+| **Date** | 2026-08-17 |
+| **Figma frame** | — (aligned to marketplace header chrome) |
+| **Route** | `/dashboard/pilot/payments` |
+| **Status** | Implemented (UI chrome) |
+
+**Notes:** Eyebrow `BUSINESS / EARNINGS`; title **Earnings**. 15% commission copy. Stripe Connect later.
+
+---
+
+#### Pilot Verification (no dedicated Figma frame)
+
+| Field | Value |
+|-------|--------|
+| **Date** | 2026-08-17 |
+| **Figma frame** | — (aligned to marketplace header chrome) |
+| **Route** | `/dashboard/pilot/verifications` |
+| **Status** | Implemented (UI chrome) |
+
+**Notes:** Eyebrow `PILOT / VERIFICATION`; existing catalog/upload flow. Shell Back/bell unchanged.
 
 ---
 
@@ -19,15 +136,15 @@ Workflow: [`FIGMA_IMPLEMENTATION_WORKFLOW.md`](FIGMA_IMPLEMENTATION_WORKFLOW.md)
 
 | Field | Value |
 |-------|--------|
-| **Date** | 2026-08-11 |
+| **Date** | 2026-08-17 |
 | **Figma frame** | Main `808:19441` (parent Profile `808:19119`) |
 | **Figma URL** | https://www.figma.com/design/6E3XlFsDuajsjYjf4LiOPZ/remote-air-service?node-id=808-19441 |
 | **Route** | `/dashboard/pilot/profile` |
-| **Status** | Implemented (UI pass) |
+| **Status** | Implemented (UI + functionality pass) |
 
 **Components created:** —  
-**Components reused:** `PilotProfileCompletionView`, `ProfileStrengthPanel`, `POST/PATCH /api/pilot/profile`  
-**Notes:** Layout from Figma; site color tokens. Header chrome `OPERATIONS / PROFILE`; Identity → Bio → Drones & Equipment → Services → Portfolio; sidebar strength + add-payload panel (local chips). Call sign / drones / payloads / avatar files UI-only until schema. Shell Back/bell unchanged.
+**Components reused:** `PilotProfileCompletionView`, `ProfileStrengthPanel`, `POST/PATCH /api/pilot/profile`, `/api/pilot/portfolio`  
+**Notes:** Layout from Figma; site color tokens. Call sign / drones / payloads / extra chips / avatar persist in `profileExtrasJson`. Flight Gallery shows live `portfolioJson` items; `+` and Manage Flight Gallery go to `/dashboard/pilot/portfolio`. Shell Back/bell unchanged.
 
 ---
 

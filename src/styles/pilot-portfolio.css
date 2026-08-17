@@ -10,45 +10,60 @@
 .pilot-portfolio-page {
   display: flex;
   flex-direction: column;
+  gap: 1.5rem;
   width: 100%;
   min-width: 0;
 }
 
-.pilot-portfolio-back {
-  display: inline-flex;
-  align-items: center;
-  margin-bottom: 1.25rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--color-text-muted);
-  transition: color 0.15s ease;
+.pilot-portfolio-bracket-card {
+  position: relative;
 }
 
-.pilot-portfolio-back:hover {
-  color: var(--color-gold);
+.pilot-portfolio-bracket-card::before,
+.pilot-portfolio-bracket-card::after {
+  content: "";
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  pointer-events: none;
+}
+
+.pilot-portfolio-bracket-card::before {
+  top: 14px;
+  left: 14px;
+  border-top: 1px solid rgba(244, 241, 234, 0.22);
+  border-left: 1px solid rgba(244, 241, 234, 0.22);
+}
+
+.pilot-portfolio-bracket-card::after {
+  right: 14px;
+  bottom: 14px;
+  border-right: 1px solid rgba(244, 241, 234, 0.22);
+  border-bottom: 1px solid rgba(244, 241, 234, 0.22);
 }
 
 .pilot-portfolio-header {
-  margin-bottom: 1.75rem;
   border: 1px solid var(--dashboard-card-border);
-  border-radius: 0.625rem;
+  border-radius: 0.375rem;
   background: var(--color-card-warm);
-  padding: 1.625rem;
+  padding: 1.5625rem;
 }
 
 .pilot-portfolio-eyebrow {
   margin: 0;
-  font-size: 0.6875rem;
-  font-weight: 600;
-  letter-spacing: 0.14em;
+  font-size: 0.7rem;
+  font-weight: 400;
+  letter-spacing: 0.084em;
+  text-transform: uppercase;
   color: var(--color-text-soft);
 }
 
 .pilot-portfolio-title-main {
-  margin: 0.5rem 0 0;
-  font-size: clamp(1.75rem, 4vw, 2.5rem);
-  font-weight: 800;
-  line-height: 1.15;
+  margin: 0.25rem 0 0;
+  font-size: clamp(1.75rem, 3vw, 2.25rem);
+  font-weight: 600;
+  line-height: 1.11;
+  letter-spacing: -0.001em;
   color: var(--color-text);
 }
 
@@ -57,11 +72,10 @@
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  margin-bottom: 2rem;
   border: 1px solid var(--dashboard-card-border);
-  border-radius: 0.5rem;
+  border-radius: 0.375rem;
   background: var(--color-card-warm);
-  padding: 1.25rem 1.5rem;
+  padding: 1.25rem 1.5625rem;
 }
 
 .pilot-portfolio-intro-text {
@@ -74,12 +88,12 @@
 .pilot-portfolio-add-btn {
   flex-shrink: 0;
   border: none;
-  border-radius: 0.4375rem;
+  border-radius: 0.25rem;
   background: var(--color-gold);
-  padding: 0.8125rem 1.5rem;
+  padding: 0.65625rem 1.5rem;
   font-size: 0.875rem;
-  font-weight: 800;
-  color: var(--color-bg-deeper);
+  font-weight: 600;
+  color: var(--color-cta-dark);
   cursor: pointer;
   transition: background-color 0.15s ease;
 }
@@ -119,13 +133,13 @@
 
 .pilot-portfolio-card {
   display: flex;
-  min-height: 20rem;
   flex-direction: column;
+  gap: 1rem;
   border: 1px solid var(--dashboard-card-border);
   border-radius: 0.75rem;
   background: var(--color-card-warm);
-  padding: 1.25rem;
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+  padding: 1.3125rem;
+  box-shadow: 0 10px 30px -20px rgba(0, 0, 0, 0.6);
   min-width: 0;
   transition: border-color 0.2s ease, transform 0.2s ease;
 }
@@ -136,12 +150,12 @@
 }
 
 .pilot-portfolio-preview {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 11.25rem;
-  border: 1px solid var(--color-surface-wash);
-  border-radius: 0.4375rem;
+  height: 11.75rem;
+  border-radius: 0.375rem;
   background: var(--color-bg-deeper);
   overflow: hidden;
 }
@@ -153,30 +167,41 @@
 }
 
 .pilot-portfolio-play {
+  position: absolute;
+  inset: 0;
   display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pilot-portfolio-play img {
+  width: 20px;
+  height: 20px;
+  display: block;
 }
 
 .pilot-portfolio-type {
-  margin: 1rem 0 0;
-  font-size: 0.6875rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   color: var(--color-text-soft);
 }
 
 .pilot-portfolio-title {
   margin: 0.25rem 0 0;
-  font-size: 1.0625rem;
-  font-weight: 700;
-  line-height: 1.35;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.5;
   color: var(--color-text);
 }
 
 .pilot-portfolio-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-top: 1.125rem;
+  gap: 1rem;
+  margin-top: 0;
 }
 
 .pilot-portfolio-tag {

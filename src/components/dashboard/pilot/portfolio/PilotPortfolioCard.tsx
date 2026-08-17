@@ -4,25 +4,23 @@ type PilotPortfolioCardProps = {
   item: PilotPortfolioItem;
 };
 
-function PlayIcon() {
-  return (
-    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden>
-      <circle cx="14" cy="14" r="13" stroke="var(--color-gold)" strokeWidth="1.5" />
-      <path d="M11.5 9.5v9l7.5-4.5-7.5-4.5z" fill="var(--color-gold)" />
-    </svg>
-  );
-}
-
 export function PilotPortfolioCard({ item }: PilotPortfolioCardProps) {
   return (
-    <article className="pilot-portfolio-card">
+    <article className="pilot-portfolio-card pilot-portfolio-bracket-card">
       <div className="pilot-portfolio-preview">
         {item.thumbnailUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={item.thumbnailUrl} alt="" className="pilot-portfolio-preview-img" />
-        ) : item.type === "VIDEO" ? (
+        ) : null}
+        {item.type === "VIDEO" ? (
           <span className="pilot-portfolio-play">
-            <PlayIcon />
+            <img
+              src="/icons/pilot-dashboard/portfolio-play.svg"
+              alt=""
+              width={20}
+              height={20}
+              aria-hidden
+            />
           </span>
         ) : null}
       </div>

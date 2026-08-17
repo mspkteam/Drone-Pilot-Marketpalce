@@ -49,6 +49,7 @@ export type UniformProductDto = {
   minTierCode: string | null;
   exactTierCode: string | null;
   requiredWingCode: string | null;
+  eligible?: boolean;
   variants: UniformProductVariantDto[];
 };
 

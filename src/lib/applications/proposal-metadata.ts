@@ -33,6 +33,8 @@ export type ProposalCompliance = {
   permitsWaivers: string | null;
   travelLodging: string | null;
   safetyPlan: string | null;
+  insuranceCoverage: string | null;
+  otherRequirements: string | null;
 };
 
 export type ProposalDetails = {
@@ -105,6 +107,10 @@ function parseCompliance(value: unknown): ProposalCompliance | undefined {
     travelLodging:
       typeof raw.travelLodging === "string" ? raw.travelLodging : null,
     safetyPlan: typeof raw.safetyPlan === "string" ? raw.safetyPlan : null,
+    insuranceCoverage:
+      typeof raw.insuranceCoverage === "string" ? raw.insuranceCoverage : null,
+    otherRequirements:
+      typeof raw.otherRequirements === "string" ? raw.otherRequirements : null,
   };
 }
 

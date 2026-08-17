@@ -48,6 +48,12 @@ export type PilotOpenJobDto = {
   hasApplied: boolean;
   applicationId: string | null;
   clientDisplayName: string;
+  postProject: {
+    deliverables: string[];
+    quoteTypeLabel: string;
+    priorityLabel: string;
+    completionDate: string | null;
+  } | null;
 };
 
 export type PilotLockedJobDto = {

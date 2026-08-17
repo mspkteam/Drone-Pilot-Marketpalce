@@ -396,16 +396,36 @@
 }
 
 .profile-onboarding-portfolio-slot {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   aspect-ratio: 1;
+  overflow: hidden;
   border: 1px solid var(--dashboard-card-border);
   border-radius: 0.375rem;
   background: var(--color-bg-deeper);
   color: var(--color-text-soft);
+  text-decoration: none;
   cursor: pointer;
   transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.profile-onboarding-portfolio-caption {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  padding: 0.35rem 0.45rem;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.72));
+  color: var(--color-text);
+  font-size: 0.625rem;
+  line-height: 1.2;
+}
+
+.profile-onboarding-gallery-link {
+  color: var(--color-gold);
+  font-weight: 600;
 }
 
 .profile-onboarding-portfolio-slot:hover {

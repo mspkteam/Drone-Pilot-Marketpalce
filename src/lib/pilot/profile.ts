@@ -1,4 +1,6 @@
 import { prisma } from "@/lib/db";
+import { parseProfileExtrasJson } from "@/lib/pilot/profile-extras";
+import { parsePortfolioJson } from "@/lib/pilot/portfolio";
 import type { PilotProfile } from "@/generated/prisma/client";
 import type {
   PilotProfileDto,
@@ -36,6 +38,8 @@ export function toPilotProfileDto(profile: PilotProfile): PilotProfileDto {
     licenseNumber: profile.licenseNumber,
     licenseCountry: profile.licenseCountry,
     isPublic: profile.isPublic,
+    extras: parseProfileExtrasJson(profile.profileExtrasJson),
+    portfolio: parsePortfolioJson(profile.portfolioJson),
     status: profile.status as PilotProfileStatus,
     instructorAddonActive: profile.instructorAddonActive,
     instructorAddonPeriodEnd:

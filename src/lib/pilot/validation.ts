@@ -2,6 +2,11 @@ import {
   validateComplianceAcknowledgments,
   type ComplianceItemId,
 } from "@/lib/pilot/compliance";
+import {
+  isAvatarPayloadTooLarge,
+  sanitizeProfileExtrasInput,
+  type PilotProfileExtras,
+} from "@/lib/pilot/profile-extras";
 import { PILOT_SERVICE_OPTIONS, type PilotServiceId } from "@/types/pilot";
 
 const VALID_SERVICE_IDS = new Set(
@@ -23,6 +28,7 @@ export type PilotProfileInput = {
   complianceAcknowledged?: string[];
   completeOnboarding?: boolean;
   isPublic?: boolean;
+  extras?: PilotProfileExtras;
 };
 
 export type ValidationResult<T> =
@@ -78,6 +84,13 @@ export function validatePilotProfileInput(
     return { ok: false, error: "Service radius must be zero or greater." };
   }
 
+  const extras = input.extras
+    ? sanitizeProfileExtrasInput(input.extras)
+    : undefined;
+  if (extras && isAvatarPayloadTooLarge(extras.avatarUrl)) {
+    return { ok: false, error: "Profile photo is too large. Use a smaller image." };
+  }
+
   return {
     ok: true,
     data: {
@@ -85,6 +98,7 @@ export function validatePilotProfileInput(
       displayName,
       licenseNumber,
       servicesOffered: services,
+      extras,
       complianceAcknowledged: input.complianceAcknowledged as
         | ComplianceItemId[]
         | undefined,

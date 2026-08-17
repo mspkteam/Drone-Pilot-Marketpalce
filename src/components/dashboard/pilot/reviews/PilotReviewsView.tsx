@@ -45,11 +45,7 @@ export function PilotReviewsView() {
 
   return (
     <div className="pilot-reviews-page">
-      <Link href="/dashboard/pilot" className="pilot-reviews-back">
-        ← Back
-      </Link>
-
-      <header className="pilot-reviews-header">
+      <header className="pilot-reviews-header pilot-reviews-bracket-card">
         <p className="pilot-reviews-eyebrow">PILOT / REVIEWS</p>
         <h1 className="pilot-reviews-title-main">Reviews</h1>
       </header>
@@ -98,6 +94,19 @@ export function PilotReviewsView() {
           </>
         )}
       </section>
+
+      <div className="pilot-reviews-actions">
+        <Link href="/dashboard/pilot/contracts" className="pilot-reviews-btn-gold">
+          Review Dispute
+        </Link>
+        <Link
+          href="/dashboard/pilot/support"
+          className="pilot-reviews-btn-outline"
+          title="Contact ground control to request a review reset"
+        >
+          Review Reset
+        </Link>
+      </div>
     </div>
   );
 }
@@ -105,14 +114,12 @@ export function PilotReviewsView() {
 function PilotReviewRowCard({ row }: { row: PilotReviewRow }) {
   return (
     <article className="pilot-reviews-row">
-      <div className="pilot-reviews-row-copy">
+      <div className="pilot-reviews-row-top">
         <h3 className="pilot-reviews-row-title">{row.title}</h3>
-        <p className="pilot-reviews-row-text">{row.text}</p>
-      </div>
-      <div className="pilot-reviews-row-meta">
         <span className="pilot-reviews-row-date">{row.date}</span>
         <PilotReviewsStars value={row.rating} className="pilot-reviews-row-stars" />
       </div>
+      <p className="pilot-reviews-row-text">{row.text}</p>
     </article>
   );
 }

@@ -25,40 +25,23 @@ export function PilotProposalTermsModal({
 
   return (
     <div
-      className="client-post-project-terms-modal-backdrop"
+      className="pilot-submit-terms-backdrop"
       role="presentation"
       onClick={onCancel}
     >
       <div
-        className="client-post-project-terms-modal"
+        className="pilot-submit-terms-modal"
         role="dialog"
         aria-modal="true"
         aria-labelledby="pilot-proposal-terms-title"
         onClick={(e) => e.stopPropagation()}
       >
-        <header className="client-post-project-terms-modal-header">
-          <div className="client-post-project-terms-modal-title-row">
-            <span className="client-post-project-terms-modal-icon" aria-hidden>
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path
-                  d="M5 2.5h7.5L15 5v11.25A1.25 1.25 0 0 1 13.75 17.5H5A1.25 1.25 0 0 1 3.75 16.25V3.75A1.25 1.25 0 0 1 5 2.5Z"
-                  stroke="currentColor"
-                  strokeWidth="1.25"
-                />
-                <path d="M7.5 2.5V5H12.5" stroke="currentColor" strokeWidth="1.25" />
-                <path d="M6.25 10h7.5M6.25 12.5h5" stroke="currentColor" strokeWidth="1.25" />
-              </svg>
-            </span>
-            <h2 id="pilot-proposal-terms-title" className="client-post-project-terms-modal-title">
-              Terms and Conditions of Use
-            </h2>
-          </div>
-          <p className="client-post-project-terms-modal-date">
-            Effective Date: {TERMS_EFFECTIVE_DATE}
-          </p>
+        <header className="pilot-submit-terms-header">
+          <h2 id="pilot-proposal-terms-title">Terms and Conditions of Use</h2>
+          <p>Effective Date: {TERMS_EFFECTIVE_DATE}</p>
         </header>
 
-        <div className="client-post-project-terms-modal-body">
+        <div className="pilot-submit-terms-body">
           {TERMS_INTRO.map((parts, index) => (
             <p key={index}>{parts.map((part) => part.text).join("")}</p>
           ))}
@@ -71,22 +54,17 @@ export function PilotProposalTermsModal({
           onAcknowledgedChange={onAcknowledgedChange}
         />
 
-        <footer className="client-post-project-terms-modal-actions">
-          <button
-            type="button"
-            className="client-post-project-btn-secondary"
-            disabled={loading}
-            onClick={onCancel}
-          >
+        <footer className="pilot-submit-terms-actions">
+          <button type="button" disabled={loading} onClick={onCancel}>
             Cancel
           </button>
           <button
             type="button"
-            className="client-post-project-btn-primary"
+            className="pilot-submit-terms-confirm"
             disabled={loading || !acknowledged}
             onClick={onSubmit}
           >
-            {loading ? "Submitting…" : "Submit Proposal"}
+            {loading ? "Submitting…" : "Confirm & Submit"}
           </button>
         </footer>
       </div>

@@ -1,16 +1,21 @@
 import { homeAssets } from "@/lib/marketing/home-assets";
+import { LIVE_MEMBERSHIP_TIER_DEFINITIONS } from "@/lib/membership/tiers";
 import type { UniformProductDto, UniformProductVariantDto } from "@/types/shop";
 
 export type ShopDisplayProduct = {
   productId: string;
   name: string;
   category: string;
+  description: string;
   imageSrc: string;
   imageUrls: string[];
   variants: UniformProductVariantDto[];
   variant: UniformProductVariantDto;
   displayPrice: number;
   variantCount: number;
+  eligible: boolean;
+  lockLabel: string | null;
+  configurable: boolean;
 };
 
 export type ShopMockDisplayProduct = {
@@ -66,11 +71,28 @@ export const PILOT_SHOP_MOCK_DISPLAY: ShopMockDisplayProduct[] = [
   },
 ];
 
+export function shopUnlockLabel(minTierCode: string | null | undefined): string | null {
+  if (!minTierCode) return null;
+  const tier = LIVE_MEMBERSHIP_TIER_DEFINITIONS.find((item) => item.code === minTierCode);
+  if (!tier) return `UNLOCKED AT ${minTierCode.replaceAll("_", " ")}`;
+  return `UNLOCKED AT ${tier.name}`.toUpperCase();
+}
+
+function isConfigurableProduct(product: UniformProductDto): boolean {
+  const haystack = `${product.name} ${product.slug} ${product.description}`.toLowerCase();
+  return haystack.includes("polo") || haystack.includes("customize");
+}
+
 function categoryFromProduct(product: UniformProductDto): string {
   const haystack = `${product.name} ${product.slug} ${product.description}`.toLowerCase();
   if (haystack.includes("patch")) return "PATCHES";
   if (haystack.includes("id card") || haystack.includes("id-card")) return "ID";
-  if (haystack.includes("digital") || haystack.includes("nft") || haystack.includes("wings")) {
+  if (
+    haystack.includes("digital") ||
+    haystack.includes("nft") ||
+    haystack.includes("polo") ||
+    haystack.includes("wings")
+  ) {
     return "DIGITAL";
   }
   if (haystack.includes("epaulette") || haystack.includes("insignia") || haystack.includes("rank")) {
@@ -79,17 +101,24 @@ function categoryFromProduct(product: UniformProductDto): string {
   return "UNIFORM";
 }
 
+const FIGMA_SHOP_IMAGES: Record<string, string> = {
+  epaulette: "/shop/epaulettes.png",
+  insignia: "/shop/epaulettes.png",
+  id: "/shop/pilot-id.png",
+  jacket: "/shop/flight-shirt.png",
+  polo: "/shop/pilot-wings.png",
+  wings: "/shop/pilot-wings.png",
+};
+
 function imageFromProduct(product: UniformProductDto): string {
   if (product.images.length > 0) return product.images[0]!.url;
   if (product.imageUrl) return product.imageUrl;
 
   const haystack = `${product.name} ${product.slug}`.toLowerCase();
-  if (haystack.includes("epaulette") || haystack.includes("insignia")) return homeAssets.ranks.a3;
-  if (haystack.includes("patch")) return homeAssets.ranks.a2;
-  if (haystack.includes("id")) return "/marketing/icon-trust-verified.png";
-  if (haystack.includes("jacket") || haystack.includes("polo")) return "/marketing/hero-pilot.jpg";
-  if (haystack.includes("cap")) return homeAssets.ranks.a1;
-  if (haystack.includes("wings") || haystack.includes("digital")) return homeAssets.ranks.a4;
+  if (haystack.includes("patch") || haystack.includes("cap")) return "";
+  for (const [key, src] of Object.entries(FIGMA_SHOP_IMAGES)) {
+    if (haystack.includes(key)) return src;
+  }
   return homeAssets.ranks.a3;
 }
 
@@ -117,12 +146,16 @@ export function mapProductForDisplay(
     productId: product.id,
     name: product.name,
     category: categoryFromProduct(product),
+    description: product.description?.trim() ?? "",
     imageSrc: imageFromProduct(product),
     imageUrls: imagesFromProduct(product),
     variants: product.variants,
     variant,
     displayPrice: variant.price,
     variantCount: product.variants.length,
+    eligible: product.eligible !== false,
+    lockLabel: shopUnlockLabel(product.minTierCode),
+    configurable: isConfigurableProduct(product),
   };
 }
 

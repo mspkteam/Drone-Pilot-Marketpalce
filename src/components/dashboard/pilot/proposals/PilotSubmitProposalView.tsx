@@ -1,1035 +1,777 @@
 "use client";
 
-
-
-import Link from "next/link";
-
 import { useRouter } from "next/navigation";
-
-import { useCallback, useEffect, useState } from "react";
-
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
-
   buildExtendedFormPayload,
-
+  CREW_OPTIONS,
+  EQUIPMENT_OPTIONS,
+  PLAN_MAX_CHARS,
   PilotSubmitProposalExtendedSections,
-
   type ExtendedProposalFormState,
-
 } from "@/components/dashboard/pilot/proposals/PilotSubmitProposalExtendedSections";
-
 import { PilotProposalTermsModal } from "@/components/dashboard/pilot/proposals/PilotProposalTermsModal";
-
 import {
-
+  POST_PROJECT_OFF_PLATFORM_ACK_AFTER,
+  POST_PROJECT_OFF_PLATFORM_ACK_BEFORE,
+  POST_PROJECT_OFF_PLATFORM_ACK_LINK,
+} from "@/lib/client/post-project-constants";
+import {
   draftStorageKey,
-
   pricingBreakdownTotal,
-
   PROPOSAL_DELIVERABLE_OPTIONS,
-
   type ProposalDeliverable,
-
-  type ProposalDurationUnit,
-
 } from "@/lib/applications/proposal-metadata";
-
 import { formatJobBudget } from "@/lib/jobs/format-budget";
-
-import { formatJobVisibilityDelay } from "@/lib/subscriptions/status";
-
 import { JOB_CATEGORIES } from "@/types/job";
-
 import type { PilotJobDetailDto, PilotOpenJobDto } from "@/types/application";
 
-
-
 type FormState = ExtendedProposalFormState & {
-
   experience: string;
-
   deliverables: ProposalDeliverable[];
-
   portfolioLinks: string[];
-
   termsAcknowledged: boolean;
-
 };
-
-
 
 type PilotSubmitProposalViewProps = {
-
   jobId: string;
-
   initial: PilotJobDetailDto;
-
 };
 
-
-
 function categoryLabel(id: string): string {
-
   return JOB_CATEGORIES.find((c) => c.id === id)?.label ?? id;
-
 }
-
-
 
 function formatDisplayDate(iso: string | null): string {
-
   if (!iso) return "TBD";
-
   return new Date(iso).toLocaleDateString(undefined, {
-
     month: "2-digit",
-
     day: "2-digit",
-
     year: "numeric",
-
   });
-
 }
 
+function formatUsd(amount: number, currency: string): string {
+  try {
+    return new Intl.NumberFormat(undefined, {
+      style: "currency",
+      currency,
+      maximumFractionDigits: 0,
+    }).format(amount);
+  } catch {
+    return `${currency} ${amount.toLocaleString()}`;
+  }
+}
 
+function peopleLabel(count: number): string {
+  return `${count} ${count === 1 ? "Person" : "People"}`;
+}
+
+function jobIdLabel(id: string): string {
+  return `JOB-${id.slice(-8).toUpperCase()}`;
+}
 
 function emptyForm(): FormState {
-
   return {
-
     proposedAmount: "",
-
     estimatedDurationAmount: 1,
-
     estimatedDurationUnit: "hours",
-
     estimatedDeliveryDate: "",
-
     message: "",
-
     projectedMileage: "",
-
     flightTimeEstimate: "",
-
     numberOfFlights: 1,
-
     droneEquipment: "",
-
     groundSupport: "",
-
     crewCount: 1,
-
+    travelRequired: "",
+    travelDetails: "",
     permitsWaivers: "",
-
     travelLodging: "",
-
     safetyPlan: "",
-
+    insuranceCoverage: "",
+    otherRequirements: "",
     assumptions: "",
-
     pricingFlightOperations: "",
-
     pricingTravelMileage: "",
-
     pricingEquipmentBatteries: "",
-
     pricingPlanningDelivery: "",
-
     accuracyConfirmed: false,
-
     experience: "",
-
     deliverables: [],
-
     portfolioLinks: [""],
-
     termsAcknowledged: false,
-
   };
-
 }
-
-
 
 function syncProposedAmount(form: FormState): FormState {
-
   const total = pricingBreakdownTotal({
-
     flightOperations: Number(form.pricingFlightOperations) || 0,
-
     travelMileage: Number(form.pricingTravelMileage) || 0,
-
     equipmentBatteries: Number(form.pricingEquipmentBatteries) || 0,
-
     planningDelivery: Number(form.pricingPlanningDelivery) || 0,
-
   });
-
   return {
-
     ...form,
-
-    proposedAmount: total > 0 ? String(total) : "",
-
+    proposedAmount: total > 0 ? String(total) : form.proposedAmount,
   };
-
 }
 
+function quoteTypeLabel(job: PilotOpenJobDto): string {
+  if (job.postProject?.quoteTypeLabel) return job.postProject.quoteTypeLabel;
+  if (job.budgetMin != null && job.budgetMax != null) return "Fixed budget";
+  return "Pilot proposals";
+}
 
+function requestedDeliverables(job: PilotOpenJobDto): string {
+  if (job.postProject?.deliverables.length) {
+    return job.postProject.deliverables.join(", ");
+  }
+  return "To be confirmed";
+}
 
-function JobSummaryCard({ job }: { job: PilotOpenJobDto }) {
+function prefillDeliverables(job: PilotOpenJobDto): ProposalDeliverable[] {
+  return (job.postProject?.deliverables ?? []).filter((item): item is ProposalDeliverable =>
+    PROPOSAL_DELIVERABLE_OPTIONS.includes(item as ProposalDeliverable),
+  );
+}
 
-  const budget = formatJobBudget(job.budgetMin, job.budgetMax, job.currency);
-
-
-
-  return (
-
-    <section className="pilot-submit-job-card" aria-label="Mission summary">
-
-      <div className="pilot-submit-job-card-head">
-
-        <div className="pilot-submit-job-thumb" aria-hidden />
-
-        <div>
-
-          <h2 className="pilot-submit-job-title">{job.title}</h2>
-
-          <p className="pilot-submit-job-location">{job.locationLabel}</p>
-
-        </div>
-
-      </div>
-
-      <dl className="pilot-submit-job-meta">
-
-        <div>
-
-          <dt>Category</dt>
-
-          <dd>{categoryLabel(job.category)}</dd>
-
-        </div>
-
-        <div>
-
-          <dt>Budget</dt>
-
-          <dd>{budget ?? "TBD"}</dd>
-
-        </div>
-
-        <div>
-
-          <dt>Scheduled date</dt>
-
-          <dd>{formatDisplayDate(job.scheduledDate)}</dd>
-
-        </div>
-
-        <div>
-
-          <dt>Priority</dt>
-
-          <dd>Standard</dd>
-
-        </div>
-
-      </dl>
-
-      <div className="pilot-submit-job-copy">
-
-        <div>
-
-          <h3>Description</h3>
-
-          <p>{job.description}</p>
-
-        </div>
-
-        {job.requirements ? (
-
-          <div>
-
-            <h3>Requirements</h3>
-
-            <p>{job.requirements}</p>
-
-          </div>
-
-        ) : null}
-
-      </div>
-
-    </section>
-
+function MissionSplitCards({ job }: { job: PilotOpenJobDto }) {
+  const budget = formatJobBudget(job.budgetMin, job.budgetMax, job.currency) ?? "TBD";
+  const deliverables = requestedDeliverables(job);
+  const priority = job.postProject?.priorityLabel ?? "Standard";
+  const completion = formatDisplayDate(
+    job.postProject?.completionDate ?? job.scheduledDate,
   );
 
+  return (
+    <div className="pilot-submit-split">
+      <section className="pilot-submit-split-card" aria-label="Description">
+        <h2>Description</h2>
+        <p>
+          {job.description.trim() ||
+            `${job.clientDisplayName} posted this mission via the project wizard.`}
+        </p>
+        <dl>
+          <div>
+            <dt>Deliverables requested:</dt>
+            <dd>{deliverables}</dd>
+          </div>
+          <div>
+            <dt>Quote type:</dt>
+            <dd>{quoteTypeLabel(job)}</dd>
+          </div>
+          <div>
+            <dt>Priority:</dt>
+            <dd>{priority}</dd>
+          </div>
+        </dl>
+      </section>
+      <section className="pilot-submit-split-card" aria-label="Requirements">
+        <h2>Requirements</h2>
+        <dl>
+          <div>
+            <dt>Deliverables:</dt>
+            <dd>{deliverables}</dd>
+          </div>
+          <div>
+            <dt>Completion target:</dt>
+            <dd>{completion}</dd>
+          </div>
+          <div>
+            <dt>Budget:</dt>
+            <dd>{budget.replace("–", " - ")}</dd>
+          </div>
+          <div>
+            <dt>Client review:</dt>
+            <dd>Offers reviewed after submission</dd>
+          </div>
+        </dl>
+        {job.requirements ? <p>{job.requirements}</p> : null}
+      </section>
+    </div>
+  );
 }
-
-
 
 export function PilotSubmitProposalView({ jobId, initial }: PilotSubmitProposalViewProps) {
-
   const router = useRouter();
-
-  const { job, membership } = initial;
-
+  const { job } = initial;
   const [form, setForm] = useState<FormState>(emptyForm);
-
   const [error, setError] = useState<string | null>(null);
-
   const [submitting, setSubmitting] = useState(false);
-
   const [termsOpen, setTermsOpen] = useState(false);
+  const [deliverableMenu, setDeliverableMenu] = useState("");
 
+  const budget = formatJobBudget(job.budgetMin, job.budgetMax, job.currency);
+  const metaLine = [
+    job.locationLabel,
+    categoryLabel(job.category),
+    budget?.replace("–", " – ") ?? "Budget TBD",
+    `Scheduled ${formatDisplayDate(job.scheduledDate)}`,
+  ].join("  •  ");
 
+  const snapshotAmount = useMemo(() => {
+    const total = pricingBreakdownTotal({
+      flightOperations: Number(form.pricingFlightOperations) || 0,
+      travelMileage: Number(form.pricingTravelMileage) || 0,
+      equipmentBatteries: Number(form.pricingEquipmentBatteries) || 0,
+      planningDelivery: Number(form.pricingPlanningDelivery) || 0,
+    });
+    const amount = total > 0 ? total : Number(form.proposedAmount) || 0;
+    return amount > 0 ? formatUsd(amount, job.currency) : "—";
+  }, [form, job.currency]);
 
   const patchForm = useCallback((patch: Partial<FormState>) => {
-
     setForm((current) => syncProposedAmount({ ...current, ...patch }));
-
   }, []);
 
-
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(draftStorageKey(jobId));
+      if (raw) {
+        const parsed = JSON.parse(raw) as Partial<FormState>;
+        setForm((current) =>
+          syncProposedAmount({
+            ...current,
+            ...parsed,
+            termsAcknowledged: false,
+            accuracyConfirmed: parsed.accuracyConfirmed === true,
+          }),
+        );
+        return;
+      }
+    } catch {
+      /* ignore corrupt draft */
+    }
+    const fromJob = prefillDeliverables(job);
+    if (fromJob.length) {
+      setForm((current) => ({ ...current, deliverables: fromJob }));
+    }
+  }, [job, jobId]);
 
   useEffect(() => {
-
-    try {
-
-      const raw = localStorage.getItem(draftStorageKey(jobId));
-
-      if (!raw) return;
-
-      const parsed = JSON.parse(raw) as Partial<FormState>;
-
-      setForm((current) =>
-
-        syncProposedAmount({
-
-          ...current,
-
-          ...parsed,
-
-          termsAcknowledged: false,
-
-          accuracyConfirmed: false,
-
-        }),
-
-      );
-
-    } catch {
-
-      /* ignore corrupt draft */
-
-    }
-
-  }, [jobId]);
-
-
+    if (!termsOpen) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setTermsOpen(false);
+    };
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [termsOpen]);
 
   const saveDraft = useCallback(() => {
-
     try {
-
-      const { termsAcknowledged: _terms, accuracyConfirmed: _accuracy, ...draft } = form;
-
+      const { termsAcknowledged: _terms, ...draft } = form;
       localStorage.setItem(draftStorageKey(jobId), JSON.stringify(draft));
-
+      setError(null);
     } catch {
-
-      /* storage unavailable */
-
+      setError("Could not save draft on this device.");
     }
-
   }, [form, jobId]);
 
-
-
-  function toggleDeliverable(item: ProposalDeliverable) {
-
-    setForm((current) => {
-
-      const has = current.deliverables.includes(item);
-
-      return {
-
-        ...current,
-
-        deliverables: has
-
-          ? current.deliverables.filter((d) => d !== item)
-
-          : [...current.deliverables, item],
-
-      };
-
-    });
-
-  }
-
-
-
-  function updatePortfolioLink(index: number, value: string) {
-
-    setForm((current) => {
-
-      const next = [...current.portfolioLinks];
-
-      next[index] = value;
-
-      return { ...current, portfolioLinks: next };
-
-    });
-
-  }
-
-
-
-  function addPortfolioLink() {
-
+  function addDeliverable(item: string) {
+    if (!PROPOSAL_DELIVERABLE_OPTIONS.includes(item as ProposalDeliverable)) return;
+    const value = item as ProposalDeliverable;
     setForm((current) => ({
-
       ...current,
-
-      portfolioLinks: [...current.portfolioLinks, ""],
-
+      deliverables: current.deliverables.includes(value)
+        ? current.deliverables
+        : [...current.deliverables, value],
     }));
-
+    setDeliverableMenu("");
   }
 
-
-
-  function setDurationUnit(unit: ProposalDurationUnit) {
-
-    patchForm({ estimatedDurationUnit: unit });
-
+  function removeDeliverable(item: ProposalDeliverable) {
+    setForm((current) => ({
+      ...current,
+      deliverables: current.deliverables.filter((entry) => entry !== item),
+    }));
   }
 
-
+  function validateBeforeModal(): string | null {
+    if (!form.proposedAmount || Number(form.proposedAmount) <= 0) {
+      return "Enter a valid proposed amount.";
+    }
+    if (form.estimatedDurationAmount < 1) {
+      return "Estimated hours or days is required.";
+    }
+    if (form.deliverables.length === 0) {
+      return "Select at least one deliverable.";
+    }
+    if (!form.estimatedDeliveryDate) {
+      return "Estimated delivery date is required.";
+    }
+    if (!form.droneEquipment) {
+      return "Select aircraft / primary equipment.";
+    }
+    if (!form.message.trim() || form.message.trim().length < 10) {
+      return "Operational plan must be at least 10 characters.";
+    }
+    if (!form.travelRequired) {
+      return "Select whether travel or lodging is required.";
+    }
+    if (form.travelRequired === "Yes" && !form.travelDetails.trim()) {
+      return "Enter travel / lodging details.";
+    }
+    if (!form.flightTimeEstimate) {
+      return "Select total flight time.";
+    }
+    if (
+      !form.permitsWaivers ||
+      !form.safetyPlan ||
+      !form.insuranceCoverage ||
+      !form.otherRequirements
+    ) {
+      return "Complete compliance confirmations.";
+    }
+    if (
+      !form.pricingFlightOperations ||
+      !form.pricingTravelMileage ||
+      !form.pricingEquipmentBatteries ||
+      !form.pricingPlanningDelivery
+    ) {
+      return "Enter all pricing breakdown amounts.";
+    }
+    const breakdownTotal = pricingBreakdownTotal({
+      flightOperations: Number(form.pricingFlightOperations) || 0,
+      travelMileage: Number(form.pricingTravelMileage) || 0,
+      equipmentBatteries: Number(form.pricingEquipmentBatteries) || 0,
+      planningDelivery: Number(form.pricingPlanningDelivery) || 0,
+    });
+    if (Math.abs(Number(form.proposedAmount) - breakdownTotal) > 0.01) {
+      return "Proposed amount must match the pricing breakdown total.";
+    }
+    if (!form.accuracyConfirmed) {
+      return "Acknowledge the terms and conditions checkbox before submitting.";
+    }
+    return null;
+  }
 
   async function submitProposal() {
-
     setError(null);
-
     setSubmitting(true);
-
     try {
-
       const payload = buildExtendedFormPayload(form);
-
       const res = await fetch(`/api/pilot/jobs/${jobId}/applications`, {
-
         method: "POST",
-
         headers: { "Content-Type": "application/json" },
-
         body: JSON.stringify({
-
           ...payload,
-
           proposedAmount: form.proposedAmount,
-
           currency: job.currency,
-
         }),
-
       });
-
       const data = await res.json();
-
       if (!res.ok) {
-
         setError(data.error ?? "Failed to submit proposal.");
-
         return;
-
       }
-
       localStorage.removeItem(draftStorageKey(jobId));
-
-      router.push("/dashboard/pilot/proposals?submitted=1");
-
-      router.refresh();
-
-    } catch {
-
-      setError("Failed to submit proposal.");
-
-    } finally {
-
-      setSubmitting(false);
-
       setTermsOpen(false);
-
+      router.push("/dashboard/pilot/proposals?submitted=1");
+      router.refresh();
+    } catch {
+      setError("Failed to submit proposal.");
+    } finally {
+      setSubmitting(false);
     }
-
   }
-
-
 
   function handleSubmitClick(e: React.FormEvent) {
-
     e.preventDefault();
-
-    setError(null);
-
-    if (!form.termsAcknowledged) {
-
-      setTermsOpen(true);
-
+    const nextError = validateBeforeModal();
+    if (nextError) {
+      setError(nextError);
       return;
-
     }
-
-    void submitProposal();
-
+    setError(null);
+    setTermsOpen(true);
   }
 
-
+  const remainingDeliverables = PROPOSAL_DELIVERABLE_OPTIONS.filter(
+    (item) => !form.deliverables.includes(item),
+  );
+  const amountHelper =
+    job.budgetMin != null && job.budgetMax != null
+      ? `Enter amount between $${job.budgetMin.toLocaleString()} - $${job.budgetMax.toLocaleString()}`
+      : "Enter your proposed amount for this mission.";
 
   return (
-
     <div className="pilot-submit-page">
-
-      <header className="pilot-submit-header">
-
-        <div className="pilot-submit-header-nav">
-
-          <Link href={`/dashboard/pilot/jobs/${jobId}`} className="pilot-submit-back">
-
-            ← Back
-
-          </Link>
-
-        </div>
-
+      <header className="pilot-submit-header pilot-submit-bracket-card">
         <p className="pilot-submit-eyebrow">PILOT / MARKETPLACE</p>
-
-        <h1 className="pilot-submit-title">Submit Proposal</h1>
-
-        <p className="pilot-submit-desc">
-
-          Send your initial offer for this mission. The client will review your proposal
-
-          before any contract planning begins.
-
-        </p>
-
-        <p className="pilot-submit-unlock" role="status">
-
-          ✓ This job is unlocked for your grade. You may submit a proposal.
-
-        </p>
-
+        <h1 className="pilot-submit-title">{job.title}</h1>
+        <p className="pilot-submit-meta">{metaLine}</p>
       </header>
 
-
-
       <div className="pilot-submit-layout">
-
         <div className="pilot-submit-main">
-
-          <JobSummaryCard job={job} />
-
-
+          <MissionSplitCards job={job} />
 
           <form className="pilot-submit-form" onSubmit={handleSubmitClick} noValidate>
-
-            <h2 className="pilot-submit-form-title">Your Proposal</h2>
-
-
+            <header className="pilot-submit-form-head">
+              <h2>Submit your bid</h2>
+              <p>
+                Provide a complete operational proposal so the client can understand the
+                scope, execution plan, and cost basis.
+              </p>
+            </header>
 
             {error ? (
-
               <p className="pilot-submit-error" role="alert">
-
                 {error}
-
               </p>
-
             ) : null}
 
-
-
-            <div className="pilot-submit-duration-row">
-
-              <div className="pilot-submit-mini-card">
-
-                <span className="pilot-submit-mini-label">
-
-                  Estimated Hours / Days <span aria-hidden>*</span>
-
-                </span>
-
-                <div className="pilot-submit-counter">
-
-                  <button
-
-                    type="button"
-
-                    aria-label="Decrease duration"
-
-                    onClick={() =>
-
-                      patchForm({
-
-                        estimatedDurationAmount: Math.max(
-
-                          1,
-
-                          form.estimatedDurationAmount - 1,
-
-                        ),
-
-                      })
-
-                    }
-
-                  >
-
-                    −
-
-                  </button>
-
+            <div className="pilot-submit-form-body">
+              <div className="pilot-submit-grid-2">
+                <label className="pilot-submit-field">
                   <span>
-
-                    {form.estimatedDurationAmount}{" "}
-
-                    {form.estimatedDurationUnit === "days" ? "Days" : "Hours"}
-
+                    Proposed Amount (USD) <i>*</i>
                   </span>
+                  <div className="pilot-submit-amount">
+                    <span aria-hidden>$</span>
+                    <input
+                      type="number"
+                      min="1"
+                      step="0.01"
+                      required
+                      value={form.proposedAmount}
+                      onChange={(e) =>
+                        setForm((current) => ({
+                          ...current,
+                          proposedAmount: e.target.value,
+                        }))
+                      }
+                    />
+                  </div>
+                  <em className="pilot-submit-hint-gold">{amountHelper}</em>
+                </label>
 
-                  <button
-
-                    type="button"
-
-                    aria-label="Increase duration"
-
-                    onClick={() =>
-
-                      patchForm({
-
-                        estimatedDurationAmount: form.estimatedDurationAmount + 1,
-
-                      })
-
-                    }
-
-                  >
-
-                    +
-
-                  </button>
-
+                <div className="pilot-submit-field">
+                  <span>
+                    Estimated Hours / Days <i>*</i>
+                  </span>
+                  <div className="pilot-submit-qty pilot-submit-qty--unit">
+                    <button
+                      type="button"
+                      aria-label="Decrease duration"
+                      onClick={() =>
+                        patchForm({
+                          estimatedDurationAmount: Math.max(
+                            1,
+                            form.estimatedDurationAmount - 1,
+                          ),
+                        })
+                      }
+                    >
+                      −
+                    </button>
+                    <input
+                      type="text"
+                      readOnly
+                      value={form.estimatedDurationAmount}
+                      aria-label="Duration amount"
+                    />
+                    <button
+                      type="button"
+                      aria-label="Increase duration"
+                      onClick={() =>
+                        patchForm({
+                          estimatedDurationAmount: form.estimatedDurationAmount + 1,
+                        })
+                      }
+                    >
+                      +
+                    </button>
+                    <select
+                      value={form.estimatedDurationUnit}
+                      aria-label="Duration unit"
+                      onChange={(e) =>
+                        patchForm({
+                          estimatedDurationUnit:
+                            e.target.value === "days" ? "days" : "hours",
+                        })
+                      }
+                    >
+                      <option value="hours">Hours</option>
+                      <option value="days">Days</option>
+                    </select>
+                  </div>
                 </div>
 
+                <div className="pilot-submit-field">
+                  <span>
+                    Deliverables (Select all that apply) <i>*</i>
+                  </span>
+                  <div className="pilot-submit-chips">
+                    {form.deliverables.map((item) => (
+                      <button
+                        key={item}
+                        type="button"
+                        className="pilot-submit-chip"
+                        onClick={() => removeDeliverable(item)}
+                      >
+                        {item} ×
+                      </button>
+                    ))}
+                    {remainingDeliverables.length > 0 ? (
+                      <select
+                        value={deliverableMenu}
+                        aria-label="Add deliverable"
+                        onChange={(e) => addDeliverable(e.target.value)}
+                      >
+                        <option value="">Add</option>
+                        {remainingDeliverables.map((item) => (
+                          <option key={item} value={item}>
+                            {item}
+                          </option>
+                        ))}
+                      </select>
+                    ) : null}
+                  </div>
+                  <em>You can select multiple options</em>
+                </div>
+
+                <label className="pilot-submit-field">
+                  <span>
+                    Estimated Delivery Date <i>*</i>
+                  </span>
+                  <input
+                    type="date"
+                    required
+                    value={form.estimatedDeliveryDate}
+                    onChange={(e) => patchForm({ estimatedDeliveryDate: e.target.value })}
+                  />
+                </label>
+
+                <label className="pilot-submit-field">
+                  <span>
+                    Crew / Personnel <i>*</i>
+                  </span>
+                  <select
+                    value={form.crewCount}
+                    onChange={(e) =>
+                      patchForm({ crewCount: Math.max(1, Number(e.target.value) || 1) })
+                    }
+                  >
+                    {CREW_OPTIONS.map((count) => (
+                      <option key={count} value={count}>
+                        {peopleLabel(count)}
+                      </option>
+                    ))}
+                  </select>
+                  <em className="pilot-submit-hint-gold">Select number of crew members</em>
+                </label>
+
+                <label className="pilot-submit-field">
+                  <span>
+                    Equipment / Aircraft <i>*</i>
+                  </span>
+                  <select
+                    required
+                    value={form.droneEquipment}
+                    onChange={(e) => patchForm({ droneEquipment: e.target.value })}
+                  >
+                    <option value="">Select</option>
+                    {EQUIPMENT_OPTIONS.map((option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  </select>
+                  <em className="pilot-submit-hint-gold">
+                    Select aircraft / primary equipment
+                  </em>
+                </label>
               </div>
 
-              <div className="pilot-submit-unit-toggle" role="group" aria-label="Duration unit">
-
-                <button
-
-                  type="button"
-
-                  className={
-
-                    form.estimatedDurationUnit === "hours"
-
-                      ? "pilot-submit-unit-btn pilot-submit-unit-btn--active"
-
-                      : "pilot-submit-unit-btn"
-
-                  }
-
-                  onClick={() => setDurationUnit("hours")}
-
-                >
-
-                  Hours
-
-                </button>
-
-                <button
-
-                  type="button"
-
-                  className={
-
-                    form.estimatedDurationUnit === "days"
-
-                      ? "pilot-submit-unit-btn pilot-submit-unit-btn--active"
-
-                      : "pilot-submit-unit-btn"
-
-                  }
-
-                  onClick={() => setDurationUnit("days")}
-
-                >
-
-                  Days
-
-                </button>
-
-              </div>
-
-            </div>
-
-
-
-            <label className="pilot-submit-field">
-
-              <span>
-
-                Estimated Delivery Date <span aria-hidden>*</span>
-
-              </span>
-
-              <input
-
-                type="date"
-
-                required
-
-                value={form.estimatedDeliveryDate}
-
-                onChange={(e) => patchForm({ estimatedDeliveryDate: e.target.value })}
-
-              />
-
-            </label>
-
-
-
-            <label className="pilot-submit-field">
-
-              <span>
-
-                Cover Message <span aria-hidden>*</span>
-
-              </span>
-
-              <textarea
-
-                rows={5}
-
-                required
-
-                value={form.message}
-
-                onChange={(e) => patchForm({ message: e.target.value })}
-
-                placeholder="Briefly describe your approach, equipment, and availability."
-
-              />
-
-            </label>
-
-
-
-            <label className="pilot-submit-field">
-
-              <span>Relevant Experience</span>
-
-              <textarea
-
-                rows={3}
-
-                value={form.experience}
-
-                onChange={(e) => patchForm({ experience: e.target.value })}
-
-              />
-
-            </label>
-
-
-
-            <fieldset className="pilot-submit-fieldset">
-
-              <legend>
-
-                Deliverables Included <span aria-hidden>*</span>
-
-              </legend>
-
-              <div className="pilot-submit-checkgrid">
-
-                {PROPOSAL_DELIVERABLE_OPTIONS.map((item) => (
-
-                  <label key={item} className="pilot-submit-check">
-
-                    <input
-
-                      type="checkbox"
-
-                      checked={form.deliverables.includes(item)}
-
-                      onChange={() => toggleDeliverable(item)}
-
-                    />
-
-                    <span>{item}</span>
-
-                  </label>
-
-                ))}
-
-              </div>
-
-            </fieldset>
-
-
-
-            <PilotSubmitProposalExtendedSections
-
-              form={form}
-
-              currency={job.currency}
-
-              onChange={patchForm}
-
-            />
-
-
-
-            <div className="pilot-submit-field">
-
-              <span>Portfolio / Attachments (Optional)</span>
-
-              {form.portfolioLinks.map((link, index) => (
-
-                <input
-
-                  key={index}
-
-                  type="url"
-
-                  placeholder="https://"
-
-                  value={link}
-
-                  onChange={(e) => updatePortfolioLink(index, e.target.value)}
-
+              <label className="pilot-submit-field">
+                <span>
+                  Operational Plan / Approach <i>*</i>
+                </span>
+                <textarea
+                  rows={4}
+                  required
+                  maxLength={PLAN_MAX_CHARS}
+                  value={form.message}
+                  onChange={(e) => patchForm({ message: e.target.value })}
+                  placeholder="I will conduct this mission using a structured flight plan, pre-flight site survey, and visual flight rules."
                 />
+                <span className="pilot-submit-counter-text">
+                  {form.message.length}/{PLAN_MAX_CHARS} characters
+                </span>
+              </label>
 
-              ))}
-
-              <button
-
-                type="button"
-
-                className="pilot-submit-link-btn"
-
-                onClick={addPortfolioLink}
-
-              >
-
-                + Add Another Link
-
-              </button>
-
-            </div>
-
-
-
-            <p className="pilot-submit-notice">
-
-              This is an initial proposal only. Final mission details are confirmed after
-
-              the client accepts your offer and contract planning begins.
-
-            </p>
-
-
-
-            <label className="pilot-submit-terms-inline">
-
-              <input
-
-                type="checkbox"
-
-                checked={form.termsAcknowledged}
-
-                onChange={(e) =>
-
-                  setForm((current) => ({ ...current, termsAcknowledged: e.target.checked }))
-
-                }
-
+              <PilotSubmitProposalExtendedSections
+                form={form}
+                currency={job.currency}
+                onChange={patchForm}
               />
 
-              <span>
+              <label className="pilot-submit-ack">
+                <input
+                  type="checkbox"
+                  checked={form.accuracyConfirmed}
+                  onChange={(e) =>
+                    setForm((current) => ({
+                      ...current,
+                      accuracyConfirmed: e.target.checked,
+                    }))
+                  }
+                />
+                <span>
+                  {POST_PROJECT_OFF_PLATFORM_ACK_BEFORE}
+                  <button
+                    type="button"
+                    className="pilot-submit-terms-link"
+                    onClick={(event) => {
+                      event.preventDefault();
+                      event.stopPropagation();
+                      setError(null);
+                      setTermsOpen(true);
+                    }}
+                  >
+                    {POST_PROJECT_OFF_PLATFORM_ACK_LINK}
+                  </button>
+                  {POST_PROJECT_OFF_PLATFORM_ACK_AFTER}
+                </span>
+              </label>
 
-                I acknowledge off-platform billing violates platform terms and may result
-
-                in permanent removal.{" "}
-
-                <button
-
-                  type="button"
-
-                  className="pilot-submit-terms-link"
-
-                  onClick={() => setTermsOpen(true)}
-
-                >
-
-                  Read terms
-
+              <div className="pilot-submit-actions">
+                <button type="submit" className="pilot-submit-btn-primary" disabled={submitting}>
+                  {submitting ? "Submitting…" : "Submit Application"}
                 </button>
-
-              </span>
-
-            </label>
-
-
-
-            <div className="pilot-submit-actions">
-
-              <button
-
-                type="submit"
-
-                className="pilot-submit-btn-primary"
-
-                disabled={submitting}
-
-              >
-
-                {submitting ? "Submitting…" : "Submit Proposal"}
-
-              </button>
-
-              <button
-
-                type="button"
-
-                className="pilot-submit-btn-secondary"
-
-                disabled={submitting}
-
-                onClick={saveDraft}
-
-              >
-
-                Save as draft
-
-              </button>
-
+                <button
+                  type="button"
+                  className="pilot-submit-btn-secondary"
+                  disabled={submitting}
+                  onClick={saveDraft}
+                >
+                  Save Draft
+                </button>
+                <span className="pilot-submit-draft-hint">
+                  ⓘ You can save as draft and submit later
+                </span>
+              </div>
             </div>
-
           </form>
-
         </div>
 
-
-
-        <aside className="pilot-submit-sidebar" aria-label="Proposal guidance">
+        <aside className="pilot-submit-sidebar" aria-label="Order summary">
+          <section className="pilot-submit-side-card">
+            <h2>Order Summary</h2>
+            <dl className="pilot-submit-side-rows">
+              <div>
+                <dt>Job ID</dt>
+                <dd>{jobIdLabel(job.id)}</dd>
+              </div>
+              <div>
+                <dt>Job Title</dt>
+                <dd>{job.title}</dd>
+              </div>
+              <div>
+                <dt>Location</dt>
+                <dd>{job.locationLabel}</dd>
+              </div>
+              <div>
+                <dt>Scheduled Date</dt>
+                <dd>{formatDisplayDate(job.scheduledDate)}</dd>
+              </div>
+              <div>
+                <dt>Budget</dt>
+                <dd>{budget?.replace("–", " - ") ?? "TBD"}</dd>
+              </div>
+              <div>
+                <dt>Quote Type</dt>
+                <dd>{quoteTypeLabel(job)}</dd>
+              </div>
+            </dl>
+            <div className="pilot-submit-side-block">
+              <h3>Deliverables</h3>
+              <p>{requestedDeliverables(job)}</p>
+            </div>
+            <div className="pilot-submit-side-block">
+              <h3>Proposal Snapshot</h3>
+              <dl className="pilot-submit-side-rows">
+                <div>
+                  <dt>Bid Amount</dt>
+                  <dd className="pilot-submit-bid">{snapshotAmount}</dd>
+                </div>
+                <div>
+                  <dt>Estimated Hours</dt>
+                  <dd>
+                    {form.estimatedDurationAmount}{" "}
+                    {form.estimatedDurationUnit === "days" ? "Days" : "Hours"}
+                  </dd>
+                </div>
+                <div>
+                  <dt>Projected Mileage</dt>
+                  <dd>
+                    {form.travelRequired === "Yes"
+                      ? form.travelDetails.trim() || "Required"
+                      : form.travelRequired === "No"
+                        ? "None"
+                        : "—"}
+                  </dd>
+                </div>
+                <div>
+                  <dt>Crew</dt>
+                  <dd>{peopleLabel(form.crewCount)}</dd>
+                </div>
+              </dl>
+            </div>
+          </section>
 
           <section className="pilot-submit-side-card">
-
-            <h2>Proposal Tips</h2>
-
+            <h2>What Client Sees</h2>
             <ul>
-
-              <li>Break down pricing so the client understands your costs.</li>
-
-              <li>Confirm availability that matches the mission schedule.</li>
-
-              <li>Include operational details, permits, and safety planning.</li>
-
-              <li>List deliverables the client will receive.</li>
-
+              <li>How the pilot will conduct the operation.</li>
+              <li>Projected mileage and travel requirement.</li>
+              <li>Flight time, number of flights, and crew estimate.</li>
+              <li>Equipment and waiver or clearance needs.</li>
+              <li>Pricing breakdown that justifies the bid.</li>
             </ul>
-
           </section>
 
-
-
-          {membership ? (
-
-            <section className="pilot-submit-side-card">
-
-              <h2>Grade &amp; Visibility</h2>
-
-              <p className="pilot-submit-tier">{membership.tierName}</p>
-
-              <p className="pilot-submit-muted">
-
-                Job visible {formatJobVisibilityDelay(membership.jobVisibilityDelayHours).toLowerCase()}
-
-              </p>
-
-              <Link href="/dashboard/pilot/subscription" className="pilot-submit-side-link">
-
-                View Grade Benefits →
-
-              </Link>
-
-            </section>
-
-          ) : null}
-
-
-
-          <section className="pilot-submit-side-card">
-
-            <h2>How It Works</h2>
-
-            <ol className="pilot-submit-steps">
-
-              <li>Submit your initial proposal.</li>
-
-              <li>Client reviews and may shortlist or request revisions.</li>
-
-              <li>After acceptance, contract planning begins.</li>
-
-              <li>Deliver work and receive payment through the platform.</li>
-
-            </ol>
-
+          <section className="pilot-submit-side-card pilot-submit-side-card--info">
+            <h2>ⓘ Important</h2>
+            <ul>
+              <li>
+                Dropdowns are used for fixed choices like crew, flights, equipment, and
+                compliance.
+              </li>
+              <li>Text areas have character limits and internal scrolling.</li>
+              <li>Long text will not resize or break the layout.</li>
+              <li>Pricing and estimated values stay structured for client review.</li>
+            </ul>
           </section>
-
         </aside>
-
       </div>
 
-
-
       <PilotProposalTermsModal
-
         open={termsOpen}
-
         acknowledged={form.termsAcknowledged}
-
         loading={submitting}
-
         onAcknowledgedChange={(acknowledged) =>
-
           setForm((current) => ({ ...current, termsAcknowledged: acknowledged }))
-
         }
-
         onCancel={() => setTermsOpen(false)}
-
         onSubmit={() => {
-
           if (!form.termsAcknowledged) return;
-
+          const nextError = validateBeforeModal();
+          if (nextError) {
+            setError(nextError);
+            setTermsOpen(false);
+            return;
+          }
           void submitProposal();
-
         }}
-
       />
-
     </div>
-
   );
-
 }
-
-

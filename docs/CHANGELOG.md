@@ -4,6 +4,34 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.45] — 2026-08-17
+
+### Changed
+
+- **Pilot profile extras persist** (`profileExtrasJson`): call sign, languages, drones, payloads, extra chips, and avatar save with the live profile; Flight Gallery on profile shows `portfolioJson` items
+- Public `/pilots/[id]` shows call sign, avatar, equipment chips, and flight gallery
+- **Uniform & Insignia Shop** (`/dashboard/pilot/shop`): Figma Container `808:22235` layout — 3-col catalog, cart aside, locked A-6 polo, Configure Polo, rules banner; catalog SKUs and eligibility wired (Stripe still demo)
+
+---
+
+## [0.27.44] — 2026-08-17
+
+### Changed
+
+- **Pilot Submit Proposal** (`/dashboard/pilot/jobs/[id]/proposal`): Figma `1171:4661` layout (split description/requirements, bid form, operational/compliance/pricing, order summary) with live job and proposal fields
+- **Submit Application** opens Terms overlay (`1171:5545`); **Confirm & Submit** posts `POST /api/pilot/jobs/[id]/applications`
+
+---
+
+## [0.27.43] — 2026-08-17
+
+### Changed
+
+- **Week 3 remaining pilot screens unlocked** at Milestone 3: Verification, Portfolio, Reviews, Earnings, Membership, Uniform Shop, Support, Settings
+- Figma UI pass (layout from Figma, site color tokens): Portfolio `808:21066`, Reviews `808:23643`, Uniform `808:22234`, Support `808:22755`, Settings `808:23194`; Verification/Earnings chrome aligned to marketplace headers
+
+---
+
 ## [0.27.42] — 2026-08-11
 
 ### Fixed

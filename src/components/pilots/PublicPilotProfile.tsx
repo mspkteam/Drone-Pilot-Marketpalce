@@ -277,6 +277,14 @@ export function PublicPilotProfile({ pilot }: { pilot: PublicPilotProfileDto }) 
 
         <div className="relative">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+            {pilot.avatarUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={pilot.avatarUrl}
+                alt=""
+                className="h-24 w-24 shrink-0 rounded-full border border-[rgba(216,179,57,0.35)] object-cover"
+              />
+            ) : null}
             <div className="min-w-0 flex-1">
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold">
                 Licensed pilot
@@ -284,6 +292,11 @@ export function PublicPilotProfile({ pilot }: { pilot: PublicPilotProfileDto }) 
               <h1 className="mt-2 text-3xl font-bold tracking-tight text-ras-text sm:text-4xl">
                 {pilot.displayName}
               </h1>
+              {pilot.callSign ? (
+                <p className="mt-1 text-sm font-medium uppercase tracking-[0.16em] text-gold">
+                  {pilot.callSign}
+                </p>
+              ) : null}
               <p className="mt-3 flex items-center gap-2 text-sm text-ras-dim-alt sm:text-base">
                 <svg
                   className="h-4 w-4 shrink-0 text-gold"
@@ -579,6 +592,70 @@ export function PublicPilotProfile({ pilot }: { pilot: PublicPilotProfileDto }) 
           )}
         </ProfileModuleCard>
       </div>
+
+      {pilot.mainDrones.length > 0 || pilot.payloads.length > 0 ? (
+        <section className="grid gap-5 md:grid-cols-2 lg:gap-6">
+          {pilot.mainDrones.length > 0 ? (
+            <ProfileModuleCard
+              title="Main drones"
+              icon={<IconServices className="h-5 w-5" />}
+            >
+              <div className="flex flex-wrap gap-2">
+                {pilot.mainDrones.map((drone) => (
+                  <ServiceChip key={drone} label={drone} />
+                ))}
+              </div>
+            </ProfileModuleCard>
+          ) : null}
+          {pilot.payloads.length > 0 ? (
+            <ProfileModuleCard
+              title="Payloads"
+              icon={<IconServices className="h-5 w-5" />}
+            >
+              <div className="flex flex-wrap gap-2">
+                {pilot.payloads.map((item) => (
+                  <ServiceChip key={item} label={item} />
+                ))}
+              </div>
+            </ProfileModuleCard>
+          ) : null}
+        </section>
+      ) : null}
+
+      {pilot.portfolio.length > 0 ? (
+        <section>
+          <h2 className="text-lg font-semibold text-foreground">Flight gallery</h2>
+          <ul className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {pilot.portfolio.map((item) => (
+              <li
+                key={item.id}
+                className="premium-card overflow-hidden p-0"
+              >
+                {item.thumbnailUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={item.thumbnailUrl}
+                    alt={item.title}
+                    className="h-40 w-full object-cover"
+                  />
+                ) : (
+                  <div className="flex h-40 items-center justify-center bg-surface/50 text-xs uppercase tracking-[0.14em] text-muted-foreground">
+                    {item.type}
+                  </div>
+                )}
+                <div className="p-4">
+                  <p className="font-medium text-foreground">{item.title}</p>
+                  {item.tags.length > 0 ? (
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {item.tags.join(" · ")}
+                    </p>
+                  ) : null}
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       {/* Recent reviews list */}
       {pilot.recentReviews.length > 1 ? (

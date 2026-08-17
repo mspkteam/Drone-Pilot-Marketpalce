@@ -13,6 +13,10 @@ import {
 } from "@/components/pilot/PilotProfileFormFields";
 import { computePilotProfileStrength } from "@/lib/pilot/pilot-profile-strength";
 import {
+  emptyPilotProfileExtras,
+  type PilotProfileExtras,
+} from "@/lib/pilot/profile-extras";
+import {
   isChipSelected,
   PILOT_PROFILE_SERVICE_CHIPS,
   toggleServiceChip,
@@ -34,7 +38,6 @@ type PilotUiExtras = {
   serviceRadiusMi: string;
   hourlyRateDisplay: string;
   localChipIds: string[];
-  portfolioSlots: (string | null)[];
   avatarPreview: string | null;
   mainDrones: string[];
   payloads: string[];
@@ -71,20 +74,31 @@ function miToKm(mi: string): string {
 
 function buildExtras(profile: PilotProfileDto | null): PilotUiExtras {
   const form = profile ? pilotDtoToFormState(profile) : emptyPilotFormState;
+  const extras = profile?.extras ?? emptyPilotProfileExtras();
   return {
-    callSign: "",
+    callSign: extras.callSign,
     droneEquipment: "",
-    languages: "",
+    languages: extras.languages,
     locationCombined: formatLocation(form.locationCity, form.locationRegion),
     serviceRadiusMi: kmToMi(form.serviceRadiusKm),
     hourlyRateDisplay: form.hourlyRateMin || form.hourlyRateMax || "",
-    localChipIds: [],
-    portfolioSlots: [null, null, null, null],
-    avatarPreview: null,
-    mainDrones: [],
-    payloads: [],
+    localChipIds: extras.localChipIds,
+    avatarPreview: extras.avatarUrl,
+    mainDrones: extras.mainDrones,
+    payloads: extras.payloads,
     payloadDraft: "",
-    payloadPanelOpen: true,
+    payloadPanelOpen: extras.payloads.length === 0,
+  };
+}
+
+function extrasPayload(extras: PilotUiExtras): PilotProfileExtras {
+  return {
+    callSign: extras.callSign,
+    languages: extras.languages,
+    mainDrones: extras.mainDrones,
+    payloads: extras.payloads,
+    localChipIds: extras.localChipIds,
+    avatarUrl: extras.avatarPreview,
   };
 }
 
@@ -133,8 +147,6 @@ export function PilotProfileCompletionView({
 }: PilotProfileCompletionViewProps) {
   const router = useRouter();
   const avatarInputRef = useRef<HTMLInputElement>(null);
-  const portfolioInputRef = useRef<HTMLInputElement>(null);
-  const [portfolioIndex, setPortfolioIndex] = useState<number | null>(null);
 
   const [form, setForm] = useState<PilotFormState>(() =>
     profile ? pilotDtoToFormState(profile) : emptyPilotFormState,
@@ -147,16 +159,17 @@ export function PilotProfileCompletionView({
   const canEdit = !profile || profile.status !== "suspended";
   const needsOnboarding = !profile?.onboardingCompletedAt;
   const showCompliance = needsOnboarding;
+  const portfolioItems = profile?.portfolio ?? [];
 
   const strength = useMemo(
     () =>
       computePilotProfileStrength({
         form,
         avatarPreview: extras.avatarPreview,
-        portfolioCount: extras.portfolioSlots.filter(Boolean).length,
+        portfolioCount: portfolioItems.length,
         insuranceVerified,
       }),
-    [form, extras.avatarPreview, extras.portfolioSlots, insuranceVerified],
+    [form, extras.avatarPreview, portfolioItems.length, insuranceVerified],
   );
 
   const previewHref =
@@ -176,19 +189,15 @@ export function PilotProfileCompletionView({
 
   function handleAvatarChange(file: File | undefined) {
     if (!file) return;
-    const url = URL.createObjectURL(file);
-    patchExtras({ avatarPreview: url });
-  }
-
-  function handlePortfolioChange(file: File | undefined) {
-    if (!file || portfolioIndex === null) return;
-    const url = URL.createObjectURL(file);
-    setExtras((e) => {
-      const next = [...e.portfolioSlots];
-      next[portfolioIndex] = url;
-      return { ...e, portfolioSlots: next };
-    });
-    setPortfolioIndex(null);
+    if (file.size > 400_000) {
+      setError("Choose a profile photo under 400 KB.");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      patchExtras({ avatarPreview: String(reader.result ?? "") });
+    };
+    reader.readAsDataURL(file);
   }
 
   function addMainDroneFromEquipment() {
@@ -226,7 +235,10 @@ export function PilotProfileCompletionView({
       hourlyRateMax: extras.hourlyRateDisplay || form.hourlyRateMax,
     };
 
-    const payload = pilotFormToPayload(mergedForm, needsOnboarding);
+    const payload = {
+      ...pilotFormToPayload(mergedForm, needsOnboarding),
+      extras: extrasPayload(extras),
+    };
     const method = profile ? "PATCH" : "POST";
     const res = await fetch("/api/pilot/profile", {
       method,
@@ -545,36 +557,41 @@ export function PilotProfileCompletionView({
 
           <section className="profile-onboarding-section">
             <h2 className="profile-onboarding-section-title">PORTFOLIO</h2>
+            <p className="profile-onboarding-section-copy">
+              Items come from your Flight Gallery. Add photos and video there to
+              show them here and on your public profile.
+            </p>
             <div className="profile-onboarding-portfolio-grid">
-              {extras.portfolioSlots.map((slot, index) => (
-                <button
-                  key={`portfolio-${index}`}
-                  type="button"
+              {portfolioItems.slice(0, 3).map((item) => (
+                <Link
+                  key={item.id}
+                  href="/dashboard/pilot/portfolio"
                   className="profile-onboarding-portfolio-slot"
-                  onClick={() => {
-                    setPortfolioIndex(index);
-                    portfolioInputRef.current?.click();
-                  }}
-                  disabled={!canEdit || loading}
                 >
-                  {slot ? (
+                  {item.thumbnailUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={slot} alt="" />
-                  ) : index === extras.portfolioSlots.length - 1 ? (
-                    <span className="profile-onboarding-portfolio-add">+</span>
+                    <img src={item.thumbnailUrl} alt={item.title} />
                   ) : (
                     <DroneIcon />
                   )}
-                </button>
+                  <span className="profile-onboarding-portfolio-caption">{item.title}</span>
+                </Link>
               ))}
+              <Link
+                href="/dashboard/pilot/portfolio"
+                className="profile-onboarding-portfolio-slot"
+              >
+                <span className="profile-onboarding-portfolio-add">+</span>
+              </Link>
             </div>
-            <input
-              ref={portfolioInputRef}
-              type="file"
-              accept="image/*"
-              className="profile-onboarding-hidden-input"
-              onChange={(e) => handlePortfolioChange(e.target.files?.[0])}
-            />
+            <p className="profile-onboarding-section-copy">
+              <Link href="/dashboard/pilot/portfolio" className="profile-onboarding-gallery-link">
+                Open Flight Gallery →
+              </Link>
+              {portfolioItems.length > 0
+                ? ` ${portfolioItems.length} item${portfolioItems.length === 1 ? "" : "s"} live`
+                : " No gallery items yet"}
+            </p>
           </section>
 
           <section className="profile-onboarding-section">

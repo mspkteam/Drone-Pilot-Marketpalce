@@ -10,45 +10,60 @@
 .pilot-shop-page {
   display: flex;
   flex-direction: column;
+  gap: 1.5rem;
   width: 100%;
   min-width: 0;
 }
 
-.pilot-shop-back {
-  display: inline-flex;
-  align-items: center;
-  margin-bottom: 1.25rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--color-text-muted);
-  transition: color 0.15s ease;
+.pilot-shop-bracket-card {
+  position: relative;
 }
 
-.pilot-shop-back:hover {
-  color: var(--color-gold);
+.pilot-shop-bracket-card::before,
+.pilot-shop-bracket-card::after {
+  content: "";
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  pointer-events: none;
+}
+
+.pilot-shop-bracket-card::before {
+  top: 14px;
+  left: 14px;
+  border-top: 1px solid rgba(244, 241, 234, 0.22);
+  border-left: 1px solid rgba(244, 241, 234, 0.22);
+}
+
+.pilot-shop-bracket-card::after {
+  right: 14px;
+  bottom: 14px;
+  border-right: 1px solid rgba(244, 241, 234, 0.22);
+  border-bottom: 1px solid rgba(244, 241, 234, 0.22);
 }
 
 .pilot-shop-header {
-  margin-bottom: 2rem;
   border: 1px solid var(--dashboard-card-border);
-  border-radius: 0.625rem;
+  border-radius: 0.375rem;
   background: var(--color-card-warm);
-  padding: 1.625rem;
+  padding: 1.5625rem;
 }
 
 .pilot-shop-eyebrow {
   margin: 0;
-  font-size: 0.6875rem;
-  font-weight: 600;
-  letter-spacing: 0.14em;
+  font-size: 0.7rem;
+  font-weight: 400;
+  letter-spacing: 0.084em;
+  text-transform: uppercase;
   color: var(--color-text-soft);
 }
 
 .pilot-shop-title {
-  margin: 0.5rem 0 0;
-  font-size: clamp(1.75rem, 4vw, 2.5rem);
-  font-weight: 800;
-  line-height: 1.15;
+  margin: 0.25rem 0 0;
+  font-size: clamp(1.75rem, 3vw, 2.25rem);
+  font-weight: 600;
+  line-height: 1.11;
+  letter-spacing: -0.001em;
   color: var(--color-text);
 }
 
@@ -79,7 +94,7 @@
   }
 }
 
-@media (min-width: 1280px) {
+@media (min-width: 1024px) {
   .pilot-shop-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
@@ -90,10 +105,9 @@
   min-height: 22.5rem;
   flex-direction: column;
   border: 1px solid var(--dashboard-card-border);
-  border-radius: 0.5rem;
+  border-radius: 0.375rem;
   background: var(--color-card-warm-alt);
   padding: 1rem;
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
   transition:
     transform 0.15s ease,
     border-color 0.15s ease;
@@ -105,14 +119,34 @@
 }
 
 .pilot-shop-card-media {
+  position: relative;
   display: flex;
-  height: 13.75rem;
+  height: 12.375rem;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  border-radius: 0.375rem;
+  border-radius: 0.25rem;
   background: var(--color-bg-deeper);
   padding: 1rem;
+}
+
+.pilot-shop-lock-badge {
+  position: absolute;
+  top: 0.4375rem;
+  left: 0.4375rem;
+  z-index: 1;
+  display: inline-flex;
+  max-width: calc(100% - 0.875rem);
+  align-items: center;
+  border: 1px solid rgba(216, 179, 57, 0.31);
+  border-radius: 1.4375rem;
+  background: rgba(216, 179, 57, 0.06);
+  padding: 0.125rem 0.75rem;
+  font-size: 0.5rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  line-height: 1.25rem;
+  color: var(--color-gold);
 }
 
 .pilot-shop-card-image {
@@ -213,9 +247,20 @@
 .pilot-shop-card-name {
   margin: 0.75rem 0 0;
   font-size: 1.125rem;
-  font-weight: 700;
+  font-weight: 400;
   line-height: 1.35;
   color: var(--color-text);
+}
+
+.pilot-shop-card-desc {
+  margin: 0.5rem 0 0;
+  font-size: 0.6rem;
+  line-height: 1.5;
+  color: var(--color-text-soft);
+}
+
+.pilot-shop-card.is-locked {
+  opacity: 0.92;
 }
 
 .pilot-shop-card-variant {
@@ -240,14 +285,17 @@
 }
 
 .pilot-shop-add-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
   border: none;
-  border-radius: 0.375rem;
+  border-radius: 0.25rem;
   background: var(--color-gold);
-  padding: 0.5625rem 0.875rem;
+  padding: 0.375rem 0.75rem;
   font-size: 0.75rem;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  color: var(--color-bg-deeper);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--color-cta-dark);
   transition: background-color 0.15s ease;
 }
 
@@ -318,8 +366,17 @@
 
 .pilot-shop-cart-item-name {
   min-width: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  text-align: left;
   font-size: 0.875rem;
   color: var(--color-text);
+  cursor: pointer;
+}
+
+.pilot-shop-cart-item-name:hover {
+  color: var(--color-gold);
 }
 
 .pilot-shop-cart-item-meta {
@@ -498,4 +555,50 @@
   margin: 0;
   font-size: 0.875rem;
   color: var(--color-text-soft);
+}
+
+.pilot-shop-empty {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--color-text-soft);
+}
+
+.pilot-shop-checkout-note {
+  margin: 0 0 0.75rem;
+  font-size: 0.75rem;
+  line-height: 1.45;
+  color: var(--color-text-soft);
+}
+
+.pilot-shop-rules {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  width: 100%;
+  margin-top: 0.5rem;
+  padding: 1.5625rem;
+  border: 1px solid rgba(33, 50, 87, 0.7);
+  border-radius: 0.375rem;
+  background: #131b2f;
+}
+
+.pilot-shop-rules-icon {
+  flex-shrink: 0;
+  color: var(--color-text);
+}
+
+.pilot-shop-rules-title {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1.33;
+  color: var(--color-text);
+}
+
+.pilot-shop-rules-copy {
+  margin: 0.5rem 0 0;
+  max-width: 46rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.6);
 }

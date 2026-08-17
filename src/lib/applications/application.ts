@@ -11,6 +11,11 @@ import {
   getVisibleJobsForPilot,
 } from "@/lib/membership/membership";
 import { prisma } from "@/lib/db";
+import { parseJobPostProjectMetadata } from "@/lib/jobs/post-project-metadata";
+import {
+  postProjectPriorityLabel,
+  postProjectQuoteTypeLabel,
+} from "@/lib/client/post-project-constants";
 import { triggerBidReceived } from "@/lib/notifications/triggers";
 import { evaluatePilotAwards } from "@/lib/certificates/certificate";
 import type {
@@ -146,6 +151,20 @@ function mapJobToOpenDto(
     hasApplied: job.applications.length > 0,
     applicationId: job.applications[0]?.id ?? null,
     clientDisplayName: clientDisplayName(job.clientProfile),
+    postProject: mapPostProjectSummary(job.postProjectJson),
+  };
+}
+
+function mapPostProjectSummary(
+  json: string | null | undefined,
+): PilotOpenJobDto["postProject"] {
+  const parsed = parseJobPostProjectMetadata(json);
+  if (!parsed) return null;
+  return {
+    deliverables: [...parsed.deliverables],
+    quoteTypeLabel: postProjectQuoteTypeLabel(parsed.quoteType),
+    priorityLabel: postProjectPriorityLabel(parsed.priority),
+    completionDate: parsed.completionDate,
   };
 }
 

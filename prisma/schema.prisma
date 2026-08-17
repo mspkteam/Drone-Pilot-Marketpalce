@@ -68,6 +68,8 @@ model PilotProfile {
   serviceRadiusKm       Int?
   servicesOffered       String              @default("[]")
   portfolioJson         String              @default("[]")
+  /// JSON: call sign, languages, drones, payloads, extra service chips, avatar (see lib/pilot/profile-extras.ts)
+  profileExtrasJson     String              @default("{}")
   hourlyRateMin         Float?
   hourlyRateMax         Float?
   licenseNumber         String

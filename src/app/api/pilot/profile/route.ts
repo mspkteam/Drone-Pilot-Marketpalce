@@ -5,6 +5,7 @@ import {
   serializeServicesOffered,
   toPilotProfileDto,
 } from "@/lib/pilot/profile";
+import { serializeProfileExtrasJson } from "@/lib/pilot/profile-extras";
 import { validatePilotProfileInput } from "@/lib/pilot/validation";
 import { prisma } from "@/lib/db";
 
@@ -70,6 +71,9 @@ export async function POST(request: Request) {
         hourlyRateMax: data.hourlyRateMax ?? null,
         licenseNumber: data.licenseNumber!,
         licenseCountry: data.licenseCountry?.trim() || null,
+        ...(data.extras
+          ? { profileExtrasJson: serializeProfileExtrasJson(data.extras) }
+          : {}),
         complianceAcceptedAt: completing ? now : null,
         onboardingCompletedAt: completing ? now : null,
         status: completing ? "pending_review" : "draft",
@@ -152,6 +156,9 @@ export async function PATCH(request: Request) {
         }),
         ...(data.licenseCountry !== undefined && {
           licenseCountry: data.licenseCountry?.trim() || null,
+        }),
+        ...(data.extras !== undefined && {
+          profileExtrasJson: serializeProfileExtrasJson(data.extras),
         }),
         ...(data.isPublic !== undefined && { isPublic: data.isPublic }),
         ...(completing && {

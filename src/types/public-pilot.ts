@@ -55,4 +55,5 @@ export type PublicPilotProfileDto = PublicPilotListItemDto & {
   wings: PublicPilotWingDto[];
   certificates: PublicPilotCertificateDto[];
   membership: PublicPilotMembershipDto | null;
+  instructorListed: boolean;
 };

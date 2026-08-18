@@ -125,6 +125,9 @@ export function getNotificationHref(
 
     case "verification_approved":
     case "verification_rejected":
+      if (payloadId(payload, "wingRequestId") && area === "pilot") {
+        return "/dashboard/pilot/verifications/request-wings";
+      }
       return area === "pilot" ? "/dashboard/pilot/verifications" : null;
 
     case "wing_earned":

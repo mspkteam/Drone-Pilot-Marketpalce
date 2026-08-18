@@ -16,6 +16,10 @@ import {
 import { SHOP_IMAGES_PER_PRODUCT_MAX } from "@/lib/shop/constants";
 import { UNIFORM_SHIPPING_FLAT_RATE } from "@/lib/shop/constants";
 import { listPilotWings } from "@/lib/wings/wings";
+import {
+  isStudentUniformDiscountItem,
+  studentUniformDiscountUsd,
+} from "@/lib/instructor/constants";
 import type {
   AdminUniformOrderDto,
   UniformOrderDto,
@@ -733,8 +737,17 @@ export async function placeUniformOrder(
 
   const pilotProfile = await prisma.pilotProfile.findUnique({
     where: { userId },
-    select: { id: true },
+    select: {
+      id: true,
+      referredByInstructorId: true,
+      referredByInstructor: {
+        select: { instructorAddonActive: true },
+      },
+    },
   });
+  const studentUniformDiscount =
+    Boolean(pilotProfile?.referredByInstructorId) &&
+    Boolean(pilotProfile?.referredByInstructor?.instructorAddonActive);
   if (pilotProfile) {
     const [tiers, wings] = await Promise.all([
       getPilotActiveTier(pilotProfile.id),
@@ -792,14 +805,25 @@ export async function placeUniformOrder(
         status: 400,
       };
     }
-    const lineTotal = variant.price * qty;
+    let unitPrice = variant.price;
+    if (
+      studentUniformDiscount &&
+      isStudentUniformDiscountItem({
+        name: variant.product.name,
+        slug: variant.product.slug,
+        requiredWingCode: variant.product.requiredWingCode,
+      })
+    ) {
+      unitPrice = Math.max(0, unitPrice - studentUniformDiscountUsd(unitPrice));
+    }
+    const lineTotal = unitPrice * qty;
     subtotal += lineTotal;
     itemRows.push({
       variantId: variant.id,
       productName: variant.product.name,
       variantLabel: variant.label,
       sku: variant.sku,
-      unitPrice: variant.price,
+      unitPrice,
       quantity: qty,
       lineTotal,
     });

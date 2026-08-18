@@ -1162,3 +1162,33 @@
     width: 100%;
   }
 }
+
+.pilot-instructor-student-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.pilot-instructor-student-input {
+  min-width: 12rem;
+  flex: 1 1 12rem;
+  border: 1px solid var(--dashboard-card-border);
+  border-radius: 0.375rem;
+  background: var(--color-bg-deeper);
+  padding: 0.625rem 0.75rem;
+  font-size: 0.875rem;
+  letter-spacing: 0.06em;
+  color: var(--color-text);
+}
+
+.pilot-subscription-instructor-student {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  border: 1px solid var(--dashboard-card-border);
+  border-radius: 0.5rem;
+  background: var(--color-card-warm);
+  padding: 1.5rem;
+}

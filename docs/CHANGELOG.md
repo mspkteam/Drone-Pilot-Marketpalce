@@ -4,6 +4,39 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.48] — 2026-08-18
+
+### Added
+
+- **Request Wings** (`/dashboard/pilot/verifications/request-wings`, Figma `1229:6885`): pilots choose Recreational / Student / Aviator / Senior / Master wings, upload evidence, save draft or submit for admin review
+- Admin **Remote Aviator Verification** now has a **Wings requests** queue — approve awards the matching digital wing and runs certificate evaluation; deny returns a draft for resubmit
+- Distinct from instructor student awards (`InstructorWingRequest`) — this flow is admin-reviewed aviator wings
+
+---
+
+## [0.27.47] — 2026-08-18
+
+### Added
+
+- **Instructor Membership Dashboard** (`/dashboard/pilot/instructor`, Figma `808:3626`): activate $199.99/year A-4+ add-on, generate/copy student discount code, review student wing requests (Silver Pilot / Gold Basic only)
+- Students apply instructor codes on Membership for **20% off** the $99.99 basic membership and can request wings; linked students get **15% off** epaulettes/wings in the shop (demo, no Stripe)
+- Public `/pilots/[id]` lists active instructors as **Remote Pilot Instructor**
+
+---
+
+## [0.27.46] — 2026-08-18
+
+### Changed
+
+- **Pilot Active Contracts** (`/dashboard/pilot/contracts`): Figma `808:19635` layout — `OPERATIONS / CONTRACTS` bracket header, contract cards with value badge, deadline row, Deliver Work / Message Client / Open Dispute; live bookings API unchanged
+- **Pilot Messages** (`/dashboard/pilot/messages`): Figma `808:20108` — `OPERATIONS / MESSAGES` header, job + contract context in chat header; live conversations API unchanged
+
+### Milestone
+
+- **Milestone 3 — Pilot signed off** (`ACTIVE_MILESTONE = 4`); Week 4 Bug Fixes & Hardening unlocked
+
+---
+
 ## [0.27.45] — 2026-08-17
 
 ### Changed

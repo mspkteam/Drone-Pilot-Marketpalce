@@ -8,6 +8,8 @@ import {
   PilotFastForwardCards,
 } from "@/components/dashboard/pilot/subscription/PilotFastForwardCards";
 import { PilotInstructorAddonSection } from "@/components/dashboard/pilot/subscription/PilotInstructorAddonSection";
+import { PilotInstructorStudentSection } from "@/components/dashboard/pilot/subscription/PilotInstructorStudentSection";
+import type { InstructorDashboardDto } from "@/lib/instructor/dashboard";
 import type { InstructorProfilePreview } from "@/components/dashboard/pilot/subscription/PilotInstructorAddonSection";
 import { SubscriptionStatusBadge } from "@/components/subscriptions/SubscriptionStatusBadge";
 import type { InstructorAddonStatus } from "@/lib/membership/instructor-addon";
@@ -47,20 +49,31 @@ export function PilotSubscriptionView() {
     trainingLocation: null,
     averageRating: null,
   });
+  const [instructorStudent, setInstructorStudent] = useState<
+    InstructorDashboardDto["student"]
+  >({
+    instructorName: null,
+    instructorId: null,
+    instructorActive: false,
+    myRequests: [],
+  });
+  const [instructorCode, setInstructorCode] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
   async function load() {
-    const [plansRes, subRes, instructorRes] = await Promise.all([
+    const [plansRes, subRes, instructorRes, dashboardRes] = await Promise.all([
       fetch("/api/pilot/subscription/plans"),
       fetch("/api/pilot/subscription"),
       fetch("/api/pilot/subscription/instructor"),
+      fetch("/api/pilot/instructor"),
     ]);
     const plansData = await plansRes.json();
     const subData = await subRes.json();
     const instructorData = await instructorRes.json();
+    const dashboardData = await dashboardRes.json();
 
     if (plansData.error) {
       setError(plansData.error);
@@ -89,6 +102,12 @@ export function PilotSubscriptionView() {
           displayName: instructorData.profile.displayName,
           bio: instructorData.profile.bio ?? null,
         }));
+      }
+    }
+    if (!dashboardData.error && dashboardData.student) {
+      setInstructorStudent(dashboardData.student);
+      if (subData.subscription?.instructorDiscountCode) {
+        setInstructorCode(subData.subscription.instructorDiscountCode);
       }
     }
   }
@@ -144,7 +163,10 @@ export function PilotSubscriptionView() {
       const res = await fetch("/api/pilot/subscription", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ planId }),
+        body: JSON.stringify({
+          planId,
+          instructorCode: instructorCode.trim() || undefined,
+        }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -155,8 +177,14 @@ export function PilotSubscriptionView() {
       setSubscription(data.subscription);
       await load();
       if (data.enrolled) {
+        const discount =
+          typeof data.membershipDiscountUsd === "number"
+            ? data.membershipDiscountUsd
+            : 0;
         setSuccess(
-          `Membership enrolled (demo). Annual fee ${formatMembershipUsd(PILOT_ANNUAL_MEMBERSHIP_FEE_USD)} recorded.`,
+          discount > 0
+            ? `Membership enrolled (demo). Annual fee ${formatMembershipUsd(PILOT_ANNUAL_MEMBERSHIP_FEE_USD - discount)} after instructor discount.`
+            : `Membership enrolled (demo). Annual fee ${formatMembershipUsd(PILOT_ANNUAL_MEMBERSHIP_FEE_USD)} recorded.`,
         );
       } else if (typeof data.upgradeFeeUsd === "number" && data.upgradeFeeUsd > 0) {
         setSuccess(
@@ -473,6 +501,22 @@ export function PilotSubscriptionView() {
               </div>
             </dl>
           </section>
+
+          <PilotInstructorStudentSection
+            instructorName={instructorStudent.instructorName}
+            instructorActive={instructorStudent.instructorActive}
+            myRequests={instructorStudent.myRequests}
+            onLinked={(payload) => {
+              setInstructorStudent((prev) => ({
+                ...prev,
+                instructorName: payload.instructorName,
+                instructorActive: true,
+              }));
+            }}
+            onChanged={() => {
+              void load();
+            }}
+          />
 
           <PilotInstructorAddonSection
             status={instructorStatus}

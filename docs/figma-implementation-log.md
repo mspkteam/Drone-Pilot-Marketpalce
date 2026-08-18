@@ -11,7 +11,67 @@ Workflow: [`FIGMA_IMPLEMENTATION_WORKFLOW.md`](FIGMA_IMPLEMENTATION_WORKFLOW.md)
 
 | Screens implemented | Missing modules logged | Last updated |
 |--------------------|------------------------|--------------|
-| 30 | 7 | 2026-08-17 |
+| 34 | 7 | 2026-08-18 |
+
+---
+
+#### Pilot Request Wings
+
+| Field | Value |
+|-------|--------|
+| **Date** | 2026-08-18 |
+| **Figma frame** | `1229:6885` |
+| **Figma URL** | https://www.figma.com/design/6E3XlFsDuajsjYjf4LiOPZ/remote-air-service?node-id=1229-6885 |
+| **Route** | `/dashboard/pilot/verifications/request-wings` |
+| **Status** | Implemented (UI + functionality pass) |
+
+**Components reused:** verification shell tabs, admin verification queue, `grantWingToPilot`, private asset storage  
+**Notes:** Layout from Figma; site color tokens. Conditional FTN/IACRA/certificate/hours/logbook fields. Admin review on `/dashboard/admin/verifications`. No Stripe.
+
+---
+
+#### Pilot Instructor Membership
+
+| Field | Value |
+|-------|--------|
+| **Date** | 2026-08-18 |
+| **Figma frame** | `808:3626` |
+| **Figma URL** | https://www.figma.com/design/6E3XlFsDuajsjYjf4LiOPZ/remote-air-service?node-id=808-3626 |
+| **Route** | `/dashboard/pilot/instructor` |
+| **Status** | Implemented (UI + functionality pass) |
+
+**Components reused:** `PilotInstructorDashboard`, `POST /api/pilot/subscription/instructor`, discount + wing-request APIs  
+**Notes:** Layout from Figma; site color tokens. Activate add-on generates student code; instructors award Silver/Gold basic wings only. Stripe later.
+
+---
+
+#### Pilot Active Contracts
+
+| Field | Value |
+|-------|--------|
+| **Date** | 2026-08-18 |
+| **Figma frame** | `808:19635` |
+| **Figma URL** | https://www.figma.com/design/6E3XlFsDuajsjYjf4LiOPZ/remote-air-service?node-id=808-19635 |
+| **Route** | `/dashboard/pilot/contracts` |
+| **Status** | Implemented (UI + functionality pass) |
+
+**Components reused:** `PilotActiveContracts`, `PilotContractCard`, `GET /api/pilot/bookings`, `mapBookingToActiveContract`  
+**Notes:** `OPERATIONS / CONTRACTS` bracket header; contract cards with value badge, deadline, Deliver Work / Message Client / Open Dispute. Layout from Figma; site color tokens.
+
+---
+
+#### Pilot Messages
+
+| Field | Value |
+|-------|--------|
+| **Date** | 2026-08-18 |
+| **Figma frame** | `808:20108` |
+| **Figma URL** | https://www.figma.com/design/6E3XlFsDuajsjYjf4LiOPZ/remote-air-service?node-id=808-20108 |
+| **Route** | `/dashboard/pilot/messages` |
+| **Status** | Implemented (UI + functionality pass) |
+
+**Components reused:** `PilotMessagesView`, client-messages panel styles, `GET/POST /api/pilot/conversations`  
+**Notes:** `OPERATIONS / MESSAGES` header; chat header shows `RE: {jobTitle} · {contractId}`. Live threads unchanged.
 
 ---
 

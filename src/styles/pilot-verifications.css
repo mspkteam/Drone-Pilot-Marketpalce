@@ -307,6 +307,34 @@
   display: none;
 }
 
+.pilot-verification-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.pilot-verification-tab {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  border: 1px solid var(--dashboard-card-border);
+  border-radius: 999px;
+  background: transparent;
+  padding: 0.35rem 0.9rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  color: var(--color-text-soft);
+}
+
+.pilot-verification-tab.is-active {
+  border-color: var(--color-gold);
+  color: var(--color-text);
+  background: var(--color-gold-icon-wash);
+}
+
 @media (max-width: 639px) {
   .pilot-verification-notice {
     flex-direction: column;

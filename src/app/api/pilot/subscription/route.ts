@@ -52,7 +52,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Plan ID is required." }, { status: 400 });
     }
 
-    const result = await setPilotMembershipTier(profile.id, planId);
+    const result = await setPilotMembershipTier(profile.id, planId, body.instructorCode);
     if (!result.ok) {
       return NextResponse.json({ error: result.error }, { status: result.status });
     }
@@ -62,6 +62,7 @@ export async function POST(request: Request) {
         subscription: result.subscription,
         enrolled: result.enrolled,
         upgradeFeeUsd: result.upgradeFeeUsd,
+        membershipDiscountUsd: result.membershipDiscountUsd,
       },
       { status: result.enrolled ? 201 : 200 },
     );

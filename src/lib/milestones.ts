@@ -1,7 +1,7 @@
 import type { UserRole } from "@/types/roles";
 
 /** Official 5-week delivery schedule — change this (or env) to unlock the next milestone. */
-export const ACTIVE_MILESTONE = 3;
+export const ACTIVE_MILESTONE = 4;
 
 export type MilestoneStatus = "locked" | "in_progress" | "complete";
 
@@ -42,7 +42,7 @@ export const MILESTONE_DEFINITIONS: readonly MilestoneDefinition[] = [
     weekLabel: "Week 3",
     title: "Pilot",
     dateRange: "16 Jul – 20 Jul 2026",
-    status: "in_progress",
+    status: "complete",
     summary:
       "Marketplace, proposals, contracts, delivery, membership, messages, portfolio, reviews, shop, and verifications.",
     lockedMessage:
@@ -53,7 +53,7 @@ export const MILESTONE_DEFINITIONS: readonly MilestoneDefinition[] = [
     weekLabel: "Week 4",
     title: "Bug Fixes & Hardening",
     dateRange: "23 Jul – 27 Jul 2026",
-    status: "locked",
+    status: "in_progress",
     summary:
       "Cross-role fixes, security, performance, Stripe payments, file uploads, and mock data removal.",
     lockedMessage:
@@ -434,6 +434,13 @@ export const ROUTE_MILESTONE_RULES: readonly RouteMilestoneRule[] = [
     milestone: 3,
     featureKey: "pilot.payments",
     featureLabel: "Pilot Earnings & Payouts",
+    allowedRoles: ["pilot"],
+  },
+  {
+    pathPrefix: "/dashboard/pilot/instructor",
+    milestone: 3,
+    featureKey: "pilot.instructor",
+    featureLabel: "Instructor Membership",
     allowedRoles: ["pilot"],
   },
   {

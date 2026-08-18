@@ -1,7 +1,7 @@
 # Week 3 — Pilot Checklist
 
-**Week 3 status:** **In progress** — **Figma design-first** for pilot dashboard screens, then functionality gap-close  
-**Active milestone:** Week 3 / Milestone 3 — Pilot (`ACTIVE_MILESTONE = 3`)  
+**Week 3 status:** **Complete** — signed off 2026-08-18  
+**Active milestone:** Week 4 / Milestone 4 — Bug Fixes & Hardening (`ACTIVE_MILESTONE = 4`)  
 **Plan reference:** [`PLATFORM_MILESTONE_PLAN.md`](PLATFORM_MILESTONE_PLAN.md) § Milestone 3  
 **Figma map:** [`WEEK3_FIGMA_PILOT.md`](WEEK3_FIGMA_PILOT.md)  
 **Demo script:** [`WEEK3_DEMO_SCRIPT.md`](WEEK3_DEMO_SCRIPT.md)
@@ -41,7 +41,7 @@ Pilots discover approved jobs, submit proposals, manage contracts, deliver work,
 | 3.18 | Profile strength — live portfolio count | Medium | Done (`portfolioJson`; extras avatar in `profileExtrasJson`) |
 | 3.19 | Reviews · shop polish | Low | Done (Figma `808:22235` shop + live catalog) |
 | 3.20 | Contract planning screen (6 stages, M307) | Low | Deferred (Phase 7+ per ADR) |
-| 3.21 | Instructor dashboard / Request Wings / add-on (M316) | Low | Deferred |
+| 3.21 | Instructor dashboard / Request Wings / add-on (M316) | **High** | Done (instructor Figma `808:3626`; Request Wings Figma `1229:6885`) |
 
 ---
 
@@ -49,6 +49,8 @@ Pilots discover approved jobs, submit proposals, manage contracts, deliver work,
 
 | Date | Item | Status |
 |------|------|--------|
+| 2026-08-18 | Request Wings Figma `1229:6885` — admin-reviewed aviator wing evidence | Done |
+| 2026-08-18 | Instructor Membership Dashboard Figma `808:3626` — activate, discount code, student wings | Done |
 | 2026-08-17 | Profile extras persist + shop Figma `808:22235` | Done |
 | 2026-08-17 | Submit Proposal Figma `1171:4661` + terms overlay `1171:5545` | Done |
 | 2026-06-02 | Submit Proposal flow (Figma 808:3828, 808:4459) | Done |
@@ -78,7 +80,7 @@ Pilots discover approved jobs, submit proposals, manage contracts, deliver work,
 ## Deferred to Week 4 / later
 
 - Contract planning six-stage UI (M307)
-- Instructor dashboard, Request Wings, instructor add-on (M316)
+- Instructor dashboard, Request Wings, instructor add-on (M316) — **done 2026-08-18** (Stripe still later)
 - Profile avatar upload / CDN (M107–M110)
 - Job cert-requirement matching beyond tier gate (M119)
 - Stripe payments; production file/CDN storage for uploads

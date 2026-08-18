@@ -7,7 +7,7 @@ import {
 
 const DUE_SOON_DAYS = 5;
 
-function formatContractId(bookingId: string): string {
+export function formatContractId(bookingId: string): string {
   const suffix = bookingId.replace(/[^a-z0-9]/gi, "").slice(-4).toUpperCase();
   return `C-${suffix || "0000"}`;
 }

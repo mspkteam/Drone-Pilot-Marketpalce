@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import { AdminVerificationPortal } from "@/components/dashboard/admin/verifications/AdminVerificationPortal";
 import { DashboardPageLayout } from "@/components/dashboard";
 import { countPendingVerifications } from "@/lib/verification/verification";
+import { countPendingAviatorWingRequests } from "@/lib/wings/aviator-wing-requests";
 import { isAdminRole, type UserRole } from "@/types/roles";
 import "@/styles/admin-dashboard.css";
 import "@/styles/admin-verifications.css";
@@ -16,11 +17,17 @@ export default async function AdminVerificationsPage() {
     redirect("/login");
   }
 
-  const pendingCount = await countPendingVerifications();
+  const [pendingCount, pendingWingCount] = await Promise.all([
+    countPendingVerifications(),
+    countPendingAviatorWingRequests(),
+  ]);
 
   return (
     <DashboardPageLayout className="admin-verifications-shell">
-      <AdminVerificationPortal pendingCount={pendingCount} />
+      <AdminVerificationPortal
+        pendingCount={pendingCount}
+        pendingWingCount={pendingWingCount}
+      />
     </DashboardPageLayout>
   );
 }

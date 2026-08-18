@@ -14,7 +14,9 @@ alwaysApply: true
 
 **Do not implement unless asked:** Stripe, Stripe Connect, SMTP/production email, M19 SEO, M20 launch QA, Remote Rescue (M319).
 
-**Current default:** Milestone 3 — Pilot **in progress** (**Figma design-first** for pilot pages, then functionality). Milestone 2 complete.
+**Current default:** Milestone 4 — Bug Fixes & Hardening **in progress**. Milestone 3 (Pilot) **complete**.
+
+**When the user asks to push:** commit if needed, push `main`, then merge `main` into `production` and `git push origin production` (that is the Vercel Production deploy). Do not wait to be asked separately.
 
 ## When implementing a priority
 

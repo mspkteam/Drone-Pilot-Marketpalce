@@ -166,5 +166,6 @@ export async function getPublicPilotById(
     wings,
     certificates,
     membership,
+    instructorListed: profile.instructorAddonActive,
   };
 }

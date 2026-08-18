@@ -1,6 +1,6 @@
 # M15 — Digital Wings / Achievements
 
-**Version:** 0.27.26  
+**Version:** 0.27.48  
 **Depends on:** M05 (Pilot profiles), M09 (Bookings), M10 (Reviews), M11 (Membership), M14, M22
 
 ## Overview
@@ -12,7 +12,7 @@ Admin UI: **Badges & Wings** (`/dashboard/admin/achievements`) — create/edit f
 ## Data model
 
 - `WingDefinition` — catalog (`code`, `title`, `description`, `category`, `rarity`, `autoRule`, `ruleParam`, `threshold`, `iconLabel`, `imageUrl`, `isActive`, `sortOrder`)
-- `PilotWing` — earned instance (unique per pilot + definition)
+- `AviatorWingRequest` — admin-reviewed Recreational / Student / Aviator / Senior / Master evidence (`legalName`, `ftn`, `totalHours`, `documentsJson`)
 
 Categories: `milestone` | `trust` | `community`  
 Rarity: `COMMON` | `UNCOMMON` | `RARE` | `EPIC` | `LEGENDARY` | `MYTHIC` (persisted; editable in admin)
@@ -62,12 +62,19 @@ Certificate templates are issued manually. After issue, wing evaluation runs. To
 | GET | `/api/admin/wing-definitions` | Super Admin |
 | POST | `/api/admin/wing-definitions` | Super Admin |
 | PATCH | `/api/admin/wing-definitions/[id]` | Super Admin |
-| GET/POST | `/api/admin/wings` | Super Admin (list + manual award) |
+| GET/POST | `/api/pilot/wing-requests` | Pilot (draft/submit) |
+| POST | `/api/pilot/wing-requests/documents` | Pilot upload |
+| GET | `/api/pilot/wing-requests/[id]/document` | Pilot |
+| GET | `/api/admin/wing-requests` | Admin verification module |
+| POST | `/api/admin/wing-requests/[id]/approve` | Admin award |
+| POST | `/api/admin/wing-requests/[id]/reject` | Admin deny |
 
 ## UI
 
 - Pilot: `/dashboard/pilot/achievements` — earned wings grid
+- Pilot: `/dashboard/pilot/verifications/request-wings` — Request Wings form (Figma `1229:6885`)
 - Admin: `/dashboard/admin/achievements` — definitions, conditions, manual award
+- Admin: `/dashboard/admin/verifications` — Wings requests queue
 - Public: `/pilots/[id]` — wing badges alongside verifications
 
 ## Seed

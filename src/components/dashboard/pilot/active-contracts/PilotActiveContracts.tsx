@@ -3,14 +3,8 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { PilotContractCard } from "./PilotContractCard";
-import { BriefcaseIcon } from "./PilotActiveContractsIcons";
 import { mapBookingToActiveContract } from "@/lib/pilot/active-contracts-map";
-import {
-  filterPilotActiveContracts,
-  PILOT_ACTIVE_CONTRACT_TABS,
-  PILOT_ACTIVE_CONTRACTS_ROUTES,
-  type PilotContractTabId,
-} from "@/lib/pilot/active-contracts-types";
+import { PILOT_ACTIVE_CONTRACTS_ROUTES } from "@/lib/pilot/active-contracts-types";
 import type { BookingListItemDto } from "@/types/booking";
 
 const BOOKINGS_API = "/api/pilot/bookings" as const;
@@ -19,7 +13,6 @@ export function PilotActiveContracts() {
   const [bookings, setBookings] = useState<BookingListItemDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<PilotContractTabId>("all");
 
   useEffect(() => {
     fetch(BOOKINGS_API)
@@ -44,93 +37,45 @@ export function PilotActiveContracts() {
     [bookings],
   );
 
-  const filteredContracts = useMemo(
-    () => filterPilotActiveContracts(contracts, activeTab),
-    [contracts, activeTab],
-  );
-
   if (loading) {
-    return <p className="client-my-projects-empty-text">Loading contracts…</p>;
+    return <p className="pilot-contracts-loading">Loading contracts…</p>;
   }
 
   return (
-    <div className="client-my-projects-page">
-      <header className="client-my-projects-header">
-        <div className="client-my-projects-header-copy">
-          <h1 className="client-my-projects-title">Active Contracts</h1>
-          <p className="client-my-projects-subtitle">
-            Manage your current missions, deliveries, and client handoffs.
-          </p>
-        </div>
-
-        <Link
-          href={PILOT_ACTIVE_CONTRACTS_ROUTES.browseJobs}
-          className="client-my-projects-new-btn"
-        >
-          <BriefcaseIcon />
-          Browse Jobs
-        </Link>
+    <div className="pilot-contracts-page">
+      <header className="pilot-contracts-header pilot-contracts-bracket-card">
+        <p className="pilot-contracts-eyebrow">OPERATIONS / CONTRACTS</p>
+        <h1 className="pilot-contracts-title">Active Contracts</h1>
       </header>
 
       {error ? (
-        <p className="client-my-projects-banner" role="alert">
+        <p className="pilot-contracts-banner pilot-contracts-banner--error" role="alert">
           {error}
         </p>
       ) : null}
 
-      {contracts.length === 0 && !error ? (
-        <p className="client-my-projects-banner" role="status">
-          No active contracts yet. When a client accepts your proposal, the
-          booking will appear here.
-        </p>
-      ) : null}
-
-      <div className="client-my-projects-tabs-wrap">
-        <div
-          className="client-my-projects-tabs"
-          role="tablist"
-          aria-label="Filter contracts by status"
-        >
-          {PILOT_ACTIVE_CONTRACT_TABS.map((tab) => {
-            const selected = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                type="button"
-                role="tab"
-                aria-selected={selected}
-                className={`client-my-projects-tab${selected ? " client-my-projects-tab--active" : ""}`}
-                onClick={() => setActiveTab(tab.id)}
-              >
-                {tab.label}
-              </button>
-            );
-          })}
-        </div>
-        <div className="client-my-projects-tabs-divider" aria-hidden />
-      </div>
-
-      {filteredContracts.length === 0 ? (
-        <div className="client-my-projects-empty" role="status">
-          <p className="client-my-projects-empty-title">No contracts found</p>
-          <p className="client-my-projects-empty-text">
-            Contracts matching this status will appear here.
+      {contracts.length === 0 ? (
+        <div className="pilot-contracts-empty" role="status">
+          <p className="pilot-contracts-empty-title">No contracts found</p>
+          <p className="pilot-contracts-empty-text">
+            Browse the marketplace and submit proposals to win your first
+            contract.
           </p>
-          {activeTab === "all" && contracts.length === 0 ? (
-            <Link
-              href={PILOT_ACTIVE_CONTRACTS_ROUTES.browseJobs}
-              className="client-my-projects-empty-cta"
-            >
-              Browse Jobs
-            </Link>
-          ) : null}
+          <Link
+            href={PILOT_ACTIVE_CONTRACTS_ROUTES.browseJobs}
+            className="pilot-contracts-empty-cta"
+          >
+            Browse Jobs
+          </Link>
         </div>
       ) : (
-        <div className="client-my-projects-grid">
-          {filteredContracts.map((contract) => (
-            <PilotContractCard key={contract.id} contract={contract} />
+        <ul className="pilot-contracts-list">
+          {contracts.map((contract) => (
+            <li key={contract.id}>
+              <PilotContractCard contract={contract} />
+            </li>
           ))}
-        </div>
+        </ul>
       )}
     </div>
   );

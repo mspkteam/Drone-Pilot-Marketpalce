@@ -287,7 +287,9 @@ export function PublicPilotProfile({ pilot }: { pilot: PublicPilotProfileDto }) 
             ) : null}
             <div className="min-w-0 flex-1">
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold">
-                Licensed pilot
+                {pilot.instructorListed
+                  ? "Remote Pilot Instructor"
+                  : "Licensed pilot"}
               </p>
               <h1 className="mt-2 text-3xl font-bold tracking-tight text-ras-text sm:text-4xl">
                 {pilot.displayName}
@@ -538,9 +540,11 @@ export function PublicPilotProfile({ pilot }: { pilot: PublicPilotProfileDto }) 
                 <DetailRow
                   label="Instructor"
                   value={
-                    pilot.membership.instructorEligible
-                      ? "Eligible"
-                      : "Not eligible"
+                    pilot.instructorListed
+                      ? "Listed as Remote Pilot Instructor"
+                      : pilot.membership.instructorEligible
+                        ? "Eligible"
+                        : "Not eligible"
                   }
                 />
               </dl>

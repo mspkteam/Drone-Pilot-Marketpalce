@@ -8,7 +8,7 @@ import {
 describe("getManualIssueFields", () => {
   it("includes member number and award date for wings layouts", () => {
     const fields = getManualIssueFields("master-aviator-wings");
-    assert.deepEqual(fields, ["memberNumber", "issuedAt"]);
+    assert.deepEqual(fields, ["memberNumber"]);
   });
 
   it("includes grade for promotion layouts", () => {

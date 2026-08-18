@@ -32,20 +32,36 @@ export function ContractIcon() {
   );
 }
 
-export function BriefcaseIcon() {
+export function CalendarIcon() {
   return (
     <svg
-      width="16"
-      height="16"
-      viewBox="0 0 16 16"
+      width="12"
+      height="12"
+      viewBox="0 0 12 12"
       fill="none"
       stroke="currentColor"
-      strokeWidth="1.5"
+      strokeWidth="1.25"
       aria-hidden
     >
-      <rect x="2.5" y="5.5" width="11" height="8" rx="1" />
-      <path d="M5.5 5.5V4.75a2.25 2.25 0 0 1 2.25-2.25h.5a2.25 2.25 0 0 1 2.25 2.25V5.5" />
-      <path d="M2.5 9h11" strokeLinecap="round" />
+      <rect x="2" y="2.5" width="8" height="7.5" rx="0.75" />
+      <path d="M2 4.75h8M4 1.75v1.5M8 1.75v1.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+export function UploadIcon() {
+  return (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 14 14"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.25"
+      aria-hidden
+    >
+      <path d="M7 9.25V2.75M4.5 5.25 7 2.75l2.5 2.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M2.75 11.25h8.5" strokeLinecap="round" />
     </svg>
   );
 }

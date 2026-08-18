@@ -3,7 +3,7 @@ import {
   badgeToneForContractStatus,
   type PilotActiveContract,
 } from "@/lib/pilot/active-contracts-types";
-import { ClientIcon, ContractIcon } from "./PilotActiveContractsIcons";
+import { CalendarIcon, UploadIcon } from "./PilotActiveContractsIcons";
 
 type PilotContractCardProps = {
   contract: PilotActiveContract;
@@ -13,48 +13,48 @@ export function PilotContractCard({ contract }: PilotContractCardProps) {
   const badgeTone = badgeToneForContractStatus(contract.status);
 
   return (
-    <article className="client-my-projects-card">
-      <div className="client-my-projects-card-top">
-        <h2 className="client-my-projects-card-title">{contract.title}</h2>
-        <span
-          className={`client-my-projects-badge client-my-projects-badge--${badgeTone}`}
-        >
-          {contract.status}
-        </span>
-      </div>
-
-      <div className="client-my-projects-card-meta">
-        <span className="client-my-projects-meta-item">
-          <ClientIcon />
-          {contract.client}
-        </span>
-        <span className="client-my-projects-meta-item">
-          <ContractIcon />
-          {contract.contractId}
-        </span>
-      </div>
-
-      <div className="client-my-projects-stats">
-        <div className="client-my-projects-stat">
-          <span className="client-my-projects-stat-label">Deadline</span>
-          <span className="client-my-projects-stat-value">{contract.deadline}</span>
+    <article className="pilot-contracts-card">
+      <div className="pilot-contracts-card-top">
+        <div className="pilot-contracts-card-copy">
+          <p className="pilot-contracts-card-id">
+            CONTRACT · {contract.contractId}
+          </p>
+          <h2 className="pilot-contracts-card-title">{contract.title}</h2>
+          <p className="pilot-contracts-card-client">{contract.client}</p>
         </div>
-        <div className="client-my-projects-stat">
-          <span className="client-my-projects-stat-label">Value</span>
-          <span className="client-my-projects-stat-value">{contract.value}</span>
+
+        <div className="pilot-contracts-card-value-block">
+          <div className="pilot-contracts-value-col">
+            <p className="pilot-contracts-value-label">Value</p>
+            <p className="pilot-contracts-value-amount">{contract.value}</p>
+          </div>
+          <span
+            className={`pilot-contracts-badge pilot-contracts-badge--${badgeTone}`}
+          >
+            {contract.status}
+          </span>
         </div>
       </div>
 
-      <div className="client-my-projects-card-actions client-my-projects-card-actions--contracts">
-        <div className="client-my-projects-card-actions-primary">
-          <Link href={contract.deliverHref} className="client-my-projects-btn-gold">
-            Deliver Work
-          </Link>
-          <Link href={contract.messageHref} className="client-my-projects-btn-outline">
-            Message Client
-          </Link>
+      <div className="pilot-contracts-card-meta">
+        <div>
+          <p className="pilot-contracts-meta-label">Deadline</p>
+          <p className="pilot-contracts-meta-value">
+            <CalendarIcon />
+            {contract.deadline}
+          </p>
         </div>
-        <Link href={contract.disputeHref} className="client-my-projects-btn-danger">
+      </div>
+
+      <div className="pilot-contracts-card-actions">
+        <Link href={contract.deliverHref} className="pilot-contracts-btn-gold">
+          <UploadIcon />
+          Deliver Work
+        </Link>
+        <Link href={contract.messageHref} className="pilot-contracts-btn-outline">
+          Message Client
+        </Link>
+        <Link href={contract.disputeHref} className="pilot-contracts-btn-danger">
           Open Dispute
         </Link>
       </div>

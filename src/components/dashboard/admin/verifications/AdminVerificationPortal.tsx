@@ -14,6 +14,7 @@ import {
 import { useModeratorPermissions } from "@/contexts/ModeratorPermissionsContext";
 import { getVerificationTypeLabel } from "@/lib/verification/status";
 import { approvalStatusFilterTabs } from "@/lib/ui/status-filter-tabs";
+import { AdminWingRequestsPanel } from "./AdminWingRequestsPanel";
 import type {
   AdminVerificationDto,
   VerificationStatus,
@@ -22,6 +23,7 @@ import type {
 
 type AdminVerificationPortalProps = {
   pendingCount: number;
+  pendingWingCount: number;
 };
 
 type Applicant = {
@@ -138,10 +140,15 @@ function insuranceStatus(verifications: AdminVerificationDto[]): string {
   return docStatusLabel(insurance.status).toUpperCase();
 }
 
-export function AdminVerificationPortal({ pendingCount }: AdminVerificationPortalProps) {
+export function AdminVerificationPortal({
+  pendingCount,
+  pendingWingCount,
+}: AdminVerificationPortalProps) {
   const { canPerform } = useModeratorPermissions();
   const canApprove = canPerform("verifications", "approve");
   const canReject = canPerform("verifications", "reject");
+
+  const [queue, setQueue] = useState<"documents" | "wings">("documents");
 
   const [filter, setFilter] = useState<VerificationStatus | "all">("pending");
   const [rows, setRows] = useState<AdminVerificationDto[]>([]);
@@ -270,11 +277,36 @@ export function AdminVerificationPortal({ pendingCount }: AdminVerificationPorta
         <p className="av-hero-eyebrow">Verification Queue</p>
         <h1 className="av-hero-title">Remote Aviator Verification</h1>
         <p className="av-hero-desc">
-          {heroCount} application{heroCount === 1 ? "" : "s"} awaiting your review.
-          Approving a pilot grants them access to bid on missions.
+          {queue === "wings"
+            ? `${pendingWingCount} wings request${pendingWingCount === 1 ? "" : "s"} awaiting review.`
+            : `${heroCount} application${heroCount === 1 ? "" : "s"} awaiting your review. Approving a pilot grants them access to bid on missions.`}
         </p>
       </section>
 
+      <div className="av-queue-filters av-section-tabs" role="tablist" aria-label="Verification queues">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={queue === "documents"}
+          className={`av-filter${queue === "documents" ? " av-filter--active" : ""}`}
+          onClick={() => setQueue("documents")}
+        >
+          Documents
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={queue === "wings"}
+          className={`av-filter${queue === "wings" ? " av-filter--active" : ""}`}
+          onClick={() => setQueue("wings")}
+        >
+          Wings requests{pendingWingCount > 0 ? ` (${pendingWingCount})` : ""}
+        </button>
+      </div>
+
+      {queue === "wings" ? (
+        <AdminWingRequestsPanel pendingCount={pendingWingCount} />
+      ) : (
       <div className="av-grid">
         <section className="av-queue" aria-label="Application queue">
           <div className="av-queue-head">
@@ -559,6 +591,7 @@ export function AdminVerificationPortal({ pendingCount }: AdminVerificationPorta
           )}
         </section>
       </div>
+      )}
     </div>
   );
 }

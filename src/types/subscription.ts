@@ -21,6 +21,8 @@ export type PilotSubscriptionDto = {
   currentPeriodStart: string;
   currentPeriodEnd: string;
   externalSubscriptionId: string | null;
+  instructorDiscountCode: string | null;
+  instructorDiscountUsd: number;
   createdAt: string;
   updatedAt: string;
   plan: MembershipTierDto;

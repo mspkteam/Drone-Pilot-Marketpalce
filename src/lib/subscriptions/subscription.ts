@@ -1,6 +1,8 @@
 import { evaluatePilotAwards } from "@/lib/certificates/certificate";
 import { syncInstructorAddonWithMembership } from "@/lib/membership/instructor-addon";
-import { getFastForwardFeeUsd } from "@/lib/membership/pilot-membership-catalog";
+import { getFastForwardFeeUsd, PILOT_ANNUAL_MEMBERSHIP_FEE_USD } from "@/lib/membership/pilot-membership-catalog";
+import { applyInstructorDiscountCode } from "@/lib/instructor/discount";
+import { instructorMembershipDiscountUsd } from "@/lib/instructor/constants";
 import { toMembershipTierDto } from "@/lib/membership/membership";
 import { prisma } from "@/lib/db";
 import type {
@@ -27,6 +29,8 @@ export function toSubscriptionDto(
     currentPeriodStart: sub.currentPeriodStart.toISOString(),
     currentPeriodEnd: sub.currentPeriodEnd.toISOString(),
     externalSubscriptionId: sub.externalSubscriptionId,
+    instructorDiscountCode: sub.instructorDiscountCode,
+    instructorDiscountUsd: sub.instructorDiscountUsd,
     createdAt: sub.createdAt.toISOString(),
     updatedAt: sub.updatedAt.toISOString(),
     plan: toPlanDto(sub.subscriptionPlan),
@@ -65,12 +69,14 @@ export type SetPilotMembershipResult =
       subscription: PilotSubscriptionDto;
       enrolled: boolean;
       upgradeFeeUsd: number;
+      membershipDiscountUsd: number;
     }
   | { ok: false; error: string; status: 404 | 409 };
 
 export async function setPilotMembershipTier(
   pilotProfileId: string,
   planId: string,
+  instructorCode?: string | null,
 ): Promise<SetPilotMembershipResult> {
   const plan = await prisma.subscriptionPlan.findFirst({
     where: { id: planId, isActive: true },
@@ -91,6 +97,37 @@ export async function setPilotMembershipTier(
   if (!existing) {
     const now = new Date();
     const periodEnd = addYears(now, 1);
+    let membershipDiscountUsd = 0;
+    let appliedCode: string | null = null;
+
+    if (instructorCode?.trim()) {
+      const applied = await applyInstructorDiscountCode(
+        pilotProfileId,
+        instructorCode,
+      );
+      if (applied.ok) {
+        membershipDiscountUsd = applied.discountUsd;
+        appliedCode = applied.code;
+      }
+    } else {
+      const linked = await prisma.pilotProfile.findUnique({
+        where: { id: pilotProfileId },
+        select: {
+          referredByInstructor: {
+            select: {
+              instructorAddonActive: true,
+              instructorDiscountCode: true,
+            },
+          },
+        },
+      });
+      if (linked?.referredByInstructor?.instructorAddonActive) {
+        membershipDiscountUsd = instructorMembershipDiscountUsd(
+          PILOT_ANNUAL_MEMBERSHIP_FEE_USD,
+        );
+        appliedCode = linked.referredByInstructor.instructorDiscountCode;
+      }
+    }
 
     const sub = await prisma.pilotSubscription.create({
       data: {
@@ -100,6 +137,8 @@ export async function setPilotMembershipTier(
         currentPeriodStart: now,
         currentPeriodEnd: periodEnd,
         externalSubscriptionId: "demo_internal",
+        instructorDiscountCode: appliedCode,
+        instructorDiscountUsd: membershipDiscountUsd,
       },
       include: { subscriptionPlan: true },
     });
@@ -111,6 +150,7 @@ export async function setPilotMembershipTier(
       subscription: toSubscriptionDto(sub),
       enrolled: true,
       upgradeFeeUsd: getFastForwardFeeUsd(plan.code ?? ""),
+      membershipDiscountUsd,
     };
   }
 
@@ -140,6 +180,10 @@ export async function setPilotMembershipTier(
     include: { subscriptionPlan: true },
   });
 
+  if (instructorCode?.trim()) {
+    await applyInstructorDiscountCode(pilotProfileId, instructorCode);
+  }
+
   await evaluatePilotAwards(pilotProfileId);
   await syncInstructorAddonWithMembership(
     pilotProfileId,
@@ -152,6 +196,7 @@ export async function setPilotMembershipTier(
     subscription: toSubscriptionDto(updated),
     enrolled: false,
     upgradeFeeUsd: Math.max(0, Math.round(upgradeFeeUsd * 100) / 100),
+    membershipDiscountUsd: 0,
   };
 }
 

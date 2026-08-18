@@ -38,20 +38,20 @@ afterEach(() => {
 });
 
 describe("milestone access", () => {
-  it("defaults to milestone 3", () => {
-    assert.equal(getActiveMilestone(), 3);
+  it("defaults to milestone 4", () => {
+    assert.equal(getActiveMilestone(), 4);
   });
 
   it("respects NEXT_PUBLIC_MILESTONE_ACTIVE override", () => {
-    process.env.NEXT_PUBLIC_MILESTONE_ACTIVE = "3";
-    assert.equal(getActiveMilestone(), 3);
-    assert.equal(isMilestoneUnlocked(2), true);
-    assert.equal(isMilestoneUnlocked(4), false);
+    process.env.NEXT_PUBLIC_MILESTONE_ACTIVE = "4";
+    assert.equal(getActiveMilestone(), 4);
+    assert.equal(isMilestoneUnlocked(3), true);
+    assert.equal(isMilestoneUnlocked(5), false);
   });
 
   it("ignores invalid milestone env values", () => {
     process.env.MILESTONE_ACTIVE = "99";
-    assert.equal(getActiveMilestone(), 3);
+    assert.equal(getActiveMilestone(), 4);
   });
 
   it("treats marketing paths as public", () => {
@@ -124,7 +124,7 @@ describe("milestone access", () => {
       true,
     );
     assert.equal(
-      evaluateMilestoneAccess("/dashboard/pilot/shop", "pilot").allowed,
+      evaluateMilestoneAccess("/dashboard/pilot/instructor", "pilot").allowed,
       true,
     );
     assert.equal(isNavHrefLocked("/dashboard/pilot/subscription"), false);

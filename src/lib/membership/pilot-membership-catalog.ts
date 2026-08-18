@@ -133,6 +133,14 @@ export const PILOT_INSTRUCTOR_ADDON_BENEFITS = [
   "Support student progression through Remote Air Service",
 ] as const;
 
+export const PILOT_INSTRUCTOR_DASHBOARD_BENEFITS = [
+  "Appear publicly as Remote Pilot Instructor.",
+  "Invite students with discount code.",
+  "Students receive 20% off basic membership only.",
+  "Discounted student epaulettes and wings.",
+  "Support student progression and promotion.",
+] as const;
+
 export function listPilotFastForwardTiers(): PilotFastForwardTier[] {
   return FAST_FORWARD_TIERS;
 }
@@ -170,6 +178,14 @@ export function isRecommendedFastForwardTier(pricingCode: string): boolean {
 
 export function isInstructorEligibleTierCode(tierCode: string | null | undefined): boolean {
   if (!tierCode) return false;
+  if (
+    tierCode.startsWith("A7_") ||
+    tierCode.startsWith("A8_") ||
+    tierCode.startsWith("A9_") ||
+    tierCode.startsWith("A10_")
+  ) {
+    return true;
+  }
   const tier = getFastForwardTier(tierCode);
   if (!tier) return false;
   const min = getFastForwardTier(PILOT_INSTRUCTOR_MIN_TIER_CODE);

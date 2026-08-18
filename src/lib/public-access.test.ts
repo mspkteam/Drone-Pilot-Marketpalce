@@ -41,7 +41,7 @@ describe("public access", () => {
     assert.equal(isPublicMarketingPathAllowed("/resources"), true);
     assert.equal(isPublicMarketingPathAllowed("/resources/pilot-onboarding"), true);
     assert.equal(isPublicMarketingPathAllowed("/pilots"), true);
-    assert.equal(isPublicMarketingPathAllowed("/pilots/demo-id"), false);
+    assert.equal(isPublicMarketingPathAllowed("/pilots/demo-id"), true);
     assert.equal(isPublicMarketingPathAllowed("/captains-club"), true);
     assert.equal(isPublicMarketingPathAllowed("/reputation"), true);
     assert.equal(isPublicMarketingPathAllowed("/jobs"), true);
@@ -49,10 +49,10 @@ describe("public access", () => {
     assert.equal(isPublicMarketingPathAllowed("/dashboard/client"), false);
   });
 
-  it("hides public pilot profiles during milestone 1", () => {
-    assert.equal(isPublicPilotProfileEnabled(), false);
+  it("enables public pilot profiles from milestone 3 onward", () => {
+    assert.equal(isPublicPilotProfileEnabled(), true);
     assert.equal(isPublicMarketingPathAllowed("/pilots"), true);
-    assert.equal(isPublicMarketingPathAllowed("/pilots/demo-id"), false);
+    assert.equal(isPublicMarketingPathAllowed("/pilots/demo-id"), true);
   });
 
   it("always allows auth routes", () => {

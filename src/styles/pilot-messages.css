@@ -1,0 +1,106 @@
+/* Pilot Messages — Figma 808:20108 header + shared chat panel */
+
+.pilot-messages-shell.dashboard-page {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: none;
+  gap: 0;
+  min-height: 0;
+}
+
+.pilot-messages-page {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  flex-direction: column;
+  gap: 1.5rem;
+  min-height: 0;
+  flex: 1 1 auto;
+}
+
+.pilot-messages-bracket-card {
+  position: relative;
+}
+
+.pilot-messages-bracket-card::before,
+.pilot-messages-bracket-card::after {
+  content: "";
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  pointer-events: none;
+}
+
+.pilot-messages-bracket-card::before {
+  top: 14px;
+  left: 14px;
+  border-top: 1px solid rgba(244, 241, 234, 0.22);
+  border-left: 1px solid rgba(244, 241, 234, 0.22);
+}
+
+.pilot-messages-bracket-card::after {
+  right: 14px;
+  bottom: 14px;
+  border-right: 1px solid rgba(244, 241, 234, 0.22);
+  border-bottom: 1px solid rgba(244, 241, 234, 0.22);
+}
+
+.pilot-messages-header {
+  border: 1px solid var(--dashboard-card-border);
+  border-radius: 0.375rem;
+  background: var(--color-card-warm);
+  padding: 1.5625rem;
+}
+
+.pilot-messages-eyebrow {
+  margin: 0;
+  font-size: 0.7rem;
+  font-weight: 400;
+  letter-spacing: 0.084em;
+  text-transform: uppercase;
+  color: var(--color-text-soft);
+}
+
+.pilot-messages-title {
+  margin: 0.25rem 0 0;
+  font-size: clamp(1.75rem, 3vw, 2.25rem);
+  font-weight: 600;
+  line-height: 1.11;
+  letter-spacing: -0.001em;
+  color: var(--color-text);
+}
+
+.pilot-messages-panel {
+  display: flex;
+  min-height: 0;
+  flex: 1 1 auto;
+}
+
+.pilot-messages-shell .client-messages-layout {
+  flex: 1 1 auto;
+  height: calc(100vh - 12.5rem);
+  min-height: 28rem;
+}
+
+.pilot-messages-shell .client-messages-list-title {
+  font-size: 0.7rem;
+  font-weight: 400;
+  letter-spacing: 0.084em;
+  text-transform: uppercase;
+  color: var(--color-text-soft);
+}
+
+.pilot-messages-chat-context {
+  margin: 0.125rem 0 0;
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+  color: var(--color-text-soft);
+}
+
+@media (max-width: 768px) {
+  .pilot-messages-shell .client-messages-layout {
+    height: calc(100vh - 10rem);
+    min-height: 24rem;
+  }
+}

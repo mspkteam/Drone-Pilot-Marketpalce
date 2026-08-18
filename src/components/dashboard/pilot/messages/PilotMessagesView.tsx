@@ -6,6 +6,7 @@ import {
   formatConversationTime,
   initialsFromName,
 } from "@/lib/client/client-messages-utils";
+import { formatContractId } from "@/lib/pilot/active-contracts-map";
 import type {
   ConversationDetailDto,
   ConversationListItemDto,
@@ -131,7 +132,9 @@ export function PilotMessagesView({
 
   const headerName = selectedApi?.counterpartName ?? "Messages";
   const headerInitials = initialsFromName(headerName);
-  const headerStatus = "Client";
+  const headerContext = selectedApi
+    ? `RE: ${selectedApi.jobTitle} · ${selectedApi.bookingId ? formatContractId(selectedApi.bookingId) : "Pending contract"}`
+    : null;
 
   const threadMessages: ThreadMessage[] = useMemo(() => {
     if (!detail) return [];
@@ -199,11 +202,18 @@ export function PilotMessagesView({
   }
 
   return (
-    <div
-      className={`client-messages-layout${mobileChatOpen ? " client-messages-layout--chat-open" : ""}`}
-    >
+    <div className="pilot-messages-page">
+      <header className="pilot-messages-header pilot-messages-bracket-card">
+        <p className="pilot-messages-eyebrow">OPERATIONS / MESSAGES</p>
+        <h1 className="pilot-messages-title">Messages</h1>
+      </header>
+
+      <div className="pilot-messages-panel">
+        <div
+          className={`client-messages-layout${mobileChatOpen ? " client-messages-layout--chat-open" : ""}`}
+        >
       <aside className="client-messages-list">
-        <h2 className="client-messages-list-title">Messages</h2>
+        <h2 className="client-messages-list-title">Conversations</h2>
 
         {listError ? (
           <p className="client-messages-list-error" role="alert">
@@ -265,7 +275,11 @@ export function PilotMessagesView({
             </span>
             <div>
               <p className="client-messages-chat-name">{headerName}</p>
-              <p className="client-messages-chat-status">{headerStatus}</p>
+              {headerContext ? (
+                <p className="pilot-messages-chat-context">{headerContext}</p>
+              ) : (
+                <p className="client-messages-chat-status">Client</p>
+              )}
             </div>
           </div>
         </header>
@@ -334,6 +348,8 @@ export function PilotMessagesView({
           </button>
         </form>
       </section>
+        </div>
+      </div>
     </div>
   );
 }

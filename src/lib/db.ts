@@ -2,7 +2,7 @@ import { PrismaClient } from "@/generated/prisma/client";
 import { createPrismaClient } from "@/lib/create-prisma-client";
 
 /** Bump when Prisma schema changes so dev HMR does not keep an old client. */
-const PRISMA_CLIENT_SCHEMA_VERSION = 45;
+const PRISMA_CLIENT_SCHEMA_VERSION = 47;
 
 const globalForPrisma = globalThis as unknown as {
   prisma?: PrismaClient;
@@ -47,6 +47,7 @@ function isStalePrismaClient(client: PrismaClient): boolean {
     platformSetting?: unknown;
     operatingRegion?: unknown;
     squadronBallot?: unknown;
+    aviatorWingRequest?: unknown;
   };
   return (
     typeof c.pilotProfile === "undefined" ||
@@ -83,7 +84,8 @@ function isStalePrismaClient(client: PrismaClient): boolean {
     typeof c.cmsResourceRecord === "undefined" ||
     typeof c.platformSetting === "undefined" ||
     typeof c.operatingRegion === "undefined" ||
-    typeof c.squadronBallot === "undefined"
+    typeof c.squadronBallot === "undefined" ||
+    typeof c.aviatorWingRequest === "undefined"
   );
 }
 

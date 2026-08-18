@@ -79,6 +79,13 @@ model PilotProfile {
   /** Demo instructor add-on flag until Stripe (M316). */
   instructorAddonActive Boolean             @default(false)
   instructorAddonPeriodEnd DateTime?
+  instructorDiscountCode String?            @unique
+  referredByInstructorId String?
+  referredByInstructor   PilotProfile?      @relation("InstructorStudents", fields: [referredByInstructorId], references: [id], onDelete: SetNull)
+  instructorStudents     PilotProfile[]     @relation("InstructorStudents")
+  instructorWingRequests InstructorWingRequest[] @relation("InstructorWingRequests")
+  studentWingRequests    InstructorWingRequest[] @relation("StudentWingRequests")
+  aviatorWingRequests    AviatorWingRequest[]
   complianceAcceptedAt  DateTime?
   onboardingCompletedAt DateTime?
   commissionOverrideEnabled   Boolean   @default(false)
@@ -548,6 +555,8 @@ model PilotSubscription {
   currentPeriodStart     DateTime
   currentPeriodEnd       DateTime
   externalSubscriptionId String?
+  instructorDiscountCode String?
+  instructorDiscountUsd  Float            @default(0)
   createdAt              DateTime         @default(now())
   updatedAt              DateTime         @updatedAt
 
@@ -652,6 +661,50 @@ model PilotWing {
   @@unique([pilotProfileId, wingDefinitionId])
   @@index([pilotProfileId])
   @@index([earnedAt])
+}
+
+/** Admin-reviewed aviator wing requests (Figma Request Wings). Distinct from instructor student awards. */
+model AviatorWingRequest {
+  id               String       @id @default(cuid())
+  pilotProfileId   String
+  pilotProfile     PilotProfile @relation(fields: [pilotProfileId], references: [id], onDelete: Cascade)
+  wingCode         String
+  status           String       @default("draft")
+  legalName        String       @default("")
+  ftn              String?
+  totalHours       Float?
+  notes            String?
+  confirmation     Boolean      @default(false)
+  documentsJson    String       @default("{}")
+  rejectionReason  String?
+  submittedAt      DateTime?
+  reviewedAt       DateTime?
+  reviewedByUserId String?
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  @@index([pilotProfileId, status])
+  @@index([status])
+  @@index([createdAt])
+}
+
+/** Student wing requests reviewed by an active Remote Pilot Instructor. */
+model InstructorWingRequest {
+  id                 String       @id @default(cuid())
+  instructorProfileId String
+  instructorProfile  PilotProfile @relation("InstructorWingRequests", fields: [instructorProfileId], references: [id], onDelete: Cascade)
+  studentProfileId   String
+  studentProfile     PilotProfile @relation("StudentWingRequests", fields: [studentProfileId], references: [id], onDelete: Cascade)
+  wingCode           String
+  status             String       @default("pending")
+  instructorNote     String?
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+  resolvedAt         DateTime?
+
+  @@index([instructorProfileId, status])
+  @@index([studentProfileId])
+  @@index([createdAt])
 }
 
 model UniformProduct {

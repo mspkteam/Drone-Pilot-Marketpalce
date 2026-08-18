@@ -163,7 +163,7 @@ Client posts project
 | `/dashboard/pilot/locked-jobs` | **PARTIAL** | From jobs API locked list + `locked-jobs-mock.ts` | M87–M88 | P2 |
 | `/dashboard/pilot/messages` | **MOCK** | `pilot-messages-mock.ts` | `GET /api/pilot/conversations` | P2 |
 | `/dashboard/pilot/portfolio` | **MOCK** | `portfolio-mock.ts`; add = local append | M122–M125 | Later |
-| `/dashboard/pilot/verifications` | **PARTIAL** | `GET /api/pilot/verifications`; upload uses existing verification API | M14, M115–M119 | P2 |
+| `/dashboard/pilot/verifications` | **WIRED** | Documents catalog + Request Wings (`/verifications/request-wings`, Figma `1229:6885`) | M14, M15, M115–M119 | Done |
 | `/dashboard/pilot/payments` | **PARTIAL** | Maps payment API; polish/mock gaps | M78 | Later |
 | `/dashboard/pilot/shop` | **PARTIAL** | Catalog from API; checkout pay = placeholder | M258 | Later |
 | `/dashboard/pilot/subscription` | **PARTIAL** | Demo enroll; no real Stripe | M90–M91 | Later |

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import {
   formatMembershipUsd,
   PILOT_INSTRUCTOR_ADDON_BENEFITS,
@@ -144,6 +145,14 @@ export function PilotInstructorAddonSection({
                 : `Add Instructor — ${formatMembershipUsd(PILOT_INSTRUCTOR_ADDON_FEE_USD)}/year`}
           </button>
         )}
+
+        <Link
+          href="/dashboard/pilot/instructor"
+          className="pilot-subscription-btn-outline"
+          style={{ marginTop: "0.75rem", display: "inline-flex" }}
+        >
+          Open Instructor Dashboard
+        </Link>
       </div>
 
       <aside

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { PilotVerificationDocumentCardView } from "./PilotVerificationDocumentCard";
+import { PilotVerificationTabs } from "./PilotVerificationTabs";
 import {
   catalogTag,
   computeVerificationProgress,
@@ -115,6 +116,7 @@ export function PilotVerificationDocumentsView() {
       <header className="pilot-verification-header pilot-verification-bracket-card">
         <p className="pilot-verification-eyebrow">PILOT / VERIFICATION</p>
         <h1 className="pilot-verification-title">Identity &amp; License Verification</h1>
+        <PilotVerificationTabs active="documents" />
       </header>
 
       <div className="pilot-verification-notice pilot-verification-bracket-card">

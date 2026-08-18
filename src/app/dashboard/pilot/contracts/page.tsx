@@ -8,6 +8,7 @@ import {
 } from "@/lib/pilot/profile";
 import { getProfileStatusLabel } from "@/lib/pilot/status";
 import type { PilotProfileStatus } from "@/types/pilot";
+import "@/styles/pilot-active-contracts.css";
 
 export const metadata = { title: "Active Contracts" };
 
@@ -25,7 +26,7 @@ export default async function PilotContractsPage() {
   const approved = profile?.status === "approved";
 
   return (
-    <DashboardPageLayout className="client-my-projects-shell">
+    <DashboardPageLayout className="pilot-contracts-shell">
       {!approved ? (
         <DashboardStatusBanner variant="muted">
           Profile status:{" "}

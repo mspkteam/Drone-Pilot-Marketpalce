@@ -34,6 +34,7 @@ export const pilotNavGroups: readonly DashboardNavGroup[] = [
     items: [
       { label: "Earnings", href: "/dashboard/pilot/payments", icon: "earnings" },
       { label: "Membership", href: "/dashboard/pilot/subscription", icon: "membership" },
+      { label: "Instructor", href: "/dashboard/pilot/instructor", icon: "wings" },
       { label: "Uniform Shop", href: "/dashboard/pilot/shop", icon: "shop" },
     ],
   },

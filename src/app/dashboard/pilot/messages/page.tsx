@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import { PilotMessagesView } from "@/components/dashboard/pilot/messages/PilotMessagesView";
 import { DashboardPageLayout } from "@/components/dashboard";
 import "@/styles/client-messages.css";
+import "@/styles/pilot-messages.css";
 
 export const metadata = { title: "Messages" };
 
@@ -13,7 +14,7 @@ export default async function PilotMessagesPage() {
   }
 
   return (
-    <DashboardPageLayout className="client-messages-shell">
+    <DashboardPageLayout className="pilot-messages-shell">
       <PilotMessagesView />
     </DashboardPageLayout>
   );

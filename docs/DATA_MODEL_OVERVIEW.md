@@ -70,9 +70,12 @@ erDiagram
 | commissionOverrideRate | Float? — override rate as fraction (e.g. 0.075) |
 | commissionOverrideReason | String? — reason/context for the override |
 | commissionOverrideEffective | String? — free-text effective date/label |
-| commissionOverrideUpdatedAt | DateTime? · commissionOverrideSetById | String? — audit |
+| instructorAddonActive | Boolean — Remote Pilot Instructor add-on (demo until Stripe) |
+| instructorAddonPeriodEnd | DateTime? |
+| instructorDiscountCode | Unique student code (20% off $99.99 membership) |
+| referredByInstructorId | FK → PilotProfile — student linked via instructor code |
 
-**Relations:** User (1:1), JobApplications, Bookings, Verifications, Achievements, PilotSubscriptions.
+**Relations:** User (1:1), JobApplications, Bookings, Verifications, Achievements, PilotSubscriptions, InstructorWingRequests, instructor students.
 
 **Commission override:** Set from Configuration → Custom Pilot Rates (Super Admin, `configuration.manageSettings`). Applied at payout by `getEffectiveCommissionRateForPilot` (override → persisted platform default → 15%).
 

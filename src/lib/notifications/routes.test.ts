@@ -47,4 +47,13 @@ describe("getNotificationHref", () => {
     );
     assert.equal(href, "/dashboard/admin/disputes/disp-1");
   });
+
+  it("routes wings request review notifications to Request Wings", () => {
+    const href = getNotificationHref(
+      "verification_approved",
+      { wingRequestId: "wr-1" },
+      "pilot",
+    );
+    assert.equal(href, "/dashboard/pilot/verifications/request-wings");
+  });
 });

@@ -28,6 +28,7 @@ describe("pilot membership catalog prices", () => {
     assert.equal(isInstructorEligibleTierCode("A3_FLIGHT_OFFICER"), false);
     assert.equal(isInstructorEligibleTierCode("A4_SENIOR_FLIGHT_OFFICER"), true);
     assert.equal(isInstructorEligibleTierCode("A6_CAPTAIN"), true);
+    assert.equal(isInstructorEligibleTierCode("A7_SENIOR_CAPTAIN"), true);
   });
 });
 

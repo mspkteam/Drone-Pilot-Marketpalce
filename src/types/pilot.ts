@@ -43,6 +43,8 @@ export type PilotProfileDto = {
   status: PilotProfileStatus;
   instructorAddonActive: boolean;
   instructorAddonPeriodEnd: string | null;
+  instructorDiscountCode: string | null;
+  referredByInstructorId: string | null;
   complianceAcceptedAt: string | null;
   onboardingCompletedAt: string | null;
   createdAt: string;

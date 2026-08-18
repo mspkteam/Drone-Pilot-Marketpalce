@@ -23,7 +23,7 @@ export const WING_AUTO_RULES = [
 
 export type WingAutoRule = (typeof WING_AUTO_RULES)[number];
 
-export const WING_SOURCES = ["auto", "manual"] as const;
+export const WING_SOURCES = ["auto", "manual", "instructor"] as const;
 
 export type WingSource = (typeof WING_SOURCES)[number];
 

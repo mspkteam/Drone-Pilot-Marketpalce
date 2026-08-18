@@ -44,6 +44,8 @@ export function toPilotProfileDto(profile: PilotProfile): PilotProfileDto {
     instructorAddonActive: profile.instructorAddonActive,
     instructorAddonPeriodEnd:
       profile.instructorAddonPeriodEnd?.toISOString() ?? null,
+    instructorDiscountCode: profile.instructorDiscountCode,
+    referredByInstructorId: profile.referredByInstructorId,
     complianceAcceptedAt: profile.complianceAcceptedAt?.toISOString() ?? null,
     onboardingCompletedAt:
       profile.onboardingCompletedAt?.toISOString() ?? null,

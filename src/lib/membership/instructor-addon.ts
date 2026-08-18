@@ -5,6 +5,7 @@ import {
 import { prisma } from "@/lib/db";
 import { getCurrentPilotSubscription } from "@/lib/subscriptions/subscription";
 import { toPilotProfileDto } from "@/lib/pilot/profile";
+import { ensureInstructorDiscountCode } from "@/lib/instructor/discount";
 import type { PilotProfileDto } from "@/types/pilot";
 
 function addYears(date: Date, years: number) {
@@ -81,12 +82,22 @@ export async function setPilotInstructorAddon(
   }
 
   const now = new Date();
+  let discountCode = profile.instructorDiscountCode;
+  if (active) {
+    discountCode = await ensureInstructorDiscountCode(
+      profile.id,
+      profile.displayName,
+      profile.instructorDiscountCode,
+    );
+  }
+
   const updated = await prisma.pilotProfile.update({
     where: { id: pilotProfileId },
     data: active
       ? {
           instructorAddonActive: true,
           instructorAddonPeriodEnd: addYears(now, 1),
+          instructorDiscountCode: discountCode,
         }
       : {
           instructorAddonActive: false,

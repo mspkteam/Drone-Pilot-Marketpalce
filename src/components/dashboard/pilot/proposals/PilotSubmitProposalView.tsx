@@ -11,11 +11,8 @@ import {
   type ExtendedProposalFormState,
 } from "@/components/dashboard/pilot/proposals/PilotSubmitProposalExtendedSections";
 import { PilotProposalTermsModal } from "@/components/dashboard/pilot/proposals/PilotProposalTermsModal";
-import {
-  POST_PROJECT_OFF_PLATFORM_ACK_AFTER,
-  POST_PROJECT_OFF_PLATFORM_ACK_BEFORE,
-  POST_PROJECT_OFF_PLATFORM_ACK_LINK,
-} from "@/lib/client/post-project-constants";
+import { PostProjectDateField } from "@/components/dashboard/client/post-project/PostProjectDateField";
+import { PostProjectTermsAcknowledgment } from "@/components/dashboard/client/post-project/PostProjectTermsAcknowledgment";
 import {
   draftStorageKey,
   pricingBreakdownTotal,
@@ -326,7 +323,7 @@ export function PilotSubmitProposalView({ jobId, initial }: PilotSubmitProposalV
       !form.insuranceCoverage ||
       !form.otherRequirements
     ) {
-      return "Complete compliance confirmations.";
+      return "Select Yes or No for permits, safety plan, insurance, and other requirements.";
     }
     if (
       !form.pricingFlightOperations ||
@@ -345,9 +342,6 @@ export function PilotSubmitProposalView({ jobId, initial }: PilotSubmitProposalV
     if (Math.abs(Number(form.proposedAmount) - breakdownTotal) > 0.01) {
       return "Proposed amount must match the pricing breakdown total.";
     }
-    if (!form.accuracyConfirmed) {
-      return "Acknowledge the terms and conditions checkbox before submitting.";
-    }
     return null;
   }
 
@@ -359,10 +353,11 @@ export function PilotSubmitProposalView({ jobId, initial }: PilotSubmitProposalV
       const res = await fetch(`/api/pilot/jobs/${jobId}/applications`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+        body:         JSON.stringify({
           ...payload,
           proposedAmount: form.proposedAmount,
           currency: job.currency,
+          accuracyConfirmed: true,
         }),
       });
       const data = await res.json();
@@ -386,6 +381,11 @@ export function PilotSubmitProposalView({ jobId, initial }: PilotSubmitProposalV
     const nextError = validateBeforeModal();
     if (nextError) {
       setError(nextError);
+      const complianceMissing = nextError.toLowerCase().includes("permits");
+      const target = document.getElementById(
+        complianceMissing ? "pilot-submit-compliance" : "pilot-submit-error",
+      );
+      target?.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
     }
     setError(null);
@@ -422,7 +422,7 @@ export function PilotSubmitProposalView({ jobId, initial }: PilotSubmitProposalV
             </header>
 
             {error ? (
-              <p className="pilot-submit-error" role="alert">
+              <p id="pilot-submit-error" className="pilot-submit-error" role="alert">
                 {error}
               </p>
             ) : null}
@@ -537,17 +537,19 @@ export function PilotSubmitProposalView({ jobId, initial }: PilotSubmitProposalV
                   <em>You can select multiple options</em>
                 </div>
 
-                <label className="pilot-submit-field">
+                <div className="pilot-submit-field">
                   <span>
                     Estimated Delivery Date <i>*</i>
                   </span>
-                  <input
-                    type="date"
-                    required
+                  <PostProjectDateField
+                    id="pilot-proposal-delivery-date"
                     value={form.estimatedDeliveryDate}
-                    onChange={(e) => patchForm({ estimatedDeliveryDate: e.target.value })}
+                    onChange={(estimatedDeliveryDate) =>
+                      patchForm({ estimatedDeliveryDate })
+                    }
+                    placeholder="dd/mm/yyyy"
                   />
-                </label>
+                </div>
 
                 <label className="pilot-submit-field">
                   <span>
@@ -613,34 +615,14 @@ export function PilotSubmitProposalView({ jobId, initial }: PilotSubmitProposalV
                 onChange={patchForm}
               />
 
-              <label className="pilot-submit-ack">
-                <input
-                  type="checkbox"
-                  checked={form.accuracyConfirmed}
-                  onChange={(e) =>
-                    setForm((current) => ({
-                      ...current,
-                      accuracyConfirmed: e.target.checked,
-                    }))
-                  }
-                />
-                <span>
-                  {POST_PROJECT_OFF_PLATFORM_ACK_BEFORE}
-                  <button
-                    type="button"
-                    className="pilot-submit-terms-link"
-                    onClick={(event) => {
-                      event.preventDefault();
-                      event.stopPropagation();
-                      setError(null);
-                      setTermsOpen(true);
-                    }}
-                  >
-                    {POST_PROJECT_OFF_PLATFORM_ACK_LINK}
-                  </button>
-                  {POST_PROJECT_OFF_PLATFORM_ACK_AFTER}
-                </span>
-              </label>
+              <PostProjectTermsAcknowledgment
+                variant="review"
+                acknowledged={form.termsAcknowledged}
+                onOpenTerms={() => {
+                  setError(null);
+                  setTermsOpen(true);
+                }}
+              />
 
               <div className="pilot-submit-actions">
                 <button type="submit" className="pilot-submit-btn-primary" disabled={submitting}>
@@ -763,12 +745,6 @@ export function PilotSubmitProposalView({ jobId, initial }: PilotSubmitProposalV
         onCancel={() => setTermsOpen(false)}
         onSubmit={() => {
           if (!form.termsAcknowledged) return;
-          const nextError = validateBeforeModal();
-          if (nextError) {
-            setError(nextError);
-            setTermsOpen(false);
-            return;
-          }
           void submitProposal();
         }}
       />

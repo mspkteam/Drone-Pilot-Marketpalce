@@ -217,7 +217,7 @@ export function PilotSubmitProposalExtendedSections({
 
       <hr className="pilot-submit-divider" />
 
-      <section aria-label="Compliance">
+      <section id="pilot-submit-compliance" aria-label="Compliance">
         <h3 className="pilot-submit-section-title">
           Compliance, Travel &amp; Site Requirements
         </h3>
@@ -232,7 +232,9 @@ export function PilotSubmitProposalExtendedSections({
             ] as const
           ).map(([key, label]) => (
             <label key={key} className="pilot-submit-field">
-              <span>{label}</span>
+              <span>
+                {label} <i>*</i>
+              </span>
               <select
                 value={form[key]}
                 onChange={(e) => onChange({ [key]: e.target.value })}
@@ -306,6 +308,7 @@ export function buildExtendedFormPayload(
     deliverables: string[];
     portfolioLinks: string[];
     experience: string;
+    termsAcknowledged?: boolean;
   },
 ) {
   const travelLodging =
@@ -323,7 +326,7 @@ export function buildExtendedFormPayload(
     deliverables: form.deliverables,
     assumptions: form.assumptions,
     portfolioLinks: form.portfolioLinks,
-    accuracyConfirmed: form.accuracyConfirmed,
+    accuracyConfirmed: form.accuracyConfirmed || form.termsAcknowledged,
     operationalPlan: {
       projectedMileage: form.projectedMileage.trim() || "Not listed",
       flightTimeEstimate: form.flightTimeEstimate,

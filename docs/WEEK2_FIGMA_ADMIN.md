@@ -18,7 +18,7 @@
 | 5 | Subscriptions | `808:26310` | `/dashboard/admin/subscriptions` | Done — title |
 | 6 | Commissions | `808:26940` | `/dashboard/admin/payments` | Done — title |
 | 7 | Disputes | `808:27475` | `/dashboard/admin/disputes` | Done — title |
-| 8 | Squadron Voting | `808:32375` | `/dashboard/admin/squadron-voting` | Done — dedicated page |
+| 8 | Squadron Voting | `808:32708` | `/dashboard/admin/squadron-voting` | Done — Peer Moderation + live ballots |
 | 9 | Certificates | `808:27973` | `/dashboard/admin/certificates` | Done — title |
 | 10 | Badges & Wings | `808:28491` | `/dashboard/admin/achievements` | Done — eyebrow + title |
 | 11 | Uniform Shop | `808:29020` | `/dashboard/admin/shop` | Done — title |
@@ -40,7 +40,7 @@ Flat 15-item nav, admin rank card, shared hero title styling in `admin-dashboard
 ## Remaining polish (non-blocking)
 
 - Regions: full region CRUD (currently links to Settings)
-- Squadron Voting: live ballot UI (currently links to Disputes)
+- Squadron Voting: live Peer Moderation ballots (open from Disputes)
 - Per-page pixel QA vs Figma screenshots
 - CMS / configuration Prisma persistence (Week 2 backend track)
 

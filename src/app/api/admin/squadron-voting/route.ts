@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import {
   castSquadronVote,
   closeSquadronBallot,
-  listSquadronBallots,
+  closeSquadronBallotEarly,
+  getSquadronVotingDashboard,
   openSquadronBallot,
 } from "@/lib/admin/squadron-voting";
 import {
@@ -19,7 +20,8 @@ export async function GET() {
     );
   }
 
-  return NextResponse.json({ ballots: await listSquadronBallots() });
+  const dashboard = await getSquadronVotingDashboard(authResult.userId);
+  return NextResponse.json(dashboard);
 }
 
 export async function POST(request: Request) {
@@ -71,13 +73,18 @@ export async function POST(request: Request) {
   }
 
   if (action === "close") {
-    if (!body.ballotId || !body.recommendation) {
-      return NextResponse.json(
-        { error: "ballotId and recommendation are required." },
-        { status: 400 },
-      );
+    if (!body.ballotId) {
+      return NextResponse.json({ error: "ballotId is required." }, { status: 400 });
     }
-    const result = await closeSquadronBallot(body.ballotId, body.recommendation);
+
+    const result =
+      typeof body.recommendation === "string" && body.recommendation.trim()
+        ? await closeSquadronBallot(
+            body.ballotId,
+            body.recommendation.trim(),
+            authResult.userId,
+          )
+        : await closeSquadronBallotEarly(body.ballotId, authResult.userId);
     if (!result.ok) {
       return NextResponse.json(
         { error: result.error },

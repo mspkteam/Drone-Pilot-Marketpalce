@@ -199,7 +199,7 @@ Master build control table for tracking modules, status, and sprint alignment. U
 | M206 | Support Admin View Audit | Log admin/moderator support thread views | Not Started | P3 | — | M202, M170 | — | — |
 | M207 | Admin Dispute Center UI | Aviation-themed dispute list + detail workflow | Done | P1 | — | M23, M13 | — | `/dashboard/admin/disputes` |
 | M208 | Dispute Priority Scoring Service | Server priority/SLA risk for disputes | Not Started | P2 | — | M207, M23 | — | Client heuristic only |
-| M209 | Squadron Voting Workflow | Escalated dispute panel voting | Not Started | P2 | — | M207, M23 | — | Placeholder modal only |
+| M209 | Squadron Voting Workflow | Escalated dispute panel voting | Done | P2 | — | M207, M23 | — | Peer Moderation + open ballot from disputes |
 | M210 | Dispute SLA Tracking API | 72h resolution SLA metrics | Not Started | P2 | — | M207 | — | Inline Prisma stats loader |
 | M211 | Dispute Satisfaction Analytics | Real satisfaction score from outcomes | Not Started | P3 | — | M210 | — | Approximate % in stats card |
 | M212 | Pilot Disputes Dashboard UI | Pilot dispute list/detail pages | Not Started | P1 | — | M23 | — | Client UI exists; pilot API entries only |

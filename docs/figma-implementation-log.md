@@ -11,7 +11,22 @@ Workflow: [`FIGMA_IMPLEMENTATION_WORKFLOW.md`](FIGMA_IMPLEMENTATION_WORKFLOW.md)
 
 | Screens implemented | Missing modules logged | Last updated |
 |--------------------|------------------------|--------------|
-| 34 | 7 | 2026-08-18 |
+| 35 | 7 | 2026-08-19 |
+
+---
+
+#### Admin Squadron Voting (Peer Moderation)
+
+| Field | Value |
+|-------|--------|
+| **Date** | 2026-08-19 |
+| **Figma frame** | `808:32708` |
+| **Figma URL** | https://www.figma.com/design/6E3XlFsDuajsjYjf4LiOPZ/remote-air-service?node-id=808-32708 |
+| **Route** | `/dashboard/admin/squadron-voting` |
+| **Status** | Implemented (UI + functionality pass) |
+
+**Components reused:** `AdminSquadronVotingPortal`, `POST /api/admin/squadron-voting`, dispute send-to-vote modal  
+**Notes:** Layout from Figma; site color tokens. Approve maps to client, reject to pilot. Open ballot from dispute detail. Close early writes majority recommendation.
 
 ---
 

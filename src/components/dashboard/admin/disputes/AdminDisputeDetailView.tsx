@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { AdminDisputeResolveModal } from "@/components/dashboard/admin/disputes/AdminDisputeResolveModal";
 import { AdminDisputeVoteModal } from "@/components/dashboard/admin/disputes/AdminDisputeVoteModal";
 import {
   formatDisputeDisplayId,
   formatMissionDisplayId,
 } from "@/lib/admin/dispute-center-filters";
+import type { SquadronBallotDto } from "@/lib/admin/squadron-voting";
 import {
   getDisputeEntryTypeLabel,
   getDisputeResolutionLabel,
@@ -22,33 +23,46 @@ type AdminDisputeDetailViewProps = {
   initialDispute: DisputeDetailDto;
   conversationId: string | null;
   viewerRole: UserRole;
+  openResolveOnLoad?: boolean;
 };
 
 export function AdminDisputeDetailView({
   initialDispute,
   conversationId,
-  viewerRole,
+  openResolveOnLoad = false,
 }: AdminDisputeDetailViewProps) {
   const router = useRouter();
   const [dispute, setDispute] = useState(initialDispute);
+  const [ballot, setBallot] = useState<SquadronBallotDto | null>(null);
   const [comment, setComment] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const [resolveOpen, setResolveOpen] = useState(false);
+  const [resolveOpen, setResolveOpen] = useState(openResolveOnLoad);
   const [voteOpen, setVoteOpen] = useState(false);
 
   const { canPerform } = useModeratorPermissions();
   const canResolve = canPerform("disputes", "resolve");
+  const canRecommend = canPerform("disputes", "recommend");
   const clientName =
     dispute.booking.client.companyName ?? dispute.booking.client.contactName;
+  const displayId = formatDisputeDisplayId(dispute.id);
+  const missionId = formatMissionDisplayId(dispute.booking.job.id);
 
   const reload = useCallback(async () => {
     const res = await fetch(`/api/admin/disputes/${dispute.id}`);
-    const data = await res.json();
-    if (res.ok) {
+    const data = (await res.json()) as {
+      dispute?: DisputeDetailDto;
+      squadronBallot?: SquadronBallotDto | null;
+    };
+    if (res.ok && data.dispute) {
       setDispute(data.dispute);
+      setBallot(data.squadronBallot ?? null);
     }
   }, [dispute.id]);
+
+  useEffect(() => {
+    void reload();
+  }, [reload]);
 
   async function startReview() {
     setSubmitting(true);
@@ -104,14 +118,15 @@ export function AdminDisputeDetailView({
           <Link href="/dashboard/admin/disputes" className="admin-dispute-back">
             ← All disputes
           </Link>
-          <p className="admin-ops-eyebrow">DISPUTE CASE</p>
+          <p className="admin-ops-eyebrow">Operations / Disputes</p>
           <div className="admin-dispute-detail-head-row">
-            <div>
+            <div className="admin-dispute-detail-head-copy">
+              <p className="admin-dispute-detail-case-id">{displayId}</p>
               <h1 className="admin-dispute-detail-title">
                 {dispute.booking.job.title}
               </h1>
               <p className="admin-dispute-detail-subtitle">
-                Review timeline, moderate, and resolve.
+                {clientName} ↔ {dispute.booking.pilot.displayName}
               </p>
             </div>
             <span
@@ -120,13 +135,33 @@ export function AdminDisputeDetailView({
               {getDisputeStatusLabel(dispute.status).toUpperCase()}
             </span>
           </div>
+          <dl className="admin-dispute-detail-meta">
+            <div>
+              <dt>Mission</dt>
+              <dd>{missionId}</dd>
+            </div>
+            <div>
+              <dt>Amount</dt>
+              <dd>
+                ${dispute.booking.agreedAmount} {dispute.booking.currency}
+              </dd>
+            </div>
+            <div>
+              <dt>Opened by</dt>
+              <dd>{dispute.openedByRole}</dd>
+            </div>
+            <div>
+              <dt>Booking</dt>
+              <dd>{dispute.booking.status}</dd>
+            </div>
+          </dl>
         </div>
       </section>
 
       <div className="admin-dispute-detail-layout">
         <div className="admin-dispute-detail-main">
           <section className="admin-dispute-panel">
-            <h2 className="admin-dispute-panel-title">CASE SUMMARY</h2>
+            <h2 className="admin-dispute-panel-title">Case summary</h2>
             <div className="admin-dispute-reason-block">
               <p className="admin-dispute-field-label">Initial reason</p>
               <p className="admin-dispute-reason-text">{dispute.reason}</p>
@@ -134,47 +169,51 @@ export function AdminDisputeDetailView({
           </section>
 
           <section className="admin-dispute-panel">
-            <h2 className="admin-dispute-panel-title">CASE TIMELINE</h2>
-            <ul className="admin-dispute-timeline">
-              {dispute.entries.map((entry) => {
-                const isModerator =
-                  entry.authorRole === "super_admin" ||
-                  entry.authorRole === "moderator";
+            <h2 className="admin-dispute-panel-title">Case timeline</h2>
+            {dispute.entries.length === 0 ? (
+              <p className="admin-dispute-side-copy">No evidence or notes yet.</p>
+            ) : (
+              <ul className="admin-dispute-timeline">
+                {dispute.entries.map((entry) => {
+                  const isModerator =
+                    entry.authorRole === "super_admin" ||
+                    entry.authorRole === "moderator";
 
-                return (
-                  <li
-                    key={entry.id}
-                    className={`admin-dispute-timeline-item${
-                      isModerator ? " admin-dispute-timeline-item--moderator" : ""
-                    }`}
-                  >
-                    <span className="admin-dispute-timeline-dot" aria-hidden />
-                    <div className="admin-dispute-timeline-body">
-                      <div className="admin-dispute-timeline-meta">
-                        <span className="admin-dispute-timeline-author">
-                          {entry.authorLabel}
-                        </span>
-                        <span>{getDisputeEntryTypeLabel(entry.entryType)}</span>
-                        <time dateTime={entry.createdAt}>
-                          {new Date(entry.createdAt).toLocaleString()}
-                        </time>
+                  return (
+                    <li
+                      key={entry.id}
+                      className={`admin-dispute-timeline-item${
+                        isModerator ? " admin-dispute-timeline-item--moderator" : ""
+                      }`}
+                    >
+                      <span className="admin-dispute-timeline-dot" aria-hidden />
+                      <div className="admin-dispute-timeline-body">
+                        <div className="admin-dispute-timeline-meta">
+                          <span className="admin-dispute-timeline-author">
+                            {entry.authorLabel}
+                          </span>
+                          <span>{getDisputeEntryTypeLabel(entry.entryType)}</span>
+                          <time dateTime={entry.createdAt}>
+                            {new Date(entry.createdAt).toLocaleString()}
+                          </time>
+                        </div>
+                        <p className="admin-dispute-timeline-text">{entry.body}</p>
+                        {entry.attachmentUrl ? (
+                          <a
+                            href={entry.attachmentUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="admin-dispute-timeline-link"
+                          >
+                            {entry.attachmentUrl}
+                          </a>
+                        ) : null}
                       </div>
-                      <p className="admin-dispute-timeline-text">{entry.body}</p>
-                      {entry.attachmentUrl ? (
-                        <a
-                          href={entry.attachmentUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="admin-dispute-timeline-link"
-                        >
-                          {entry.attachmentUrl}
-                        </a>
-                      ) : null}
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
           </section>
 
           {error ? (
@@ -194,7 +233,7 @@ export function AdminDisputeDetailView({
                   rows={4}
                   value={comment}
                   onChange={(event) => setComment(event.target.value)}
-                  placeholder="Comment"
+                  placeholder="Add a note to the case file"
                 />
               </label>
               <button
@@ -207,22 +246,11 @@ export function AdminDisputeDetailView({
               </button>
             </section>
           ) : null}
-
-          {dispute.canStartReview ? (
-            <button
-              type="button"
-              className="admin-dispute-btn admin-dispute-btn--outline"
-              disabled={submitting}
-              onClick={() => void startReview()}
-            >
-              Start review
-            </button>
-          ) : null}
         </div>
 
         <aside className="admin-dispute-detail-side">
           <section className="admin-dispute-side-card">
-            <h2 className="admin-dispute-side-title">Case details</h2>
+            <h2 className="admin-dispute-side-title">Parties</h2>
             <dl className="admin-dispute-side-fields">
               <div>
                 <dt>Client</dt>
@@ -233,50 +261,50 @@ export function AdminDisputeDetailView({
                 <dd>{dispute.booking.pilot.displayName}</dd>
               </div>
               <div>
-                <dt>Agreed amount</dt>
-                <dd>
-                  ${dispute.booking.agreedAmount} {dispute.booking.currency}
-                </dd>
-              </div>
-              <div>
-                <dt>Opened by</dt>
-                <dd>{dispute.openedByRole}</dd>
-              </div>
-              <div>
                 <dt>Dispute ID</dt>
-                <dd>{formatDisputeDisplayId(dispute.id)}</dd>
+                <dd>{displayId}</dd>
               </div>
               <div>
                 <dt>Mission ID</dt>
-                <dd>{formatMissionDisplayId(dispute.booking.job.id)}</dd>
+                <dd>{missionId}</dd>
               </div>
             </dl>
           </section>
 
           <section className="admin-dispute-side-card">
-            <h2 className="admin-dispute-side-title">Booking</h2>
-            <p className="admin-dispute-side-copy">
-              Status: <strong>{dispute.booking.status}</strong>
-            </p>
+            <h2 className="admin-dispute-side-title">Related</h2>
             <Link
-              href={`/dashboard/admin/bookings`}
+              href="/dashboard/admin/bookings"
               className="admin-dispute-side-link"
             >
               View bookings module
             </Link>
-          </section>
-
-          {conversationId ? (
-            <section className="admin-dispute-side-card">
-              <h2 className="admin-dispute-side-title">Related messages</h2>
-              <p className="admin-dispute-side-copy">
-                Read-only client–pilot conversation for this booking.
-              </p>
+            {conversationId ? (
               <Link
                 href={`/dashboard/admin/messages/${conversationId}`}
                 className="admin-dispute-side-link"
               >
                 View related messages
+              </Link>
+            ) : (
+              <p className="admin-dispute-side-copy">No linked conversation.</p>
+            )}
+          </section>
+
+          {ballot ? (
+            <section className="admin-dispute-side-card">
+              <h2 className="admin-dispute-side-title">Squadron vote</h2>
+              <p className="admin-dispute-side-copy">
+                {ballot.voteDisplayId} · {ballot.timeLeftLabel}
+              </p>
+              <p className="admin-dispute-side-copy">
+                Client {ballot.clientVotes} · Pilot {ballot.pilotVotes}
+              </p>
+              <Link
+                href="/dashboard/admin/squadron-voting"
+                className="admin-dispute-side-link"
+              >
+                Open peer moderation
               </Link>
             </section>
           ) : null}
@@ -298,13 +326,25 @@ export function AdminDisputeDetailView({
             <section className="admin-dispute-side-card">
               <h2 className="admin-dispute-side-title">Actions</h2>
               <div className="admin-dispute-side-actions">
-                <button
-                  type="button"
-                  className="admin-dispute-btn admin-dispute-btn--ghost"
-                  onClick={() => setVoteOpen(true)}
-                >
-                  Send to squadron vote
-                </button>
+                {dispute.canStartReview ? (
+                  <button
+                    type="button"
+                    className="admin-dispute-btn admin-dispute-btn--outline"
+                    disabled={submitting}
+                    onClick={() => void startReview()}
+                  >
+                    Start review
+                  </button>
+                ) : null}
+                {canRecommend && dispute.status !== "resolved" ? (
+                  <button
+                    type="button"
+                    className="admin-dispute-btn admin-dispute-btn--outline"
+                    onClick={() => setVoteOpen(true)}
+                  >
+                    {ballot ? "Open squadron vote" : "Send to squadron vote"}
+                  </button>
+                ) : null}
                 {canResolve && dispute.canResolve ? (
                   <button
                     type="button"
@@ -326,14 +366,16 @@ export function AdminDisputeDetailView({
 
       <AdminDisputeVoteModal
         open={voteOpen}
-        disputeLabel={formatDisputeDisplayId(dispute.id)}
+        disputeId={dispute.id}
+        disputeLabel={displayId}
+        startReview={dispute.status === "open"}
         onCancel={() => setVoteOpen(false)}
       />
 
       <AdminDisputeResolveModal
         open={resolveOpen}
         disputeId={dispute.id}
-        disputeLabel={formatDisputeDisplayId(dispute.id)}
+        disputeLabel={displayId}
         canResolve={dispute.canResolve}
         needsReview={dispute.status === "open"}
         onCancel={() => setResolveOpen(false)}

@@ -4,6 +4,50 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.57] — 2026-08-19
+
+### Added
+
+- Admin **Squadron Voting** (`/dashboard/admin/squadron-voting`) now matches Figma Peer Moderation (`808:32708`): metrics, client vs pilot vote cards, VIEW EVIDENCE / OVERRIDE / CLOSE EARLY. Send to squadron vote opens a real 48-hour ballot instead of a placeholder.
+
+### Changed
+
+- Admin dispute detail layout: compact case header (DSP id, parties, facts) with a stable two-column thread + actions sidebar.
+
+---
+
+## [0.27.56] — 2026-08-19
+
+### Fixed
+
+- Pilot **Submit Proposal** now opens the Terms popup on Submit Application (and on the off-platform billing acknowledgment) so the required confirm checkbox is in the modal, matching client post-project. Confirm & Submit proceeds from there.
+
+---
+
+## [0.27.55] — 2026-08-19
+
+### Fixed
+
+- Pilot **Submit Proposal** estimated delivery date now uses the same calendar date picker as client post-project (dd/mm/yyyy + popup calendar), instead of the native browser date input
+
+---
+
+## [0.27.54] — 2026-08-19
+
+### Fixed
+
+- Pilot **contract/booking detail** (`/dashboard/pilot/bookings/[id]`) now uses the same OPERATIONS header, gold cards, and action bar as Active Contracts / proposal detail instead of the old light PageHeader layout
+
+---
+
+## [0.27.53] — 2026-08-19
+
+### Fixed
+
+- Pilot **Messages** two-panel layout: conversation list/composer styles now apply (they were scoped only to the client shell), and the chat fills the remaining viewport under the OPERATIONS header instead of overflowing
+
+---
+
 ## [0.27.52] — 2026-08-19
 
 ### Added

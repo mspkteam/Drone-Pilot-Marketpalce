@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getSquadronBallotByDisputeId } from "@/lib/admin/squadron-voting";
 import { getDisputeForAdmin } from "@/lib/disputes/dispute";
 import { requireAdminModuleView } from "@/lib/auth/require-admin-permission";
 
@@ -26,5 +27,10 @@ export async function GET(_request: Request, context: RouteContext) {
     );
   }
 
-  return NextResponse.json({ dispute: result.dispute });
+  const squadronBallot = await getSquadronBallotByDisputeId(
+    result.dispute.id,
+    authResult.userId,
+  );
+
+  return NextResponse.json({ dispute: result.dispute, squadronBallot });
 }

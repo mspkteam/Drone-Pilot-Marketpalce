@@ -10,6 +10,7 @@ function homeCaptain(
     | "tierCode"
     | "wingTypeLabel"
     | "wingSortKey"
+    | "avatarUrl"
   > &
     Partial<
       Pick<
@@ -19,6 +20,7 @@ function homeCaptain(
         | "tierCode"
         | "wingTypeLabel"
         | "wingSortKey"
+        | "avatarUrl"
       >
     >,
 ): CaptainClubPilot {
@@ -29,6 +31,7 @@ function homeCaptain(
     tierCode: "A6_CAPTAIN",
     wingTypeLabel: "",
     wingSortKey: "~",
+    avatarUrl: null,
     ...partial,
   };
 }

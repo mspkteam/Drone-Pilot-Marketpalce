@@ -1,19 +1,15 @@
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { BookingDeliverySection } from "@/components/bookings/BookingDeliverySection";
-import { BookingDetailCard } from "@/components/bookings/BookingDetailCard";
-import { BookingPaymentSection } from "@/components/payments/BookingPaymentSection";
-import { BookingDisputeSection } from "@/components/disputes/BookingDisputeSection";
-import { BookingReviewSection } from "@/components/reviews/BookingReviewSection";
-import { PageHeader } from "@/components/layout/PageHeader";
+import { PilotBookingDetailView } from "@/components/dashboard/pilot/bookings/PilotBookingDetailView";
+import { DashboardPageLayout } from "@/components/dashboard";
 import { getBookingForPilot } from "@/lib/bookings/booking";
 import {
   getPilotProfileByUserId,
   isOnboardingComplete,
 } from "@/lib/pilot/profile";
+import "@/styles/pilot-booking-detail.css";
 
-export const metadata = { title: "Booking details" };
+export const metadata = { title: "Contract details" };
 
 type PageProps = {
   params: Promise<{ id: string }>;
@@ -38,39 +34,8 @@ export default async function PilotBookingDetailPage({ params }: PageProps) {
   }
 
   return (
-    <>
-      <PageHeader title="Booking" description={booking.job.title}>
-        <Link
-          href="/dashboard/pilot/contracts"
-          className="text-sm text-muted-foreground hover:text-foreground"
-        >
-          ← Active contracts
-        </Link>
-      </PageHeader>
-
-      <div className="mt-8 max-w-3xl space-y-6">
-        <BookingDetailCard
-          booking={booking}
-          actor="pilot"
-          apiBase="/api/pilot/bookings"
-        />
-        <BookingDeliverySection
-          bookingId={booking.id}
-          bookingStatus={booking.status}
-          actor="pilot"
-        />
-        <BookingPaymentSection
-          bookingId={booking.id}
-          bookingStatus={booking.status}
-          actor="pilot"
-        />
-        <BookingDisputeSection
-          bookingId={booking.id}
-          bookingStatus={booking.status}
-          actor="pilot"
-        />
-        <BookingReviewSection bookingId={booking.id} actor="pilot" />
-      </div>
-    </>
+    <DashboardPageLayout className="pilot-booking-shell">
+      <PilotBookingDetailView booking={booking} />
+    </DashboardPageLayout>
   );
 }

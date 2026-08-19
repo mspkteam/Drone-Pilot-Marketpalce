@@ -12,9 +12,15 @@ import "@/styles/admin-disputes.css";
 
 export const metadata = { title: "Dispute details" };
 
-type PageProps = { params: Promise<{ id: string }> };
+type PageProps = {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ resolve?: string }>;
+};
 
-export default async function AdminDisputeDetailPage({ params }: PageProps) {
+export default async function AdminDisputeDetailPage({
+  params,
+  searchParams,
+}: PageProps) {
   const session = await auth();
   const role = session?.user?.role as UserRole | undefined;
   if (!session?.user?.id || !role || !isAdminRole(role)) {
@@ -22,6 +28,7 @@ export default async function AdminDisputeDetailPage({ params }: PageProps) {
   }
 
   const { id } = await params;
+  const query = await searchParams;
   const result = await getDisputeForAdmin(id, {
     userId: session.user.id,
     role,
@@ -42,6 +49,7 @@ export default async function AdminDisputeDetailPage({ params }: PageProps) {
         initialDispute={result.dispute}
         conversationId={conversationId}
         viewerRole={role}
+        openResolveOnLoad={query.resolve === "1"}
       />
     </DashboardPageLayout>
   );

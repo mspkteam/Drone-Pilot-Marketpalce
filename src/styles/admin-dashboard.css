@@ -173,8 +173,7 @@
 .admin-cms-hero-title,
 .admin-config-hero-title,
 .admin-verifications-hero-title,
-.admin-regions-hero-title,
-.admin-squadron-hero-title {
+.admin-regions-hero-title {
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }

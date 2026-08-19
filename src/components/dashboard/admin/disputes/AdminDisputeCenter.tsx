@@ -302,7 +302,9 @@ export function AdminDisputeCenter({
 
       <AdminDisputeVoteModal
         open={modal.type === "vote"}
+        disputeId={modal.type === "vote" ? modal.row.id : ""}
         disputeLabel={modal.type === "vote" ? modal.row.disputeId : ""}
+        startReview={modal.type === "vote" ? modal.row.status === "open" : false}
         onCancel={() => setModal({ type: "none" })}
       />
 

@@ -383,6 +383,24 @@
   cursor: not-allowed;
 }
 
+.profile-onboarding-portfolio {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.profile-onboarding-portfolio .profile-onboarding-section-title {
+  margin: 0;
+}
+
+.profile-onboarding-portfolio-copy {
+  margin: 0;
+  max-width: 38rem;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
 .profile-onboarding-portfolio-grid {
   display: grid;
   gap: 0.75rem;
@@ -398,12 +416,14 @@
 .profile-onboarding-portfolio-slot {
   position: relative;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 0.35rem;
   aspect-ratio: 1;
   overflow: hidden;
   border: 1px solid var(--dashboard-card-border);
-  border-radius: 0.375rem;
+  border-radius: 0.5rem;
   background: var(--color-bg-deeper);
   color: var(--color-text-soft);
   text-decoration: none;
@@ -416,16 +436,24 @@
   right: 0;
   bottom: 0;
   left: 0;
-  padding: 0.35rem 0.45rem;
-  background: linear-gradient(transparent, rgba(0, 0, 0, 0.72));
+  padding: 0.45rem 0.5rem;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.78));
   color: var(--color-text);
-  font-size: 0.625rem;
-  line-height: 1.2;
+  font-size: 0.6875rem;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .profile-onboarding-gallery-link {
   color: var(--color-gold);
   font-weight: 600;
+  text-decoration: none;
+}
+
+.profile-onboarding-gallery-link:hover {
+  color: var(--color-gold-soft);
 }
 
 .profile-onboarding-portfolio-slot:hover {
@@ -444,6 +472,55 @@
   font-size: 1.75rem;
   font-weight: 300;
   line-height: 1;
+}
+
+.profile-onboarding-portfolio-add-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.profile-onboarding-portfolio-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 8.5rem;
+  padding: 1.25rem 1rem;
+  border: 1px dashed rgba(244, 241, 234, 0.22);
+  border-radius: 0.5rem;
+  background: var(--color-bg-deeper);
+  text-decoration: none;
+  text-align: center;
+}
+
+.profile-onboarding-portfolio-empty:hover {
+  border-color: rgba(216, 179, 57, 0.4);
+}
+
+.profile-onboarding-portfolio-empty-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.profile-onboarding-portfolio-empty-cta {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-gold);
+}
+
+.profile-onboarding-portfolio-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
 }
 
 .profile-onboarding-sidebar-stack {

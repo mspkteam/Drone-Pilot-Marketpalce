@@ -49,6 +49,7 @@ describe("client dashboard overview", () => {
       hourlyRateMax: 160,
       averageRating: 4.6,
       reviewCount: 8,
+      avatarUrl: null,
     };
 
     const mapped = mapPublicPilotToRecommended(pilot);

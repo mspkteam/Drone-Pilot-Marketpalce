@@ -92,70 +92,76 @@
 
 .pilot-proposals-tabs-wrap {
   width: 100%;
-  border-bottom: 1px solid rgba(49, 45, 40, 0.36);
+  min-width: 0;
 }
 
 .pilot-proposals-tabs {
   display: flex;
-  flex-wrap: nowrap;
-  align-items: flex-start;
+  flex-wrap: wrap;
+  align-items: center;
   gap: 0.5rem;
   width: 100%;
-  padding-bottom: 5px;
-  overflow-x: auto;
-  overflow-y: hidden;
-  scrollbar-width: none;
-}
-
-.pilot-proposals-tabs::-webkit-scrollbar {
-  display: none;
 }
 
 .pilot-proposals-tab {
   appearance: none;
-  position: relative;
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  flex: 0 0 auto;
+  gap: 0.4rem;
   margin: 0;
-  border: none;
-  border-radius: 10px 10px 0 0;
-  background: transparent;
+  border: 1px solid rgba(244, 241, 234, 0.14);
+  border-radius: 999px;
+  background: rgba(244, 241, 234, 0.03);
   box-shadow: none;
-  padding: 8px 12px;
+  padding: 0.4rem 0.75rem 0.4rem 0.85rem;
   font-family: inherit;
-  font-size: 14px;
+  font-size: 0.8125rem;
   font-weight: 600;
-  line-height: 20px;
+  line-height: 1.2;
   letter-spacing: 0;
-  color: #a49d94;
+  color: var(--color-text-soft);
   white-space: nowrap;
   cursor: pointer;
   outline: none;
-  transition: color 0.15s ease;
+  transition: color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
 }
 
 .pilot-proposals-tab:hover {
   color: var(--color-text);
+  border-color: rgba(216, 179, 57, 0.35);
 }
 
 .pilot-proposals-tab:focus-visible {
   color: var(--color-gold);
+  border-color: var(--color-gold);
 }
 
 .pilot-proposals-tab--active {
-  color: var(--color-gold);
+  color: var(--color-cta-dark);
+  background: var(--color-gold);
+  border-color: var(--color-gold);
 }
 
-.pilot-proposals-tab--active::after {
-  content: "";
-  position: absolute;
-  left: 12px;
-  right: 12px;
-  bottom: -5px;
-  height: 2px;
-  background: var(--color-gold);
+.pilot-proposals-tab--active:hover {
+  color: var(--color-cta-dark);
+}
+
+.pilot-proposals-tab-count {
+  display: inline-flex;
+  min-width: 1.25rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.22);
+  padding: 0.1rem 0.4rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.pilot-proposals-tab--active .pilot-proposals-tab-count {
+  background: rgba(17, 12, 9, 0.18);
+  color: var(--color-cta-dark);
 }
 
 .pilot-proposals-table-wrap {
@@ -309,10 +315,15 @@
 .pilot-proposals-empty-link {
   display: inline-block;
   margin-top: 0.75rem;
+  padding: 0;
+  border: none;
+  background: none;
+  font-family: inherit;
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--color-gold);
   text-decoration: none;
+  cursor: pointer;
 }
 
 .pilot-proposals-empty-link:hover {

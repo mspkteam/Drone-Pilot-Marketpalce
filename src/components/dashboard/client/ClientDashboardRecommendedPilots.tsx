@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { UserAvatar } from "@/components/ui/UserAvatar";
 import {
   AppIcon,
   ArrowUpRight,
@@ -52,9 +53,11 @@ export function ClientDashboardRecommendedPilots({
             <article key={pilot.id} className="client-dashboard-pilot-card">
               <div className="client-dashboard-pilot-top">
                 <div className="client-dashboard-pilot-identity">
-                  <span className="client-dashboard-pilot-avatar" aria-hidden>
-                    {pilot.initials}
-                  </span>
+                  <UserAvatar
+                    className="client-dashboard-pilot-avatar"
+                    src={pilot.avatarUrl}
+                    initials={pilot.initials}
+                  />
                   <div className="client-dashboard-pilot-nameblock">
                     <p className="client-dashboard-pilot-name">{pilot.name}</p>
                     <p className="client-dashboard-pilot-location">{pilot.location}</p>

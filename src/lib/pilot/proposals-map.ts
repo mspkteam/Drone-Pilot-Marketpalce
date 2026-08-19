@@ -7,6 +7,8 @@ export type PilotProposalUiStatus =
   | "REJECTED"
   | "WITHDRAWN";
 
+export type PilotProposalTabId = "ALL" | PilotProposalUiStatus;
+
 export type PilotProposalRow = {
   id: string;
   displayId: string;
@@ -19,13 +21,31 @@ export type PilotProposalRow = {
   viewHref: string;
 };
 
-export const PILOT_PROPOSAL_TAB_ORDER: readonly PilotProposalUiStatus[] = [
+export const PILOT_PROPOSAL_TAB_ORDER: readonly PilotProposalTabId[] = [
+  "ALL",
   "PENDING",
   "REVISED",
   "ACCEPTED",
   "REJECTED",
   "WITHDRAWN",
 ] as const;
+
+const TAB_LABELS: Record<PilotProposalTabId, string> = {
+  ALL: "All",
+  PENDING: "Pending",
+  REVISED: "Revised",
+  ACCEPTED: "Accepted",
+  REJECTED: "Rejected",
+  WITHDRAWN: "Withdrawn",
+};
+
+export function proposalTabLabel(tab: PilotProposalTabId): string {
+  return TAB_LABELS[tab];
+}
+
+export function isProposalTabId(value: string | null | undefined): value is PilotProposalTabId {
+  return Boolean(value && (PILOT_PROPOSAL_TAB_ORDER as readonly string[]).includes(value));
+}
 
 export function mapApplicationStatusToUi(
   status: ApplicationStatus,
@@ -101,12 +121,25 @@ export function mapApplicationToProposalRow(
 
 export function countProposalsByStatus(
   rows: PilotProposalRow[],
-): Record<PilotProposalUiStatus, number> {
-  return PILOT_PROPOSAL_TAB_ORDER.reduce(
-    (acc, status) => {
-      acc[status] = rows.filter((row) => row.status === status).length;
-      return acc;
-    },
-    {} as Record<PilotProposalUiStatus, number>,
-  );
+): Record<PilotProposalTabId, number> {
+  const counts: Record<PilotProposalTabId, number> = {
+    ALL: rows.length,
+    PENDING: 0,
+    REVISED: 0,
+    ACCEPTED: 0,
+    REJECTED: 0,
+    WITHDRAWN: 0,
+  };
+  for (const row of rows) {
+    counts[row.status] += 1;
+  }
+  return counts;
+}
+
+export function filterProposalsByTab(
+  rows: readonly PilotProposalRow[],
+  tab: PilotProposalTabId,
+): PilotProposalRow[] {
+  if (tab === "ALL") return [...rows];
+  return rows.filter((row) => row.status === tab);
 }

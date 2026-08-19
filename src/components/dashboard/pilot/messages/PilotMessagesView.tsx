@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { UserAvatar } from "@/components/ui/UserAvatar";
 import {
   formatBubbleTime,
   formatConversationTime,
@@ -234,9 +235,11 @@ export function PilotMessagesView({
                 className={`client-messages-list-item${selectedId === item.id ? " client-messages-list-item--active" : ""}`}
                 onClick={() => selectConversation(item.id)}
               >
-                <span className="client-messages-avatar" aria-hidden>
-                  {initialsFromName(item.counterpartName)}
-                </span>
+                <UserAvatar
+                  className="client-messages-avatar"
+                  src={item.counterpartAvatarUrl}
+                  initials={initialsFromName(item.counterpartName)}
+                />
                 <span className="client-messages-list-copy">
                   <span className="client-messages-list-row">
                     <span className="client-messages-list-name">
@@ -270,9 +273,11 @@ export function PilotMessagesView({
           </button>
 
           <div className="client-messages-chat-header-main">
-            <span className="client-messages-avatar client-messages-avatar--header" aria-hidden>
-              {headerInitials}
-            </span>
+            <UserAvatar
+              className="client-messages-avatar client-messages-avatar--header"
+              src={selectedApi?.counterpartAvatarUrl}
+              initials={headerInitials}
+            />
             <div>
               <p className="client-messages-chat-name">{headerName}</p>
               {headerContext ? (

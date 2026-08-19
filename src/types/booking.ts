@@ -64,6 +64,7 @@ export type ClientJobApplicationDto = {
     reviewCount?: number;
     completedBookings?: number;
     verified?: boolean;
+    avatarUrl?: string | null;
   };
   shortlistedAt?: string | null;
 };

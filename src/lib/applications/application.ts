@@ -12,6 +12,7 @@ import {
 } from "@/lib/membership/membership";
 import { prisma } from "@/lib/db";
 import { parseJobPostProjectMetadata } from "@/lib/jobs/post-project-metadata";
+import { parseClientProfilePreferences } from "@/lib/client/preferences";
 import {
   postProjectPriorityLabel,
   postProjectQuoteTypeLabel,
@@ -119,10 +120,23 @@ function filterOpenJob(
   return true;
 }
 
+function clientAvatarUrl(
+  profile:
+    | { preferencesJson?: string | null }
+    | undefined,
+): string | null {
+  if (!profile?.preferencesJson) return null;
+  return parseClientProfilePreferences(profile.preferencesJson).logoPath ?? null;
+}
+
 function mapJobToOpenDto(
   job: Job & {
     applications: { id: string }[];
-    clientProfile?: { companyName: string | null; contactName: string };
+    clientProfile?: {
+      companyName: string | null;
+      contactName: string;
+      preferencesJson?: string | null;
+    };
   },
   visibleAt: Date,
   canApply: boolean,
@@ -151,6 +165,7 @@ function mapJobToOpenDto(
     hasApplied: job.applications.length > 0,
     applicationId: job.applications[0]?.id ?? null,
     clientDisplayName: clientDisplayName(job.clientProfile),
+    clientAvatarUrl: clientAvatarUrl(job.clientProfile),
     postProject: mapPostProjectSummary(job.postProjectJson),
   };
 }
@@ -249,7 +264,7 @@ export async function getOpenJobForPilot(
     where: { id: jobId, status: { in: ["open", "in_bidding"] } },
     include: {
       clientProfile: {
-        select: { companyName: true, contactName: true },
+        select: { companyName: true, contactName: true, preferencesJson: true },
       },
       applications: {
         where: { pilotProfileId },

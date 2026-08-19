@@ -7,6 +7,7 @@ import {
   portfolioStrengthLabel,
   portfolioStrengthStatus,
   serializePortfolioJson,
+  updatePortfolioItem,
 } from "./portfolio";
 
 describe("portfolio", () => {
@@ -25,6 +26,27 @@ describe("portfolio", () => {
     const parsed = parsePortfolioJson(raw);
     assert.equal(parsed.length, 1);
     assert.equal(parsed[0]!.title, "Tower scan");
+  });
+
+  it("updates an existing item without changing its id", () => {
+    const item = createPortfolioItem({
+      type: "VIDEO",
+      title: "Tower scan",
+      tags: ["INSPECTION"],
+      thumbnailUrl: null,
+    });
+    const updated = updatePortfolioItem(item, {
+      type: "PHOTOSET",
+      title: "Tower stills",
+      tags: ["THERMAL"],
+      thumbnailUrl: "/preview.jpg",
+      description: "Updated set",
+    });
+    assert.equal(updated.id, item.id);
+    assert.equal(updated.createdAt, item.createdAt);
+    assert.equal(updated.title, "Tower stills");
+    assert.equal(updated.type, "PHOTOSET");
+    assert.equal(updated.thumbnailUrl, "/preview.jpg");
   });
 
   it("computes portfolio strength", () => {

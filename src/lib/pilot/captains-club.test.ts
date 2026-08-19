@@ -12,6 +12,7 @@ function sampleCaptain(overrides: Partial<CaptainClubPilot> = {}): CaptainClubPi
   return {
     id: "captain-1",
     initials: "AM",
+    avatarUrl: null,
     name: "Alex Morgan",
     lastName: "Morgan",
     memberNumber: "001000",

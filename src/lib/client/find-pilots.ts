@@ -18,6 +18,7 @@ export const FIND_PILOT_FILTER_CHIPS: readonly FindPilotFilterChip[] = [
 export type ClientFindPilot = {
   id: string;
   initials: string;
+  avatarUrl: string | null;
   name: string;
   location: string;
   rating: string;
@@ -60,6 +61,7 @@ export function mapPublicPilotToFindPilot(
   return {
     id: pilot.id,
     initials: initialsFromName(pilot.displayName),
+    avatarUrl: pilot.avatarUrl,
     name: pilot.displayName,
     location,
     rating: pilot.averageRating != null ? pilot.averageRating.toFixed(1) : "New",

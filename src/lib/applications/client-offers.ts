@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { toApplicationDto } from "@/lib/applications/application";
+import { parseProfileExtrasJson } from "@/lib/pilot/profile-extras";
 import { averageRating } from "@/lib/reviews/review";
 import type { ClientJobApplicationDto } from "@/types/booking";
 import { jobAcceptsApplications } from "@/lib/bookings/status";
@@ -47,6 +48,7 @@ export async function listApplicationsForClientJob(
           locationCity: true,
           locationRegion: true,
           status: true,
+          profileExtrasJson: true,
         },
       },
     },
@@ -63,11 +65,16 @@ export async function listApplicationsForClientJob(
     ...toApplicationDto(app),
     shortlistedAt: app.shortlistedAt?.toISOString() ?? null,
     pilot: {
-      ...app.pilotProfile,
+      id: app.pilotProfile.id,
+      displayName: app.pilotProfile.displayName,
+      locationCity: app.pilotProfile.locationCity,
+      locationRegion: app.pilotProfile.locationRegion,
       averageRating: reviewStats.get(app.pilotProfileId)?.average ?? null,
       reviewCount: reviewStats.get(app.pilotProfileId)?.count ?? 0,
       completedBookings: completedCounts.get(app.pilotProfileId) ?? 0,
       verified: app.pilotProfile.status === "approved",
+      avatarUrl: parseProfileExtrasJson(app.pilotProfile.profileExtrasJson)
+        .avatarUrl,
     },
   }));
 

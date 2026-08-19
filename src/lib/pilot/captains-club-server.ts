@@ -15,6 +15,7 @@ import {
 } from "@/lib/pilot/captains-club";
 import { averageRating } from "@/lib/reviews/review";
 import { parseServicesOffered } from "@/lib/pilot/profile";
+import { parseProfileExtrasJson } from "@/lib/pilot/profile-extras";
 import { PILOT_SERVICE_OPTIONS, type PilotServiceId } from "@/types/pilot";
 import type { CaptainClubPilot, CaptainClubStats } from "@/types/captains-club";
 import { BADGE_RARITY_RANK } from "@/types/admin-badges";
@@ -184,6 +185,7 @@ export async function listCaptainsClubPilots(): Promise<CaptainClubPilot[]> {
     return {
       id: pilot.id,
       initials: initialsFromName(pilot.displayName),
+      avatarUrl: parseProfileExtrasJson(pilot.profileExtrasJson).avatarUrl,
       name: pilot.displayName,
       lastName: lastNameFromDisplayName(pilot.displayName),
       memberNumber: pilot.user.memberNumber

@@ -312,6 +312,7 @@
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
   border-radius: 999px;
   background: linear-gradient(135deg, var(--color-gold) 0%, var(--color-gold-soft) 100%);
   font-size: 1rem;

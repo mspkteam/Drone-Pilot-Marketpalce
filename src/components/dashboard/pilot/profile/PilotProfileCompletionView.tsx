@@ -555,43 +555,67 @@ export function PilotProfileCompletionView({
             </div>
           </section>
 
-          <section className="profile-onboarding-section">
+          <section className="profile-onboarding-section profile-onboarding-portfolio">
             <h2 className="profile-onboarding-section-title">PORTFOLIO</h2>
-            <p className="profile-onboarding-section-copy">
+            <p className="profile-onboarding-portfolio-copy">
               Items come from your Flight Gallery. Add photos and video there to
               show them here and on your public profile.
             </p>
-            <div className="profile-onboarding-portfolio-grid">
-              {portfolioItems.slice(0, 3).map((item) => (
-                <Link
-                  key={item.id}
-                  href="/dashboard/pilot/portfolio"
-                  className="profile-onboarding-portfolio-slot"
-                >
-                  {item.thumbnailUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={item.thumbnailUrl} alt={item.title} />
-                  ) : (
-                    <DroneIcon />
-                  )}
-                  <span className="profile-onboarding-portfolio-caption">{item.title}</span>
-                </Link>
-              ))}
+            {portfolioItems.length === 0 ? (
               <Link
                 href="/dashboard/pilot/portfolio"
-                className="profile-onboarding-portfolio-slot"
+                className="profile-onboarding-portfolio-empty"
               >
                 <span className="profile-onboarding-portfolio-add">+</span>
+                <span className="profile-onboarding-portfolio-empty-title">
+                  No gallery items yet
+                </span>
+                <span className="profile-onboarding-portfolio-empty-cta">
+                  Open Flight Gallery →
+                </span>
               </Link>
-            </div>
-            <p className="profile-onboarding-section-copy">
-              <Link href="/dashboard/pilot/portfolio" className="profile-onboarding-gallery-link">
-                Open Flight Gallery →
-              </Link>
-              {portfolioItems.length > 0
-                ? ` ${portfolioItems.length} item${portfolioItems.length === 1 ? "" : "s"} live`
-                : " No gallery items yet"}
-            </p>
+            ) : (
+              <>
+                <div className="profile-onboarding-portfolio-grid">
+                  {portfolioItems.slice(0, 3).map((item) => (
+                    <Link
+                      key={item.id}
+                      href="/dashboard/pilot/portfolio"
+                      className="profile-onboarding-portfolio-slot"
+                    >
+                      {item.thumbnailUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={item.thumbnailUrl} alt={item.title} />
+                      ) : (
+                        <DroneIcon />
+                      )}
+                      <span className="profile-onboarding-portfolio-caption">
+                        {item.title}
+                      </span>
+                    </Link>
+                  ))}
+                  <Link
+                    href="/dashboard/pilot/portfolio"
+                    className="profile-onboarding-portfolio-slot profile-onboarding-portfolio-slot--add"
+                  >
+                    <span className="profile-onboarding-portfolio-add">+</span>
+                    <span className="profile-onboarding-portfolio-add-label">Add</span>
+                  </Link>
+                </div>
+                <div className="profile-onboarding-portfolio-footer">
+                  <span>
+                    {portfolioItems.length} item
+                    {portfolioItems.length === 1 ? "" : "s"} live
+                  </span>
+                  <Link
+                    href="/dashboard/pilot/portfolio"
+                    className="profile-onboarding-gallery-link"
+                  >
+                    Open Flight Gallery →
+                  </Link>
+                </div>
+              </>
+            )}
           </section>
 
           <section className="profile-onboarding-section">

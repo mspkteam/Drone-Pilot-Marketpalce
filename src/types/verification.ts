@@ -46,5 +46,6 @@ export type AdminVerificationDto = VerificationDto & {
     locationCity: string | null;
     locationRegion: string | null;
     locationCountry: string | null;
+    avatarUrl: string | null;
   };
 };

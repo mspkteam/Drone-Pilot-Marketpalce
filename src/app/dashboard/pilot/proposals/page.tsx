@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { PilotMyProposalsView } from "@/components/dashboard/pilot/proposals/PilotMyProposalsView";
@@ -52,7 +53,11 @@ export default async function PilotProposalsPage({ searchParams }: PageProps) {
         </DashboardStatusBanner>
       ) : null}
 
-      {approved ? <PilotMyProposalsView /> : null}
+      {approved ? (
+        <Suspense fallback={<p className="pilot-proposals-muted">Loading proposals…</p>}>
+          <PilotMyProposalsView />
+        </Suspense>
+      ) : null}
     </DashboardPageLayout>
   );
 }

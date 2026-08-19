@@ -4,11 +4,14 @@ import { useEffect, useRef, useState } from "react";
 import {
   parsePortfolioTags,
   type PilotPortfolioDraft,
+  type PilotPortfolioItem,
   type PilotPortfolioMediaType,
 } from "@/lib/pilot/portfolio";
 
 type PilotPortfolioAddModalProps = {
   open: boolean;
+  item?: PilotPortfolioItem | null;
+  saving?: boolean;
   onClose: () => void;
   onSave: (draft: PilotPortfolioDraft) => void;
 };
@@ -23,48 +26,98 @@ const EMPTY_DRAFT: PilotPortfolioDraft = {
 
 export function PilotPortfolioAddModal({
   open,
+  item = null,
+  saving = false,
   onClose,
   onSave,
 }: PilotPortfolioAddModalProps) {
   const fileRef = useRef<HTMLInputElement>(null);
+  const blobUrlRef = useRef<string | null>(null);
   const [draft, setDraft] = useState<PilotPortfolioDraft>(EMPTY_DRAFT);
   const [tagsInput, setTagsInput] = useState("");
+  const isEdit = Boolean(item);
 
   useEffect(() => {
     if (!open) {
+      if (blobUrlRef.current) {
+        URL.revokeObjectURL(blobUrlRef.current);
+        blobUrlRef.current = null;
+      }
       setDraft(EMPTY_DRAFT);
       setTagsInput("");
+      return;
     }
-  }, [open]);
+
+    if (item) {
+      setDraft({
+        title: item.title,
+        type: item.type,
+        tags: item.tags,
+        description: item.description ?? "",
+        thumbnailUrl: item.thumbnailUrl,
+      });
+      setTagsInput(item.tags.join(", "));
+      return;
+    }
+
+    setDraft(EMPTY_DRAFT);
+    setTagsInput("");
+  }, [open, item]);
+
+  useEffect(() => {
+    if (!open) return;
+
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape" && !saving) onClose();
+    }
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [open, saving, onClose]);
 
   if (!open) return null;
 
   function handleSave() {
     const title = draft.title.trim();
-    if (!title) return;
+    if (!title || saving) return;
 
     onSave({
       ...draft,
       title,
       tags: parsePortfolioTags(tagsInput),
     });
-    onClose();
+  }
+
+  function handleFileChange(file: File | undefined) {
+    if (!file) return;
+    if (blobUrlRef.current) URL.revokeObjectURL(blobUrlRef.current);
+    const nextUrl = URL.createObjectURL(file);
+    blobUrlRef.current = nextUrl;
+    setDraft((current) => ({ ...current, thumbnailUrl: nextUrl }));
   }
 
   return (
-    <div className="pilot-portfolio-modal-backdrop" role="presentation" onClick={onClose}>
+    <div
+      className="pilot-portfolio-modal-backdrop"
+      role="presentation"
+      onClick={() => {
+        if (!saving) onClose();
+      }}
+    >
       <div
         className="pilot-portfolio-modal"
         role="dialog"
         aria-modal="true"
         aria-labelledby="pilot-portfolio-modal-title"
-        onClick={(e) => e.stopPropagation()}
+        onClick={(event) => event.stopPropagation()}
       >
         <h2 id="pilot-portfolio-modal-title" className="pilot-portfolio-modal-title">
-          Add portfolio item
+          {isEdit ? "Edit portfolio item" : "Add portfolio item"}
         </h2>
         <p className="pilot-portfolio-modal-sub">
-          Saved locally for now — upload and persistence pending backend (M109).
+          {isEdit
+            ? "Update the title, type, tags, or preview. Changes appear on your public profile."
+            : "Add a flight gallery item. It appears on your profile and public listing."}
         </p>
 
         <div className="pilot-portfolio-modal-fields">
@@ -75,6 +128,7 @@ export function PilotPortfolioAddModal({
               value={draft.title}
               onChange={(e) => setDraft((d) => ({ ...d, title: e.target.value }))}
               placeholder="Alpine Tower Inspection"
+              autoFocus
             />
           </label>
 
@@ -116,42 +170,57 @@ export function PilotPortfolioAddModal({
           </label>
 
           <div className="pilot-portfolio-field">
-            <span className="pilot-portfolio-label">Media</span>
+            <span className="pilot-portfolio-label">Preview image</span>
+            {draft.thumbnailUrl ? (
+              <div className="pilot-portfolio-modal-preview">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={draft.thumbnailUrl} alt="" />
+                <button
+                  type="button"
+                  className="pilot-portfolio-btn-ghost"
+                  onClick={() =>
+                    setDraft((current) => ({ ...current, thumbnailUrl: null }))
+                  }
+                  disabled={saving}
+                >
+                  Remove preview
+                </button>
+              </div>
+            ) : null}
             <button
               type="button"
               className="pilot-portfolio-upload-placeholder"
               onClick={() => fileRef.current?.click()}
+              disabled={saving}
             >
               {draft.thumbnailUrl ? "Change preview image" : "Choose image preview"}
             </button>
             <input
               ref={fileRef}
               type="file"
-              accept="image/*,video/*"
+              accept="image/*"
               className="pilot-portfolio-hidden-input"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (!file) return;
-                setDraft((d) => ({
-                  ...d,
-                  thumbnailUrl: URL.createObjectURL(file),
-                }));
-              }}
+              onChange={(e) => handleFileChange(e.target.files?.[0])}
             />
           </div>
         </div>
 
         <div className="pilot-portfolio-modal-actions">
-          <button type="button" className="pilot-portfolio-btn-outline" onClick={onClose}>
+          <button
+            type="button"
+            className="pilot-portfolio-btn-outline"
+            onClick={onClose}
+            disabled={saving}
+          >
             Cancel
           </button>
           <button
             type="button"
             className="pilot-portfolio-btn-gold"
             onClick={handleSave}
-            disabled={!draft.title.trim()}
+            disabled={!draft.title.trim() || saving}
           >
-            Save Item
+            {saving ? "Saving…" : isEdit ? "Save changes" : "Save item"}
           </button>
         </div>
       </div>

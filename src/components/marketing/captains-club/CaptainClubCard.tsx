@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { UserAvatar } from "@/components/ui/UserAvatar";
 import { getCaptainBadgeLabel } from "@/lib/pilot/captains-club";
 import { isPublicPilotProfileEnabled } from "@/lib/public-access";
 import type { CaptainClubPilot } from "@/types/captains-club";
@@ -13,9 +14,11 @@ export function CaptainClubCard({ captain }: CaptainClubCardProps) {
   return (
     <article className="captains-club-card">
       <div className="captains-club-card-head">
-        <span className="captains-club-card-avatar" aria-hidden>
-          {captain.initials}
-        </span>
+        <UserAvatar
+          className="captains-club-card-avatar"
+          src={captain.avatarUrl}
+          initials={captain.initials}
+        />
         <div className="captains-club-card-meta">
           <h3 className="captains-club-card-name">{captain.name}</h3>
           <p className="captains-club-card-location">

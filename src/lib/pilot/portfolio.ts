@@ -74,6 +74,20 @@ export function createPortfolioItem(draft: PilotPortfolioDraft): PilotPortfolioI
   };
 }
 
+export function updatePortfolioItem(
+  existing: PilotPortfolioItem,
+  draft: PilotPortfolioDraft,
+): PilotPortfolioItem {
+  return {
+    ...existing,
+    type: draft.type,
+    title: draft.title.trim(),
+    tags: draft.tags.length > 0 ? draft.tags : ["PORTFOLIO"],
+    thumbnailUrl: draft.thumbnailUrl,
+    description: draft.description?.trim() || undefined,
+  };
+}
+
 export function portfolioStrengthStatus(
   count: number,
   target = PILOT_PORTFOLIO_TARGET_COUNT,

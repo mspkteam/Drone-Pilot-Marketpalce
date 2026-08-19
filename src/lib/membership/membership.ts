@@ -214,7 +214,7 @@ export async function getVisibleJobsForPilot(
     orderBy: { approvedAt: "desc" },
     include: {
       clientProfile: {
-        select: { companyName: true, contactName: true },
+        select: { companyName: true, contactName: true, preferencesJson: true },
       },
       applications: {
         where: { pilotProfileId },

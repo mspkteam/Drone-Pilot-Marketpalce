@@ -50,12 +50,28 @@ Optional: set `AUTH_URL` to your exact Vercel URL (e.g. `https://your-app.vercel
 
 ## Demo logins (after seed)
 
-| Role | Email | Password |
-|------|-------|----------|
-| Super Admin | `admin@dronepilot.local` | `Demo123!` |
-| Moderator | `moderator@dronepilot.local` | `Demo123!` |
-| Pilot | `pilot@dronepilot.local` | `Demo123!` |
-| Client | `client@dronepilot.local` | `Demo123!` |
+Password for **every** seeded account: `Demo123!`
+
+| Role | Email | What to test |
+|------|-------|----------------|
+| Super Admin | `admin@dronepilot.local` | Approvals, verifications, disputes, personnel |
+| Admin | `ops@dronepilot.local` | Same operational admin tools |
+| Moderator | `moderator@dronepilot.local` | Moderation |
+| Client (primary) | `client@dronepilot.local` | Projects, bids, chat, contracts, dispute |
+| Client (second) | `client-media@dronepilot.local` | Extra pending job in admin queue |
+| Pilot A-6 Captain | `pilot@dronepilot.local` | Full marketplace: proposals, contract, messages, payouts, reviews |
+| Pilot A-1 … A-7 | `pilot-a1@` … `pilot-a7@dronepilot.local` | Grade visibility delays + Captain’s Club (A-6/A-7) |
+| Instructor A-4 | `pilot-a4@dronepilot.local` | Instructor add-on + student code `INSTRUCTOR-A4DEMO` |
+| Pending pilot | `pending-pilot@dronepilot.local` | Admin profile approval queue |
+
+### Suggested client walkthrough
+
+1. **Admin** — job queue (`Aerial survey — downtown Austin`, `Oil pad inspection — Eagle Ford`), pending insurance verification, open bridge dispute.
+2. **Client** — My Projects: draft, pending, rejected, bidding, assigned, closed. Open **Ranch mapping** messages + delivery. Review bids on **Lake Travis** and **Domain** (shortlisted).
+3. **Captain** (`pilot@`) — Proposals: Pending, Revised (shortlisted), Accepted, Rejected, Withdrawn. Contracts + payments. Locked jobs: **Solar farm** (approved ~1h ago).
+4. **A-1** — marketplace: cannot bid; solar job still locked; **ACL Festival** visible (approved >48h).
+
+Seed is **idempotent** (upserts demo emails/jobs). It does **not** delete real users the client creates. Re-running seed on Vercel (every Production build) refreshes demo rows only.
 
 ## Known demo limitations
 

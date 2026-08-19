@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { UserAvatar } from "@/components/ui/UserAvatar";
 import type { PilotMissionCard as MissionCard } from "@/lib/pilot/marketplace-map";
 
 type PilotMissionCardProps = {
@@ -16,9 +17,11 @@ export function PilotMissionCardView({ mission }: PilotMissionCardProps) {
     <article className="pilot-marketplace-card">
       <div className="pilot-marketplace-card-body">
         <div className="pilot-marketplace-card-row">
-          <span className="pilot-marketplace-avatar" aria-hidden>
-            {mission.initials}
-          </span>
+          <UserAvatar
+            className="pilot-marketplace-avatar"
+            src={mission.avatarUrl}
+            initials={mission.initials}
+          />
 
           <div className="pilot-marketplace-card-main">
             <span className="pilot-marketplace-category">{mission.category}</span>

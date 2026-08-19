@@ -41,12 +41,12 @@ export type PublicPilotListItemDto = {
   hourlyRateMax: number | null;
   averageRating: number | null;
   reviewCount: number;
+  avatarUrl: string | null;
 };
 
 export type PublicPilotProfileDto = PublicPilotListItemDto & {
   serviceRadiusKm: number | null;
   callSign: string | null;
-  avatarUrl: string | null;
   mainDrones: string[];
   payloads: string[];
   portfolio: PilotPortfolioItem[];

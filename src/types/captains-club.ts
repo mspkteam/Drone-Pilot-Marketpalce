@@ -5,6 +5,7 @@ export type CaptainClubBadge = "captain" | "verified" | "certified" | "insured";
 export type CaptainClubPilot = {
   id: string;
   initials: string;
+  avatarUrl: string | null;
   name: string;
   /** Last token of displayName for last-name sorts. */
   lastName: string;

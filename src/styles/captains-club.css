@@ -283,6 +283,7 @@
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
   width: 4rem;
   height: 4rem;
   border-radius: 50%;

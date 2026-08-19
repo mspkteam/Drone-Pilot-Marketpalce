@@ -213,6 +213,7 @@
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
   border-radius: 50%;
   background: var(--color-gold-soft);
   font-size: 1rem;

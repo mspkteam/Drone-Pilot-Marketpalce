@@ -411,9 +411,18 @@ export function AdminVerificationPortal({
                     <div className="av-avatar-glow" aria-hidden />
                     <div className="av-avatar">
                       <div className="av-avatar-inner">
-                        <span className="av-avatar-initials">
-                          {initials(selected.pilot.displayName)}
-                        </span>
+                        {selected.pilot.avatarUrl ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={selected.pilot.avatarUrl}
+                            alt=""
+                            className="user-avatar-photo"
+                          />
+                        ) : (
+                          <span className="av-avatar-initials">
+                            {initials(selected.pilot.displayName)}
+                          </span>
+                        )}
                       </div>
                     </div>
                     <p className="av-avatar-name">{selected.pilot.displayName}</p>

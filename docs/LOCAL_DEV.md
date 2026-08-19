@@ -33,11 +33,18 @@ npm run db:seed
 
 ## Demo logins (after seed)
 
-| Role   | Email                    | Password  |
-|--------|--------------------------|-----------|
-| Client | `client@dronepilot.local` | `Demo123!` |
-| Pilot  | `pilot@dronepilot.local`  | `Demo123!` |
-| Admin  | `admin@dronepilot.local`  | `Demo123!` |
+Password for all seeded accounts: `Demo123!`
+
+| Role | Email |
+|------|-------|
+| Client | `client@dronepilot.local` |
+| Second client | `client-media@dronepilot.local` |
+| Captain (A-6) | `pilot@dronepilot.local` |
+| Grades A-1–A-7 | `pilot-a1@dronepilot.local` … `pilot-a7@dronepilot.local` |
+| Pending pilot | `pending-pilot@dronepilot.local` |
+| Admin | `admin@dronepilot.local` |
+
+Full walkthrough: [`DEMO_DEPLOY.md`](DEMO_DEPLOY.md).
 
 ## Useful commands
 

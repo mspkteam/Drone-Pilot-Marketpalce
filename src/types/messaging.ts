@@ -7,6 +7,7 @@ export type ConversationListItemDto = {
   pilotProfileId: string;
   clientProfileId: string;
   counterpartName: string;
+  counterpartAvatarUrl: string | null;
   lastMessagePreview: string | null;
   lastMessageAt: string | null;
   unreadCount: number;

@@ -56,6 +56,7 @@ function toListItem(
     servicesOffered: string;
     hourlyRateMin: number | null;
     hourlyRateMax: number | null;
+    profileExtrasJson?: string | null;
   },
   stats: { average: number | null; count: number },
 ): PublicPilotListItemDto {
@@ -71,6 +72,7 @@ function toListItem(
     hourlyRateMax: profile.hourlyRateMax,
     averageRating: stats.average,
     reviewCount: stats.count,
+    avatarUrl: parseProfileExtrasJson(profile.profileExtrasJson).avatarUrl,
   };
 }
 
@@ -157,7 +159,6 @@ export async function getPublicPilotById(
     ...toListItem(profile, stat),
     serviceRadiusKm: profile.serviceRadiusKm,
     callSign: extras.callSign.trim() || null,
-    avatarUrl: extras.avatarUrl,
     mainDrones: extras.mainDrones,
     payloads: extras.payloads,
     portfolio: parsePortfolioJson(profile.portfolioJson),

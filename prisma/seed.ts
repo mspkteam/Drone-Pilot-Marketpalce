@@ -14,6 +14,7 @@ import {
 import { buildPresetPermissions } from "../src/lib/auth/moderator-permissions";
 import { seedCmsContent } from "../src/lib/cms/cms-repository";
 import { CANONICAL_CERTIFICATE_TEMPLATES } from "../src/lib/admin/certificate-display";
+import { seedClientTestMarketplace } from "../src/lib/demo/seed-client-test-data";
 
 const prisma = createPrismaClient();
 
@@ -26,19 +27,6 @@ const users = [
   { email: "pilot@dronepilot.local", role: "pilot" },
   { email: "client@dronepilot.local", role: "client" },
 ];
-
-const SAMPLE_TIER_PILOTS = [
-  {
-    email: "pilot-a1@dronepilot.local",
-    displayName: "Demo A-1 Student",
-    tierCode: "A1_STUDENT",
-  },
-  {
-    email: "pilot-a2@dronepilot.local",
-    displayName: "Demo A-2 Junior",
-    tierCode: "A2_JUNIOR_FLIGHT_OFFICER",
-  },
-] as const;
 
 async function main() {
   const passwordHash = await hash(SEED_PASSWORD, 12);
@@ -214,94 +202,10 @@ async function main() {
     }
   }
 
-  for (const sample of SAMPLE_TIER_PILOTS) {
-    const record = await prisma.user.upsert({
-      where: { email: sample.email },
-      update: { passwordHash, role: "pilot", status: "active" },
-      create: {
-        email: sample.email,
-        passwordHash,
-        role: "pilot",
-        status: "active",
-      },
-    });
-    if (!record.memberNumber) {
-      const { assignMemberNumberToUser } = await import(
-        "@/lib/members/assign-member-number"
-      );
-      await assignMemberNumberToUser(record.id);
-    }
-    const now = new Date();
-    const profile = await prisma.pilotProfile.upsert({
-      where: { userId: record.id },
-      update: {
-        displayName: sample.displayName,
-        status: "approved",
-        complianceAcceptedAt: now,
-        onboardingCompletedAt: now,
-      },
-      create: {
-        userId: record.id,
-        displayName: sample.displayName,
-        licenseNumber: `DEMO-${sample.tierCode}`,
-        licenseCountry: "United States",
-        servicesOffered: JSON.stringify(["aerial_video"]),
-        status: "approved",
-        complianceAcceptedAt: now,
-        onboardingCompletedAt: now,
-      },
-    });
-    await enrollPilotInTierCode(prisma, profile.id, sample.tierCode);
-  }
-
-  const clientUser = await prisma.user.findUnique({
-    where: { email: "client@dronepilot.local" },
-    include: { clientProfile: true },
-  });
   const pilotUser = await prisma.user.findUnique({
     where: { email: "pilot@dronepilot.local" },
     include: { pilotProfile: true },
   });
-
-  if (clientUser?.clientProfile && pilotUser?.pilotProfile) {
-    const openJob = await prisma.job.findFirst({
-      where: {
-        clientProfileId: clientUser.clientProfile.id,
-        status: { in: ["open", "in_bidding"] },
-      },
-    });
-
-    if (openJob) {
-      const existingApp = await prisma.jobApplication.findUnique({
-        where: {
-          jobId_pilotProfileId: {
-            jobId: openJob.id,
-            pilotProfileId: pilotUser.pilotProfile.id,
-          },
-        },
-      });
-
-      if (!existingApp) {
-        await prisma.jobApplication.create({
-          data: {
-            jobId: openJob.id,
-            pilotProfileId: pilotUser.pilotProfile.id,
-            proposedAmount: 625,
-            currency: "USD",
-            message:
-              "Experienced real-estate aerials in Austin area. DJI Inspire 3 + dual operator.",
-            status: "submitted",
-          },
-        });
-        if (openJob.status === "open") {
-          await prisma.job.update({
-            where: { id: openJob.id },
-            data: { status: "in_bidding" },
-          });
-        }
-      }
-    }
-  }
 
   if (pilotUser?.pilotProfile) {
     await enrollPilotInTierCode(
@@ -350,6 +254,8 @@ async function main() {
       });
     }
   }
+
+  await seedClientTestMarketplace(prisma, passwordHash);
 
   const waitlistSeeds = [
     {
@@ -471,7 +377,19 @@ async function main() {
   await seedCmsContent();
 
   console.log("Seed complete. Demo password for all accounts:", SEED_PASSWORD);
-  console.log("Accounts:", users.map((u) => u.email).join(", "));
+  console.log(
+    "Staff:",
+    "admin@dronepilot.local, ops@dronepilot.local, moderator@dronepilot.local",
+  );
+  console.log(
+    "Primary test:",
+    "client@dronepilot.local, pilot@dronepilot.local (A-6 Captain)",
+  );
+  console.log(
+    "Grades:",
+    "pilot-a1@ … pilot-a7@dronepilot.local, pending-pilot@dronepilot.local",
+  );
+  console.log("Second client:", "client-media@dronepilot.local");
 }
 
 main()

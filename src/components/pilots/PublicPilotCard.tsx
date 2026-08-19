@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { UserAvatar } from "@/components/ui/UserAvatar";
 import { StarRating } from "@/components/reviews/StarRating";
 import {
   formatPilotLocation,
@@ -20,9 +21,22 @@ export function PublicPilotCard({ pilot }: { pilot: PublicPilotListItemDto }) {
   const content = (
     <>
       <div className="flex items-start justify-between gap-3">
-        <div>
-          <h2 className="text-lg font-semibold">{pilot.displayName}</h2>
-          <p className="mt-1 text-sm text-muted-foreground">{location}</p>
+        <div className="flex min-w-0 items-start gap-3">
+          <UserAvatar
+            className="client-find-pilots-avatar"
+            src={pilot.avatarUrl}
+            initials={pilot.displayName
+              .split(/\s+/)
+              .filter(Boolean)
+              .slice(0, 2)
+              .map((part) => part[0] ?? "")
+              .join("")
+              .toUpperCase() || "P"}
+          />
+          <div className="min-w-0">
+            <h2 className="text-lg font-semibold">{pilot.displayName}</h2>
+            <p className="mt-1 text-sm text-muted-foreground">{location}</p>
+          </div>
         </div>
         {pilot.reviewCount > 0 && pilot.averageRating != null ? (
           <div className="flex flex-col items-end gap-1">

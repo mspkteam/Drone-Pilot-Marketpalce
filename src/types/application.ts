@@ -48,6 +48,7 @@ export type PilotOpenJobDto = {
   hasApplied: boolean;
   applicationId: string | null;
   clientDisplayName: string;
+  clientAvatarUrl: string | null;
   postProject: {
     deliverables: string[];
     quoteTypeLabel: string;

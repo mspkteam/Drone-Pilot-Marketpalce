@@ -1,26 +1,37 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { PilotProposalStatusBadge } from "@/components/dashboard/pilot/proposals/PilotProposalStatusBadge";
 import {
   countProposalsByStatus,
+  filterProposalsByTab,
+  isProposalTabId,
   mapApplicationToProposalRow,
   PILOT_PROPOSAL_TAB_ORDER,
+  proposalTabLabel,
   type PilotProposalRow,
-  type PilotProposalUiStatus,
+  type PilotProposalTabId,
 } from "@/lib/pilot/proposals-map";
 import type { PilotApplicationListItemDto } from "@/types/application";
 
 const APPLICATIONS_API = "/api/pilot/applications" as const;
 
 export function PilotMyProposalsView() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const tabParam = searchParams.get("status");
+  const activeTab: PilotProposalTabId = isProposalTabId(tabParam)
+    ? tabParam
+    : "ALL";
+
   const [applications, setApplications] = useState<PilotApplicationListItemDto[]>(
     [],
   );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<PilotProposalUiStatus>("PENDING");
 
   useEffect(() => {
     fetch(APPLICATIONS_API)
@@ -48,9 +59,20 @@ export function PilotMyProposalsView() {
   const counts = useMemo(() => countProposalsByStatus(rows), [rows]);
 
   const filteredRows = useMemo(
-    () => rows.filter((row) => row.status === activeTab),
+    () => filterProposalsByTab(rows, activeTab),
     [rows, activeTab],
   );
+
+  function setActiveTab(tab: PilotProposalTabId) {
+    const params = new URLSearchParams(searchParams.toString());
+    if (tab === "ALL") {
+      params.delete("status");
+    } else {
+      params.set("status", tab);
+    }
+    const query = params.toString();
+    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+  }
 
   if (loading) {
     return <p className="pilot-proposals-muted">Loading proposals…</p>;
@@ -76,9 +98,8 @@ export function PilotMyProposalsView() {
       ) : null}
 
       <div className="pilot-proposals-tabs-wrap">
-        <div className="pilot-proposals-tabs" role="tablist" aria-label="Proposal status">
+        <div className="pilot-proposals-tabs" role="tablist" aria-label="Filter proposals by status">
           {PILOT_PROPOSAL_TAB_ORDER.map((status) => {
-            const label = status === "REVISED" ? "Revised" : status;
             const count = counts[status];
             const isActive = activeTab === status;
             return (
@@ -94,7 +115,8 @@ export function PilotMyProposalsView() {
                 }
                 onClick={() => setActiveTab(status)}
               >
-                {label} - {count}
+                <span>{proposalTabLabel(status)}</span>
+                <span className="pilot-proposals-tab-count">{count}</span>
               </button>
             );
           })}
@@ -103,14 +125,26 @@ export function PilotMyProposalsView() {
 
       {filteredRows.length === 0 ? (
         <div className="pilot-proposals-empty">
-          <h2 className="pilot-proposals-empty-title">No proposals found</h2>
+          <h2 className="pilot-proposals-empty-title">
+            {rows.length === 0 ? "No proposals yet" : "No proposals in this filter"}
+          </h2>
           <p className="pilot-proposals-muted">
-            Proposals with this status will appear here.
+            {rows.length === 0
+              ? "Submit a bid from the marketplace and it will show up here."
+              : `Nothing is marked ${proposalTabLabel(activeTab).toLowerCase()} yet. Try All to see every proposal.`}
           </p>
-          {activeTab === "PENDING" && rows.length === 0 ? (
+          {rows.length === 0 ? (
             <Link href="/dashboard/pilot/jobs" className="pilot-proposals-empty-link">
               Browse marketplace →
             </Link>
+          ) : activeTab !== "ALL" ? (
+            <button
+              type="button"
+              className="pilot-proposals-empty-link"
+              onClick={() => setActiveTab("ALL")}
+            >
+              Show all proposals
+            </button>
           ) : null}
         </div>
       ) : (

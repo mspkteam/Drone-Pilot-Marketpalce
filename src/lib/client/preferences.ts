@@ -125,6 +125,12 @@ export function normalizeClientProfilePreferencesInput(
   };
 }
 
+export function clientAvatarUrlFromPreferencesJson(
+  json: string | null | undefined,
+): string | null {
+  return parseClientProfilePreferences(json).logoPath ?? null;
+}
+
 function normalizeNotificationPreferences(
   input: Partial<ClientNotificationPreferences> | null | undefined,
 ): ClientNotificationPreferences | undefined {

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { UserAvatar } from "@/components/ui/UserAvatar";
 import {
   CLIENT_PROJECT_BIDS_ROUTES,
   formatDeliveryDays,
@@ -49,9 +50,11 @@ export function ClientProjectBidCard({
   return (
     <article className="client-project-bids-card">
       <div className="client-project-bids-card-pilot">
-        <span className="client-project-bids-avatar" aria-hidden>
-          {bid.initials}
-        </span>
+        <UserAvatar
+          className="client-project-bids-avatar"
+          src={bid.avatarUrl}
+          initials={bid.initials}
+        />
 
         <div className="client-project-bids-pilot-meta">
           <div className="client-project-bids-name-row">

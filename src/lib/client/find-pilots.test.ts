@@ -19,12 +19,14 @@ const samplePilotDto: PublicPilotListItemDto = {
   hourlyRateMax: 200,
   averageRating: 4.8,
   reviewCount: 12,
+  avatarUrl: null,
 };
 
 function samplePilot(overrides: Partial<ClientFindPilot> = {}): ClientFindPilot {
   return {
     id: "pilot-1",
     initials: "AR",
+    avatarUrl: null,
     name: "Alex Rivera",
     location: "Austin, TX",
     rating: "4.8",

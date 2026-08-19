@@ -12,6 +12,7 @@ import {
   getPilotProfileByUserId,
   isOnboardingComplete,
 } from "@/lib/pilot/profile";
+import { parseProfileExtrasJson } from "@/lib/pilot/profile-extras";
 
 export default async function PilotDashboardLayout({
   children,
@@ -33,6 +34,7 @@ export default async function PilotDashboardLayout({
       user = buildDashboardUser(session.user, {
         displayName: profile.displayName,
         roleSubtitle: "Pilot account",
+        avatarUrl: parseProfileExtrasJson(profile.profileExtrasJson).avatarUrl,
       });
 
       const membership =

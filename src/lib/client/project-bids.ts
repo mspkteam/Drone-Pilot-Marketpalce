@@ -24,6 +24,7 @@ export type ClientProjectBid = {
   jobId: string;
   pilotProfileId: string;
   initials: string;
+  avatarUrl: string | null;
   name: string;
   verified: boolean;
   reviewCount: number;
@@ -189,6 +190,7 @@ export function mapOfferToProjectBid(
     jobId: offer.jobId,
     pilotProfileId: offer.pilotProfileId,
     initials: initialsFromName(offer.pilot.displayName),
+    avatarUrl: offer.pilot.avatarUrl ?? null,
     name: offer.pilot.displayName,
     verified: offer.pilot.verified ?? false,
     reviewCount,

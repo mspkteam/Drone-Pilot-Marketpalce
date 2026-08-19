@@ -4,6 +4,38 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.52] — 2026-08-19
+
+### Added
+
+- Rich **client-test seed** (idempotent): grades A-1–A-7, second client, jobs in draft/pending/rejected/open/locked/bidding/assigned/closed, proposal states, in-progress contract + chat + delivery, completed payout + reviews, open dispute. Vercel Production build re-runs seed. See `docs/DEMO_DEPLOY.md`.
+
+---
+
+## [0.27.51] — 2026-08-19
+
+### Fixed
+
+- Pilot **My Proposals** status filters wrap as chips (All / Pending / Revised / Accepted / Rejected / Withdrawn) instead of clipping off-screen; counts sit in badges; `?status=` persists the active filter
+
+---
+
+## [0.27.50] — 2026-08-19
+
+### Added
+
+- Pilot portfolio items can be **edited** and **removed** from `/dashboard/pilot/portfolio` (prefilled editor, preview change/remove, delete confirmation)
+
+---
+
+## [0.27.49] — 2026-08-19
+
+### Fixed
+
+- Profile photos now appear globally after upload: dashboard sidebar, public `/pilots` cards, Find Pilots, recommended pilots, bid cards, messages, marketplace job cards, Captain’s Club, and admin verification identity
+
+---
+
 ## [0.27.48] — 2026-08-18
 
 ### Added

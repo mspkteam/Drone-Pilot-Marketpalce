@@ -5,6 +5,7 @@ import type { PilotOpenJobDto } from "@/types/application";
 export type PilotMissionCard = {
   id: string;
   initials: string;
+  avatarUrl: string | null;
   category: string;
   title: string;
   clientName: string;
@@ -73,6 +74,7 @@ export function mapOpenJobToMissionCard(job: PilotOpenJobDto): PilotMissionCard 
   return {
     id: job.id,
     initials: initialsFromName(clientName),
+    avatarUrl: job.clientAvatarUrl,
     category,
     title: job.title,
     clientName,

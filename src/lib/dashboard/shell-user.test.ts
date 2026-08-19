@@ -37,4 +37,12 @@ describe("buildDashboardUser", () => {
     );
     assert.equal(user.displayName, "Call Sign");
   });
+
+  it("passes through a profile photo for the dashboard shell", () => {
+    const user = buildDashboardUser(
+      { email: "pilot@example.com", role: "pilot" },
+      { displayName: "Call Sign", avatarUrl: "data:image/png;base64,abc" },
+    );
+    assert.equal(user.avatarUrl, "data:image/png;base64,abc");
+  });
 });

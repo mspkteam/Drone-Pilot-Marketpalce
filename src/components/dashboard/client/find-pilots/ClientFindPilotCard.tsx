@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { UserAvatar } from "@/components/ui/UserAvatar";
 import type { ClientFindPilot } from "@/lib/client/find-pilots";
 import { isPublicPilotProfileEnabled } from "@/lib/public-access";
 import {
@@ -19,9 +20,11 @@ export function ClientFindPilotCard({ pilot }: ClientFindPilotCardProps) {
     <article className="client-find-pilots-card">
       <div className="client-find-pilots-card-top">
         <div className="client-find-pilots-identity">
-          <span className="client-find-pilots-avatar" aria-hidden>
-            {pilot.initials}
-          </span>
+          <UserAvatar
+            className="client-find-pilots-avatar"
+            src={pilot.avatarUrl}
+            initials={pilot.initials}
+          />
 
           <div className="client-find-pilots-nameblock">
             <p className="client-find-pilots-name">{pilot.name}</p>

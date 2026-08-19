@@ -20,6 +20,7 @@ function sampleBid(
     jobId: "job-1",
     pilotProfileId: "pilot-1",
     initials: "AR",
+    avatarUrl: null,
     name: "Alex Rivera",
     verified: true,
     reviewCount: 10,

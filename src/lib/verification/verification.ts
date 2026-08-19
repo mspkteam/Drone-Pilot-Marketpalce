@@ -2,6 +2,7 @@
 import { prisma } from "@/lib/db";
 import { notifyAsync, sendNotification } from "@/lib/notifications/notify";
 import { evaluatePilotAwards } from "@/lib/certificates/certificate";
+import { parseProfileExtrasJson } from "@/lib/pilot/profile-extras";
 import {
   buildStoredFileName,
   readVerificationFile,
@@ -58,6 +59,7 @@ function toAdminDto(
       locationCity: string | null;
       locationRegion: string | null;
       locationCountry: string | null;
+      profileExtrasJson: string;
       user: { email: string };
     };
   },
@@ -73,6 +75,8 @@ function toAdminDto(
       locationCity: v.pilotProfile.locationCity,
       locationRegion: v.pilotProfile.locationRegion,
       locationCountry: v.pilotProfile.locationCountry,
+      avatarUrl: parseProfileExtrasJson(v.pilotProfile.profileExtrasJson)
+        .avatarUrl,
     },
   };
 }

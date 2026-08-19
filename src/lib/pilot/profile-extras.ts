@@ -79,3 +79,9 @@ export function sanitizeProfileExtrasInput(
 export function isAvatarPayloadTooLarge(avatarUrl: string | null): boolean {
   return Boolean(avatarUrl && avatarUrl.length > AVATAR_MAX_CHARS);
 }
+
+export function avatarUrlFromExtrasJson(
+  json: string | null | undefined,
+): string | null {
+  return parseProfileExtrasJson(json).avatarUrl;
+}

@@ -1,6 +1,8 @@
 import type { Conversation, Message } from "@/generated/prisma/client";
 import { prisma } from "@/lib/db";
 import { notifyAsync, sendNotification } from "@/lib/notifications/notify";
+import { parseClientProfilePreferences } from "@/lib/client/preferences";
+import { parseProfileExtrasJson } from "@/lib/pilot/profile-extras";
 import type {
   ConversationDetailDto,
   ConversationListItemDto,
@@ -12,8 +14,22 @@ const MAX_MESSAGE_LENGTH = 5000;
 
 const conversationInclude = {
   job: { select: { id: true, title: true } },
-  pilotProfile: { select: { id: true, displayName: true, userId: true } },
-  clientProfile: { select: { id: true, contactName: true, userId: true } },
+  pilotProfile: {
+    select: {
+      id: true,
+      displayName: true,
+      userId: true,
+      profileExtrasJson: true,
+    },
+  },
+  clientProfile: {
+    select: {
+      id: true,
+      contactName: true,
+      userId: true,
+      preferencesJson: true,
+    },
+  },
   booking: { select: { id: true } },
 } as const;
 
@@ -46,8 +62,18 @@ async function getLastReadAt(conversationId: string, userId: string) {
 async function toListItem(
   c: Conversation & {
     job: { id: string; title: string };
-    pilotProfile: { id: string; displayName: string; userId: string };
-    clientProfile: { id: string; contactName: string; userId: string };
+    pilotProfile: {
+      id: string;
+      displayName: string;
+      userId: string;
+      profileExtrasJson: string;
+    };
+    clientProfile: {
+      id: string;
+      contactName: string;
+      userId: string;
+      preferencesJson: string | null;
+    };
     booking: { id: string } | null;
     messages: { body: string; createdAt: Date }[];
   },
@@ -57,6 +83,11 @@ async function toListItem(
   const last = c.messages[0] ?? null;
   const lastReadAt = await getLastReadAt(c.id, viewerUserId);
   const unreadCount = await getUnreadCount(c.id, viewerUserId, lastReadAt);
+  const counterpartAvatarUrl =
+    viewerUserId === c.clientProfile.userId
+      ? parseProfileExtrasJson(c.pilotProfile.profileExtrasJson).avatarUrl
+      : parseClientProfilePreferences(c.clientProfile.preferencesJson)
+          .logoPath ?? null;
 
   return {
     id: c.id,
@@ -67,6 +98,7 @@ async function toListItem(
     pilotProfileId: c.pilotProfileId,
     clientProfileId: c.clientProfileId,
     counterpartName,
+    counterpartAvatarUrl,
     lastMessagePreview: last ? previewBody(last.body) : null,
     lastMessageAt: (c.lastMessageAt ?? last?.createdAt)?.toISOString() ?? null,
     unreadCount,

@@ -11,6 +11,23 @@ export type WritePrivateAssetInput = {
   contentType?: string;
 };
 
+export type BlobStoreAccess = "public" | "private";
+
+/**
+ * Blob store access mode. Vercel Blob stores are created as public or private
+ * and cannot be switched afterward.
+ *
+ * Default `public` matches the existing `drone-pilot-marketpalce-blob` store.
+ * Set `BLOB_ACCESS_MODE=private` only if the token points at a private store.
+ *
+ * App routes still gate downloads (support, verifications, deliveries, PDFs);
+ * with a public store the blob URL itself is fetchable if known.
+ */
+export function getBlobStoreAccess(): BlobStoreAccess {
+  const mode = process.env.BLOB_ACCESS_MODE?.trim().toLowerCase();
+  return mode === "private" ? "private" : "public";
+}
+
 function blobToken(): string {
   return process.env.BLOB_READ_WRITE_TOKEN!.trim();
 }
@@ -34,7 +51,7 @@ async function streamToBuffer(
 }
 
 /**
- * Persist a private file (support, verification, deliveries, issued PDFs).
+ * Persist a sensitive app file (support, verification, deliveries, issued PDFs).
  * Blob when `BLOB_READ_WRITE_TOKEN` is set; otherwise `storage/<folder>/`.
  * Returns the stored file name (same contract as the legacy disk helpers).
  */
@@ -47,7 +64,7 @@ export async function writePrivateAsset(
 
   if (isBlobStorageConfigured()) {
     await put(pathname, input.buffer, {
-      access: "private",
+      access: getBlobStoreAccess(),
       addRandomSuffix: false,
       allowOverwrite: true,
       token: blobToken(),
@@ -78,7 +95,7 @@ export async function readPrivateAsset(
   if (isBlobStorageConfigured()) {
     try {
       const result = await get(pathname, {
-        access: "private",
+        access: getBlobStoreAccess(),
         useCache: false,
         token: blobToken(),
       });

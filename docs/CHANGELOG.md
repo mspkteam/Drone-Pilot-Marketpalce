@@ -4,6 +4,14 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.59] — 2026-08-20
+
+### Fixed
+
+- Support chat attachments (and other app-gated Blob writes) no longer call `access: "private"` against a **public** Vercel Blob store. Default is `public`; set `BLOB_ACCESS_MODE=private` only for a private store.
+
+---
+
 ## [0.27.58] — 2026-08-20
 
 ### Added

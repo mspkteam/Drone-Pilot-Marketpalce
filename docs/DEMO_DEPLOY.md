@@ -24,7 +24,8 @@ Set these in the Vercel project **Settings → Environment Variables** (Producti
 | `DIRECT_URL` or `DATABASE_URL_UNPOOLED` | **Yes** | Neon **direct** connection (for build `db push`) |
 | `AUTH_SECRET` | **Yes** | Random string (32+ chars). Generate: `openssl rand -base64 32` |
 | `AUTH_URL` | **Yes** | Your Vercel URL, e.g. `https://your-project.vercel.app` |
-| `BLOB_READ_WRITE_TOKEN` | **Yes** (for uploads) | From Vercel Blob store `drone-pilot-marketpalce-blob` (Storage → Blob). Persists public admin media **and** private files (support, verifications, deliveries, issued PDFs) on Vercel. |
+| `BLOB_READ_WRITE_TOKEN` | **Yes** (for uploads) | From Vercel Blob store `drone-pilot-marketpalce-blob` (Storage → Blob). Persists public admin media **and** app-gated files (support, verifications, deliveries, issued PDFs) on Vercel. |
+| `BLOB_ACCESS_MODE` | No | Omit or `public` (default) for the current public store. Set `private` only if the token is for a **private** Blob store. Store access is fixed at creation and cannot be changed. |
 
 **Do not set** `SMTP_URL` or any Stripe keys. Emails log to the build/runtime console only; payments use internal demo pay.
 
@@ -76,7 +77,7 @@ Seed is **idempotent** (upserts demo emails/jobs). It does **not** delete real u
 ## Known demo limitations
 
 - Neon free tier may sleep after inactivity (cold start on first request).
-- Uploaded verification files and generated certificate PDFs use local `storage/` (not durable on Vercel).
+- With `BLOB_READ_WRITE_TOKEN` set, support / verification / delivery / issued PDF files go to Blob (public store + app auth on download routes). Without the token, they use local `storage/` (not durable on Vercel).
 - Marketplace and uniform shop payments are **demo internal pay** only.
 - No real email delivery without `SMTP_URL`.
 - Interim UI (not final Figma); M19 SEO and M20 launch QA deferred.

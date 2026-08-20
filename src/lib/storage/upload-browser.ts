@@ -24,7 +24,7 @@ export async function uploadUserImage(input: {
     }
 
     if (input.dataUrl) {
-      const match = /^data:([^;]+);base64,(.+)$/s.exec(input.dataUrl);
+      const match = /^data:([^;]+);base64,([\s\S]+)$/.exec(input.dataUrl);
       if (!match) {
         return { ok: false, error: "Invalid image data." };
       }

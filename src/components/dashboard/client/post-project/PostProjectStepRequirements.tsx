@@ -22,9 +22,35 @@ export function PostProjectStepRequirements({
     onChange({ deliverables: next });
   }
 
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const names = Array.from(e.target.files ?? []).map((f) => f.name);
-    onChange({ referenceFileNames: names });
+  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? []);
+    e.target.value = "";
+    if (files.length === 0) return;
+
+    const { uploadUserImage } = await import("@/lib/storage/upload-browser");
+    const names: string[] = [];
+    const urls: string[] = [];
+
+    for (const file of files) {
+      const result = await uploadUserImage({ kind: "job-reference", file });
+      if (!result.ok) {
+        onChange({
+          referenceFileNames: [...form.referenceFileNames, ...names],
+          referenceFileUrls: [
+            ...(form.referenceFileUrls ?? []),
+            ...urls,
+          ],
+        });
+        return;
+      }
+      names.push(file.name);
+      urls.push(result.url);
+    }
+
+    onChange({
+      referenceFileNames: [...form.referenceFileNames, ...names],
+      referenceFileUrls: [...(form.referenceFileUrls ?? []), ...urls],
+    });
   }
 
   return (
@@ -85,6 +111,9 @@ export function PostProjectStepRequirements({
           />
           <span className="client-post-project-input-hint">
             Upload site plans, mood boards...
+            {form.referenceFileNames.length > 0
+              ? ` · ${form.referenceFileNames.length} file(s) uploaded`
+              : ""}
           </span>
         </label>
       </div>

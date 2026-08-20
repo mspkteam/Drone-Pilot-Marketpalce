@@ -133,10 +133,23 @@ export function ClientProfileCompletionView({
     }
   }
 
-  function handleEditorSave(dataUrl: string) {
+  async function handleEditorSave(dataUrl: string) {
     setEditorSrc(null);
     releaseObjectUrl();
-    patchExtras({ logoPreview: dataUrl });
+    setError(null);
+    setLoading(true);
+    const { uploadUserImage } = await import("@/lib/storage/upload-browser");
+    const result = await uploadUserImage({
+      kind: "logo",
+      dataUrl,
+      name: "company-logo.jpg",
+    });
+    setLoading(false);
+    if (!result.ok) {
+      setError(result.error);
+      return;
+    }
+    patchExtras({ logoPreview: result.url });
   }
 
   function handleEditorCancel() {

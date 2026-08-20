@@ -30,6 +30,7 @@ export type JobPostProjectMetadata = {
   completionDate: string | null;
   deadline: string | null;
   referenceFileNames: string[];
+  referenceFileUrls: string[];
   specialRequirements: string | null;
   travel: JobPostProjectTravelMetadata | null;
 };
@@ -108,6 +109,7 @@ export function extractPostProjectMetadata(
     completionDate: form.completionDate.trim() || null,
     deadline: form.deadline.trim() || null,
     referenceFileNames: [...form.referenceFileNames],
+    referenceFileUrls: [...(form.referenceFileUrls ?? [])],
     specialRequirements: form.specialRequirements.trim() || null,
     travel: extractTravelMetadata(form),
   };
@@ -154,6 +156,11 @@ export function parseJobPostProjectMetadata(
       deadline: typeof parsed.deadline === "string" ? parsed.deadline : null,
       referenceFileNames: Array.isArray(parsed.referenceFileNames)
         ? parsed.referenceFileNames.filter(
+            (item): item is string => typeof item === "string",
+          )
+        : [],
+      referenceFileUrls: Array.isArray(parsed.referenceFileUrls)
+        ? parsed.referenceFileUrls.filter(
             (item): item is string => typeof item === "string",
           )
         : [],

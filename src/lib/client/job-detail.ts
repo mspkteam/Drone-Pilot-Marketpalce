@@ -82,9 +82,17 @@ export function buildClientJobOverviewDetails(
     }
 
     if (job.postProject.referenceFileNames.length > 0) {
+      const urls = job.postProject.referenceFileUrls ?? [];
       details.push({
         label: "Reference files",
-        value: job.postProject.referenceFileNames.join(", "),
+        value:
+          urls.length > 0
+            ? job.postProject.referenceFileNames
+                .map((name, index) =>
+                  urls[index] ? `${name} (${urls[index]})` : name,
+                )
+                .join(", ")
+            : job.postProject.referenceFileNames.join(", "),
       });
     }
   }

@@ -1,6 +1,6 @@
 {
   "name": "drone-pilot-marketplace",
-  "version": "0.27.57",
+  "version": "0.27.58",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -19,7 +19,8 @@
     "db:migrate": "prisma migrate dev",
     "db:seed": "prisma db seed",
     "db:studio": "prisma studio",
-    "waitlist:backfill-sheet": "tsx scripts/backfill-waitlist-sheet.ts"
+    "waitlist:backfill-sheet": "tsx scripts/backfill-waitlist-sheet.ts",
+    "qa:users": "tsx scripts/create-qa-users.ts"
   },
   "prisma": {
     "seed": "npx tsx prisma/seed.ts"

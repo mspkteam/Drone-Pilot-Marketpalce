@@ -187,17 +187,18 @@ export function PilotProfileCompletionView({
     setExtras((e) => ({ ...e, ...patch }));
   }
 
-  function handleAvatarChange(file: File | undefined) {
+  async function handleAvatarChange(file: File | undefined) {
     if (!file) return;
-    if (file.size > 400_000) {
-      setError("Choose a profile photo under 400 KB.");
+    setError(null);
+    setLoading(true);
+    const { uploadUserImage } = await import("@/lib/storage/upload-browser");
+    const result = await uploadUserImage({ kind: "avatar", file });
+    setLoading(false);
+    if (!result.ok) {
+      setError(result.error);
       return;
     }
-    const reader = new FileReader();
-    reader.onload = () => {
-      patchExtras({ avatarPreview: String(reader.result ?? "") });
-    };
-    reader.readAsDataURL(file);
+    patchExtras({ avatarPreview: result.url });
   }
 
   function addMainDroneFromEquipment() {

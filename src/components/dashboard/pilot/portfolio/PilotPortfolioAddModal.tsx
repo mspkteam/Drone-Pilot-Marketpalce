@@ -45,6 +45,7 @@ export function PilotPortfolioAddModal({
       }
       setDraft(EMPTY_DRAFT);
       setTagsInput("");
+      setUploadError(null);
       return;
     }
 
@@ -88,12 +89,25 @@ export function PilotPortfolioAddModal({
     });
   }
 
-  function handleFileChange(file: File | undefined) {
-    if (!file) return;
-    if (blobUrlRef.current) URL.revokeObjectURL(blobUrlRef.current);
-    const nextUrl = URL.createObjectURL(file);
-    blobUrlRef.current = nextUrl;
-    setDraft((current) => ({ ...current, thumbnailUrl: nextUrl }));
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+
+  async function handleFileChange(file: File | undefined) {
+    if (!file || saving || uploading) return;
+    setUploadError(null);
+    setUploading(true);
+    const { uploadUserImage } = await import("@/lib/storage/upload-browser");
+    const result = await uploadUserImage({ kind: "portfolio", file });
+    setUploading(false);
+    if (!result.ok) {
+      setUploadError(result.error);
+      return;
+    }
+    if (blobUrlRef.current) {
+      URL.revokeObjectURL(blobUrlRef.current);
+      blobUrlRef.current = null;
+    }
+    setDraft((current) => ({ ...current, thumbnailUrl: result.url }));
   }
 
   return (
@@ -191,16 +205,28 @@ export function PilotPortfolioAddModal({
               type="button"
               className="pilot-portfolio-upload-placeholder"
               onClick={() => fileRef.current?.click()}
-              disabled={saving}
+              disabled={saving || uploading}
             >
-              {draft.thumbnailUrl ? "Change preview image" : "Choose image preview"}
+              {uploading
+                ? "Uploading…"
+                : draft.thumbnailUrl
+                  ? "Change preview image"
+                  : "Choose image preview"}
             </button>
+            {uploadError ? (
+              <p className="pilot-portfolio-modal-sub" role="alert">
+                {uploadError}
+              </p>
+            ) : null}
             <input
               ref={fileRef}
               type="file"
-              accept="image/*"
+              accept="image/png,image/jpeg,image/webp,image/gif"
               className="pilot-portfolio-hidden-input"
-              onChange={(e) => handleFileChange(e.target.files?.[0])}
+              onChange={(e) => {
+                void handleFileChange(e.target.files?.[0]);
+                e.target.value = "";
+              }}
             />
           </div>
         </div>
@@ -210,7 +236,7 @@ export function PilotPortfolioAddModal({
             type="button"
             className="pilot-portfolio-btn-outline"
             onClick={onClose}
-            disabled={saving}
+            disabled={saving || uploading}
           >
             Cancel
           </button>
@@ -218,7 +244,7 @@ export function PilotPortfolioAddModal({
             type="button"
             className="pilot-portfolio-btn-gold"
             onClick={handleSave}
-            disabled={!draft.title.trim() || saving}
+            disabled={!draft.title.trim() || saving || uploading}
           >
             {saving ? "Saving…" : isEdit ? "Save changes" : "Save item"}
           </button>

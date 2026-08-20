@@ -74,6 +74,7 @@ export type PostProjectFormState = {
   deliverables: PostProjectDeliverable[];
   completionDate: string;
   referenceFileNames: string[];
+  referenceFileUrls: string[];
   specialRequirements: string;
   quoteType: PostProjectQuoteType | "";
   budgetMin: string;
@@ -117,6 +118,7 @@ export const initialPostProjectFormState = (): PostProjectFormState => ({
   deliverables: [],
   completionDate: "",
   referenceFileNames: [],
+  referenceFileUrls: [],
   specialRequirements: "",
   quoteType: "",
   budgetMin: "",

@@ -4,6 +4,19 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.58] — 2026-08-20
+
+### Added
+
+- Authenticated **`/api/uploads/image`** route for profile avatars, client logos, portfolio previews, and post-project reference files — stored on **Vercel Blob** when `BLOB_READ_WRITE_TOKEN` is set (local `/public` fallback otherwise).
+- `npm run qa:users` creates a fresh Client + approved A-3 Pilot pair for testing.
+
+### Changed
+
+- Pilot avatar, client logo, and portfolio preview uploads no longer use ephemeral data/object URLs; they persist via Blob.
+
+---
+
 ## [0.27.57] — 2026-08-19
 
 ### Added

@@ -6,6 +6,7 @@ import {
 } from "@/lib/client/preferences";
 import type { AdminUserEditDto } from "@/types/admin-user-edit";
 import { USER_ACCOUNT_STATUSES } from "@/types/admin-user-edit";
+import { displayMemberNumber } from "@/lib/members/member-number";
 import type { UserRole } from "@/types/roles";
 import { PILOT_PROFILE_STATUSES } from "@/types/pilot";
 import { CLIENT_PROFILE_STATUSES } from "@/types/client";
@@ -91,6 +92,7 @@ export async function getUserForAdminEdit(
     email: user.email,
     role: user.role as UserRole,
     status: user.status,
+    memberNumber: displayMemberNumber(user.memberNumber),
     moderationNote: user.moderationNote ?? null,
     createdAt: user.createdAt.toISOString(),
     pilot: user.pilotProfile

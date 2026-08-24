@@ -49,6 +49,10 @@ export async function writeSupportFile(
     folder: FOLDER,
     fileName,
     buffer,
+    contentType:
+      Object.entries(SUPPORT_MIME_TO_EXT).find(([, ext]) =>
+        fileName.toLowerCase().endsWith(`.${ext}`),
+      )?.[0] ?? undefined,
   });
 }
 

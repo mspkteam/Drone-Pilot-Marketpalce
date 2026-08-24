@@ -28,3 +28,11 @@ export function looksLikeMemberNumber(value: string | null | undefined): boolean
   if (!value?.trim()) return false;
   return /^\d{4,8}$/.test(value.trim().replace(/^#\s*/, ""));
 }
+
+/** Formatted 6-digit member #, or null when the stored value is a name/slug. */
+export function displayMemberNumber(
+  value: string | null | undefined,
+): string | null {
+  if (!looksLikeMemberNumber(value)) return null;
+  return formatMemberNumber(value!);
+}

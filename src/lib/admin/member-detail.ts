@@ -9,6 +9,7 @@ import {
 import { toMembershipTierDto } from "@/lib/membership/membership";
 import type { AdminUserEditDto } from "@/types/admin-user-edit";
 import type { UserRole } from "@/types/roles";
+import { displayMemberNumber } from "@/lib/members/member-number";
 
 export type AdminMemberDetailDto = {
   account: AdminUserEditDto;
@@ -267,6 +268,7 @@ export async function getMemberDetailForAdmin(
     email: user.email,
     role: user.role as UserRole,
     status: user.status,
+    memberNumber: displayMemberNumber(user.memberNumber),
     moderationNote: user.moderationNote ?? null,
     createdAt: user.createdAt.toISOString(),
     pilot: pilot

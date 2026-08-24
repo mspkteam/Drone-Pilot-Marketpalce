@@ -37,14 +37,21 @@ export async function writePublicAsset(
   const pathname = `${folder}/${input.fileName}`;
 
   if (isBlobStorageConfigured()) {
-    const blob = await put(pathname, input.buffer, {
-      access: "public",
-      contentType: input.contentType,
-      addRandomSuffix: false,
-      // Explicit token — avoids OIDC-only failures in local/dev.
-      token: blobToken(),
-    });
-    return blob.url;
+    try {
+      const blob = await put(pathname, input.buffer, {
+        access: "public",
+        contentType: input.contentType,
+        addRandomSuffix: false,
+        allowOverwrite: true,
+        // Explicit token — avoids OIDC-only failures in local/dev.
+        token: blobToken(),
+      });
+      return blob.url;
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Unknown storage error.";
+      throw new Error(`File storage failed: ${message}`);
+    }
   }
 
   const dir = path.join(

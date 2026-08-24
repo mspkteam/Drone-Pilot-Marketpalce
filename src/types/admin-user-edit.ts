@@ -12,6 +12,7 @@ export type AdminUserEditDto = {
   email: string;
   role: string;
   status: string;
+  memberNumber: string | null;
   moderationNote: string | null;
   createdAt: string;
   pilot: {

@@ -48,11 +48,14 @@ export function AdminCertificateEnginePortal({
     new Date().toISOString().slice(0, 10),
   );
   const [issuing, setIssuing] = useState(false);
+  const [removingId, setRemovingId] = useState<string | null>(null);
   const [fullscreenPreview, setFullscreenPreview] = useState(false);
   const issuedSectionRef = useRef<HTMLElement | null>(null);
 
-  const load = useCallback(async () => {
-    setLoading(true);
+  const load = useCallback(async (silent = false) => {
+    if (!silent) {
+      setLoading(true);
+    }
     setError(null);
     try {
       const res = await fetch("/api/admin/certificate-engine");
@@ -61,9 +64,14 @@ export function AdminCertificateEnginePortal({
       };
       if (!res.ok) {
         setError(json.error ?? "Failed to load certificate engine.");
-        setData(null);
+        if (!silent) setData(null);
       } else {
-        setData(json);
+        setData({
+          ...json,
+          certificates: Array.isArray(json.certificates)
+            ? json.certificates
+            : [],
+        });
         setSelectedId((current) => current ?? json.templates[0]?.id ?? null);
         setIssueTemplateId((current) => {
           if (current) return current;
@@ -73,7 +81,7 @@ export function AdminCertificateEnginePortal({
       }
     } catch {
       setError("Failed to load certificate engine.");
-      setData(null);
+      if (!silent) setData(null);
     } finally {
       setLoading(false);
     }
@@ -160,7 +168,7 @@ export function AdminCertificateEnginePortal({
         const json = (await res.json()) as { template?: { id?: string } };
         setSuccess("Template created.");
         setModalMode(null);
-        await load();
+        await load(true);
         if (json.template?.id) setSelectedId(json.template.id);
       } else if (modalMode === "edit" && editingTemplate) {
         const res = await fetch(
@@ -188,7 +196,7 @@ export function AdminCertificateEnginePortal({
         setSuccess("Template updated.");
         setModalMode(null);
         setEditingTemplate(null);
-        await load();
+        await load(true);
       }
     } catch (error) {
       const message =
@@ -253,12 +261,51 @@ export function AdminCertificateEnginePortal({
       setIssueGrade("");
       setIssueMemberNumber("");
       setIssueIssuedAt(new Date().toISOString().slice(0, 10));
-      await load();
+      await load(true);
       issuedSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     } catch {
       setError("Issue failed.");
     } finally {
       setIssuing(false);
+    }
+  }
+
+  async function handleRemoveCertificate(certificateId: string) {
+    if (
+      !window.confirm(
+        "Remove this certificate? It will be deleted from the pilot account and public profile.",
+      )
+    ) {
+      return;
+    }
+    setRemovingId(certificateId);
+    setError(null);
+    setSuccess(null);
+    try {
+      const res = await fetch(`/api/admin/certificates/${certificateId}`, {
+        method: "DELETE",
+      });
+      const json = (await res.json()) as { error?: string };
+      if (!res.ok) {
+        setError(json.error ?? "Remove failed.");
+        return;
+      }
+      setData((prev) =>
+        prev
+          ? {
+              ...prev,
+              certificates: prev.certificates.filter(
+                (row) => row.id !== certificateId,
+              ),
+            }
+          : prev,
+      );
+      setSuccess("Certificate removed.");
+      await load(true);
+    } catch {
+      setError("Remove failed.");
+    } finally {
+      setRemovingId(null);
     }
   }
 
@@ -502,14 +549,24 @@ export function AdminCertificateEnginePortal({
                         : ""}
                     </p>
                   </div>
-                  <a
-                    className="admin-certificates-link"
-                    href={`/api/admin/certificates/${certificate.id}/download`}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    Download PDF
-                  </a>
+                  <div className="admin-certificates-issued-actions">
+                    <a
+                      className="admin-certificates-link"
+                      href={`/api/admin/certificates/${certificate.id}/download`}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      Download PDF
+                    </a>
+                    <button
+                      type="button"
+                      className="admin-certificates-link admin-certificates-link--danger"
+                      disabled={removingId === certificate.id}
+                      onClick={() => void handleRemoveCertificate(certificate.id)}
+                    >
+                      {removingId === certificate.id ? "Removing…" : "Remove"}
+                    </button>
+                  </div>
                 </li>
               ))}
             </ul>

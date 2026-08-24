@@ -1,4 +1,4 @@
-import { get, put } from "@vercel/blob";
+import { del, get, put } from "@vercel/blob";
 import fs from "fs/promises";
 import path from "path";
 import { isBlobStorageConfigured } from "@/lib/storage/public-asset";
@@ -63,13 +63,19 @@ export async function writePrivateAsset(
   const pathname = `${folder}/${fileName}`;
 
   if (isBlobStorageConfigured()) {
-    await put(pathname, input.buffer, {
-      access: getBlobStoreAccess(),
-      addRandomSuffix: false,
-      allowOverwrite: true,
-      token: blobToken(),
-      ...(input.contentType ? { contentType: input.contentType } : {}),
-    });
+    try {
+      await put(pathname, input.buffer, {
+        access: getBlobStoreAccess(),
+        addRandomSuffix: false,
+        allowOverwrite: true,
+        token: blobToken(),
+        ...(input.contentType ? { contentType: input.contentType } : {}),
+      });
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Unknown storage error.";
+      throw new Error(`File storage failed: ${message}`);
+    }
     return fileName;
   }
 
@@ -108,4 +114,28 @@ export async function readPrivateAsset(
   }
 
   return fs.readFile(path.join(localDir(cleanFolder), safe));
+}
+
+/** Best-effort delete of a stored file (Blob and/or local disk). */
+export async function deletePrivateAsset(
+  folder: string,
+  fileName: string,
+): Promise<void> {
+  const safe = safeFileName(fileName);
+  const cleanFolder = folder.replace(/^\/+|\/+$/g, "");
+  const pathname = `${cleanFolder}/${safe}`;
+
+  if (isBlobStorageConfigured()) {
+    try {
+      await del(pathname, { token: blobToken() });
+    } catch {
+      /* already gone or not on Blob */
+    }
+  }
+
+  try {
+    await fs.unlink(path.join(localDir(cleanFolder), safe));
+  } catch {
+    /* already gone or never on disk */
+  }
 }

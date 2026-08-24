@@ -81,6 +81,11 @@ export function AdminMemberDetailView({
             <p className="admin-ops-eyebrow">{eyebrow}</p>
             <h1 className="admin-member-detail-title">{member.displayName}</h1>
             <p className="admin-member-detail-sub">{account.email}</p>
+            {account.memberNumber ? (
+              <p className="admin-member-detail-sub">
+                Member #{account.memberNumber}
+              </p>
+            ) : null}
             <p className="admin-member-detail-desc">{heroDesc}</p>
             <div className="admin-member-detail-badges">
               <span className="admin-member-chip">Login: {account.status}</span>

@@ -1572,6 +1572,31 @@
   color: var(--color-gold);
 }
 
+.admin-certificates-issued-actions {
+  display: flex;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.admin-certificates-link--danger {
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  color: #e8a0a0;
+}
+
+.admin-certificates-link--danger:hover:not(:disabled) {
+  color: #ffb4b4;
+}
+
+.admin-certificates-link--danger:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
 /* Modal */
 .admin-certificates-modal-backdrop {
   position: fixed;

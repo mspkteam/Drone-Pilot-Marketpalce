@@ -1,7 +1,9 @@
 import { prisma } from "@/lib/db";
 import {
   MEMBER_NUMBER_START,
+  displayMemberNumber,
   formatMemberNumber,
+  looksLikeMemberNumber,
   parseMemberNumber,
 } from "@/lib/members/member-number";
 
@@ -16,8 +18,22 @@ export async function assignMemberNumberToUser(
     where: { id: userId },
     select: { memberNumber: true },
   });
-  if (existing?.memberNumber) {
-    return formatMemberNumber(existing.memberNumber);
+  const validExisting = displayMemberNumber(existing?.memberNumber);
+  if (validExisting) {
+    if (existing!.memberNumber !== validExisting) {
+      await prisma.user.update({
+        where: { id: userId },
+        data: { memberNumber: validExisting },
+      });
+    }
+    return validExisting;
+  }
+
+  if (existing?.memberNumber && !looksLikeMemberNumber(existing.memberNumber)) {
+    await prisma.user.update({
+      where: { id: userId },
+      data: { memberNumber: null },
+    });
   }
 
   for (let attempt = 0; attempt < 8; attempt++) {
@@ -53,16 +69,16 @@ async function peekNextMemberNumberValue(): Promise<number> {
 /** Backfill member numbers for pilots/clients missing one (oldest first). */
 export async function backfillMissingMemberNumbers(): Promise<number> {
   const users = await prisma.user.findMany({
-    where: {
-      memberNumber: null,
-      role: { in: ["pilot", "client"] },
-    },
+    where: { role: { in: ["pilot", "client"] } },
     orderBy: { createdAt: "asc" },
-    select: { id: true },
+    select: { id: true, memberNumber: true },
   });
+  const needing = users.filter(
+    (user) => !looksLikeMemberNumber(user.memberNumber),
+  );
 
   let assigned = 0;
-  for (const user of users) {
+  for (const user of needing) {
     await assignMemberNumberToUser(user.id);
     assigned += 1;
   }
@@ -76,5 +92,5 @@ export async function getUserMemberNumber(
     where: { id: userId },
     select: { memberNumber: true },
   });
-  return user?.memberNumber ? formatMemberNumber(user.memberNumber) : null;
+  return displayMemberNumber(user?.memberNumber);
 }

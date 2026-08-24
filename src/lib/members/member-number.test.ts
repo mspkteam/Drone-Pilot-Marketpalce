@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
   MEMBER_NUMBER_START,
+  displayMemberNumber,
   formatMemberNumber,
   looksLikeMemberNumber,
   parseMemberNumber,
@@ -24,5 +25,10 @@ describe("member number", () => {
     assert.equal(looksLikeMemberNumber("001000"), true);
     assert.equal(looksLikeMemberNumber("DEMO-PILOT-001"), false);
     assert.equal(looksLikeMemberNumber("Jane Doe"), false);
+  });
+
+  it("hides names from displayMemberNumber", () => {
+    assert.equal(displayMemberNumber("001000"), "001000");
+    assert.equal(displayMemberNumber("Jane Doe"), null);
   });
 });

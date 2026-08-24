@@ -1,4 +1,5 @@
 import {
+  deletePrivateAsset,
   readPrivateAsset,
   writePrivateAsset,
 } from "@/lib/storage/private-asset";
@@ -19,4 +20,8 @@ export async function writeCertificatePdf(
 
 export async function readCertificatePdf(pdfFileName: string): Promise<Buffer> {
   return readPrivateAsset(FOLDER, pdfFileName);
+}
+
+export async function deleteCertificatePdf(pdfFileName: string): Promise<void> {
+  await deletePrivateAsset(FOLDER, pdfFileName);
 }

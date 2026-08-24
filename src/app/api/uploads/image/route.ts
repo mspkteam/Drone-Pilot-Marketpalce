@@ -108,10 +108,11 @@ export async function POST(request: Request) {
       nameHint: body.name ?? null,
     });
     return NextResponse.json({ url, kind, fileName: body.name ?? null }, { status: 201 });
-  } catch {
-    return NextResponse.json(
-      { error: "Failed to store the file. Try again." },
-      { status: 500 },
-    );
+  } catch (error) {
+    const message =
+      error instanceof Error
+        ? error.message
+        : "Failed to store the file. Try again.";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

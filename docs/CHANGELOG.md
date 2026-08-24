@@ -4,6 +4,27 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.61] — 2026-08-24
+
+### Added
+
+- Admin **Remove** on issued certificates deletes the database record (pilot account + public profile) and the stored PDF.
+
+### Fixed
+
+- File uploads (support, verifications, deliveries, certificates, avatars, shop, CMS) now surface the real storage error and allow overwrite on the public Blob store so attachments no longer fail silently.
+
+---
+
+## [0.27.60] — 2026-08-24
+
+### Fixed
+
+- Certificate issue now **saves the database record even if PDF/Blob storage fails**; the PDF is regenerated on download so issued certificates still appear in the audit trail, pilot account, and public profile.
+- Member numbers that were stored as names/slugs are cleared and reassigned as **6-digit IDs starting at 001000**. Certificates and member profiles no longer print a lengthy name in the member-number field.
+
+---
+
 ## [0.27.59] — 2026-08-20
 
 ### Fixed

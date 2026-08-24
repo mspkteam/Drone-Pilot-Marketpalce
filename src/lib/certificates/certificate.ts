@@ -22,9 +22,10 @@ import {
   parseManualIssueDate,
 } from "@/lib/certificates/manual-issue";
 import { applyTemplate, renderCertificatePdf } from "@/lib/certificates/pdf";
-import { writeCertificatePdf } from "@/lib/certificates/storage";
+import { writeCertificatePdf, deleteCertificatePdf } from "@/lib/certificates/storage";
 import { assignMemberNumberToUser } from "@/lib/members/assign-member-number";
 import {
+  displayMemberNumber,
   formatMemberNumber,
   looksLikeMemberNumber,
 } from "@/lib/members/member-number";
@@ -268,13 +269,11 @@ export async function listCertificatesForAdmin(): Promise<AdminPilotCertificateD
   });
 
   return rows.map((c) => {
-    const platformMember = c.pilotProfile.user.memberNumber
-      ? formatMemberNumber(c.pilotProfile.user.memberNumber)
-      : null;
+    const platformMember = displayMemberNumber(
+      c.pilotProfile.user.memberNumber,
+    );
     const stored = c.licenseNumber?.trim() || null;
-    const memberDisplay = looksLikeMemberNumber(stored)
-      ? formatMemberNumber(stored!)
-      : platformMember;
+    const memberDisplay = displayMemberNumber(stored) ?? platformMember;
 
     return {
       ...toPilotCertDto(c),
@@ -296,9 +295,7 @@ export async function listPilotsForCertificateAssign() {
     displayName: p.displayName,
     email: p.user.email,
     licenseNumber: p.licenseNumber,
-    memberNumber: p.user.memberNumber
-      ? formatMemberNumber(p.user.memberNumber)
-      : null,
+    memberNumber: displayMemberNumber(p.user.memberNumber),
   }));
 }
 
@@ -564,7 +561,11 @@ export async function issueCertificateToPilot(
   }
 
   const pdfFileName = `${certificateNumber.replace(/[^a-zA-Z0-9-]/g, "_")}.pdf`;
-  await writeCertificatePdf(pdfFileName, pdfBuffer);
+  try {
+    await writeCertificatePdf(pdfFileName, pdfBuffer);
+  } catch (error) {
+    console.error("Certificate PDF storage failed; record will still be saved:", error);
+  }
 
   const row = await prisma.pilotCertificate.create({
     data: {
@@ -602,6 +603,28 @@ export async function issueCertificateToPilot(
       pilotEmail: pilot.user.email,
     },
   };
+}
+
+export async function revokeCertificateFromPilot(
+  certificateId: string,
+): Promise<{ ok: true } | { ok: false; error: string; status: 404 }> {
+  const existing = await prisma.pilotCertificate.findUnique({
+    where: { id: certificateId },
+    select: { id: true, pdfFileName: true },
+  });
+  if (!existing) {
+    return { ok: false, error: "Certificate not found.", status: 404 };
+  }
+
+  await prisma.pilotCertificate.delete({ where: { id: certificateId } });
+  if (existing.pdfFileName) {
+    try {
+      await deleteCertificatePdf(existing.pdfFileName);
+    } catch {
+      /* record is already gone */
+    }
+  }
+  return { ok: true };
 }
 
 /**

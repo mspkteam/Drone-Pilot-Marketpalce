@@ -2,7 +2,7 @@ import "server-only";
 
 import { prisma } from "@/lib/db";
 import { CAPTAINS_CLUB_ROUTES } from "@/lib/marketing/captains-club-content";
-import { formatMemberNumber } from "@/lib/members/member-number";
+import { displayMemberNumber } from "@/lib/members/member-number";
 import {
   CAPTAINS_CLUB_TIER_CODES,
 } from "@/lib/membership/tiers";
@@ -188,9 +188,7 @@ export async function listCaptainsClubPilots(): Promise<CaptainClubPilot[]> {
       avatarUrl: parseProfileExtrasJson(pilot.profileExtrasJson).avatarUrl,
       name: pilot.displayName,
       lastName: lastNameFromDisplayName(pilot.displayName),
-      memberNumber: pilot.user.memberNumber
-        ? formatMemberNumber(pilot.user.memberNumber)
-        : null,
+      memberNumber: displayMemberNumber(pilot.user.memberNumber),
       location: formatLocation(
         pilot.locationCity,
         pilot.locationRegion,

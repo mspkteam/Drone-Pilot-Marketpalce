@@ -14,7 +14,7 @@ import type {
   MessageDto,
 } from "@/types/messaging";
 import { MessageAttachmentList } from "@/components/messaging/MessageAttachmentList";
-import { PaperclipIcon } from "@/components/dashboard/client/messages/ClientMessagesIcons";
+import { PaperclipIcon, SendIcon } from "@/components/dashboard/client/messages/ClientMessagesIcons";
 import { uploadMessageFiles } from "@/lib/messaging/upload-message-files";
 
 const LIST_API = "/api/client/conversations" as const;

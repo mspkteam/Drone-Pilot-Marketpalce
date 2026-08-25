@@ -4,6 +4,14 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.66] — 2026-08-25
+
+### Fixed
+
+- Production build: import `SendIcon` on the client messages composer (same missing-import pattern as PaperclipIcon).
+
+---
+
 ## [0.27.65] — 2026-08-25
 
 ### Fixed

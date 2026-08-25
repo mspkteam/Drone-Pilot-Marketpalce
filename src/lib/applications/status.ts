@@ -2,6 +2,7 @@ import type { ApplicationStatus } from "@/types/application";
 
 export function getApplicationStatusLabel(status: ApplicationStatus): string {
   const labels: Record<ApplicationStatus, string> = {
+    draft: "Draft",
     submitted: "Submitted",
     withdrawn: "Withdrawn",
     accepted: "Accepted",
@@ -24,6 +25,8 @@ export function getApplicationStatusTone(
     case "rejected":
     case "expired":
       return "error";
+    case "draft":
+      return "neutral";
     case "withdrawn":
       return "neutral";
     case "submitted":

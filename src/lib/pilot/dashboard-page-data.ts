@@ -249,6 +249,7 @@ export async function getPilotDashboardPageData(
 
   const [
     pendingProposals,
+    shortlistedProposals,
     contractsDueThisWeek,
     recentReviews,
     notifications,
@@ -258,6 +259,13 @@ export async function getPilotDashboardPageData(
   ] = await Promise.all([
     prisma.jobApplication.count({
       where: { pilotProfileId, status: "submitted" },
+    }),
+    prisma.jobApplication.count({
+      where: {
+        pilotProfileId,
+        status: "submitted",
+        shortlistedAt: { not: null },
+      },
     }),
     prisma.booking.count({
       where: {
@@ -344,9 +352,9 @@ export async function getPilotDashboardPageData(
       activeContracts: overview.activeBookings,
       contractsDueThisWeek,
       pendingProposals,
-      shortlistedProposals: 0,
-      completedJobs: overview.completedBookings,
-      onTimeRatePct: overview.completedBookings > 0 ? 98 : null,
+      shortlistedProposals,
+            completedJobs: overview.completedBookings,
+            onTimeRatePct: null,
     },
     profileStrength: {
       pct: overview.profileCompletionPct,

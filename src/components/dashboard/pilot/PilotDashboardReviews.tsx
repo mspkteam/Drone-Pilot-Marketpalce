@@ -47,9 +47,9 @@ export function PilotDashboardReviews({
   items,
   usingMock,
 }: PilotDashboardReviewsProps) {
-  const rating = averageRating ?? 4.9;
-  const reviewCount = count > 0 ? count : 47;
-  const fillPct = Math.min(100, Math.round((rating / 5) * 100));
+  const rating = averageRating ?? 0;
+  const reviewCount = count;
+  const fillPct = reviewCount === 0 ? 0 : Math.min(100, Math.round((rating / 5) * 100));
 
   return (
     <section className="pilot-dashboard-panel pilot-dashboard-panel--warm pilot-dashboard-bracket-card">

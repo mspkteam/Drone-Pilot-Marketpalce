@@ -59,7 +59,7 @@ export async function getPilotDashboardOverview(
     payments,
     jobsSnapshot,
   ] = await Promise.all([
-    prisma.jobApplication.count({ where: { pilotProfileId } }),
+    prisma.jobApplication.count({ where: { pilotProfileId, status: { not: "draft" } } }),
     prisma.booking.count({
       where: {
         pilotProfileId,
@@ -84,7 +84,7 @@ export async function getPilotDashboardOverview(
     approved ? listOpenJobsForPilot(pilotProfileId) : Promise.resolve(null),
   ]);
 
-  const demoEarningsUsd = payments
+  const earningsUsd = payments
     .filter((p) => p.status === "succeeded")
     .reduce((sum, p) => sum + p.amountNet, 0);
 
@@ -99,7 +99,7 @@ export async function getPilotDashboardOverview(
     activeBookings,
     submittedBids: applicationCount,
     completedBookings,
-    demoEarningsUsd,
+    demoEarningsUsd: earningsUsd,
     averageRating:
       reviewAgg._count.rating > 0 && avg != null
         ? Math.round(avg * 10) / 10

@@ -33,7 +33,7 @@ export async function POST(request: Request) {
       const kindRaw = String(formData.get("kind") ?? "");
       if (!isUserImageKind(kindRaw)) {
         return NextResponse.json(
-          { error: "kind must be avatar, logo, portfolio, or job-reference." },
+          { error: "kind must be avatar, logo, portfolio, job-reference, or message-attachment." },
           { status: 400 },
         );
       }
@@ -73,7 +73,7 @@ export async function POST(request: Request) {
     };
     if (!body.kind || !isUserImageKind(body.kind)) {
       return NextResponse.json(
-        { error: "kind must be avatar, logo, portfolio, or job-reference." },
+        { error: "kind must be avatar, logo, portfolio, job-reference, or message-attachment." },
         { status: 400 },
       );
     }

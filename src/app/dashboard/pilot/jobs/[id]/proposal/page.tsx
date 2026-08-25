@@ -36,7 +36,7 @@ export default async function PilotSubmitProposalPage({ params }: PageProps) {
     notFound();
   }
 
-  if (result.application) {
+  if (result.application && result.application.status !== "draft") {
     redirect(`/dashboard/pilot/proposals/${result.application.id}`);
   }
 

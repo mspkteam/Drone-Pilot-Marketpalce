@@ -43,6 +43,7 @@ type PilotUiExtras = {
   payloads: string[];
   payloadDraft: string;
   payloadPanelOpen: boolean;
+  notifications: PilotProfileExtras["notifications"];
 };
 
 const PAYLOAD_MAX = 22;
@@ -88,6 +89,7 @@ function buildExtras(profile: PilotProfileDto | null): PilotUiExtras {
     payloads: extras.payloads,
     payloadDraft: "",
     payloadPanelOpen: extras.payloads.length === 0,
+    notifications: extras.notifications,
   };
 }
 
@@ -99,6 +101,7 @@ function extrasPayload(extras: PilotUiExtras): PilotProfileExtras {
     payloads: extras.payloads,
     localChipIds: extras.localChipIds,
     avatarUrl: extras.avatarPreview,
+    notifications: extras.notifications,
   };
 }
 

@@ -15,6 +15,8 @@ model User {
   passwordHash    String
   role            String
   status          String         @default("active")
+  /// Set when the user deactivates; login within 30 days restores `active` and grade.
+  deactivatedAt   DateTime?
   /// Platform RAS member number (6 digits, starts at 001000). Pilots and clients.
   memberNumber    String?        @unique
   /// Admin note when account is held for review / ToS (not shown to the user).
@@ -452,13 +454,15 @@ model ConversationReadState {
 }
 
 model Message {
-  id             String       @id @default(cuid())
-  conversationId String
-  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-  senderUserId   String
-  senderUser     User         @relation(fields: [senderUserId], references: [id], onDelete: Cascade)
-  body           String
-  createdAt      DateTime     @default(now())
+  id              String       @id @default(cuid())
+  conversationId  String
+  conversation    Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderUserId    String
+  senderUser      User         @relation(fields: [senderUserId], references: [id], onDelete: Cascade)
+  body            String
+  /// JSON array of { url, name, contentType }
+  attachmentsJson String?
+  createdAt       DateTime     @default(now())
 
   @@index([conversationId])
   @@index([senderUserId])

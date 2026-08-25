@@ -3,6 +3,11 @@ import { prisma } from "@/lib/db";
 import { notifyAsync, sendNotification } from "@/lib/notifications/notify";
 import { parseClientProfilePreferences } from "@/lib/client/preferences";
 import { parseProfileExtrasJson } from "@/lib/pilot/profile-extras";
+import {
+  parseMessageAttachments,
+  sanitizeMessageAttachments,
+  serializeMessageAttachments,
+} from "@/lib/messaging/attachments";
 import type {
   ConversationDetailDto,
   ConversationListItemDto,
@@ -75,7 +80,7 @@ async function toListItem(
       preferencesJson: string | null;
     };
     booking: { id: string } | null;
-    messages: { body: string; createdAt: Date }[];
+    messages: { body: string; createdAt: Date; attachmentsJson?: string | null }[];
   },
   viewerUserId: string,
   counterpartName: string,
@@ -99,7 +104,9 @@ async function toListItem(
     clientProfileId: c.clientProfileId,
     counterpartName,
     counterpartAvatarUrl,
-    lastMessagePreview: last ? previewBody(last.body) : null,
+    lastMessagePreview: last
+      ? previewBody(last.body) || (last.attachmentsJson ? "Attachment" : null)
+      : null,
     lastMessageAt: (c.lastMessageAt ?? last?.createdAt)?.toISOString() ?? null,
     unreadCount,
     createdAt: c.createdAt.toISOString(),
@@ -310,7 +317,7 @@ export async function getConversationForParticipant(
     {
       ...c,
       messages: lastMsg
-        ? [{ body: lastMsg.body, createdAt: lastMsg.createdAt }]
+        ? [{ body: lastMsg.body, createdAt: lastMsg.createdAt, attachmentsJson: lastMsg.attachmentsJson }]
         : [],
     },
     viewerUserId,
@@ -331,6 +338,7 @@ export async function getConversationForParticipant(
       senderLabel,
       isMine,
       body: m.body,
+      attachments: parseMessageAttachments(m.attachmentsJson),
       createdAt: m.createdAt.toISOString(),
     };
   });
@@ -374,6 +382,7 @@ export async function getConversationForAdmin(conversationId: string) {
       senderEmail: m.senderUser.email,
       senderRole: m.senderUser.role,
       body: m.body,
+      attachments: parseMessageAttachments(m.attachmentsJson),
       createdAt: m.createdAt.toISOString(),
     })),
   };
@@ -382,13 +391,13 @@ export async function getConversationForAdmin(conversationId: string) {
 function validateMessageBody(body: unknown):
   | { ok: true; text: string }
   | { ok: false; error: string } {
+  if (body == null || body === "") {
+    return { ok: true, text: "" };
+  }
   if (typeof body !== "string") {
     return { ok: false, error: "Message body is required." };
   }
   const text = body.trim();
-  if (!text) {
-    return { ok: false, error: "Message cannot be empty." };
-  }
   if (text.length > MAX_MESSAGE_LENGTH) {
     return { ok: false, error: `Message must be at most ${MAX_MESSAGE_LENGTH} characters.` };
   }
@@ -423,6 +432,7 @@ export async function sendMessageAsParticipant(
   senderUserId: string,
   profile: { clientProfileId?: string; pilotProfileId?: string },
   body: unknown,
+  attachmentsInput?: unknown,
 ): Promise<
   | { ok: true; message: MessageDto }
   | { ok: false; error: string; status: 400 | 403 | 404 }
@@ -430,6 +440,11 @@ export async function sendMessageAsParticipant(
   const validated = validateMessageBody(body);
   if (!validated.ok) {
     return { ok: false, error: validated.error, status: 400 };
+  }
+
+  const attachments = sanitizeMessageAttachments(attachmentsInput);
+  if (!validated.text && attachments.length === 0) {
+    return { ok: false, error: "Message cannot be empty.", status: 400 };
   }
 
   const conversation = await assertConversationParticipant(
@@ -447,7 +462,8 @@ export async function sendMessageAsParticipant(
       data: {
         conversationId,
         senderUserId,
-        body: validated.text,
+        body: validated.text || (attachments.length ? "Attachment" : ""),
+        attachmentsJson: serializeMessageAttachments(attachments),
       },
       include: {
         senderUser: {
@@ -504,6 +520,7 @@ export async function sendMessageAsParticipant(
       senderLabel: "You",
       isMine: true,
       body: message.body,
+      attachments: parseMessageAttachments(message.attachmentsJson),
       createdAt: message.createdAt.toISOString(),
     },
   };

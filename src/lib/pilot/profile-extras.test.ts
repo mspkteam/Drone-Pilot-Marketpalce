@@ -20,6 +20,12 @@ describe("profile extras", () => {
       payloads: ["LiDAR Scanner"],
       localChipIds: ["thermal"],
       avatarUrl: null,
+      notifications: {
+        jobAlerts: true,
+        messages: true,
+        contracts: true,
+        membership: true,
+      },
     };
     const parsed = parseProfileExtrasJson(serializeProfileExtrasJson(extras));
     assert.deepEqual(parsed, extras);

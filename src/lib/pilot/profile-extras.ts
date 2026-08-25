@@ -1,3 +1,17 @@
+export type PilotNotificationPreferences = {
+  jobAlerts: boolean;
+  messages: boolean;
+  contracts: boolean;
+  membership: boolean;
+};
+
+export const PILOT_NOTIFICATION_DEFAULTS: PilotNotificationPreferences = {
+  jobAlerts: true,
+  messages: true,
+  contracts: true,
+  membership: true,
+};
+
 export type PilotProfileExtras = {
   callSign: string;
   languages: string;
@@ -5,6 +19,7 @@ export type PilotProfileExtras = {
   payloads: string[];
   localChipIds: string[];
   avatarUrl: string | null;
+  notifications: PilotNotificationPreferences;
 };
 
 export const emptyPilotProfileExtras = (): PilotProfileExtras => ({
@@ -14,6 +29,7 @@ export const emptyPilotProfileExtras = (): PilotProfileExtras => ({
   payloads: [],
   localChipIds: [],
   avatarUrl: null,
+  notifications: { ...PILOT_NOTIFICATION_DEFAULTS },
 });
 
 const AVATAR_MAX_CHARS = 550_000;
@@ -23,6 +39,31 @@ const PAYLOAD_MAX = 22;
 function asStringArray(value: unknown): string[] {
   if (!Array.isArray(value)) return [];
   return value.filter((item): item is string => typeof item === "string" && item.trim().length > 0);
+}
+
+function parseNotifications(value: unknown): PilotNotificationPreferences {
+  const source =
+    value && typeof value === "object"
+      ? (value as Partial<PilotNotificationPreferences>)
+      : {};
+  return {
+    jobAlerts:
+      typeof source.jobAlerts === "boolean"
+        ? source.jobAlerts
+        : PILOT_NOTIFICATION_DEFAULTS.jobAlerts,
+    messages:
+      typeof source.messages === "boolean"
+        ? source.messages
+        : PILOT_NOTIFICATION_DEFAULTS.messages,
+    contracts:
+      typeof source.contracts === "boolean"
+        ? source.contracts
+        : PILOT_NOTIFICATION_DEFAULTS.contracts,
+    membership:
+      typeof source.membership === "boolean"
+        ? source.membership
+        : PILOT_NOTIFICATION_DEFAULTS.membership,
+  };
 }
 
 export function parseProfileExtrasJson(
@@ -48,6 +89,7 @@ export function parseProfileExtrasJson(
       ),
       localChipIds: asStringArray(parsed.localChipIds),
       avatarUrl,
+      notifications: parseNotifications(parsed.notifications),
     };
   } catch {
     return empty;
@@ -64,6 +106,7 @@ export function serializeProfileExtrasJson(extras: PilotProfileExtras): string {
       .filter(Boolean),
     localChipIds: extras.localChipIds.filter(Boolean),
     avatarUrl: extras.avatarUrl,
+    notifications: extras.notifications ?? { ...PILOT_NOTIFICATION_DEFAULTS },
   } satisfies PilotProfileExtras);
 }
 
@@ -74,6 +117,22 @@ export function sanitizeProfileExtrasInput(
     return emptyPilotProfileExtras();
   }
   return parseProfileExtrasJson(JSON.stringify(value));
+}
+
+export function mergePilotProfileExtras(
+  current: PilotProfileExtras,
+  incoming: PilotProfileExtras,
+): PilotProfileExtras {
+  const incomingRecord = incoming as unknown as Record<string, unknown>;
+  const hasNotifications = Object.prototype.hasOwnProperty.call(
+    incomingRecord,
+    "notifications",
+  );
+  return {
+    ...current,
+    ...incoming,
+    notifications: hasNotifications ? incoming.notifications : current.notifications,
+  };
 }
 
 export function isAvatarPayloadTooLarge(avatarUrl: string | null): boolean {

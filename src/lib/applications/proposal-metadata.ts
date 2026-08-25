@@ -177,3 +177,27 @@ export function serializeProposalDetails(details: ProposalDetails): string {
 export function draftStorageKey(jobId: string): string {
   return `pilot-proposal-draft:${jobId}`;
 }
+
+const DRAFT_KIND = "pilot-proposal-draft";
+
+export function serializeProposalDraftForm(form: Record<string, unknown>): string {
+  return JSON.stringify({ kind: DRAFT_KIND, form });
+}
+
+export function parseProposalDraftForm(
+  json: string | null | undefined,
+): Record<string, unknown> | null {
+  if (!json?.trim()) return null;
+  try {
+    const parsed = JSON.parse(json) as {
+      kind?: string;
+      form?: Record<string, unknown>;
+    };
+    if (parsed.kind === DRAFT_KIND && parsed.form && typeof parsed.form === "object") {
+      return parsed.form;
+    }
+  } catch {
+    return null;
+  }
+  return null;
+}

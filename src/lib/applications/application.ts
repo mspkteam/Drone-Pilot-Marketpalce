@@ -2,7 +2,9 @@ import type { Job, JobApplication } from "@/generated/prisma/client";
 import { canWithdrawApplication } from "@/lib/applications/status";
 import {
   parseProposalDetails,
+  parseProposalDraftForm,
   serializeProposalDetails,
+  serializeProposalDraftForm,
   type ProposalDetails,
 } from "@/lib/applications/proposal-metadata";
 import {
@@ -31,6 +33,7 @@ import type {
 } from "@/types/application";
 
 export function toApplicationDto(app: JobApplication): JobApplicationDto {
+  const draftForm = parseProposalDraftForm(app.proposalDetailsJson);
   return {
     id: app.id,
     jobId: app.jobId,
@@ -39,7 +42,8 @@ export function toApplicationDto(app: JobApplication): JobApplicationDto {
     currency: app.currency,
     message: app.message,
     estimatedDeliveryDate: app.estimatedDeliveryDate?.toISOString() ?? null,
-    proposalDetails: parseProposalDetails(app.proposalDetailsJson),
+    proposalDetails: draftForm ? null : parseProposalDetails(app.proposalDetailsJson),
+    draftForm,
     shortlistedAt: app.shortlistedAt?.toISOString() ?? null,
     status: app.status as ApplicationStatus,
     submittedAt: app.submittedAt.toISOString(),
@@ -131,7 +135,7 @@ function clientAvatarUrl(
 
 function mapJobToOpenDto(
   job: Job & {
-    applications: { id: string }[];
+    applications: { id: string; status?: string }[];
     clientProfile?: {
       companyName: string | null;
       contactName: string;
@@ -162,8 +166,11 @@ function mapJobToOpenDto(
     visibleAt: visibleAt.toISOString(),
     canApply,
     applyBlockedReason,
-    hasApplied: job.applications.length > 0,
-    applicationId: job.applications[0]?.id ?? null,
+    hasApplied: job.applications.some((app) => app.status && app.status !== "draft"),
+    applicationId:
+      job.applications.find((app) => app.status !== "draft")?.id ??
+      job.applications[0]?.id ??
+      null,
     clientDisplayName: clientDisplayName(job.clientProfile),
     clientAvatarUrl: clientAvatarUrl(job.clientProfile),
     postProject: mapPostProjectSummary(job.postProjectJson),
@@ -349,7 +356,7 @@ export async function createJobApplication(
     },
   });
 
-  if (existing) {
+  if (existing && existing.status !== "draft") {
     return {
       ok: false,
       error: "You have already submitted an application for this job.",
@@ -367,18 +374,28 @@ export async function createJobApplication(
       : null;
 
   const application = await prisma.$transaction(async (tx) => {
-    const created = await tx.jobApplication.create({
-      data: {
-        jobId,
-        pilotProfileId,
-        proposedAmount: input.proposedAmount,
-        currency: input.currency || job.currency,
-        message: input.message,
-        estimatedDeliveryDate,
-        proposalDetailsJson,
-        status: "submitted",
-      },
-    });
+    const payload = {
+      proposedAmount: input.proposedAmount,
+      currency: input.currency || job.currency,
+      message: input.message,
+      estimatedDeliveryDate,
+      proposalDetailsJson,
+      status: "submitted",
+      submittedAt: new Date(),
+    };
+
+    const created = existing
+      ? await tx.jobApplication.update({
+          where: { id: existing.id },
+          data: payload,
+        })
+      : await tx.jobApplication.create({
+          data: {
+            jobId,
+            pilotProfileId,
+            ...payload,
+          },
+        });
 
     if (job.status === "open") {
       await tx.job.update({
@@ -398,6 +415,94 @@ export async function createJobApplication(
   await evaluatePilotAwards(pilotProfileId);
 
   return { ok: true, application: toApplicationDto(application) };
+}
+
+export async function saveJobApplicationDraft(
+  jobId: string,
+  pilotProfileId: string,
+  input: {
+    proposedAmount?: number;
+    message?: string | null;
+    estimatedDeliveryDate?: string | null;
+    currency?: string;
+    draftForm: Record<string, unknown>;
+  },
+): Promise<
+  | { ok: true; application: JobApplicationDto }
+  | { ok: false; error: string; status: 403 | 404 | 409 }
+> {
+  const applyCheck = await canPilotApplyToJobById(pilotProfileId, jobId);
+  if (!applyCheck.allowed) {
+    return {
+      ok: false,
+      error: applyCheck.reason ?? "You cannot apply to this job.",
+      status: 403,
+    };
+  }
+
+  const job = await prisma.job.findFirst({
+    where: { id: jobId, status: { in: ["open", "in_bidding"] } },
+  });
+  if (!job) {
+    return {
+      ok: false,
+      error: "Job not found or not open for applications.",
+      status: 404,
+    };
+  }
+
+  const existing = await prisma.jobApplication.findUnique({
+    where: { jobId_pilotProfileId: { jobId, pilotProfileId } },
+  });
+  if (existing && existing.status !== "draft") {
+    return {
+      ok: false,
+      error: "This proposal is already submitted.",
+      status: 409,
+    };
+  }
+
+  const amount =
+    typeof input.proposedAmount === "number" && input.proposedAmount > 0
+      ? input.proposedAmount
+      : 0;
+  const estimatedDeliveryDate = input.estimatedDeliveryDate
+    ? new Date(input.estimatedDeliveryDate)
+    : null;
+  const proposalDetailsJson = serializeProposalDraftForm(input.draftForm);
+
+  const row = existing
+    ? await prisma.jobApplication.update({
+        where: { id: existing.id },
+        data: {
+          proposedAmount: amount,
+          currency: input.currency || job.currency,
+          message: input.message?.trim() || null,
+          estimatedDeliveryDate:
+            estimatedDeliveryDate && !Number.isNaN(estimatedDeliveryDate.getTime())
+              ? estimatedDeliveryDate
+              : null,
+          proposalDetailsJson,
+          status: "draft",
+        },
+      })
+    : await prisma.jobApplication.create({
+        data: {
+          jobId,
+          pilotProfileId,
+          proposedAmount: amount,
+          currency: input.currency || job.currency,
+          message: input.message?.trim() || null,
+          estimatedDeliveryDate:
+            estimatedDeliveryDate && !Number.isNaN(estimatedDeliveryDate.getTime())
+              ? estimatedDeliveryDate
+              : null,
+          proposalDetailsJson,
+          status: "draft",
+        },
+      });
+
+  return { ok: true, application: toApplicationDto(row) };
 }
 
 function jobClientDisplayName(profile: {

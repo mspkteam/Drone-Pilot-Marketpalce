@@ -278,6 +278,8 @@
   border-radius: var(--pd-radius);
   background: var(--pd-card);
   padding: 1.0625rem;
+  color: inherit;
+  text-decoration: none;
 }
 
 .pilot-dashboard-stat-label {

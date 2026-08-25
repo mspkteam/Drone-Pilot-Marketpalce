@@ -10,6 +10,7 @@ export const USER_IMAGE_KINDS = [
   "logo",
   "portfolio",
   "job-reference",
+  "message-attachment",
 ] as const;
 
 export type UserImageKind = (typeof USER_IMAGE_KINDS)[number];
@@ -19,6 +20,7 @@ export const USER_IMAGE_MAX_BYTES: Record<UserImageKind, number> = {
   logo: 2 * 1024 * 1024,
   portfolio: 5 * 1024 * 1024,
   "job-reference": 8 * 1024 * 1024,
+  "message-attachment": 8 * 1024 * 1024,
 };
 
 const IMAGE_EXT_BY_MIME: Record<string, string> = {
@@ -38,6 +40,7 @@ const FOLDER_BY_KIND: Record<UserImageKind, string> = {
   logo: "profiles/logos",
   portfolio: "portfolio",
   "job-reference": "jobs/references",
+  "message-attachment": "messages/attachments",
 };
 
 function slugify(value: string): string {
@@ -50,6 +53,10 @@ function slugify(value: string): string {
 
 export function isUserImageKind(value: string): value is UserImageKind {
   return (USER_IMAGE_KINDS as readonly string[]).includes(value);
+}
+
+function allowsDocuments(kind: UserImageKind): boolean {
+  return kind === "job-reference" || kind === "message-attachment";
 }
 
 export function validateUserImage(
@@ -67,15 +74,13 @@ export function validateUserImage(
       error: `File must be ${Math.round(max / (1024 * 1024))} MB or smaller.`,
     };
   }
-  const allowed =
-    kind === "job-reference" ? JOB_REF_EXT_BY_MIME : IMAGE_EXT_BY_MIME;
+  const allowed = allowsDocuments(kind) ? JOB_REF_EXT_BY_MIME : IMAGE_EXT_BY_MIME;
   if (!(mime in allowed)) {
     return {
       ok: false,
-      error:
-        kind === "job-reference"
-          ? "Allowed types: PNG, JPEG, WebP, GIF, or PDF."
-          : "Allowed types: PNG, JPEG, WebP, or GIF.",
+      error: allowsDocuments(kind)
+        ? "Allowed types: PNG, JPEG, WebP, GIF, or PDF."
+        : "Allowed types: PNG, JPEG, WebP, or GIF.",
     };
   }
   return { ok: true };
@@ -88,8 +93,7 @@ export async function writeUserImage(input: {
   userId: string;
   nameHint?: string | null;
 }): Promise<string> {
-  const allowed =
-    input.kind === "job-reference" ? JOB_REF_EXT_BY_MIME : IMAGE_EXT_BY_MIME;
+  const allowed = allowsDocuments(input.kind) ? JOB_REF_EXT_BY_MIME : IMAGE_EXT_BY_MIME;
   const ext = allowed[input.mime] ?? "jpg";
   const hint = input.nameHint ? slugify(input.nameHint) : "";
   const fileName = `${input.userId.slice(-8)}-${hint || input.kind}-${Date.now().toString(36)}.${ext}`;

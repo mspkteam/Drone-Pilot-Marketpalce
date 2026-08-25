@@ -4,6 +4,7 @@ import { authConfig } from "@/auth.config";
 import { prisma } from "@/lib/db";
 import { verifyPassword } from "@/lib/auth/password";
 import { validateLoginInput } from "@/lib/auth/validation";
+import { reactivateUserIfEligible } from "@/lib/account/deactivation";
 import type { UserRole } from "@/types/roles";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
@@ -28,10 +29,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             where: { email: parsed.email },
           });
 
-          if (!user || user.status !== "active") return null;
+          if (!user) return null;
 
           const valid = await verifyPassword(parsed.password, user.passwordHash);
           if (!valid) return null;
+
+          if (user.status === "deactivated") {
+            const restored = await reactivateUserIfEligible(user.id);
+            if (!restored.ok) return null;
+          } else if (user.status !== "active") {
+            return null;
+          }
 
           return {
             id: user.id,

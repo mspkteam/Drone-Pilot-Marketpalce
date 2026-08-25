@@ -21,6 +21,7 @@ export type MessageDto = {
   senderLabel: string;
   isMine: boolean;
   body: string;
+  attachments: { url: string; name: string; contentType: string }[];
   createdAt: string;
 };
 

@@ -5,6 +5,8 @@ import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { FormField, inputClassName } from "@/components/ui/FormField";
 import type { ConversationDetailDto, MessageDto } from "@/types/messaging";
+import { MessageAttachmentList } from "@/components/messaging/MessageAttachmentList";
+import { uploadMessageFiles } from "@/lib/messaging/upload-message-files";
 import { cn } from "@/lib/utils";
 
 type ConversationThreadProps = {
@@ -26,6 +28,7 @@ export function ConversationThread({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [body, setBody] = useState("");
+  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
   const [sending, setSending] = useState(false);
 
   const load = useCallback(async () => {
@@ -55,19 +58,31 @@ export function ConversationThread({
   async function handleSend(e: React.FormEvent) {
     e.preventDefault();
     if (readOnly) return;
+    const text = body.trim();
+    if (!text && pendingFiles.length === 0) return;
     setSending(true);
     setError(null);
     try {
+      let attachments: MessageDto["attachments"] = [];
+      if (pendingFiles.length > 0) {
+        const uploaded = await uploadMessageFiles(pendingFiles);
+        if (!uploaded.ok) {
+          setError(uploaded.error);
+          return;
+        }
+        attachments = uploaded.attachments;
+      }
       const res = await fetch(`${apiBase}/${conversationId}/messages`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ body }),
+        body: JSON.stringify({ body: text, attachments }),
       });
       const data = await res.json();
       if (!res.ok) {
         setError(data.error ?? "Failed to send message.");
       } else {
         setBody("");
+        setPendingFiles([]);
         const newMsg = data.message as MessageDto;
         setConversation((prev) =>
           prev
@@ -140,6 +155,7 @@ export function ConversationThread({
                 {m.senderLabel}
               </p>
               <p className="mt-1 whitespace-pre-wrap">{m.body}</p>
+              <MessageAttachmentList attachments={m.attachments} />
               <p className="mt-1 text-xs text-muted-foreground">
                 {new Date(m.createdAt).toLocaleString()}
               </p>
@@ -154,23 +170,37 @@ export function ConversationThread({
         </p>
       ) : (
         <form onSubmit={(e) => void handleSend(e)} className="space-y-3">
-          <FormField label="Message" htmlFor="message-body" required>
+          <FormField label="Message" htmlFor="message-body">
             <textarea
               id="message-body"
               rows={3}
-              required
               value={body}
               onChange={(e) => setBody(e.target.value)}
               className={inputClassName}
               placeholder="Type your message…"
             />
           </FormField>
+          <input
+            type="file"
+            multiple
+            accept="image/png,image/jpeg,image/webp,image/gif,application/pdf"
+            onChange={(e) => {
+              const files = Array.from(e.target.files ?? []);
+              e.target.value = "";
+              setPendingFiles((current) => [...current, ...files].slice(0, 4));
+            }}
+          />
+          {pendingFiles.length > 0 ? (
+            <p className="text-xs text-muted-foreground">
+              {pendingFiles.length} file{pendingFiles.length === 1 ? "" : "s"} ready to send
+            </p>
+          ) : null}
           {error ? (
             <p className="text-sm text-destructive" role="alert">
               {error}
             </p>
           ) : null}
-          <Button type="submit" disabled={sending}>
+          <Button type="submit" disabled={sending || (!body.trim() && pendingFiles.length === 0)}>
             {sending ? "Sending…" : "Send"}
           </Button>
         </form>

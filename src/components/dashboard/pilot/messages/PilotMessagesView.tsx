@@ -13,6 +13,8 @@ import type {
   ConversationListItemDto,
   MessageDto,
 } from "@/types/messaging";
+import { MessageAttachmentList } from "@/components/messaging/MessageAttachmentList";
+import { uploadMessageFiles } from "@/lib/messaging/upload-message-files";
 import {
   PaperclipIcon,
   SendIcon,
@@ -30,6 +32,7 @@ type ThreadMessage = {
   body: string;
   timeLabel: string;
   isMine: boolean;
+  attachments: MessageDto["attachments"];
 };
 
 export function PilotMessagesView({
@@ -48,6 +51,7 @@ export function PilotMessagesView({
   const [loadingThread, setLoadingThread] = useState(false);
   const [threadError, setThreadError] = useState<string | null>(null);
   const [draft, setDraft] = useState("");
+  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
   const [sending, setSending] = useState(false);
 
   const loadList = useCallback(async () => {
@@ -144,6 +148,7 @@ export function PilotMessagesView({
       body: m.body,
       timeLabel: formatBubbleTime(m.createdAt),
       isMine: m.isMine,
+      attachments: m.attachments ?? [],
     }));
   }, [detail]);
 
@@ -151,21 +156,32 @@ export function PilotMessagesView({
     setSelectedId(id);
     setMobileChatOpen(true);
     setDraft("");
+    setPendingFiles([]);
     setThreadError(null);
   }
 
   async function handleSend(e: React.FormEvent) {
     e.preventDefault();
     const text = draft.trim();
-    if (!text || !selectedId) return;
+    if ((!text && pendingFiles.length === 0) || !selectedId) return;
 
     setSending(true);
     setThreadError(null);
     try {
+      let attachments: MessageDto["attachments"] = [];
+      if (pendingFiles.length > 0) {
+        const uploaded = await uploadMessageFiles(pendingFiles);
+        if (!uploaded.ok) {
+          setThreadError(uploaded.error);
+          return;
+        }
+        attachments = uploaded.attachments;
+      }
+
       const res = await fetch(`${API_BASE}/${selectedId}/messages`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ body: text }),
+        body: JSON.stringify({ body: text, attachments }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -173,6 +189,7 @@ export function PilotMessagesView({
       } else {
         const newMsg = data.message as MessageDto;
         setDraft("");
+        setPendingFiles([]);
         setDetail((prev) =>
           prev
             ? {
@@ -314,6 +331,7 @@ export function PilotMessagesView({
                   className={`client-messages-bubble${message.isMine ? " client-messages-bubble--mine" : ""}`}
                 >
                   <p>{message.body}</p>
+                  <MessageAttachmentList attachments={message.attachments} />
                   <span className="client-messages-bubble-time">
                     {message.timeLabel}
                   </span>
@@ -336,17 +354,37 @@ export function PilotMessagesView({
             <button
               type="button"
               className="client-messages-attach-btn"
-              disabled
-              title="File attachments pending implementation"
-              aria-label="Attach file (coming soon)"
+              disabled={!selectedId || sending}
+              title="Attach a file"
+              aria-label="Attach file"
+              onClick={() =>
+                document.getElementById("pilot-message-attach")?.click()
+              }
             >
               <PaperclipIcon />
             </button>
+            <input
+              id="pilot-message-attach"
+              type="file"
+              className="client-messages-file-input"
+              multiple
+              accept="image/png,image/jpeg,image/webp,image/gif,application/pdf"
+              onChange={(e) => {
+                const files = Array.from(e.target.files ?? []);
+                e.target.value = "";
+                setPendingFiles((current) => [...current, ...files].slice(0, 4));
+              }}
+            />
           </div>
+          {pendingFiles.length > 0 ? (
+            <p className="client-messages-pending-files">
+              {pendingFiles.length} file{pendingFiles.length === 1 ? "" : "s"} ready to send
+            </p>
+          ) : null}
           <button
             type="submit"
             className="client-messages-send-btn"
-            disabled={!selectedId || sending || !draft.trim()}
+            disabled={!selectedId || sending || (!draft.trim() && pendingFiles.length === 0)}
           >
             <SendIcon />
             {sending ? "Sending…" : "Send"}

@@ -4,6 +4,32 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.63] — 2026-08-25
+
+### Fixed
+
+- Issuing a certificate now **always writes the PilotCertificate row** even if PDF generation or Blob storage fails, so it appears on the pilot account and public profile.
+- Pilot **Save Draft** on a proposal persists to the database (status `draft`), not only the browser. Drafts show under My Proposals and can be finished later.
+- Portfolio gallery add/edit modal no longer crashes on open (React hooks ran after an early return), so gallery items save (3.15).
+- Pilot dashboard earnings, contracts, and proposals cards use live counts and link to those pages (3.13).
+
+---
+
+## [0.27.62] — 2026-08-25
+
+### Added
+
+- Pilot **notification preference** toggles persist on the pilot profile (Neon).
+- Marketplace message **file attachments** (images/PDF) persist on the conversation and Vercel Blob.
+- Pilot **account deactivation** persists `deactivated` status; signing in within **30 days** restores the account and grade.
+
+### Fixed
+
+- Client billing no longer shows sample invoices or a fake saved card.
+- Pilot dashboard reviews no longer display placeholder 4.9 / 47 counts when there are no live reviews.
+
+---
+
 ## [0.27.61] — 2026-08-24
 
 ### Added

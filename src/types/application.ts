@@ -1,6 +1,7 @@
 import type { ProposalDetails } from "@/lib/applications/proposal-metadata";
 
 export const APPLICATION_STATUSES = [
+  "draft",
   "submitted",
   "withdrawn",
   "accepted",
@@ -19,6 +20,7 @@ export type JobApplicationDto = {
   message: string | null;
   estimatedDeliveryDate: string | null;
   proposalDetails: ProposalDetails | null;
+  draftForm?: Record<string, unknown> | null;
   shortlistedAt: string | null;
   status: ApplicationStatus;
   submittedAt: string;

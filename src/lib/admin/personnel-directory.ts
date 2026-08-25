@@ -105,6 +105,9 @@ function mapStatus(
     region?: string;
   },
 ): { label: string; tone: PersonnelStatusTone } {
+  if (userStatus === "deactivated") {
+    return { label: "DEACTIVATED", tone: "pending" };
+  }
   if (userStatus === "suspended" || userStatus === "inactive") {
     return { label: "SUSPENDED", tone: "danger" };
   }

@@ -218,7 +218,7 @@ export async function getVisibleJobsForPilot(
       },
       applications: {
         where: { pilotProfileId },
-        select: { id: true },
+        select: { id: true, status: true },
       },
     },
   });

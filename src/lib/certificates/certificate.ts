@@ -529,7 +529,7 @@ export async function issueCertificateToPilot(
     };
   }
 
-  let pdfBuffer: Buffer;
+  let pdfBuffer: Buffer | null = null;
   try {
     const body = applyTemplate(template.bodyTemplate, {
       pilotName: pilot.displayName,
@@ -553,18 +553,16 @@ export async function issueCertificateToPilot(
       overlayPositions: parseOverlayPositionsJson(template.overlayPositionsJson),
     });
   } catch (error) {
-    const message =
-      error instanceof Error
-        ? error.message
-        : "Certificate PDF generation failed.";
-    return { ok: false, error: message, status: 400 };
+    console.error("Certificate PDF generation failed; record will still be saved:", error);
   }
 
   const pdfFileName = `${certificateNumber.replace(/[^a-zA-Z0-9-]/g, "_")}.pdf`;
-  try {
-    await writeCertificatePdf(pdfFileName, pdfBuffer);
-  } catch (error) {
-    console.error("Certificate PDF storage failed; record will still be saved:", error);
+  if (pdfBuffer) {
+    try {
+      await writeCertificatePdf(pdfFileName, pdfBuffer);
+    } catch (error) {
+      console.error("Certificate PDF storage failed; record will still be saved:", error);
+    }
   }
 
   const row = await prisma.pilotCertificate.create({
@@ -573,7 +571,6 @@ export async function issueCertificateToPilot(
       pilotProfileId,
       templateId,
       pilotDisplayName: pilot.displayName,
-      // Store RAS member # only — never free-text license / name.
       licenseNumber: memberNumber,
       awardGrade: grade,
       issuedAt,
@@ -594,7 +591,11 @@ export async function issueCertificateToPilot(
     });
   });
 
-  await evaluateAndAssignWings(pilotProfileId);
+  try {
+    await evaluateAndAssignWings(pilotProfileId);
+  } catch (error) {
+    console.error("Wing evaluation after certificate issue failed:", error);
+  }
 
   return {
     ok: true,

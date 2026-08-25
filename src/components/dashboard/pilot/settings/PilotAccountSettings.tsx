@@ -2,10 +2,12 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+import { signOut } from "next-auth/react";
 import { PilotDeactivateModal } from "./PilotDeactivateModal";
 import { PilotSettingsCheckbox } from "./PilotSettingsCheckbox";
 import type { AccountDto } from "@/types/account";
 import type { PilotProfileDto } from "@/types/pilot";
+import { PILOT_NOTIFICATION_DEFAULTS } from "@/lib/pilot/profile-extras";
 
 const ROLE_LABELS: Record<string, string> = {
   client: "Client",
@@ -83,6 +85,7 @@ export function PilotAccountSettings() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [changingPassword, setChangingPassword] = useState(false);
   const [savingPublic, setSavingPublic] = useState(false);
+  const [savingNotify, setSavingNotify] = useState(false);
   const [deactivateOpen, setDeactivateOpen] = useState(false);
   const [deactivating, setDeactivating] = useState(false);
 
@@ -203,17 +206,55 @@ export function PilotAccountSettings() {
     }
   }
 
-  function handleDeactivateConfirm() {
+  async function handleDeactivateConfirm() {
     setDeactivating(true);
     setError(null);
     setSuccess(null);
-    window.setTimeout(() => {
+    try {
+      const res = await fetch("/api/account/deactivate", { method: "POST" });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error ?? "Could not deactivate account.");
+        setDeactivating(false);
+        return;
+      }
+      await signOut({ callbackUrl: "/login" });
+    } catch {
+      setError("Could not deactivate account.");
       setDeactivating(false);
-      setDeactivateOpen(false);
-      setSuccess(
-        "Account deactivation request recorded. Backend workflow pending implementation.",
-      );
-    }, 600);
+    }
+  }
+
+  async function saveNotificationPreferences(
+    next: typeof PILOT_NOTIFICATION_DEFAULTS,
+  ) {
+    if (!pilotProfile) return;
+    setSavingNotify(true);
+    setError(null);
+    setSuccess(null);
+    try {
+      const res = await fetch("/api/pilot/profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          extras: {
+            ...pilotProfile.extras,
+            notifications: next,
+          },
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error ?? "Could not save notification preferences.");
+      } else {
+        setPilotProfile(data.profile);
+        setSuccess("Notification preferences saved.");
+      }
+    } catch {
+      setError("Could not save notification preferences.");
+    } finally {
+      setSavingNotify(false);
+    }
   }
 
   if (loading) {
@@ -350,9 +391,43 @@ export function PilotAccountSettings() {
           <section id="pilot-settings-notifications" className="pilot-settings-card">
             <h2 className="pilot-settings-card-title">NOTIFICATION PREFERENCES</h2>
             <p className="pilot-settings-card-copy">
-              In-app notifications are enabled. Email delivery will use SMTP in a later
+              Choose which in-app alerts you want. Email delivery uses SMTP in a later
               phase; alerts appear in your dashboard bell.
             </p>
+            {pilotProfile ? (
+              <div className="pilot-settings-subsection">
+                {(
+                  [
+                    ["jobAlerts", "New jobs and marketplace alerts"],
+                    ["messages", "Messages from clients"],
+                    ["contracts", "Contract and delivery updates"],
+                    ["membership", "Membership and grade reminders"],
+                  ] as const
+                ).map(([key, label]) => (
+                  <PilotSettingsCheckbox
+                    key={key}
+                    id={`pilot-notify-${key}`}
+                    checked={
+                      (pilotProfile.extras.notifications ?? PILOT_NOTIFICATION_DEFAULTS)[
+                        key
+                      ]
+                    }
+                    disabled={savingNotify}
+                    label={label}
+                    onChange={(checked) => {
+                      const current =
+                        pilotProfile.extras.notifications ?? PILOT_NOTIFICATION_DEFAULTS;
+                      void saveNotificationPreferences({
+                        ...current,
+                        [key]: checked,
+                      });
+                    }}
+                  />
+                ))}
+              </div>
+            ) : (
+              <p className="pilot-settings-hint">Complete your profile to manage alerts.</p>
+            )}
             <p className="pilot-settings-stat">
               <span className="pilot-settings-stat-value">{account.unreadNotifications}</span>{" "}
               unread notification{account.unreadNotifications === 1 ? "" : "s"}
@@ -367,8 +442,7 @@ export function PilotAccountSettings() {
               </button>
             ) : null}
             <p className="pilot-settings-hint">
-              Per-category notification toggles are not wired for pilots yet — only inbox
-              read state is integrated today.
+              Email SMTP is later. These toggles are stored on your account now.
             </p>
           </section>
 

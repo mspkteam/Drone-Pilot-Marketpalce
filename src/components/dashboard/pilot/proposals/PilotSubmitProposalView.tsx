@@ -15,6 +15,7 @@ import { PostProjectDateField } from "@/components/dashboard/client/post-project
 import { PostProjectTermsAcknowledgment } from "@/components/dashboard/client/post-project/PostProjectTermsAcknowledgment";
 import {
   draftStorageKey,
+  parseProposalDraftForm,
   pricingBreakdownTotal,
   PROPOSAL_DELIVERABLE_OPTIONS,
   type ProposalDeliverable,
@@ -190,11 +191,22 @@ function MissionSplitCards({ job }: { job: PilotOpenJobDto }) {
   );
 }
 
+function applyStoredDraft(parsed: Partial<FormState>): FormState {
+  return syncProposedAmount({
+    ...emptyForm(),
+    ...parsed,
+    termsAcknowledged: false,
+    accuracyConfirmed: parsed.accuracyConfirmed === true,
+  });
+}
+
 export function PilotSubmitProposalView({ jobId, initial }: PilotSubmitProposalViewProps) {
   const router = useRouter();
   const { job } = initial;
   const [form, setForm] = useState<FormState>(emptyForm);
   const [error, setError] = useState<string | null>(null);
+  const [draftSaved, setDraftSaved] = useState(false);
+  const [savingDraft, setSavingDraft] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [termsOpen, setTermsOpen] = useState(false);
   const [deliverableMenu, setDeliverableMenu] = useState("");
@@ -223,18 +235,16 @@ export function PilotSubmitProposalView({ jobId, initial }: PilotSubmitProposalV
   }, []);
 
   useEffect(() => {
+    const serverForm = initial.application?.draftForm as Partial<FormState> | undefined;
+    if (serverForm && Object.keys(serverForm).length > 0) {
+      setForm(applyStoredDraft(serverForm));
+      return;
+    }
     try {
       const raw = localStorage.getItem(draftStorageKey(jobId));
       if (raw) {
         const parsed = JSON.parse(raw) as Partial<FormState>;
-        setForm((current) =>
-          syncProposedAmount({
-            ...current,
-            ...parsed,
-            termsAcknowledged: false,
-            accuracyConfirmed: parsed.accuracyConfirmed === true,
-          }),
-        );
+        setForm(applyStoredDraft(parsed));
         return;
       }
     } catch {
@@ -244,7 +254,7 @@ export function PilotSubmitProposalView({ jobId, initial }: PilotSubmitProposalV
     if (fromJob.length) {
       setForm((current) => ({ ...current, deliverables: fromJob }));
     }
-  }, [job, jobId]);
+  }, [job, jobId, initial.application]);
 
   useEffect(() => {
     if (!termsOpen) return;
@@ -260,15 +270,40 @@ export function PilotSubmitProposalView({ jobId, initial }: PilotSubmitProposalV
     };
   }, [termsOpen]);
 
-  const saveDraft = useCallback(() => {
+  const saveDraft = useCallback(async () => {
+    setError(null);
+    setDraftSaved(false);
+    setSavingDraft(true);
+    const { termsAcknowledged: _terms, ...draft } = form;
     try {
-      const { termsAcknowledged: _terms, ...draft } = form;
       localStorage.setItem(draftStorageKey(jobId), JSON.stringify(draft));
-      setError(null);
     } catch {
-      setError("Could not save draft on this device.");
+      /* still try server */
     }
-  }, [form, jobId]);
+    try {
+      const res = await fetch(`/api/pilot/jobs/${jobId}/applications/draft`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          proposedAmount: Number(form.proposedAmount) || 0,
+          message: form.message,
+          estimatedDeliveryDate: form.estimatedDeliveryDate || null,
+          currency: job.currency,
+          draftForm: draft,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error ?? "Could not save draft.");
+        return;
+      }
+      setDraftSaved(true);
+    } catch {
+      setError("Could not save draft.");
+    } finally {
+      setSavingDraft(false);
+    }
+  }, [form, job.currency, jobId]);
 
   function addDeliverable(item: string) {
     if (!PROPOSAL_DELIVERABLE_OPTIONS.includes(item as ProposalDeliverable)) return;
@@ -631,13 +666,13 @@ export function PilotSubmitProposalView({ jobId, initial }: PilotSubmitProposalV
                 <button
                   type="button"
                   className="pilot-submit-btn-secondary"
-                  disabled={submitting}
-                  onClick={saveDraft}
+                  disabled={submitting || savingDraft}
+                  onClick={() => void saveDraft()}
                 >
-                  Save Draft
+                  {savingDraft ? "Saving…" : draftSaved ? "Draft saved" : "Save Draft"}
                 </button>
                 <span className="pilot-submit-draft-hint">
-                  ⓘ You can save as draft and submit later
+                  ⓘ Saved to your account — you can finish and submit later
                 </span>
               </div>
             </div>

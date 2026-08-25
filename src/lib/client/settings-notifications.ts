@@ -49,23 +49,3 @@ export function notificationPreferencesFromProfile(
   return preferences?.notifications ?? { ...CLIENT_NOTIFICATION_DEFAULTS };
 }
 
-const STORAGE_KEY = "client-notification-preferences";
-
-export function loadNotificationPreferences(): ClientNotificationPreferences {
-  if (typeof window === "undefined") return { ...CLIENT_NOTIFICATION_DEFAULTS };
-
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return { ...CLIENT_NOTIFICATION_DEFAULTS };
-    return { ...CLIENT_NOTIFICATION_DEFAULTS, ...JSON.parse(raw) };
-  } catch {
-    return { ...CLIENT_NOTIFICATION_DEFAULTS };
-  }
-}
-
-export function saveNotificationPreferences(
-  prefs: ClientNotificationPreferences,
-): void {
-  if (typeof window === "undefined") return;
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(prefs));
-}

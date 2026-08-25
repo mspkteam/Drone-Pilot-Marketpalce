@@ -26,6 +26,7 @@ export async function POST(request: Request, context: RouteContext) {
     authResult.userId,
     { pilotProfileId: profile.id },
     body.body,
+    body.attachments,
   );
 
   if (!result.ok) {

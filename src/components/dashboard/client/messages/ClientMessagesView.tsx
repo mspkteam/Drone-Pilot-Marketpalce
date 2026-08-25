@@ -13,7 +13,8 @@ import type {
   EligibleApplicationDto,
   MessageDto,
 } from "@/types/messaging";
-import { PaperclipIcon, SendIcon } from "./ClientMessagesIcons";
+import { MessageAttachmentList } from "@/components/messaging/MessageAttachmentList";
+import { uploadMessageFiles } from "@/lib/messaging/upload-message-files";
 
 const LIST_API = "/api/client/conversations" as const;
 const API_BASE = "/api/client/conversations" as const;
@@ -27,6 +28,7 @@ type ThreadMessage = {
   body: string;
   timeLabel: string;
   isMine: boolean;
+  attachments: MessageDto["attachments"];
 };
 
 export function ClientMessagesView({
@@ -46,6 +48,7 @@ export function ClientMessagesView({
   const [loadingThread, setLoadingThread] = useState(false);
   const [threadError, setThreadError] = useState<string | null>(null);
   const [draft, setDraft] = useState("");
+  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
   const [sending, setSending] = useState(false);
   const [startingId, setStartingId] = useState<string | null>(null);
 
@@ -142,6 +145,7 @@ export function ClientMessagesView({
       body: m.body,
       timeLabel: formatBubbleTime(m.createdAt),
       isMine: m.isMine,
+      attachments: m.attachments ?? [],
     }));
   }, [detail]);
 
@@ -149,6 +153,7 @@ export function ClientMessagesView({
     setSelectedId(id);
     setMobileChatOpen(true);
     setDraft("");
+    setPendingFiles([]);
     setThreadError(null);
   }
 
@@ -178,15 +183,25 @@ export function ClientMessagesView({
   async function handleSend(e: React.FormEvent) {
     e.preventDefault();
     const text = draft.trim();
-    if (!text || !selectedId) return;
+    if ((!text && pendingFiles.length === 0) || !selectedId) return;
 
     setSending(true);
     setThreadError(null);
     try {
+      let attachments: MessageDto["attachments"] = [];
+      if (pendingFiles.length > 0) {
+        const uploaded = await uploadMessageFiles(pendingFiles);
+        if (!uploaded.ok) {
+          setThreadError(uploaded.error);
+          return;
+        }
+        attachments = uploaded.attachments;
+      }
+
       const res = await fetch(`${API_BASE}/${selectedId}/messages`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ body: text }),
+        body: JSON.stringify({ body: text, attachments }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -194,6 +209,7 @@ export function ClientMessagesView({
       } else {
         const newMsg = data.message as MessageDto;
         setDraft("");
+        setPendingFiles([]);
         setDetail((prev) =>
           prev
             ? {
@@ -357,6 +373,7 @@ export function ClientMessagesView({
                       className={`client-messages-bubble${message.isMine ? " client-messages-bubble--mine" : ""}`}
                     >
                       <p>{message.body}</p>
+                      <MessageAttachmentList attachments={message.attachments} />
                       <span className="client-messages-bubble-time">
                         {message.timeLabel}
                       </span>
@@ -382,17 +399,37 @@ export function ClientMessagesView({
                 <button
                   type="button"
                   className="client-messages-attach-btn"
-                  disabled
-                  title="File attachments pending implementation"
-                  aria-label="Attach file (coming soon)"
+                  disabled={sending}
+                  title="Attach a file"
+                  aria-label="Attach file"
+                  onClick={() =>
+                    document.getElementById("client-message-attach")?.click()
+                  }
                 >
                   <PaperclipIcon />
                 </button>
+                <input
+                  id="client-message-attach"
+                  type="file"
+                  className="client-messages-file-input"
+                  multiple
+                  accept="image/png,image/jpeg,image/webp,image/gif,application/pdf"
+                  onChange={(e) => {
+                    const files = Array.from(e.target.files ?? []);
+                    e.target.value = "";
+                    setPendingFiles((current) => [...current, ...files].slice(0, 4));
+                  }}
+                />
               </div>
+              {pendingFiles.length > 0 ? (
+                <p className="client-messages-pending-files">
+                  {pendingFiles.length} file{pendingFiles.length === 1 ? "" : "s"} ready to send
+                </p>
+              ) : null}
               <button
                 type="submit"
                 className="client-messages-send-btn"
-                disabled={sending || !draft.trim()}
+                disabled={sending || (!draft.trim() && pendingFiles.length === 0)}
               >
                 <SendIcon />
                 {sending ? "Sending…" : "Send"}

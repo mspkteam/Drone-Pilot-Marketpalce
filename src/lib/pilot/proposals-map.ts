@@ -1,6 +1,7 @@
 import type { ApplicationStatus, PilotApplicationListItemDto } from "@/types/application";
 
 export type PilotProposalUiStatus =
+  | "DRAFT"
   | "PENDING"
   | "REVISED"
   | "ACCEPTED"
@@ -23,6 +24,7 @@ export type PilotProposalRow = {
 
 export const PILOT_PROPOSAL_TAB_ORDER: readonly PilotProposalTabId[] = [
   "ALL",
+  "DRAFT",
   "PENDING",
   "REVISED",
   "ACCEPTED",
@@ -32,6 +34,7 @@ export const PILOT_PROPOSAL_TAB_ORDER: readonly PilotProposalTabId[] = [
 
 const TAB_LABELS: Record<PilotProposalTabId, string> = {
   ALL: "All",
+  DRAFT: "Draft",
   PENDING: "Pending",
   REVISED: "Revised",
   ACCEPTED: "Accepted",
@@ -52,6 +55,8 @@ export function mapApplicationStatusToUi(
   shortlistedAt: string | null,
 ): PilotProposalUiStatus {
   switch (status) {
+    case "draft":
+      return "DRAFT";
     case "accepted":
       return "ACCEPTED";
     case "rejected":
@@ -115,7 +120,10 @@ export function mapApplicationToProposalRow(
     badgeLabel: proposalBadgeLabel(
       mapApplicationStatusToUi(app.status, app.shortlistedAt),
     ),
-    viewHref: `/dashboard/pilot/proposals/${app.id}`,
+    viewHref:
+      app.status === "draft"
+        ? `/dashboard/pilot/jobs/${app.jobId}/proposal`
+        : `/dashboard/pilot/proposals/${app.id}`,
   };
 }
 
@@ -124,6 +132,7 @@ export function countProposalsByStatus(
 ): Record<PilotProposalTabId, number> {
   const counts: Record<PilotProposalTabId, number> = {
     ALL: rows.length,
+    DRAFT: 0,
     PENDING: 0,
     REVISED: 0,
     ACCEPTED: 0,

@@ -35,6 +35,8 @@ export function PilotPortfolioAddModal({
   const blobUrlRef = useRef<string | null>(null);
   const [draft, setDraft] = useState<PilotPortfolioDraft>(EMPTY_DRAFT);
   const [tagsInput, setTagsInput] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const isEdit = Boolean(item);
 
   useEffect(() => {
@@ -76,8 +78,6 @@ export function PilotPortfolioAddModal({
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [open, saving, onClose]);
 
-  if (!open) return null;
-
   function handleSave() {
     const title = draft.title.trim();
     if (!title || saving) return;
@@ -88,9 +88,6 @@ export function PilotPortfolioAddModal({
       tags: parsePortfolioTags(tagsInput),
     });
   }
-
-  const [uploading, setUploading] = useState(false);
-  const [uploadError, setUploadError] = useState<string | null>(null);
 
   async function handleFileChange(file: File | undefined) {
     if (!file || saving || uploading) return;
@@ -109,6 +106,8 @@ export function PilotPortfolioAddModal({
     }
     setDraft((current) => ({ ...current, thumbnailUrl: result.url }));
   }
+
+  if (!open) return null;
 
   return (
     <div

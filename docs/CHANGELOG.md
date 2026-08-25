@@ -4,6 +4,19 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.64] — 2026-08-25
+
+### Fixed
+
+- Public pilot profile now mirrors dashboard extras: service chips (including Thermal/Construction/Emergency), languages, license country, miles for service radius, and a single hourly rate when min and max match.
+- Saving a pilot profile now includes a drone or payload still sitting in the text field (no extra Add click required).
+
+### Added
+
+- Admin **Delete** on issued certificates from the certificate engine and from the pilot member profile. Deleting an issued copy removes it from the pilot account and public listing; templates stay in the catalog.
+
+---
+
 ## [0.27.63] — 2026-08-25
 
 ### Fixed

@@ -1166,6 +1166,17 @@
   color: var(--color-gold, #d8b339);
 }
 
+.admin-member-cert-row {
+  flex-direction: row !important;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.admin-member-cert-list {
+  margin-bottom: 0.85rem;
+}
+
 .admin-member-empty {
   margin: 0;
   font-size: 0.875rem;

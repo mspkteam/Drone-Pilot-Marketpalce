@@ -94,11 +94,21 @@ function buildExtras(profile: PilotProfileDto | null): PilotUiExtras {
 }
 
 function extrasPayload(extras: PilotUiExtras): PilotProfileExtras {
+  const pendingDrone = extras.droneEquipment.trim();
+  const pendingPayload = extras.payloadDraft.trim().slice(0, PAYLOAD_MAX);
+  const mainDrones =
+    pendingDrone && !extras.mainDrones.includes(pendingDrone)
+      ? [...extras.mainDrones, pendingDrone]
+      : extras.mainDrones;
+  const payloads =
+    pendingPayload && !extras.payloads.includes(pendingPayload)
+      ? [...extras.payloads, pendingPayload]
+      : extras.payloads;
   return {
     callSign: extras.callSign,
     languages: extras.languages,
-    mainDrones: extras.mainDrones,
-    payloads: extras.payloads,
+    mainDrones,
+    payloads,
     localChipIds: extras.localChipIds,
     avatarUrl: extras.avatarPreview,
     notifications: extras.notifications,
@@ -239,9 +249,10 @@ export function PilotProfileCompletionView({
       hourlyRateMax: extras.hourlyRateDisplay || form.hourlyRateMax,
     };
 
+    const extrasToSave = extrasPayload(extras);
     const payload = {
       ...pilotFormToPayload(mergedForm, needsOnboarding),
-      extras: extrasPayload(extras),
+      extras: extrasToSave,
     };
     const method = profile ? "PATCH" : "POST";
     const res = await fetch("/api/pilot/profile", {
@@ -258,6 +269,14 @@ export function PilotProfileCompletionView({
     }
 
     setForm(mergedForm);
+    setExtras((current) => ({
+      ...current,
+      droneEquipment: "",
+      payloadDraft: "",
+      mainDrones: extrasToSave.mainDrones,
+      payloads: extrasToSave.payloads,
+      payloadPanelOpen: extrasToSave.payloads.length === 0,
+    }));
     setSuccess(
       needsOnboarding
         ? "Profile submitted for review."

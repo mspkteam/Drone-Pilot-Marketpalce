@@ -33,6 +33,29 @@ export function isChipSelected(
   return localChipIds.includes(chip.id);
 }
 
+/** Labels as shown on the dashboard chips, including extras (thermal, etc.). */
+export function publicPilotServiceLabels(
+  servicesOffered: string[],
+  localChipIds: string[],
+): string[] {
+  const labels: string[] = [];
+  const seen = new Set<string>();
+  const push = (label: string) => {
+    const key = label.trim().toLowerCase();
+    if (!key || seen.has(key)) return;
+    seen.add(key);
+    labels.push(label.trim());
+  };
+
+  for (const chip of PILOT_PROFILE_SERVICE_CHIPS) {
+    if (isChipSelected(chip, servicesOffered, localChipIds)) {
+      push(chip.label);
+    }
+  }
+
+  return labels;
+}
+
 export function toggleServiceChip(
   chip: PilotProfileServiceChip,
   servicesOffered: string[],

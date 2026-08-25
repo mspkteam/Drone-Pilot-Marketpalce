@@ -47,6 +47,9 @@ export type PublicPilotListItemDto = {
 export type PublicPilotProfileDto = PublicPilotListItemDto & {
   serviceRadiusKm: number | null;
   callSign: string | null;
+  languages: string[];
+  serviceLabels: string[];
+  licenseCountry: string | null;
   mainDrones: string[];
   payloads: string[];
   portfolio: PilotPortfolioItem[];

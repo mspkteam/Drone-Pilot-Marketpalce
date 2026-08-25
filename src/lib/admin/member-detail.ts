@@ -51,6 +51,12 @@ export type AdminMemberDetailDto = {
       certificates: number;
       reviews: number;
     };
+    issuedCertificates: Array<{
+      id: string;
+      certificateNumber: string;
+      templateName: string;
+      issuedAt: string;
+    }>;
     recentApplications: Array<{
       id: string;
       jobTitle: string;
@@ -158,6 +164,11 @@ export async function getMemberDetailForAdmin(
               reviewsReceived: true,
               verifications: true,
             },
+          },
+          certificates: {
+            include: { template: { select: { name: true } } },
+            orderBy: { issuedAt: "desc" },
+            take: 40,
           },
           verifications: {
             where: { status: "pending" },
@@ -375,6 +386,12 @@ export async function getMemberDetailForAdmin(
             certificates: pilot._count.certificates,
             reviews: pilot._count.reviewsReceived,
           },
+          issuedCertificates: pilot.certificates.map((cert) => ({
+            id: cert.id,
+            certificateNumber: cert.certificateNumber,
+            templateName: cert.template.name,
+            issuedAt: cert.issuedAt.toISOString(),
+          })),
           recentApplications: pilot.applications.map((a) => ({
             id: a.id,
             jobTitle: a.job.title,

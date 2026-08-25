@@ -93,6 +93,7 @@ export function AdminPilotMemberProfile({
   const [assignWingId, setAssignWingId] = useState("");
   const [assignNote, setAssignNote] = useState("");
   const [assigningWing, setAssigningWing] = useState(false);
+  const [deletingCertId, setDeletingCertId] = useState<string | null>(null);
 
   const [promoteTierCode, setPromoteTierCode] = useState(
     pilot.membership?.tierCode ?? "A1_STUDENT",
@@ -329,6 +330,35 @@ export function AdminPilotMemberProfile({
       setError("Failed to assign wing.");
     } finally {
       setAssigningWing(false);
+    }
+  }
+
+  async function handleDeleteCertificate(certificateId: string) {
+    if (
+      !window.confirm(
+        "Delete this issued certificate? It is removed from this pilot’s account and public profile. The template stays in the catalog.",
+      )
+    ) {
+      return;
+    }
+    setDeletingCertId(certificateId);
+    setError(null);
+    setMessage(null);
+    try {
+      const res = await fetch(`/api/admin/certificates/${certificateId}`, {
+        method: "DELETE",
+      });
+      const json = (await res.json()) as { error?: string };
+      if (!res.ok) {
+        setError(json.error ?? "Failed to delete certificate.");
+        return;
+      }
+      setMessage("Certificate deleted from the pilot account and public profile.");
+      router.refresh();
+    } catch {
+      setError("Failed to delete certificate.");
+    } finally {
+      setDeletingCertId(null);
     }
   }
 
@@ -810,6 +840,46 @@ export function AdminPilotMemberProfile({
               </button>
             </form>
           ) : null}
+        </section>
+
+        <section className="admin-member-section admin-ops-bracket-card">
+          <h2 className="admin-member-section-title">Issued certificates</h2>
+          <p className="admin-personnel-edit-hint">
+            Templates live in the certificate engine. Issuing creates a copy on
+            this pilot. Delete removes that copy everywhere.
+          </p>
+          {pilot.issuedCertificates.length ? (
+            <ul className="admin-member-list admin-member-cert-list">
+              {pilot.issuedCertificates.map((cert) => (
+                <li key={cert.id} className="admin-member-cert-row">
+                  <div>
+                    <strong>{cert.templateName}</strong>
+                    <span>
+                      {cert.certificateNumber} · {formatDate(cert.issuedAt)}
+                    </span>
+                  </div>
+                  {canEdit ? (
+                    <button
+                      type="button"
+                      className="admin-personnel-action admin-personnel-action--danger"
+                      disabled={deletingCertId === cert.id}
+                      onClick={() => void handleDeleteCertificate(cert.id)}
+                    >
+                      {deletingCertId === cert.id ? "Deleting…" : "Delete"}
+                    </button>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="admin-member-empty">No certificates issued to this pilot.</p>
+          )}
+          <Link
+            href={`/dashboard/admin/certificates?pilot=${pilot.profileId}`}
+            className="admin-personnel-action"
+          >
+            Issue from certificate engine
+          </Link>
         </section>
 
         <section className="admin-member-section admin-ops-bracket-card">

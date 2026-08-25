@@ -273,7 +273,7 @@ export function AdminCertificateEnginePortal({
   async function handleRemoveCertificate(certificateId: string) {
     if (
       !window.confirm(
-        "Remove this certificate? It will be deleted from the pilot account and public profile.",
+        "Delete this issued certificate? It is removed from the pilot account and public profile. The certificate template is not deleted.",
       )
     ) {
       return;
@@ -519,7 +519,8 @@ export function AdminCertificateEnginePortal({
                 Issued certificates
               </h2>
               <p className="admin-certificates-issued-sub">
-                Audit trail of platform-issued pilot certificates.
+                Issued copies on a pilot account and public profile. Delete
+                removes that copy only — templates stay in the catalog.
               </p>
             </div>
             <p className="admin-certificates-issued-count" aria-live="polite">
@@ -560,11 +561,11 @@ export function AdminCertificateEnginePortal({
                     </a>
                     <button
                       type="button"
-                      className="admin-certificates-link admin-certificates-link--danger"
+                      className="admin-certificates-btn-delete"
                       disabled={removingId === certificate.id}
                       onClick={() => void handleRemoveCertificate(certificate.id)}
                     >
-                      {removingId === certificate.id ? "Removing…" : "Remove"}
+                      {removingId === certificate.id ? "Deleting…" : "Delete"}
                     </button>
                   </div>
                 </li>

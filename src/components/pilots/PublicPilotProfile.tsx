@@ -7,7 +7,7 @@ import { formatJobVisibilityDelay } from "@/lib/subscriptions/status";
 import {
   formatPilotLocation,
   formatPilotRateRange,
-  serviceLabel,
+  formatServiceRadius,
 } from "@/lib/pilot/format";
 import { getVerificationTypeLabel } from "@/lib/verification/status";
 import { WingBadge } from "@/components/wings/WingBadge";
@@ -299,6 +299,11 @@ export function PublicPilotProfile({ pilot }: { pilot: PublicPilotProfileDto }) 
                   {pilot.callSign}
                 </p>
               ) : null}
+              {pilot.licenseCountry ? (
+                <p className="mt-2 text-sm text-ras-dim-alt">
+                  Licensed in {pilot.licenseCountry}
+                </p>
+              ) : null}
               <p className="mt-3 flex items-center gap-2 text-sm text-ras-dim-alt sm:text-base">
                 <svg
                   className="h-4 w-4 shrink-0 text-gold"
@@ -324,6 +329,11 @@ export function PublicPilotProfile({ pilot }: { pilot: PublicPilotProfileDto }) 
               {pilot.bio ? (
                 <p className="mt-5 max-w-2xl text-sm leading-relaxed text-ras-muted sm:text-base">
                   {pilot.bio}
+                </p>
+              ) : null}
+              {pilot.languages.length > 0 ? (
+                <p className="mt-3 text-sm text-ras-dim-alt">
+                  Languages: {pilot.languages.join(" · ")}
                 </p>
               ) : null}
             </div>
@@ -416,11 +426,7 @@ export function PublicPilotProfile({ pilot }: { pilot: PublicPilotProfileDto }) 
         />
         <StatCard
           label="Service radius"
-          value={
-            pilot.serviceRadiusKm != null
-              ? `${pilot.serviceRadiusKm} km`
-              : "—"
-          }
+          value={formatServiceRadius(pilot.serviceRadiusKm) ?? "—"}
           icon={<IconRadius className="h-5 w-5" />}
         />
         <StatCard
@@ -429,10 +435,10 @@ export function PublicPilotProfile({ pilot }: { pilot: PublicPilotProfileDto }) 
           icon={<IconServices className="h-5 w-5" />}
           className="sm:col-span-2"
         >
-          {pilot.servicesOffered.length > 0 ? (
+          {pilot.serviceLabels.length > 0 ? (
             <div className="flex flex-wrap gap-2">
-              {pilot.servicesOffered.map((id) => (
-                <ServiceChip key={id} label={serviceLabel(id)} />
+              {pilot.serviceLabels.map((label) => (
+                <ServiceChip key={label} label={label} />
               ))}
             </div>
           ) : (

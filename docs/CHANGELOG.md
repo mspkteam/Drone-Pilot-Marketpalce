@@ -4,6 +4,14 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.65] — 2026-08-25
+
+### Fixed
+
+- Production build: import `PaperclipIcon` on the client messages composer so `next build` typecheck passes.
+
+---
+
 ## [0.27.64] — 2026-08-25
 
 ### Fixed

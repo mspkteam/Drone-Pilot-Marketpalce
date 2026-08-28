@@ -4,6 +4,15 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.67] — 2026-08-28
+
+### Added
+
+- **Hostinger SMTP** delivery for transactional email when `SMTP_HOST`, `SMTP_USER`, and `SMTP_PASSWORD` are set (e.g. `support@remoteairservice.com`).
+- `.env.example` documents Stripe test keys and Hostinger SMTP variables.
+
+---
+
 ## [0.27.66] — 2026-08-25
 
 ### Fixed

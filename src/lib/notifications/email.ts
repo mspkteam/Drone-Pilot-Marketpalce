@@ -1,4 +1,6 @@
+import nodemailer from "nodemailer";
 import { prisma } from "@/lib/db";
+import { getSmtpConfig, isEmailDeliveryConfigured } from "@/lib/notifications/smtp-config";
 
 export type EmailPayload = {
   to: string;
@@ -7,22 +9,49 @@ export type EmailPayload = {
 };
 
 export async function sendTransactionalEmail(payload: EmailPayload): Promise<boolean> {
-  const from = process.env.EMAIL_FROM ?? "noreply@dronepilot.local";
+  const smtp = getSmtpConfig();
 
-  if (process.env.NODE_ENV === "production" && !process.env.SMTP_URL) {
-    console.warn(
-      "[email] SMTP_URL not configured — skipping send:",
-      payload.subject,
-      "→",
-      payload.to,
+  if (!smtp) {
+    if (process.env.NODE_ENV === "production") {
+      console.warn(
+        "[email] SMTP not configured — skipping send:",
+        payload.subject,
+        "→",
+        payload.to,
+      );
+      return false;
+    }
+
+    console.info(
+      `[email] (dev log) ${process.env.EMAIL_FROM ?? "noreply@dronepilot.local"} → ${payload.to}\n  Subject: ${payload.subject}\n  ${payload.text}`,
     );
-    return false;
+    return true;
   }
 
-  console.info(
-    `[email] ${from} → ${payload.to}\n  Subject: ${payload.subject}\n  ${payload.text}`,
-  );
-  return true;
+  try {
+    const transport = nodemailer.createTransport({
+      host: smtp.host,
+      port: smtp.port,
+      secure: smtp.secure,
+      auth: {
+        user: smtp.user,
+        pass: smtp.password,
+      },
+    });
+
+    await transport.sendMail({
+      from: smtp.from,
+      to: payload.to,
+      subject: payload.subject,
+      text: payload.text,
+    });
+
+    console.info(`[email] sent ${payload.subject} → ${payload.to}`);
+    return true;
+  } catch (error) {
+    console.error("[email] SMTP send failed:", error);
+    return false;
+  }
 }
 
 export async function emailUser(
@@ -37,3 +66,5 @@ export async function emailUser(
   if (!user?.email) return false;
   return sendTransactionalEmail({ to: user.email, subject, text });
 }
+
+export { isEmailDeliveryConfigured };

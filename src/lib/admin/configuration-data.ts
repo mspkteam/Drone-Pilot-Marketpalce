@@ -6,6 +6,7 @@ import {
   toDefaultCommissionRow,
 } from "@/lib/admin/platform-settings";
 import type { AdminConfigurationDataDto } from "@/types/admin-configuration";
+import { isEmailDeliveryConfigured } from "@/lib/notifications/smtp-config";
 
 function envConfigured(key: string): boolean {
   return Boolean(process.env[key]?.trim());
@@ -118,11 +119,11 @@ export async function getAdminConfigurationData(): Promise<AdminConfigurationDat
         id: "sendgrid",
         name: "SENDGRID",
         status:
-          envConfigured("SENDGRID_API_KEY") || envConfigured("SMTP_URL")
+          envConfigured("SENDGRID_API_KEY") || isEmailDeliveryConfigured()
             ? "connected"
             : "not_configured",
         detail:
-          envConfigured("SENDGRID_API_KEY") || envConfigured("SMTP_URL")
+          envConfigured("SENDGRID_API_KEY") || isEmailDeliveryConfigured()
             ? "Email delivery configured"
             : "Console logging only — no email provider",
       },

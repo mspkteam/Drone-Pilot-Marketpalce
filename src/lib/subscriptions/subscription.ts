@@ -1,4 +1,4 @@
-import { evaluatePilotAwards } from "@/lib/certificates/certificate";
+import { evaluatePilotAwards } from "@/lib/certificates/awards";
 import { syncInstructorAddonWithMembership } from "@/lib/membership/instructor-addon";
 import { getFastForwardFeeUsd, PILOT_ANNUAL_MEMBERSHIP_FEE_USD } from "@/lib/membership/pilot-membership-catalog";
 import { applyInstructorDiscountCode } from "@/lib/instructor/discount";

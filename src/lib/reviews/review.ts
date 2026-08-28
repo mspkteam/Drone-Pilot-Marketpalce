@@ -1,7 +1,7 @@
 ﻿import type { Review } from "@/generated/prisma/client";
 import { prisma } from "@/lib/db";
 import { triggerReviewReceived } from "@/lib/notifications/triggers";
-import { evaluatePilotAwards } from "@/lib/certificates/certificate";
+import { evaluatePilotAwards } from "@/lib/certificates/awards";
 import type {
   BookingReviewsDto,
   ReviewDto,

@@ -1,4 +1,3 @@
-import nodemailer from "nodemailer";
 import { prisma } from "@/lib/db";
 import { getSmtpConfig, isEmailDeliveryConfigured } from "@/lib/notifications/smtp-config";
 
@@ -29,7 +28,8 @@ export async function sendTransactionalEmail(payload: EmailPayload): Promise<boo
   }
 
   try {
-    const transport = nodemailer.createTransport({
+    const nodemailer = await import("nodemailer");
+    const transport = nodemailer.default.createTransport({
       host: smtp.host,
       port: smtp.port,
       secure: smtp.secure,

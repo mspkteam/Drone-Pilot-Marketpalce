@@ -1,7 +1,7 @@
 ﻿import type { Verification } from "@/generated/prisma/client";
 import { prisma } from "@/lib/db";
 import { notifyAsync, sendNotification } from "@/lib/notifications/notify";
-import { evaluatePilotAwards } from "@/lib/certificates/certificate";
+import { evaluatePilotAwards } from "@/lib/certificates/awards";
 import { parseProfileExtrasJson } from "@/lib/pilot/profile-extras";
 import {
   buildStoredFileName,

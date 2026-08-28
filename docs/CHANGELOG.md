@@ -4,6 +4,14 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.68] — 2026-08-28
+
+### Fixed
+
+- **Vercel deploy failure:** stop bundling `pdfkit` into booking and notification API routes — lazy-load certificate PDF code and scope pdfkit file tracing to certificate download routes only.
+
+---
+
 ## [0.27.67] — 2026-08-28
 
 ### Added

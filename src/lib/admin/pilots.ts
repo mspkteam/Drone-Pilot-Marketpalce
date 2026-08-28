@@ -5,7 +5,7 @@ import {
 } from "@/lib/admin/pilot-grades";
 import { TIER_CODE_TO_PRICING_PLAN_CODE } from "@/lib/membership/pricing-tier-codes";
 import { notifyAsync, sendNotification } from "@/lib/notifications/notify";
-import { evaluatePilotAwards } from "@/lib/certificates/certificate";
+import { evaluatePilotAwards } from "@/lib/certificates/awards";
 import type { AdminPilotDto } from "@/types/admin";
 import type { PilotProfileStatus } from "@/types/pilot";
 import { PILOT_PROFILE_STATUSES } from "@/types/pilot";

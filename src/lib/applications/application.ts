@@ -20,7 +20,7 @@ import {
   postProjectQuoteTypeLabel,
 } from "@/lib/client/post-project-constants";
 import { triggerBidReceived } from "@/lib/notifications/triggers";
-import { evaluatePilotAwards } from "@/lib/certificates/certificate";
+import { evaluatePilotAwards } from "@/lib/certificates/awards";
 import type {
   ApplicationStatus,
   JobApplicationDto,

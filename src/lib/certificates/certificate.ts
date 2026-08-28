@@ -672,12 +672,6 @@ export async function evaluateAndIssueCertificates(
   return issued;
 }
 
-/** Wings first, then certificates (certificates may depend on newly granted wings). */
-export async function evaluatePilotAwards(pilotProfileId: string): Promise<void> {
-  await evaluateAndAssignWings(pilotProfileId);
-  await evaluateAndIssueCertificates(pilotProfileId);
-}
-
 export async function getCertificateForPilot(
   certificateId: string,
   pilotProfileId: string,

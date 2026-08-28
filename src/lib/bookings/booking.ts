@@ -7,7 +7,7 @@ import {
 } from "@/lib/notifications/triggers";
 import { linkBookingToConversation } from "@/lib/messaging/messaging";
 import { recordPaymentForCompletedBooking } from "@/lib/payments/payment";
-import { evaluatePilotAwards } from "@/lib/certificates/certificate";
+import { evaluatePilotAwards } from "@/lib/certificates/awards";
 import type { BookingDto, BookingListItemDto, BookingStatus } from "@/types/booking";
 import { jobAcceptsApplications } from "@/lib/bookings/status";
 

@@ -87,7 +87,7 @@ export function mapBookingToActiveContract(
     deadline: formatDeadline(booking),
     value: formatValue(booking.agreedAmount, booking.currency),
     status: mapBookingStatusToContractUi(booking.status, booking),
-    deliverHref: detailHref,
+    deliverHref: `${detailHref}#deliver`,
     messageHref: booking.conversationId
       ? PILOT_ACTIVE_CONTRACTS_ROUTES.conversation(booking.conversationId)
       : PILOT_ACTIVE_CONTRACTS_ROUTES.messages,

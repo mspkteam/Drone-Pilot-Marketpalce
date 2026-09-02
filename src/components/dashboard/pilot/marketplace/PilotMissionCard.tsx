@@ -29,19 +29,21 @@ export function PilotMissionCardView({ mission }: PilotMissionCardProps) {
 
             <div className="pilot-marketplace-client-row">
               <span className="pilot-marketplace-client-name">{mission.clientName}</span>
-              <span
-                className="pilot-marketplace-rating"
-                aria-label={`Rating ${mission.rating}`}
-              >
-                <img
-                  src="/icons/pilot-dashboard/marketplace-star.svg"
-                  alt=""
-                  width={14}
-                  height={14}
-                  className="pilot-marketplace-star-icon"
-                />
-                {mission.rating}
-              </span>
+              {mission.rating ? (
+                <span
+                  className="pilot-marketplace-rating"
+                  aria-label={`Rating ${mission.rating}`}
+                >
+                  <img
+                    src="/icons/pilot-dashboard/marketplace-star.svg"
+                    alt=""
+                    width={14}
+                    height={14}
+                    className="pilot-marketplace-star-icon"
+                  />
+                  {mission.rating}
+                </span>
+              ) : null}
             </div>
 
             <p className="pilot-marketplace-location">

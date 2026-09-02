@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { PILOT_DASHBOARD_ROUTES } from "@/lib/pilot/dashboard-overview-mock";
+import { PILOT_DASHBOARD_ROUTES } from "@/lib/pilot/dashboard-routes";
 import type {
   PilotProfileStrengthItem,
   PilotProfileStrengthStatus,

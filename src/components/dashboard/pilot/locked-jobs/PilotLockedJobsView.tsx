@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { PilotLockedJobCardView } from "@/components/dashboard/pilot/locked-jobs/PilotLockedJobCard";
-import { PILOT_DASHBOARD_ROUTES } from "@/lib/pilot/dashboard-overview-mock";
+import { PILOT_DASHBOARD_ROUTES } from "@/lib/pilot/dashboard-routes";
 import { mapLockedJobToCard } from "@/lib/pilot/locked-jobs-map";
 import type { PilotJobsListResponse } from "@/types/application";
 

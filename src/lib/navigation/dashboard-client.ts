@@ -27,6 +27,16 @@ export const clientNavGroups: readonly DashboardNavGroup[] = [
         href: "/dashboard/client/find-pilots",
         icon: "pilots",
       },
+      {
+        label: "Bookings",
+        href: "/dashboard/client/bookings",
+        icon: "bookings",
+      },
+      {
+        label: "Disputes",
+        href: "/dashboard/client/disputes",
+        icon: "disputes",
+      },
     ],
   },
   {

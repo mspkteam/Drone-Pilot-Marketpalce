@@ -64,7 +64,10 @@ export function ClientProjectCard({ project }: ClientProjectCardProps) {
             View Quotes
           </Link>
         ) : (
-          <span className="client-my-projects-btn-outline client-my-projects-btn-outline--disabled">
+          <span
+            className="client-my-projects-btn-outline client-my-projects-btn-outline--disabled"
+            title="Available after admin approves your project"
+          >
             View Quotes
           </span>
         )}

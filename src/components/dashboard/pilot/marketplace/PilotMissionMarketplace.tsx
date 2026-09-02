@@ -16,7 +16,6 @@ const FILTER_PILLS = [
   "BUDGET",
   "DEADLINE",
   "GRADE",
-  "DISTANCE",
 ] as const;
 type FilterPill = (typeof FILTER_PILLS)[number];
 
@@ -251,12 +250,6 @@ export function PilotMissionMarketplace() {
         <p className="pilot-marketplace-filter-note" role="status">
           Grade controls when approved jobs unlock for your membership.{" "}
           <Link href="/dashboard/pilot/subscription">View membership →</Link>
-        </p>
-      ) : null}
-
-      {activeFilter === "DISTANCE" ? (
-        <p className="pilot-marketplace-filter-note" role="status">
-          Distance filter needs pilot and job geo coordinates — coming later.
         </p>
       ) : null}
 

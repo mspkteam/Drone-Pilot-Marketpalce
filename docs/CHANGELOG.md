@@ -4,6 +4,17 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.69] — 2026-09-02
+
+### Fixed
+
+- **Platform UX audit:** client nav adds Bookings and Disputes; pilot nav adds Certificates and Digital Wings.
+- Correct proposal/job links on dashboard recommended jobs and marketplace cards; remove hardcoded client rating.
+- Deliver Work links scroll to `#deliver`; disable non-functional admin briefing and invoice PDF controls.
+- Remove distance marketplace filter; update stale bid-accept copy; add retry on billing and reviews fetch errors.
+
+---
+
 ## [0.27.68] — 2026-08-28
 
 ### Fixed

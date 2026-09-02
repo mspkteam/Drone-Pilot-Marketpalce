@@ -174,7 +174,7 @@ export function ClientProjectBids({
       }
 
       setSuccessMessage(
-        `${acceptedBid.name} has been assigned to your project. The booking was created successfully — full booking management opens in Week 3 (Pilot milestone). You can message the pilot from Messages now.`,
+        `${acceptedBid.name} has been assigned to your project. Open Bookings to track delivery and payment.`,
       );
       router.refresh();
     } catch {
@@ -261,7 +261,7 @@ export function ClientProjectBids({
               </Link>
             </>
           ) : (
-            " Message the pilot from Messages — booking views open in Week 3."
+            " Message the pilot from Messages or open Bookings from the sidebar."
           )}
         </p>
       ) : null}

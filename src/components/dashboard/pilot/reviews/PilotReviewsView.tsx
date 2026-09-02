@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { PilotReviewsStars } from "./PilotReviewsStars";
 import {
   mapApiReviewsToPilotRows,
@@ -17,7 +17,9 @@ export function PilotReviewsView() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
+  const loadReviews = useCallback(() => {
+    setLoading(true);
+    setError(null);
     fetch(REVIEWS_API)
       .then(async (res) => {
         const data = await res.json();
@@ -34,6 +36,10 @@ export function PilotReviewsView() {
       })
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    loadReviews();
+  }, [loadReviews]);
 
   const { rows, summary } = useMemo(() => {
     const live = mapApiReviewsToPilotRows(reviews);
@@ -54,9 +60,12 @@ export function PilotReviewsView() {
         <h2 className="pilot-reviews-panel-title">Reviews</h2>
 
         {error ? (
-          <p className="pilot-reviews-banner pilot-reviews-banner--error" role="alert">
-            {error}
-          </p>
+          <div className="pilot-reviews-banner pilot-reviews-banner--error" role="alert">
+            <p>{error}</p>
+            <button type="button" className="pilot-reviews-btn-outline" onClick={loadReviews}>
+              Retry
+            </button>
+          </div>
         ) : null}
 
         {loading ? (
@@ -97,7 +106,7 @@ export function PilotReviewsView() {
 
       <div className="pilot-reviews-actions">
         <Link href="/dashboard/pilot/contracts" className="pilot-reviews-btn-gold">
-          Review Dispute
+          Active Contracts
         </Link>
         <Link
           href="/dashboard/pilot/support"

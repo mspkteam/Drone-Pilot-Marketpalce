@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   formatInvoiceAmount,
   formatInvoiceDate,
   type ClientBillingInvoice,
-} from "@/lib/client/billing-mock";
+} from "@/lib/client/billing-format";
 import type { PaymentListItemDto } from "@/types/payment";
 import { DownloadIcon } from "./ClientBillingIcons";
 
@@ -30,7 +30,9 @@ export function ClientBillingPayments() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
+  const loadPayments = useCallback(() => {
+    setLoading(true);
+    setError(null);
     fetch(PAYMENTS_API)
       .then((res) => res.json())
       .then((data) => {
@@ -48,6 +50,10 @@ export function ClientBillingPayments() {
       .finally(() => setLoading(false));
   }, []);
 
+  useEffect(() => {
+    loadPayments();
+  }, [loadPayments]);
+
   const invoices = useMemo(
     () => payments.map(mapPaymentToInvoice),
     [payments],
@@ -63,9 +69,12 @@ export function ClientBillingPayments() {
       </header>
 
       {error ? (
-        <p className="client-billing-banner client-billing-banner--error" role="alert">
-          {error}
-        </p>
+        <div className="client-billing-banner client-billing-banner--error" role="alert">
+          <p>{error}</p>
+          <button type="button" className="client-billing-btn-outline" onClick={loadPayments}>
+            Retry
+          </button>
+        </div>
       ) : null}
 
       <section className="client-billing-panel">
@@ -104,16 +113,15 @@ export function ClientBillingPayments() {
                 </div>
                 <div className="client-billing-invoice-actions">
                   <p className="client-billing-invoice-amount">{invoice.amount}</p>
-                  <a
-                    href={`/api/client/payments`}
+                  <button
+                    type="button"
                     className="client-billing-btn-outline client-billing-pdf-btn"
-                    aria-disabled="true"
-                    onClick={(e) => e.preventDefault()}
+                    disabled
                     title="PDF receipts ship with Stripe invoicing"
                   >
                     <DownloadIcon />
                     PDF
-                  </a>
+                  </button>
                 </div>
               </li>
             ))}

@@ -27,6 +27,8 @@ export const pilotNavGroups: readonly DashboardNavGroup[] = [
       { label: "Verification", href: "/dashboard/pilot/verifications", icon: "verification" },
       { label: "Portfolio", href: "/dashboard/pilot/portfolio", icon: "portfolio" },
       { label: "Reviews", href: "/dashboard/pilot/reviews", icon: "reviews" },
+      { label: "Certificates", href: "/dashboard/pilot/certificates", icon: "certificates" },
+      { label: "Digital Wings", href: "/dashboard/pilot/achievements", icon: "achievements" },
     ],
   },
   {

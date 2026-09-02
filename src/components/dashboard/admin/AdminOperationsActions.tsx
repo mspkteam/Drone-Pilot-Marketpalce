@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import { useModeratorPermissions } from "@/contexts/ModeratorPermissionsContext";
 import type { AdminOperationsExportRow } from "@/types/admin-operations";
 
@@ -20,7 +20,6 @@ function rowsToCsv(rows: AdminOperationsExportRow[]): string {
 export function AdminOperationsActions({ exportRows }: AdminOperationsActionsProps) {
   const { canPerform, role } = useModeratorPermissions();
   const canExport = canPerform("reports", "export");
-  const [briefingOpen, setBriefingOpen] = useState(false);
 
   const handleExport = useCallback(() => {
     const csv = rowsToCsv(exportRows);
@@ -38,61 +37,26 @@ export function AdminOperationsActions({ exportRows }: AdminOperationsActionsPro
   }
 
   return (
-    <>
-      <div className="admin-ops-hero-actions">
-        {canExport ? (
-          <button
-            type="button"
-            className="admin-ops-btn-primary"
-            onClick={handleExport}
-          >
-            Export
-          </button>
-        ) : null}
-        {role === "super_admin" ? (
-          <button
-            type="button"
-            className="admin-ops-btn-outline"
-            onClick={() => setBriefingOpen(true)}
-          >
-            New briefing
-          </button>
-        ) : null}
-      </div>
-
-      {briefingOpen ? (
-        <div
-          className="admin-ops-modal-backdrop"
-          role="presentation"
-          onClick={() => setBriefingOpen(false)}
+    <div className="admin-ops-hero-actions">
+      {canExport ? (
+        <button
+          type="button"
+          className="admin-ops-btn-primary"
+          onClick={handleExport}
         >
-          <div
-            className="admin-ops-modal"
-            role="dialog"
-            aria-labelledby="admin-briefing-title"
-            aria-modal="true"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h2 id="admin-briefing-title" className="admin-ops-modal-title">
-              New briefing
-            </h2>
-            <p className="admin-ops-modal-copy">
-              Briefing and announcement management is pending backend
-              integration. This placeholder confirms the command action slot in
-              the operations dashboard layout.
-            </p>
-            <div className="admin-ops-modal-actions">
-              <button
-                type="button"
-                className="admin-ops-btn-outline"
-                onClick={() => setBriefingOpen(false)}
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
+          Export
+        </button>
       ) : null}
-    </>
+      {role === "super_admin" ? (
+        <button
+          type="button"
+          className="admin-ops-btn-outline"
+          disabled
+          title="Briefing announcements are planned for a later release."
+        >
+          New briefing
+        </button>
+      ) : null}
+    </div>
   );
 }

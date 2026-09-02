@@ -150,7 +150,11 @@ function mapOpenJobToCard(job: PilotOpenJobDto): PilotRecommendedJobCard {
     title: job.title,
     location: job.locationLabel,
     time: formatJobTime(job),
-    href: `/dashboard/pilot/jobs/${job.id}`,
+    href: job.hasApplied && job.applicationId
+      ? `/dashboard/pilot/proposals/${job.applicationId}`
+      : job.canApply
+        ? `/dashboard/pilot/jobs/${job.id}/proposal`
+        : `/dashboard/pilot/jobs/${job.id}`,
     hasApplied: job.hasApplied,
   };
 }

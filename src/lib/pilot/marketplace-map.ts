@@ -9,7 +9,7 @@ export type PilotMissionCard = {
   category: string;
   title: string;
   clientName: string;
-  rating: string;
+  rating: string | null;
   location: string;
   deadline: string;
   budget: string;
@@ -78,13 +78,13 @@ export function mapOpenJobToMissionCard(job: PilotOpenJobDto): PilotMissionCard 
     category,
     title: job.title,
     clientName,
-    rating: "4.9",
+    rating: null,
     location: job.locationLabel,
     deadline: formatDeadline(job.scheduledDate),
     budget: formatBudgetDisplay(job),
     license,
-    href: job.hasApplied
-      ? `/dashboard/pilot/jobs/${job.id}`
+    href: job.hasApplied && job.applicationId
+      ? `/dashboard/pilot/proposals/${job.applicationId}`
       : job.canApply
         ? `/dashboard/pilot/jobs/${job.id}/proposal`
         : `/dashboard/pilot/jobs/${job.id}`,

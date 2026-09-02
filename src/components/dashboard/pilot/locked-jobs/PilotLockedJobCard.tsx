@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { PilotCountdownTimer } from "@/components/dashboard/pilot/PilotCountdownTimer";
-import { PILOT_DASHBOARD_ROUTES } from "@/lib/pilot/dashboard-overview-mock";
+import { PILOT_DASHBOARD_ROUTES } from "@/lib/pilot/dashboard-routes";
 import type { PilotLockedJobCard } from "@/lib/pilot/locked-jobs-map";
 
 type PilotLockedJobCardProps = {

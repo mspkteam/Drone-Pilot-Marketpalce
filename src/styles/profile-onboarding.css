@@ -119,6 +119,84 @@
   color: var(--color-gold);
 }
 
+.profile-onboarding-section-note {
+  margin: -0.75rem 0 1rem;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+.profile-onboarding-inline-link {
+  color: var(--color-gold);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.profile-onboarding-inline-link:hover {
+  color: var(--color-gold-light, #e8c96a);
+}
+
+.profile-onboarding-credential-list {
+  list-style: none;
+  margin: 0 0 1.25rem;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.profile-onboarding-credential-chip {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  border: 1px solid rgba(216, 179, 57, 0.4);
+  border-radius: 999px;
+  background: rgba(216, 179, 57, 0.1);
+  padding: 0.4rem 0.85rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-gold-light, #e8c96a);
+}
+
+.profile-onboarding-credential-meta {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.65rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
+.profile-onboarding-highest-wing {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin: 0 0 1rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid rgba(216, 179, 57, 0.28);
+  border-radius: 0.75rem;
+  background: rgba(216, 179, 57, 0.06);
+}
+
+.profile-onboarding-highest-wing-img {
+  width: 3rem;
+  height: 3rem;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.profile-onboarding-award-title {
+  margin: 0.15rem 0 0.35rem;
+  font-size: 0.95rem;
+  font-weight: 650;
+  color: var(--color-text, #f5f5f5);
+}
+
+.profile-onboarding-muted {
+  margin: 0 0 1.25rem;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
 .profile-onboarding-section-copy {
   margin: -0.5rem 0 1rem;
   font-size: 0.8125rem;
@@ -218,6 +296,19 @@
   left: 0.75rem;
   color: var(--color-gold);
   pointer-events: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profile-onboarding-dollar-sign {
+  display: inline-block;
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: lining-nums;
+  unicode-bidi: isolate;
+  direction: ltr;
 }
 
 .profile-onboarding-input-wrap .profile-onboarding-input {
@@ -264,7 +355,7 @@
 }
 
 .profile-onboarding-chip {
-  border: 1px solid var(--dashboard-card-border);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 0.375rem;
   background: var(--color-bg-deeper);
   padding: 0.4375rem 0.875rem;
@@ -272,6 +363,7 @@
   font-weight: 600;
   color: var(--color-text-muted);
   cursor: pointer;
+  box-shadow: none;
   transition: border-color 0.15s ease, background-color 0.15s ease, color 0.15s ease;
 }
 
@@ -373,9 +465,10 @@
 }
 
 .profile-onboarding-chip--active {
-  border-color: rgba(216, 179, 57, 0.55);
-  background: rgba(216, 179, 57, 0.1);
+  border-color: var(--color-gold);
+  background: rgba(216, 179, 57, 0.12);
   color: var(--color-gold);
+  box-shadow: inset 0 0 0 1px var(--color-gold);
 }
 
 .profile-onboarding-chip:disabled {
@@ -1071,4 +1164,29 @@
   justify-content: flex-end;
   gap: 0.6rem;
   margin-top: 1.35rem;
+}
+
+@media (max-width: 639px) {
+  .profile-onboarding-fields--2,
+  .profile-onboarding-fields--3 {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-onboarding-highest-wing {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .profile-onboarding-chips {
+    gap: 0.4rem;
+  }
+
+  .profile-onboarding-chip {
+    font-size: 0.75rem;
+    padding: 0.45rem 0.65rem;
+  }
+
+  .profile-onboarding-credential-list {
+    gap: 0.4rem;
+  }
 }

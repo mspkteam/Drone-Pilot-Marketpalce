@@ -73,6 +73,7 @@ function toPilotWingDto(
     description: w.description,
     category: w.category as WingCategory,
     iconLabel: w.iconLabel,
+    imageUrl: w.imageUrl,
     source: row.source as WingSource,
     earnedAt: row.earnedAt.toISOString(),
   };
@@ -660,10 +661,14 @@ export async function listPublicPilotWings(
     title: r.wingDefinition.title,
     description: r.wingDefinition.description,
     category: r.wingDefinition.category as WingCategory,
+    rarity: resolveRarity(r.wingDefinition.rarity, r.wingDefinition.code),
     iconLabel: r.wingDefinition.iconLabel,
+    imageUrl: r.wingDefinition.imageUrl,
     earnedAt: r.earnedAt.toISOString(),
   }));
 }
+
+export { pickHighestPublicWing } from "@/lib/wings/pick-highest";
 
 export async function listRecentPilotWingsForAdmin(
   limit = 25,

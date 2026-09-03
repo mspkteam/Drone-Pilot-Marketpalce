@@ -61,6 +61,14 @@ export function PilotWingsPanel() {
           <ul className="mt-4 flex flex-wrap justify-center gap-3 text-sm">
             <li>
               <Link
+                href="/dashboard/pilot/verifications/request-wings"
+                className="text-gold-dark hover:underline"
+              >
+                Request Wings
+              </Link>
+            </li>
+            <li>
+              <Link
                 href="/dashboard/pilot/bookings"
                 className="text-gold-dark hover:underline"
               >
@@ -88,6 +96,7 @@ export function PilotWingsPanel() {
                 <WingBadge
                   title={wing.title}
                   iconLabel={wing.iconLabel}
+                  imageUrl={wing.imageUrl}
                   category={wing.category}
                   size="md"
                 />

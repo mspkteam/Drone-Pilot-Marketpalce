@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 type WingBadgeProps = {
   title: string;
   iconLabel?: string | null;
+  imageUrl?: string | null;
   category?: WingCategory;
   size?: "sm" | "md";
   className?: string;
@@ -20,6 +21,7 @@ const categoryTone: Record<WingCategory, string> = {
 export function WingBadge({
   title,
   iconLabel,
+  imageUrl,
   category = "milestone",
   size = "sm",
   className,
@@ -36,18 +38,30 @@ export function WingBadge({
         className,
       )}
     >
-      <span
-        className={cn(
-          "inline-flex shrink-0 items-center justify-center rounded-full bg-background/60 text-current",
-          size === "sm" ? "size-5" : "size-6",
-        )}
-        aria-hidden
-      >
-        <BadgeWingIcon
-          type={iconType}
-          className={size === "sm" ? "size-3.5" : "size-4"}
+      {imageUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={imageUrl}
+          alt=""
+          className={cn(
+            "shrink-0 object-contain",
+            size === "sm" ? "size-5" : "size-6",
+          )}
         />
-      </span>
+      ) : (
+        <span
+          className={cn(
+            "inline-flex shrink-0 items-center justify-center rounded-full bg-background/60 text-current",
+            size === "sm" ? "size-5" : "size-6",
+          )}
+          aria-hidden
+        >
+          <BadgeWingIcon
+            type={iconType}
+            className={size === "sm" ? "size-3.5" : "size-4"}
+          />
+        </span>
+      )}
       <span>{title}</span>
     </span>
   );

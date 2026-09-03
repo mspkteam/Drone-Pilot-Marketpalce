@@ -10,7 +10,8 @@ export type PilotProfileServiceChip = {
 /** Display chips — maps to `PILOT_SERVICE_OPTIONS` where possible. */
 export const PILOT_PROFILE_SERVICE_CHIPS: readonly PilotProfileServiceChip[] = [
   { id: "aerial_video", label: "Aerial Video", serviceId: "aerial_video" },
-  { id: "photography", label: "Photography", serviceId: "aerial_video" },
+  /** Local-only so it does not share `aerial_video` and dual-select with Aerial Video. */
+  { id: "photography", label: "Photography" },
   { id: "mapping", label: "Mapping", serviceId: "surveying" },
   { id: "agriculture", label: "Agriculture", serviceId: "agriculture" },
   { id: "real_estate", label: "Real Estate", serviceId: "real_estate" },

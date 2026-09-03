@@ -1200,6 +1200,16 @@ a.dashboard-card:hover {
   height: 100%;
 }
 
+@media (max-width: 639px) {
+  .figma-pilot-public-hero h1 {
+    overflow-wrap: anywhere;
+  }
+
+  .figma-pilot-hero-stat {
+    min-height: 4.75rem;
+  }
+}
+
 .figma-pilot-public-section {
   background: var(--color-bg-section);
 }
@@ -1641,6 +1651,7 @@ a.dashboard-card:hover {
   --dash-topbar-height: 56px;
   display: flex;
   min-height: 100vh;
+  overflow-x: clip;
   background: var(--dash-bg);
   color: var(--dash-body);
 }

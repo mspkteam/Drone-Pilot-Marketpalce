@@ -34,6 +34,7 @@ Approved pilots can opt into a **public directory** so clients and guests can di
 
 - Display name, bio, location, services, hourly rate range, service radius
 - Average rating and review count (from M10)
+- Highest earned digital wing, approved verification credentials, and issued platform certificates
 - Up to 5 recent published reviews
 
 **Hidden:** license number, email, internal status fields.

@@ -17,6 +17,7 @@ import type {
 type DashboardSidebarProps = {
   open: boolean;
   collapsed: boolean;
+  inert?: boolean;
   pathname: string;
   homeHref: string;
   navGroups: readonly NavGroup[];
@@ -28,6 +29,7 @@ type DashboardSidebarProps = {
 export function DashboardSidebar({
   open,
   collapsed,
+  inert = false,
   pathname,
   homeHref,
   navGroups,
@@ -43,6 +45,8 @@ export function DashboardSidebar({
         collapsed && "dashboard-sidebar--collapsed",
       )}
       aria-label="Dashboard navigation"
+      aria-hidden={inert}
+      inert={inert}
     >
       <div className="dashboard-sidebar-inner">
         <div className="dashboard-sidebar-logo">

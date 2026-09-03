@@ -4,6 +4,16 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.71] — 2026-09-03
+
+### Fixed
+
+- **Mobile-first pass:** dashboard drawer locks body scroll, closes on Escape/resize, and uses correct `aria-expanded` / `inert` when closed.
+- Pilot My Proposals switches to stacked cards under 900px (no forced sideways table scroll).
+- Notification panel fits narrow phones; marketplace filter fields and client welcome title scale better; home dual-hero panels are shorter on small screens; marketing mobile menu locks scroll.
+
+---
+
 ## [0.27.70] — 2026-09-03
 
 ### Fixed

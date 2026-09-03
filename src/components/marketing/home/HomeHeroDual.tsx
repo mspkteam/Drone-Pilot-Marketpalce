@@ -59,7 +59,7 @@ function HeroPanel({
   return (
     <article
       className={cn(
-        "figma-home-hero-panel relative flex min-h-[26rem] flex-col justify-end overflow-hidden sm:min-h-[28rem] lg:min-h-[32rem] xl:min-h-[36rem]",
+        "figma-home-hero-panel relative flex min-h-[20rem] flex-col justify-end overflow-hidden sm:min-h-[26rem] lg:min-h-[32rem] xl:min-h-[36rem]",
         isClient &&
           "border-b border-[var(--color-border-muted)] lg:border-b-0 lg:border-r",
       )}

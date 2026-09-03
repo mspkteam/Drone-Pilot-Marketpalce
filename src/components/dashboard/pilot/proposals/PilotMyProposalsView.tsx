@@ -148,28 +148,36 @@ export function PilotMyProposalsView() {
           ) : null}
         </div>
       ) : (
-        <div className="pilot-proposals-table-wrap">
-          <table className="pilot-proposals-table">
-            <thead>
-              <tr>
-                <th scope="col">ID</th>
-                <th scope="col">MISSION</th>
-                <th scope="col">CLIENT</th>
-                <th scope="col">BID</th>
-                <th scope="col">SENT</th>
-                <th scope="col">STATUS</th>
-                <th scope="col">
-                  <span className="sr-only">Action</span>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredRows.map((row) => (
-                <ProposalTableRow key={row.id} row={row} />
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <>
+          <div className="pilot-proposals-table-wrap">
+            <table className="pilot-proposals-table">
+              <thead>
+                <tr>
+                  <th scope="col">ID</th>
+                  <th scope="col">MISSION</th>
+                  <th scope="col">CLIENT</th>
+                  <th scope="col">BID</th>
+                  <th scope="col">SENT</th>
+                  <th scope="col">STATUS</th>
+                  <th scope="col">
+                    <span className="sr-only">Action</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredRows.map((row) => (
+                  <ProposalTableRow key={row.id} row={row} />
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="pilot-proposals-cards">
+            {filteredRows.map((row) => (
+              <ProposalCard key={row.id} row={row} />
+            ))}
+          </div>
+        </>
       )}
     </div>
   );
@@ -192,5 +200,34 @@ function ProposalTableRow({ row }: { row: PilotProposalRow }) {
         </Link>
       </td>
     </tr>
+  );
+}
+
+function ProposalCard({ row }: { row: PilotProposalRow }) {
+  return (
+    <article className="pilot-proposals-card">
+      <div className="pilot-proposals-card-top">
+        <p className="pilot-proposals-cell-id">{row.displayId}</p>
+        <PilotProposalStatusBadge status={row.status} label={row.badgeLabel} />
+      </div>
+      <h3 className="pilot-proposals-card-mission">{row.mission}</h3>
+      <dl className="pilot-proposals-card-grid">
+        <div>
+          <dt>Client</dt>
+          <dd>{row.client}</dd>
+        </div>
+        <div>
+          <dt>Bid</dt>
+          <dd>{row.bid}</dd>
+        </div>
+        <div>
+          <dt>Sent</dt>
+          <dd>{row.sent}</dd>
+        </div>
+      </dl>
+      <Link href={row.viewHref} className="pilot-proposals-view-link">
+        VIEW →
+      </Link>
+    </article>
   );
 }

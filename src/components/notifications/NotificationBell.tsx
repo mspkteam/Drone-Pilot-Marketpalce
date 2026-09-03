@@ -148,7 +148,7 @@ export function NotificationBell({
             onClick={() => setOpen(false)}
           />
           <div
-            className="absolute right-0 z-50 mt-2 w-80 rounded-lg border border-border bg-background shadow-lg"
+            className="absolute right-0 z-50 mt-2 w-[min(20rem,calc(100vw-2rem))] rounded-lg border border-border bg-background shadow-lg"
             role="dialog"
             aria-label="Notifications"
           >

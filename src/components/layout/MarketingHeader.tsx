@@ -135,8 +135,8 @@ export function MarketingHeader() {
   const closeMenu = () => setOpen(false);
   const visibleNav = getVisibleMarketingNav();
 
-  // Close on Escape, and auto-close when the viewport grows to the desktop
-  // breakpoint (so a menu opened on mobile doesn't linger after resize/rotate).
+  // Close on Escape, lock body scroll, and auto-close when the viewport grows
+  // to the desktop breakpoint (so a menu opened on mobile doesn't linger).
   useEffect(() => {
     if (!open) return;
 
@@ -147,10 +147,13 @@ export function MarketingHeader() {
     const onDesktopChange = () => {
       if (desktop.matches) setOpen(false);
     };
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
 
     document.addEventListener("keydown", onKeyDown);
     desktop.addEventListener("change", onDesktopChange);
     return () => {
+      document.body.style.overflow = previousOverflow;
       document.removeEventListener("keydown", onKeyDown);
       desktop.removeEventListener("change", onDesktopChange);
     };

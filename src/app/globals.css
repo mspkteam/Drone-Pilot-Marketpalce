@@ -2154,7 +2154,8 @@ a.dashboard-card:hover {
 
 .client-dashboard-welcome-title {
   margin-top: 0.875rem;
-  font-size: 2.25rem;
+  min-width: 0;
+  font-size: clamp(1.5rem, 6vw, 2.25rem);
   font-weight: 700;
   line-height: 1.15;
   color: var(--color-text);

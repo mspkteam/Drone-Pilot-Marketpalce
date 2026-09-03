@@ -5,12 +5,14 @@ import { useRouter } from "next/navigation";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
 
 type DashboardTopbarProps = {
-  sidebarCollapsed: boolean;
+  navExpanded: boolean;
+  navToggleLabel: string;
   onSidebarToggle: () => void;
 };
 
 export function DashboardTopbar({
-  sidebarCollapsed,
+  navExpanded,
+  navToggleLabel,
   onSidebarToggle,
 }: DashboardTopbarProps) {
   const router = useRouter();
@@ -21,7 +23,8 @@ export function DashboardTopbar({
         <button
           type="button"
           className="dashboard-topbar-icon-btn"
-          aria-label={sidebarCollapsed ? "Expand sidebar" : "Toggle sidebar"}
+          aria-expanded={navExpanded}
+          aria-label={navToggleLabel}
           onClick={onSidebarToggle}
         >
           <SidebarToggleIcon />

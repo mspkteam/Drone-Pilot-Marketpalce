@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DashboardSidebar } from "@/components/dashboard/shell/DashboardSidebar";
 import { DashboardTopbar } from "@/components/dashboard/shell/DashboardTopbar";
 import { MilestoneRouteGuard } from "@/components/milestones/MilestoneRouteGuard";
@@ -15,6 +15,8 @@ import type {
 import type { UserRole } from "@/types/roles";
 
 export type { DashboardNavGroup, DashboardShellUser, DashboardRankCardData };
+
+const DESKTOP_NAV_MQ = "(min-width: 1024px)";
 
 type DashboardShellProps = {
   homeHref: string;
@@ -40,6 +42,43 @@ export function DashboardShell({
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [isDesktopNav, setIsDesktopNav] = useState(false);
+
+  useEffect(() => {
+    const desktop = window.matchMedia(DESKTOP_NAV_MQ);
+    const sync = () => setIsDesktopNav(desktop.matches);
+    sync();
+    desktop.addEventListener("change", sync);
+    return () => desktop.removeEventListener("change", sync);
+  }, []);
+
+  useEffect(() => {
+    if (!sidebarOpen || isDesktopNav) return;
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setSidebarOpen(false);
+    };
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [sidebarOpen, isDesktopNav]);
+
+  useEffect(() => {
+    if (isDesktopNav) setSidebarOpen(false);
+  }, [isDesktopNav]);
+
+  const navExpanded = isDesktopNav ? !sidebarCollapsed : sidebarOpen;
+  const navToggleLabel = isDesktopNav
+    ? sidebarCollapsed
+      ? "Expand sidebar"
+      : "Collapse sidebar"
+    : sidebarOpen
+      ? "Close navigation"
+      : "Open navigation";
 
   return (
     <MilestoneAccessProvider
@@ -65,6 +104,7 @@ export function DashboardShell({
         <DashboardSidebar
           open={sidebarOpen}
           collapsed={sidebarCollapsed}
+          inert={!navExpanded}
           pathname={pathname}
           homeHref={homeHref}
           navGroups={navGroups}
@@ -75,12 +115,10 @@ export function DashboardShell({
 
         <div className="dashboard-main-column">
           <DashboardTopbar
-            sidebarCollapsed={sidebarCollapsed}
+            navExpanded={navExpanded}
+            navToggleLabel={navToggleLabel}
             onSidebarToggle={() => {
-              if (
-                typeof window !== "undefined" &&
-                window.matchMedia("(min-width: 1024px)").matches
-              ) {
+              if (window.matchMedia(DESKTOP_NAV_MQ).matches) {
                 setSidebarCollapsed((v) => !v);
               } else {
                 setSidebarOpen((v) => !v);

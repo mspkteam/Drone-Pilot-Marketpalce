@@ -165,6 +165,7 @@
 }
 
 .pilot-proposals-table-wrap {
+  display: none;
   overflow-x: auto;
   border: 1px solid rgba(49, 45, 40, 0.42);
   border-radius: 0.375rem;
@@ -295,6 +296,69 @@
 
 .pilot-proposals-view-link:hover {
   color: var(--color-gold-soft);
+}
+
+.pilot-proposals-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.pilot-proposals-card {
+  border: 1px solid rgba(49, 45, 40, 0.42);
+  border-radius: 0.5rem;
+  background: var(--color-card-warm);
+  padding: 1rem;
+}
+
+.pilot-proposals-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.pilot-proposals-card-mission {
+  margin: 0.75rem 0 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.pilot-proposals-card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem 1rem;
+  margin: 0.875rem 0;
+}
+
+.pilot-proposals-card-grid div {
+  min-width: 0;
+}
+
+.pilot-proposals-card-grid dt {
+  margin: 0;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-soft);
+}
+
+.pilot-proposals-card-grid dd {
+  margin: 0.25rem 0 0;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+@media (min-width: 900px) {
+  .pilot-proposals-table-wrap {
+    display: block;
+  }
+
+  .pilot-proposals-cards {
+    display: none;
+  }
 }
 
 .pilot-proposals-empty {

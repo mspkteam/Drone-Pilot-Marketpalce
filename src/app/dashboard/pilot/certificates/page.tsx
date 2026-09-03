@@ -1,11 +1,12 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { PilotCertificatesPanel } from "@/components/pilot/PilotCertificatesPanel";
-import { PageHeader } from "@/components/layout/PageHeader";
+import { PilotCertificatesView } from "@/components/dashboard/pilot/certificates/PilotCertificatesView";
+import { DashboardPageLayout } from "@/components/dashboard";
 import {
   getPilotProfileByUserId,
   isOnboardingComplete,
 } from "@/lib/pilot/profile";
+import "@/styles/pilot-certificates.css";
 
 export const metadata = { title: "Certificates" };
 
@@ -21,14 +22,8 @@ export default async function PilotCertificatesPage() {
   }
 
   return (
-    <>
-      <PageHeader
-        title="Certificates"
-        description="Download platform certificates issued by admins after review."
-      />
-      <div className="mt-8 max-w-3xl">
-        <PilotCertificatesPanel />
-      </div>
-    </>
+    <DashboardPageLayout className="pilot-certificates-shell">
+      <PilotCertificatesView />
+    </DashboardPageLayout>
   );
 }

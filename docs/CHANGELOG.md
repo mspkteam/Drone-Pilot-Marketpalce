@@ -4,6 +4,17 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.76] — 2026-09-03
+
+### Changed
+
+- **Pilot theme audit:** Restyled legacy `PageHeader` pilot pages to match the aviation dashboard theme (bracket header, gold panel titles, dark cards):
+  - `/dashboard/pilot/certificates`
+  - `/dashboard/pilot/achievements` (Digital Wings)
+  - `/dashboard/pilot/shop/orders` and order detail
+
+---
+
 ## [0.27.75] — 2026-09-03
 
 ### Fixed

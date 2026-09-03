@@ -1,0 +1,209 @@
+/* Pilot Certificates page */
+
+.pilot-certificates-shell.dashboard-page {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: none;
+}
+
+.pilot-certificates-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+  min-width: 0;
+}
+
+.pilot-certificates-bracket-card {
+  position: relative;
+}
+
+.pilot-certificates-bracket-card::before,
+.pilot-certificates-bracket-card::after {
+  content: "";
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  pointer-events: none;
+}
+
+.pilot-certificates-bracket-card::before {
+  top: 14px;
+  left: 14px;
+  border-top: 1px solid rgba(244, 241, 234, 0.22);
+  border-left: 1px solid rgba(244, 241, 234, 0.22);
+}
+
+.pilot-certificates-bracket-card::after {
+  right: 14px;
+  bottom: 14px;
+  border-right: 1px solid rgba(244, 241, 234, 0.22);
+  border-bottom: 1px solid rgba(244, 241, 234, 0.22);
+}
+
+.pilot-certificates-header {
+  border: 1px solid var(--dashboard-card-border);
+  border-radius: 0.375rem;
+  background: var(--color-card-warm);
+  padding: 1.5625rem;
+}
+
+.pilot-certificates-eyebrow {
+  margin: 0;
+  font-size: 0.7rem;
+  font-weight: 400;
+  letter-spacing: 0.084em;
+  text-transform: uppercase;
+  color: var(--color-text-soft);
+}
+
+.pilot-certificates-title-main {
+  margin: 0.25rem 0 0;
+  font-size: clamp(1.75rem, 3vw, 2.25rem);
+  font-weight: 600;
+  line-height: 1.11;
+  letter-spacing: -0.001em;
+  color: var(--color-text);
+}
+
+.pilot-certificates-lead {
+  margin: 0.5rem 0 0;
+  max-width: 36rem;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: var(--color-text-soft);
+}
+
+.pilot-certificates-panel {
+  border: 1px solid var(--dashboard-card-border);
+  border-radius: 0.375rem;
+  background: var(--color-card-warm);
+  padding: 0 0 1.0625rem;
+}
+
+.pilot-certificates-panel-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem 0.8125rem;
+  border-bottom: 1px solid var(--dashboard-card-border);
+}
+
+.pilot-certificates-panel-title {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  color: var(--color-gold);
+}
+
+.pilot-certificates-refresh {
+  min-height: 2rem;
+  padding: 0 0.875rem;
+  border: 1px solid var(--dashboard-card-border);
+  border-radius: 0.25rem;
+  background: transparent;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text-soft);
+  cursor: pointer;
+}
+
+.pilot-certificates-refresh:hover {
+  border-color: rgba(216, 179, 57, 0.45);
+  color: var(--color-gold);
+}
+
+.pilot-certificates-banner {
+  margin: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  background: rgba(239, 68, 68, 0.08);
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  color: var(--color-danger);
+}
+
+.pilot-certificates-loading,
+.pilot-certificates-empty {
+  margin: 1rem 1rem 0;
+  font-size: 0.875rem;
+  color: var(--color-text-soft);
+}
+
+.pilot-certificates-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  margin: 1rem 0.875rem 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pilot-certificates-card {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.875rem;
+  border: 1px solid var(--dashboard-card-border);
+  border-radius: 0.25rem;
+  background: var(--color-card-warm-alt);
+  padding: 0.875rem 1rem;
+}
+
+.pilot-certificates-card-title {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.pilot-certificates-card-meta {
+  margin: 0.25rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--color-text-soft);
+}
+
+.pilot-certificates-card-notes {
+  margin: 0.5rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--color-text-muted, var(--color-text-soft));
+}
+
+.pilot-certificates-download {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.25rem;
+  padding: 0 1rem;
+  border-radius: 0.25rem;
+  background: var(--color-gold);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--color-bg-deeper);
+}
+
+.pilot-certificates-download:hover {
+  background: var(--color-gold-soft);
+  color: var(--color-bg-deeper);
+}
+
+@media (max-width: 640px) {
+  .pilot-certificates-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .pilot-certificates-download {
+    width: 100%;
+  }
+}

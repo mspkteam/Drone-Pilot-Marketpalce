@@ -158,6 +158,7 @@ export function PilotMyProposalsView() {
                   <th scope="col">CLIENT</th>
                   <th scope="col">BID</th>
                   <th scope="col">SENT</th>
+                  <th scope="col">CLIENT VIEW</th>
                   <th scope="col">STATUS</th>
                   <th scope="col">
                     <span className="sr-only">Action</span>
@@ -191,6 +192,7 @@ function ProposalTableRow({ row }: { row: PilotProposalRow }) {
       <td className="pilot-proposals-cell-client">{row.client}</td>
       <td className="pilot-proposals-cell-bid">{row.bid}</td>
       <td className="pilot-proposals-cell-sent">{row.sent}</td>
+      <td className="pilot-proposals-cell-sent">{row.viewedLabel}</td>
       <td>
         <PilotProposalStatusBadge status={row.status} label={row.badgeLabel} />
       </td>
@@ -223,6 +225,10 @@ function ProposalCard({ row }: { row: PilotProposalRow }) {
         <div>
           <dt>Sent</dt>
           <dd>{row.sent}</dd>
+        </div>
+        <div>
+          <dt>Client view</dt>
+          <dd>{row.viewedLabel}</dd>
         </div>
       </dl>
       <Link href={row.viewHref} className="pilot-proposals-view-link">

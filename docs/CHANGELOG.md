@@ -4,6 +4,16 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.75] — 2026-09-03
+
+### Fixed
+
+- **QA pass (portfolio / proposals):** Portfolio modal clarifies cover-image vs external video link; default type Photoset; main-drone “+” focuses the equipment field when empty.
+- Proposal submit supports portfolio links and file attachments (images/PDF); shown on proposal detail.
+- Pilot proposals table adds a **Client View** column (Not Viewed / Viewed), separate from Pending/Accepted/Rejected; clients mark proposals viewed when opening Quotes/Offers.
+
+---
+
 ## [0.27.74] — 2026-09-03
 
 ### Fixed

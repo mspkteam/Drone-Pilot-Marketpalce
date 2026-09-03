@@ -23,6 +23,7 @@ export type ApplicationInput = {
   deliverables?: string[];
   assumptions?: string | null;
   portfolioLinks?: string[];
+  attachments?: { url?: string; name?: string; contentType?: string }[];
   operationalPlan?: Partial<ProposalOperationalPlan>;
   compliance?: Partial<ProposalCompliance>;
   pricingBreakdown?: Partial<ProposalPricingBreakdown>;
@@ -253,6 +254,21 @@ export function validateApplicationInput(
     .map((link) => link.trim())
     .filter(Boolean);
 
+  const attachments = (input.attachments ?? [])
+    .filter(
+      (item): item is { url: string; name: string; contentType: string } =>
+        !!item &&
+        typeof item.url === "string" &&
+        item.url.trim().length > 0 &&
+        typeof item.name === "string" &&
+        typeof item.contentType === "string",
+    )
+    .map((item) => ({
+      url: item.url.trim(),
+      name: item.name.trim() || "Attachment",
+      contentType: item.contentType.trim() || "application/octet-stream",
+    }));
+
   const proposalDetails: ProposalDetails = {
     availability,
     estimatedDurationAmount: durationAmount ?? undefined,
@@ -262,6 +278,7 @@ export function validateApplicationInput(
     deliverables,
     assumptions: input.assumptions?.trim() || null,
     portfolioLinks,
+    attachments,
     operationalPlan,
     compliance,
     pricingBreakdown,

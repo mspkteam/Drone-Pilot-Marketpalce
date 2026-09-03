@@ -307,6 +307,7 @@ export function buildExtendedFormPayload(
   form: ExtendedProposalFormState & {
     deliverables: string[];
     portfolioLinks: string[];
+    attachments?: { url: string; name: string; contentType: string }[];
     experience: string;
     termsAcknowledged?: boolean;
   },
@@ -325,7 +326,8 @@ export function buildExtendedFormPayload(
     experience: form.experience,
     deliverables: form.deliverables,
     assumptions: form.assumptions,
-    portfolioLinks: form.portfolioLinks,
+    portfolioLinks: form.portfolioLinks.filter((link) => link.trim().length > 0),
+    attachments: form.attachments ?? [],
     accuracyConfirmed: form.accuracyConfirmed || form.termsAcknowledged,
     operationalPlan: {
       projectedMileage: form.projectedMileage.trim() || "Not listed",

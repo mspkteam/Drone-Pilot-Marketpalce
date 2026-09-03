@@ -29,6 +29,7 @@ type FormState = ExtendedProposalFormState & {
   experience: string;
   deliverables: ProposalDeliverable[];
   portfolioLinks: string[];
+  attachments: { url: string; name: string; contentType: string }[];
   termsAcknowledged: boolean;
 };
 
@@ -99,6 +100,7 @@ function emptyForm(): FormState {
     experience: "",
     deliverables: [],
     portfolioLinks: [""],
+    attachments: [],
     termsAcknowledged: false,
   };
 }
@@ -650,6 +652,120 @@ export function PilotSubmitProposalView({ jobId, initial }: PilotSubmitProposalV
                 currency={job.currency}
                 onChange={patchForm}
               />
+
+              <section className="pilot-submit-section">
+                <h3 className="pilot-submit-section-title">Supporting materials</h3>
+                <p className="pilot-submit-section-copy">
+                  Add portfolio links and optional file attachments for the client.
+                </p>
+                <div className="pilot-submit-field-stack">
+                  {form.portfolioLinks.map((link, index) => (
+                    <label key={`link-${index}`} className="pilot-submit-field">
+                      <span>Portfolio link {index + 1}</span>
+                      <div className="pilot-submit-inline-row">
+                        <input
+                          type="url"
+                          value={link}
+                          placeholder="https://"
+                          onChange={(e) => {
+                            const next = [...form.portfolioLinks];
+                            next[index] = e.target.value;
+                            patchForm({ portfolioLinks: next });
+                          }}
+                        />
+                        {form.portfolioLinks.length > 1 ? (
+                          <button
+                            type="button"
+                            className="pilot-submit-btn-secondary"
+                            onClick={() =>
+                              patchForm({
+                                portfolioLinks: form.portfolioLinks.filter(
+                                  (_, i) => i !== index,
+                                ),
+                              })
+                            }
+                          >
+                            Remove
+                          </button>
+                        ) : null}
+                      </div>
+                    </label>
+                  ))}
+                  <button
+                    type="button"
+                    className="pilot-submit-btn-secondary"
+                    onClick={() =>
+                      patchForm({
+                        portfolioLinks: [...form.portfolioLinks, ""],
+                      })
+                    }
+                  >
+                    Add link
+                  </button>
+                </div>
+
+                <div className="pilot-submit-field" style={{ marginTop: "1rem" }}>
+                  <span>Attach files (images or PDF)</span>
+                  <input
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp,image/gif,application/pdf"
+                    disabled={submitting}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      e.target.value = "";
+                      if (!file) return;
+                      void (async () => {
+                        setError(null);
+                        const { uploadUserImage } = await import(
+                          "@/lib/storage/upload-browser"
+                        );
+                        const result = await uploadUserImage({
+                          kind: "message-attachment",
+                          file,
+                        });
+                        if (!result.ok) {
+                          setError(result.error);
+                          return;
+                        }
+                        patchForm({
+                          attachments: [
+                            ...form.attachments,
+                            {
+                              url: result.url,
+                              name: file.name,
+                              contentType: file.type || "application/octet-stream",
+                            },
+                          ],
+                        });
+                      })();
+                    }}
+                  />
+                  {form.attachments.length > 0 ? (
+                    <ul className="pilot-submit-attachment-list">
+                      {form.attachments.map((item) => (
+                        <li key={item.url}>
+                          <a href={item.url} target="_blank" rel="noreferrer">
+                            {item.name}
+                          </a>
+                          <button
+                            type="button"
+                            className="pilot-submit-btn-secondary"
+                            onClick={() =>
+                              patchForm({
+                                attachments: form.attachments.filter(
+                                  (entry) => entry.url !== item.url,
+                                ),
+                              })
+                            }
+                          >
+                            Remove
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : null}
+                </div>
+              </section>
 
               <PostProjectTermsAcknowledgment
                 variant="review"

@@ -239,3 +239,45 @@ export async function toggleJobApplicationShortlist(
 
   return { ok: true, shortlisted };
 }
+
+export async function markJobApplicationViewed(
+  jobId: string,
+  applicationId: string,
+  clientProfileId: string,
+): Promise<
+  | { ok: true; clientViewedAt: string }
+  | { ok: false; error: string; status: 404 }
+> {
+  const job = await prisma.job.findFirst({
+    where: { id: jobId, clientProfileId },
+    select: { id: true },
+  });
+  if (!job) {
+    return { ok: false, error: "Job not found.", status: 404 };
+  }
+
+  const application = await prisma.jobApplication.findFirst({
+    where: {
+      id: applicationId,
+      jobId,
+      status: { not: "draft" },
+    },
+  });
+  if (!application) {
+    return { ok: false, error: "Application not found.", status: 404 };
+  }
+
+  if (application.clientViewedAt) {
+    return {
+      ok: true,
+      clientViewedAt: application.clientViewedAt.toISOString(),
+    };
+  }
+
+  const updated = await prisma.jobApplication.update({
+    where: { id: applicationId },
+    data: { clientViewedAt: new Date() },
+  });
+
+  return { ok: true, clientViewedAt: updated.clientViewedAt!.toISOString() };
+}

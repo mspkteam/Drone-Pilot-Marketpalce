@@ -37,6 +37,12 @@ export type ProposalCompliance = {
   otherRequirements: string | null;
 };
 
+export type ProposalAttachment = {
+  url: string;
+  name: string;
+  contentType: string;
+};
+
 export type ProposalDetails = {
   availability?: string | null;
   estimatedDurationAmount?: number;
@@ -46,6 +52,7 @@ export type ProposalDetails = {
   deliverables?: ProposalDeliverable[];
   assumptions?: string | null;
   portfolioLinks?: string[];
+  attachments?: ProposalAttachment[];
   operationalPlan?: ProposalOperationalPlan;
   compliance?: ProposalCompliance;
   pricingBreakdown?: ProposalPricingBreakdown;
@@ -159,6 +166,22 @@ export function parseProposalDetails(json: string | null | undefined): ProposalD
       assumptions: parsed.assumptions ?? null,
       portfolioLinks: Array.isArray(parsed.portfolioLinks)
         ? parsed.portfolioLinks.filter((link): link is string => typeof link === "string")
+        : [],
+      attachments: Array.isArray(parsed.attachments)
+        ? parsed.attachments
+            .filter(
+              (item): item is ProposalAttachment =>
+                !!item &&
+                typeof item === "object" &&
+                typeof (item as ProposalAttachment).url === "string" &&
+                typeof (item as ProposalAttachment).name === "string" &&
+                typeof (item as ProposalAttachment).contentType === "string",
+            )
+            .map((item) => ({
+              url: item.url,
+              name: item.name,
+              contentType: item.contentType,
+            }))
         : [],
       operationalPlan: parseOperationalPlan(parsed.operationalPlan),
       compliance: parseCompliance(parsed.compliance),

@@ -35,6 +35,15 @@ export function ClientJobOffers({ jobId }: ClientJobOffersProps) {
           setError(json.error);
         } else {
           setData(json);
+          const offers = (json.offers ?? []) as ClientJobApplicationDto[];
+          for (const offer of offers) {
+            void fetch(
+              `/api/client/jobs/${jobId}/applications/${offer.id}/view`,
+              { method: "POST" },
+            ).catch(() => {
+              /* best-effort */
+            });
+          }
         }
       })
       .catch(() => setError("Failed to load offers."))

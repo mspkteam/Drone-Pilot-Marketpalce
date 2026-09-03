@@ -1,17 +1,24 @@
 /** Shared types and helpers for Pilot Active Contracts. */
 
+import type { ContractAction } from "@/lib/bookings/contract-actions";
+
 export type PilotContractUiStatus =
+  | "Pending"
+  | "Ready to start"
   | "On Track"
   | "Due Soon"
-  | "Recurring"
+  | "Awaiting review"
+  | "Revisions requested"
   | "Disputed"
-  | "Completed";
+  | "Completed"
+  | "Cancelled";
 
 export type PilotContractTabId =
   | "all"
   | "on-track"
   | "due-soon"
-  | "recurring"
+  | "awaiting-review"
+  | "revisions"
   | "disputed"
   | "completed";
 
@@ -23,9 +30,11 @@ export type PilotActiveContract = {
   deadline: string;
   value: string;
   status: PilotContractUiStatus;
+  detailHref: string;
   deliverHref: string;
   messageHref: string;
   disputeHref: string;
+  actions: ContractAction[];
 };
 
 export const PILOT_ACTIVE_CONTRACT_TABS: readonly {
@@ -35,7 +44,8 @@ export const PILOT_ACTIVE_CONTRACT_TABS: readonly {
   { id: "all", label: "All" },
   { id: "on-track", label: "On Track" },
   { id: "due-soon", label: "Due Soon" },
-  { id: "recurring", label: "Recurring" },
+  { id: "awaiting-review", label: "Awaiting Review" },
+  { id: "revisions", label: "Revisions" },
   { id: "disputed", label: "Disputed" },
   { id: "completed", label: "Completed" },
 ] as const;
@@ -55,7 +65,8 @@ const TAB_STATUS_MAP: Record<
 > = {
   "on-track": "On Track",
   "due-soon": "Due Soon",
-  recurring: "Recurring",
+  "awaiting-review": "Awaiting review",
+  revisions: "Revisions requested",
   disputed: "Disputed",
   completed: "Completed",
 };
@@ -65,6 +76,14 @@ export function filterPilotActiveContracts(
   tab: PilotContractTabId,
 ): PilotActiveContract[] {
   if (tab === "all") return [...contracts];
+  if (tab === "on-track") {
+    return contracts.filter(
+      (contract) =>
+        contract.status === "On Track" ||
+        contract.status === "Ready to start" ||
+        contract.status === "Pending",
+    );
+  }
   const status = TAB_STATUS_MAP[tab];
   return contracts.filter((contract) => contract.status === status);
 }
@@ -76,14 +95,17 @@ export function badgeToneForContractStatus(
 ): PilotContractBadgeTone {
   switch (status) {
     case "Disputed":
+    case "Cancelled":
       return "red";
     case "Completed":
     case "On Track":
+    case "Ready to start":
       return "green";
     case "Due Soon":
+    case "Awaiting review":
+    case "Revisions requested":
       return "gold";
-    case "Recurring":
-      return "muted";
+    case "Pending":
     default:
       return "muted";
   }

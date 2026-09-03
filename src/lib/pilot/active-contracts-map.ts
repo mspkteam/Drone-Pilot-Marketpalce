@@ -1,4 +1,11 @@
 import type { BookingListItemDto, BookingStatus } from "@/types/booking";
+import type { DeliveryStatus } from "@/types/delivery";
+import {
+  buildPilotContractActions,
+  pilotContractPhaseLabel,
+  resolvePilotContractPhase,
+  type PilotContractPhase,
+} from "@/lib/bookings/contract-actions";
 import {
   PILOT_ACTIVE_CONTRACTS_ROUTES,
   type PilotActiveContract,
@@ -50,23 +57,38 @@ function isDueSoon(booking: BookingListItemDto): boolean {
   return days >= 0 && days <= DUE_SOON_DAYS;
 }
 
-export function mapBookingStatusToContractUi(
-  status: BookingStatus,
+function phaseToUiStatus(
+  phase: PilotContractPhase,
   booking: BookingListItemDto,
 ): PilotContractUiStatus {
-  switch (status) {
-    case "disputed":
-      return "Disputed";
+  switch (phase) {
+    case "pending":
+      return "Pending";
+    case "ready":
+      return "Ready to start";
+    case "awaiting_review":
+      return "Awaiting review";
+    case "revisions_requested":
+      return "Revisions requested";
     case "completed":
       return "Completed";
     case "cancelled":
-      return "Completed";
-    case "pending":
-    case "confirmed":
+      return "Cancelled";
+    case "disputed":
+      return "Disputed";
     case "in_progress":
     default:
       return isDueSoon(booking) ? "Due Soon" : "On Track";
   }
+}
+
+export function mapBookingStatusToContractUi(
+  status: BookingStatus,
+  booking: BookingListItemDto,
+  deliveryStatus: DeliveryStatus | null = booking.deliveryStatus ?? null,
+): PilotContractUiStatus {
+  const phase = resolvePilotContractPhase(status, deliveryStatus);
+  return phaseToUiStatus(phase, booking);
 }
 
 export function mapBookingToActiveContract(
@@ -78,6 +100,16 @@ export function mapBookingToActiveContract(
     "Client";
 
   const detailHref = PILOT_ACTIVE_CONTRACTS_ROUTES.bookingDetail(booking.id);
+  const deliverHref = `${detailHref}#deliver`;
+  const disputeHref = `${detailHref}#dispute`;
+  const messageHref = booking.conversationId
+    ? PILOT_ACTIVE_CONTRACTS_ROUTES.conversation(booking.conversationId)
+    : PILOT_ACTIVE_CONTRACTS_ROUTES.messages;
+
+  const phase = resolvePilotContractPhase(
+    booking.status,
+    booking.deliveryStatus ?? null,
+  );
 
   return {
     id: booking.id,
@@ -86,11 +118,19 @@ export function mapBookingToActiveContract(
     client,
     deadline: formatDeadline(booking),
     value: formatValue(booking.agreedAmount, booking.currency),
-    status: mapBookingStatusToContractUi(booking.status, booking),
-    deliverHref: `${detailHref}#deliver`,
-    messageHref: booking.conversationId
-      ? PILOT_ACTIVE_CONTRACTS_ROUTES.conversation(booking.conversationId)
-      : PILOT_ACTIVE_CONTRACTS_ROUTES.messages,
-    disputeHref: `${detailHref}#dispute`,
+    status: phaseToUiStatus(phase, booking),
+    detailHref,
+    deliverHref,
+    messageHref,
+    disputeHref,
+    actions: buildPilotContractActions({
+      phase,
+      detailHref,
+      messageHref,
+      deliverHref,
+      disputeHref,
+    }),
   };
 }
+
+export { pilotContractPhaseLabel };

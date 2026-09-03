@@ -1,3 +1,5 @@
+import type { DeliveryStatus } from "@/types/delivery";
+
 export const BOOKING_STATUSES = [
   "pending",
   "confirmed",
@@ -43,6 +45,8 @@ export type BookingListItemDto = BookingDto & {
     companyName: string | null;
   };
   conversationId: string | null;
+  /** Latest deliverable review state, if any. */
+  deliveryStatus: DeliveryStatus | null;
 };
 
 export type ClientJobApplicationDto = {

@@ -4,6 +4,16 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.73] — 2026-09-03
+
+### Fixed
+
+- **Contract workflow:** Completed contracts no longer show Deliver Work. Actions follow booking + delivery state (deliver → awaiting review → revisions/resubmit → complete).
+- Contract cards and booking detail use the same status-aware CTAs; cancelled is no longer labeled Completed.
+- Deliverables panel copy matches review / revision / completed states for pilot and client.
+
+---
+
 ## [0.27.72] — 2026-09-03
 
 ### Fixed

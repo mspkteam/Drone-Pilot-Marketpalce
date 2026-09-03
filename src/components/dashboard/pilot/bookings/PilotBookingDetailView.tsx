@@ -5,6 +5,10 @@ import { BookingStatusBadge } from "@/components/bookings/BookingStatusBadge";
 import { BookingDisputeSection } from "@/components/disputes/BookingDisputeSection";
 import { BookingPaymentSection } from "@/components/payments/BookingPaymentSection";
 import { BookingReviewSection } from "@/components/reviews/BookingReviewSection";
+import {
+  buildPilotContractActions,
+  resolvePilotContractPhase,
+} from "@/lib/bookings/contract-actions";
 import { formatContractId } from "@/lib/pilot/active-contracts-map";
 import type { BookingListItemDto } from "@/types/booking";
 
@@ -35,14 +39,41 @@ function formatMoney(amount: number, currency: string): string {
   }
 }
 
+function actionClassName(tone: "gold" | "outline" | "danger"): string {
+  switch (tone) {
+    case "gold":
+      return "pilot-booking-btn-gold";
+    case "danger":
+      return "pilot-booking-btn-danger";
+    case "outline":
+    default:
+      return "pilot-booking-btn-outline";
+  }
+}
+
 export function PilotBookingDetailView({ booking }: PilotBookingDetailViewProps) {
   const clientName =
     booking.client.companyName?.trim() || booking.client.contactName || "Client";
   const contractId = formatContractId(booking.id);
   const value = formatMoney(booking.agreedAmount, booking.currency);
+  const detailHref = `/dashboard/pilot/bookings/${booking.id}`;
+  const deliverHref = `${detailHref}#deliver`;
+  const disputeHref = `${detailHref}#dispute`;
   const messageHref = booking.conversationId
     ? `/dashboard/pilot/messages/${booking.conversationId}`
     : "/dashboard/pilot/messages";
+
+  const phase = resolvePilotContractPhase(
+    booking.status,
+    booking.deliveryStatus ?? null,
+  );
+  const actions = buildPilotContractActions({
+    phase,
+    detailHref,
+    messageHref,
+    deliverHref,
+    disputeHref,
+  }).filter((action) => action.id !== "view_contract");
 
   return (
     <div className="pilot-booking-page">
@@ -66,17 +97,19 @@ export function PilotBookingDetailView({ booking }: PilotBookingDetailViewProps)
         </p>
       </header>
 
-      <div className="pilot-booking-actions-bar">
-        <a href="#deliver" className="pilot-booking-btn-gold">
-          Deliver work
-        </a>
-        <Link href={messageHref} className="pilot-booking-btn-outline">
-          Message client
-        </Link>
-        <a href="#dispute" className="pilot-booking-btn-danger">
-          Open dispute
-        </a>
-      </div>
+      {actions.length > 0 ? (
+        <div className="pilot-booking-actions-bar">
+          {actions.map((action) => (
+            <Link
+              key={action.id}
+              href={action.href}
+              className={actionClassName(action.tone)}
+            >
+              {action.label}
+            </Link>
+          ))}
+        </div>
+      ) : null}
 
       <div className="pilot-booking-grid">
         <section className="pilot-booking-card">
@@ -112,8 +145,8 @@ export function PilotBookingDetailView({ booking }: PilotBookingDetailViewProps)
         <section className="pilot-booking-card">
           <h2 className="pilot-booking-card-title">Status actions</h2>
           <p className="pilot-booking-help">
-            Confirm the booking, start work, or cancel. Completion happens after
-            deliverable approval.
+            Start work when ready. Deliverables go to the client for approval or
+            revision requests; completion happens after approval.
           </p>
           <BookingStatusActions
             bookingId={booking.id}

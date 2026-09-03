@@ -9,6 +9,7 @@ import { linkBookingToConversation } from "@/lib/messaging/messaging";
 import { recordPaymentForCompletedBooking } from "@/lib/payments/payment";
 import { evaluatePilotAwards } from "@/lib/certificates/awards";
 import type { BookingDto, BookingListItemDto, BookingStatus } from "@/types/booking";
+import type { DeliveryStatus } from "@/types/delivery";
 import { jobAcceptsApplications } from "@/lib/bookings/status";
 
 const bookingInclude = {
@@ -26,7 +27,21 @@ const bookingInclude = {
   clientProfile: {
     select: { id: true, contactName: true, companyName: true },
   },
+  delivery: {
+    select: { status: true },
+  },
 } as const;
+
+type BookingWithRelations = Booking & {
+  job: { id: string; title: string; locationLabel: string; status: string };
+  pilotProfile: { id: string; displayName: string };
+  clientProfile: {
+    id: string;
+    contactName: string;
+    companyName: string | null;
+  };
+  delivery?: { status: string } | null;
+};
 
 export function toBookingDto(booking: Booking): BookingDto {
   return {
@@ -48,15 +63,7 @@ export function toBookingDto(booking: Booking): BookingDto {
 }
 
 export function toListItem(
-  booking: Booking & {
-    job: { id: string; title: string; locationLabel: string; status: string };
-    pilotProfile: { id: string; displayName: string };
-    clientProfile: {
-      id: string;
-      contactName: string;
-      companyName: string | null;
-    };
-  },
+  booking: BookingWithRelations,
   conversationId: string | null = null,
 ): BookingListItemDto {
   return {
@@ -65,7 +72,18 @@ export function toListItem(
     pilot: booking.pilotProfile,
     client: booking.clientProfile,
     conversationId,
+    deliveryStatus: (booking.delivery?.status as DeliveryStatus) ?? null,
   };
+}
+
+async function conversationIdForApplication(
+  jobApplicationId: string,
+): Promise<string | null> {
+  const conversation = await prisma.conversation.findFirst({
+    where: { jobApplicationId },
+    select: { id: true },
+  });
+  return conversation?.id ?? null;
 }
 
 export async function getBookingForClient(bookingId: string, clientProfileId: string) {
@@ -73,7 +91,9 @@ export async function getBookingForClient(bookingId: string, clientProfileId: st
     where: { id: bookingId, clientProfileId },
     include: bookingInclude,
   });
-  return booking ? toListItem(booking) : null;
+  if (!booking) return null;
+  const conversationId = await conversationIdForApplication(booking.jobApplicationId);
+  return toListItem(booking, conversationId);
 }
 
 export async function getBookingForPilot(bookingId: string, pilotProfileId: string) {
@@ -81,7 +101,9 @@ export async function getBookingForPilot(bookingId: string, pilotProfileId: stri
     where: { id: bookingId, pilotProfileId },
     include: bookingInclude,
   });
-  return booking ? toListItem(booking) : null;
+  if (!booking) return null;
+  const conversationId = await conversationIdForApplication(booking.jobApplicationId);
+  return toListItem(booking, conversationId);
 }
 
 export async function listBookingsForClient(clientProfileId: string) {

@@ -67,6 +67,36 @@ export function BookingDeliverySection({
     bookingStatus === "in_progress" &&
     delivery?.status === "submitted";
 
+  const sectionTitle =
+    bookingStatus === "completed" || delivery?.status === "approved"
+      ? "Deliverables"
+      : delivery?.status === "rejected"
+        ? actor === "pilot"
+          ? "Revise and resubmit"
+          : "Revision requested"
+        : delivery?.status === "submitted"
+          ? actor === "pilot"
+            ? "Submission under review"
+            : "Review deliverables"
+          : actor === "pilot"
+            ? "Deliver work"
+            : "Deliverables";
+
+  const sectionHelp =
+    bookingStatus === "completed" || delivery?.status === "approved"
+      ? "This contract is complete. Final deliverables are listed below."
+      : actor === "pilot"
+        ? delivery?.status === "rejected"
+          ? "The client requested changes. Update your files or links, then resubmit."
+          : delivery?.status === "submitted"
+            ? "Your package is with the client. You can resubmit only if they request revisions."
+            : "Upload files or share links, then submit for client approval."
+        : delivery?.status === "submitted"
+          ? "Approve to complete the contract, or request revisions with clear feedback."
+          : delivery?.status === "rejected"
+            ? "Waiting for the pilot to resubmit after your revision notes."
+            : "Review submitted deliverables and approve to complete the contract.";
+
   if (
     bookingStatus === "pending" ||
     bookingStatus === "confirmed" ||
@@ -204,12 +234,8 @@ export function BookingDeliverySection({
 
   return (
     <div className="rounded-lg border border-border bg-surface-elevated p-6" id="deliver">
-      <h3 className="text-lg font-semibold">Deliver work</h3>
-      <p className="mt-1 text-sm text-muted-foreground">
-        {actor === "pilot"
-          ? "Upload files or share links, then submit for client approval."
-          : "Review submitted deliverables and approve to complete the contract."}
-      </p>
+      <h3 className="text-lg font-semibold">{sectionTitle}</h3>
+      <p className="mt-1 text-sm text-muted-foreground">{sectionHelp}</p>
 
       {loading ? (
         <p className="mt-4 text-sm text-muted-foreground">Loading deliverables…</p>

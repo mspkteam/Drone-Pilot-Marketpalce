@@ -23,6 +23,9 @@ const bookingInclude = {
   clientProfile: {
     select: { id: true, contactName: true, companyName: true },
   },
+  delivery: {
+    select: { status: true },
+  },
 } as const;
 
 export async function listBookingsForAdmin(

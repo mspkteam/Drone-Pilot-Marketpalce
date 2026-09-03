@@ -9,6 +9,18 @@ type PilotContractCardProps = {
   contract: PilotActiveContract;
 };
 
+function actionClassName(tone: "gold" | "outline" | "danger"): string {
+  switch (tone) {
+    case "gold":
+      return "pilot-contracts-btn-gold";
+    case "danger":
+      return "pilot-contracts-btn-danger";
+    case "outline":
+    default:
+      return "pilot-contracts-btn-outline";
+  }
+}
+
 export function PilotContractCard({ contract }: PilotContractCardProps) {
   const badgeTone = badgeToneForContractStatus(contract.status);
 
@@ -47,16 +59,18 @@ export function PilotContractCard({ contract }: PilotContractCardProps) {
       </div>
 
       <div className="pilot-contracts-card-actions">
-        <Link href={contract.deliverHref} className="pilot-contracts-btn-gold">
-          <UploadIcon />
-          Deliver Work
-        </Link>
-        <Link href={contract.messageHref} className="pilot-contracts-btn-outline">
-          Message Client
-        </Link>
-        <Link href={contract.disputeHref} className="pilot-contracts-btn-danger">
-          Open Dispute
-        </Link>
+        {contract.actions.map((action) => (
+          <Link
+            key={action.id}
+            href={action.href}
+            className={actionClassName(action.tone)}
+          >
+            {action.id === "deliver" || action.id === "resubmit" ? (
+              <UploadIcon />
+            ) : null}
+            {action.label}
+          </Link>
+        ))}
       </div>
     </article>
   );

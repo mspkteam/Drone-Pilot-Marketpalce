@@ -9,7 +9,6 @@ import {
   formatPilotRateRange,
   formatServiceRadius,
 } from "@/lib/pilot/format";
-import { getVerificationTypeLabel } from "@/lib/verification/status";
 import { WingBadge } from "@/components/wings/WingBadge";
 import { cn } from "@/lib/utils";
 import type { PublicPilotProfileDto } from "@/types/public-pilot";
@@ -262,14 +261,16 @@ export function PublicPilotProfile({ pilot }: { pilot: PublicPilotProfileDto }) 
   const rate =
     formatPilotRateRange(pilot.hourlyRateMin, pilot.hourlyRateMax) ?? "—";
   const hasBadges =
-    pilot.wings.length > 0 || pilot.verifiedTypes.length > 0;
+    pilot.wings.length > 0 ||
+    pilot.approvedCredentials.length > 0 ||
+    pilot.certificates.length > 0;
   const hasReviews = pilot.reviewCount > 0 && pilot.averageRating != null;
   const latestReview = pilot.recentReviews[0];
 
   return (
     <div className="space-y-8 sm:space-y-10">
       {/* Hero — Figma pilot profile frame (279:58686) */}
-      <article className="figma-pilot-public-hero relative overflow-hidden rounded-xl border border-[rgba(216,179,57,0.45)] bg-ras-card-warm p-6 shadow-[0_0_40px_rgba(216,179,57,0.08)] sm:p-8 lg:p-10">
+      <article className="figma-pilot-public-hero relative overflow-hidden rounded-xl border border-[rgba(216,179,57,0.45)] bg-ras-card-warm p-4 shadow-[0_0_40px_rgba(216,179,57,0.08)] sm:p-8 lg:p-10">
         <div
           className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_55%_at_100%_0%,rgba(216,179,57,0.14),transparent_58%)]"
           aria-hidden
@@ -291,7 +292,7 @@ export function PublicPilotProfile({ pilot }: { pilot: PublicPilotProfileDto }) 
                   ? "Remote Pilot Instructor"
                   : "Licensed pilot"}
               </p>
-              <h1 className="mt-2 text-3xl font-bold tracking-tight text-ras-text sm:text-4xl">
+              <h1 className="mt-2 text-2xl font-bold tracking-tight text-ras-text sm:text-3xl lg:text-4xl">
                 {pilot.displayName}
               </h1>
               {pilot.callSign ? (
@@ -338,7 +339,34 @@ export function PublicPilotProfile({ pilot }: { pilot: PublicPilotProfileDto }) 
               ) : null}
             </div>
 
-            <div className="flex shrink-0 flex-row items-stretch gap-3 sm:gap-4">
+            <div className="flex w-full shrink-0 flex-row flex-wrap items-stretch gap-3 sm:w-auto sm:gap-4">
+              {pilot.highestWing ? (
+                <div className="figma-pilot-hero-stat flex w-full min-w-0 flex-col items-center justify-center self-stretch rounded-xl border border-[rgba(216,179,57,0.3)] bg-[rgba(216,179,57,0.06)] px-4 py-4 text-center sm:w-auto sm:min-w-[7.5rem] sm:max-w-[10rem]">
+                  {pilot.highestWing.imageUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={pilot.highestWing.imageUrl}
+                      alt=""
+                      className="mb-2 h-12 w-12 object-contain"
+                    />
+                  ) : (
+                    <WingBadge
+                      title={pilot.highestWing.title}
+                      iconLabel={pilot.highestWing.iconLabel}
+                      imageUrl={pilot.highestWing.imageUrl}
+                      category={pilot.highestWing.category}
+                      size="md"
+                      className="mb-2"
+                    />
+                  )}
+                  <p className="text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-gold">
+                    Highest wing
+                  </p>
+                  <p className="mt-1 text-sm font-semibold leading-snug text-ras-text">
+                    {pilot.highestWing.title}
+                  </p>
+                </div>
+              ) : null}
               {pilot.membership ? (
                 <MembershipRankBadge
                   tierCode={pilot.membership.tierCode}
@@ -378,13 +406,19 @@ export function PublicPilotProfile({ pilot }: { pilot: PublicPilotProfileDto }) 
                     key={w.code}
                     title={w.title}
                     iconLabel={w.iconLabel}
+                    imageUrl={w.imageUrl}
                     category={w.category}
                     size="md"
                   />
                 ))}
-                {pilot.verifiedTypes.map((t) => (
-                  <span key={t} className="status-badge status-badge-warning">
-                    Verified {getVerificationTypeLabel(t)}
+                {pilot.approvedCredentials.map((c) => (
+                  <span key={c.catalogId} className="status-badge status-badge-warning">
+                    {c.title}
+                  </span>
+                ))}
+                {pilot.certificates.map((cert) => (
+                  <span key={cert.id} className="status-badge status-badge-warning">
+                    {cert.templateName}
                   </span>
                 ))}
               </div>
@@ -467,6 +501,7 @@ export function PublicPilotProfile({ pilot }: { pilot: PublicPilotProfileDto }) 
                     key={w.code}
                     title={w.title}
                     iconLabel={w.iconLabel}
+                    imageUrl={w.imageUrl}
                     category={w.category}
                     size="md"
                   />

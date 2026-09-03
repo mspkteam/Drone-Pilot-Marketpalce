@@ -54,8 +54,12 @@ export type PublicPilotProfileDto = PublicPilotListItemDto & {
   payloads: string[];
   portfolio: PilotPortfolioItem[];
   verifiedTypes: VerificationType[];
+  /** Approved license/compliance credentials shown on profile. */
+  approvedCredentials: Array<{ catalogId: string; title: string }>;
   recentReviews: PublicPilotReviewDto[];
   wings: PublicPilotWingDto[];
+  /** Highest-rarity earned wing for hero display. */
+  highestWing: PublicPilotWingDto | null;
   certificates: PublicPilotCertificateDto[];
   membership: PublicPilotMembershipDto | null;
   instructorListed: boolean;

@@ -618,3 +618,13 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+@media (max-width: 480px) {
+  .prw-options {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .prw-header {
+    padding: 1.1rem;
+  }
+}

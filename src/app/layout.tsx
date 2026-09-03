@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Geist_Mono } from "next/font/google";
 import { SessionProvider } from "@/components/providers/SessionProvider";
 import { SupportChatWidgetLoader } from "@/components/support/SupportChatWidgetLoader";
@@ -26,6 +26,12 @@ export const metadata: Metadata = {
     icon: homeAssets.favicon,
     apple: homeAssets.favicon,
   },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#0a0a0a",
 };
 
 export default function RootLayout({

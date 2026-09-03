@@ -7,7 +7,9 @@ import { publicPilotServiceLabels } from "@/lib/pilot/pilot-profile-service-chip
 import { parseLanguageList } from "@/lib/pilot/format";
 import { parseProfileExtrasJson } from "@/lib/pilot/profile-extras";
 import { parsePortfolioJson } from "@/lib/pilot/portfolio";
-import { getApprovedVerificationTypes } from "@/lib/verification/verification";
+import { getApprovedVerificationTypes, listVerificationsForPilot } from "@/lib/verification/verification";
+import { approvedProfileCredentials } from "@/lib/pilot/verification-documents-catalog";
+import { pickHighestPublicWing } from "@/lib/wings/pick-highest";
 import { listPublicPilotWings } from "@/lib/wings/wings";
 import type { PilotServiceId } from "@/types/pilot";
 import type {
@@ -127,12 +129,13 @@ export async function getPublicPilotById(
     createdAt: r.createdAt.toISOString(),
   }));
 
-  const [verifiedTypes, wings, certRows, membershipSummary] =
+  const [verifiedTypes, wings, certRows, membershipSummary, verifications] =
     await Promise.all([
       getApprovedVerificationTypes(profile.id),
       listPublicPilotWings(profile.id),
       listCertificatesForPilot(profile.id),
       getPilotMembershipSummary(profile.id),
+      listVerificationsForPilot(profile.id),
     ]);
 
   const certificates: PublicPilotCertificateDto[] = certRows.map((c) => ({
@@ -141,6 +144,9 @@ export async function getPublicPilotById(
     templateName: c.templateName,
     issuedAt: c.issuedAt,
   }));
+
+  const approvedCredentials = approvedProfileCredentials(verifications);
+  const highestWing = pickHighestPublicWing(wings);
 
   const membership: PublicPilotMembershipDto | null = membershipSummary
     ? {
@@ -174,8 +180,10 @@ export async function getPublicPilotById(
     payloads: extras.payloads,
     portfolio: parsePortfolioJson(profile.portfolioJson),
     verifiedTypes,
+    approvedCredentials,
     recentReviews,
     wings,
+    highestWing,
     certificates,
     membership,
     instructorListed: profile.instructorAddonActive,

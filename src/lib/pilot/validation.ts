@@ -46,9 +46,7 @@ export function validatePilotProfileInput(
     if (displayName.length < 2) {
       return { ok: false, error: "Display name is required (at least 2 characters)." };
     }
-    if (!licenseNumber) {
-      return { ok: false, error: "License / certificate number is required." };
-    }
+    // License credentials come from Verifications uploads; keep a DB placeholder when empty.
     const city = input.locationCity?.trim();
     const country = input.locationCountry?.trim();
     if (!city || !country) {
@@ -69,6 +67,10 @@ export function validatePilotProfileInput(
       };
     }
   }
+
+  const resolvedLicenseNumber =
+    licenseNumber ||
+    (options.requireAllForOnboarding ? "Pending verification documents" : licenseNumber);
 
   const services = (input.servicesOffered ?? []).filter((s): s is PilotServiceId =>
     VALID_SERVICE_IDS.has(s as PilotServiceId),
@@ -96,7 +98,7 @@ export function validatePilotProfileInput(
     data: {
       ...input,
       displayName,
-      licenseNumber,
+      licenseNumber: resolvedLicenseNumber,
       servicesOffered: services,
       extras,
       complianceAcknowledged: input.complianceAcknowledged as

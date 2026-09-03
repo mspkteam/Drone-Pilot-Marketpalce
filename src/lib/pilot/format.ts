@@ -13,17 +13,18 @@ export function formatPilotRateRange(
   max: number | null,
   currency = "USD",
 ): string | null {
+  const symbol = currency === "USD" ? "$" : `${currency} `;
   if (min != null && max != null && min === max) {
-    return `${currency} ${min.toLocaleString()}/hr`;
+    return `${symbol}${min.toLocaleString()}/hr`;
   }
   if (min != null && max != null) {
-    return `${currency} ${min.toLocaleString()}–${max.toLocaleString()}/hr`;
+    return `${symbol}${min.toLocaleString()}–${max.toLocaleString()}/hr`;
   }
   if (min != null) {
-    return `From ${currency} ${min.toLocaleString()}/hr`;
+    return `From ${symbol}${min.toLocaleString()}/hr`;
   }
   if (max != null) {
-    return `Up to ${currency} ${max.toLocaleString()}/hr`;
+    return `Up to ${symbol}${max.toLocaleString()}/hr`;
   }
   return null;
 }

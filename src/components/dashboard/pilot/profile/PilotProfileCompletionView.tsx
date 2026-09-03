@@ -28,6 +28,20 @@ import type { PilotProfileDto } from "@/types/pilot";
 type PilotProfileCompletionViewProps = {
   profile: PilotProfileDto | null;
   insuranceVerified?: boolean;
+  /** Approved license credentials from Verifications (read-only on profile). */
+  approvedCredentials?: Array<{ catalogId: string; title: string }>;
+  /** Platform certificates issued to this pilot. */
+  certificates?: Array<{
+    id: string;
+    certificateNumber: string;
+    templateName: string;
+    issuedAt: string;
+  }>;
+  /** Highest-rarity earned wing for profile preview. */
+  highestWing?: {
+    title: string;
+    imageUrl: string | null;
+  } | null;
 };
 
 type PilotUiExtras = {
@@ -135,9 +149,9 @@ function PinIcon() {
 
 function DollarIcon() {
   return (
-    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.25" aria-hidden>
-      <path d="M7 1.5v11M4.5 3.5h4a2 2 0 0 1 0 4h-3a2 2 0 0 0 0 4h4.5" strokeLinecap="round" />
-    </svg>
+    <span className="profile-onboarding-dollar-sign" aria-hidden>
+      $
+    </span>
   );
 }
 
@@ -157,6 +171,9 @@ function DroneIcon() {
 export function PilotProfileCompletionView({
   profile,
   insuranceVerified = false,
+  approvedCredentials = [],
+  certificates = [],
+  highestWing = null,
 }: PilotProfileCompletionViewProps) {
   const router = useRouter();
   const avatarInputRef = useRef<HTMLInputElement>(null);
@@ -643,32 +660,29 @@ export function PilotProfileCompletionView({
 
           <section className="profile-onboarding-section">
             <h2 className="profile-onboarding-section-title">LICENSE &amp; COMPLIANCE</h2>
-            <div className="profile-onboarding-fields profile-onboarding-fields--2">
-              <div className="profile-onboarding-field">
-                <label className="profile-onboarding-label" htmlFor="licenseNumber">
-                  LICENSE / CERTIFICATE
-                </label>
-                <input
-                  id="licenseNumber"
-                  className="profile-onboarding-input"
-                  value={form.licenseNumber}
-                  onChange={(e) => patchForm({ licenseNumber: e.target.value })}
-                  disabled={!canEdit || loading}
-                  required
-                />
-              </div>
-              <div className="profile-onboarding-field">
-                <label className="profile-onboarding-label" htmlFor="licenseCountry">
-                  ISSUING COUNTRY
-                </label>
-                <input
-                  id="licenseCountry"
-                  className="profile-onboarding-input"
-                  value={form.licenseCountry}
-                  onChange={(e) => patchForm({ licenseCountry: e.target.value })}
-                  disabled={!canEdit || loading}
-                />
-              </div>
+            <p className="profile-onboarding-section-note">
+              Licenses and certificates appear here after admin approval on{" "}
+              <Link href="/dashboard/pilot/verifications" className="profile-onboarding-inline-link">
+                Verification
+              </Link>
+              . They are not editable on this page.
+            </p>
+            {approvedCredentials.length > 0 ? (
+              <ul className="profile-onboarding-credential-list" aria-label="Approved credentials">
+                {approvedCredentials.map((cred) => (
+                  <li key={cred.catalogId} className="profile-onboarding-credential-chip">
+                    {cred.title}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="profile-onboarding-muted">
+                No approved licenses yet. Upload FAA Part 107, EASA classes, aircraft
+                registration, insurance, or business registration under Verification.
+              </p>
+            )}
+
+            <div className="profile-onboarding-fields profile-onboarding-fields--2 profile-onboarding-fields--spaced">
               <div className="profile-onboarding-field">
                 <label className="profile-onboarding-label" htmlFor="locationCountry">
                   COUNTRY
@@ -705,6 +719,67 @@ export function PilotProfileCompletionView({
                 <span>List my profile in the public pilot directory</span>
               </label>
             ) : null}
+          </section>
+
+          <section className="profile-onboarding-section">
+            <h2 className="profile-onboarding-section-title">PLATFORM CERTIFICATES</h2>
+            <p className="profile-onboarding-section-note">
+              Certificates issued by Remote Air Service admins.{" "}
+              <Link
+                href="/dashboard/pilot/certificates"
+                className="profile-onboarding-inline-link"
+              >
+                Open Certificates page →
+              </Link>
+            </p>
+            {highestWing ? (
+              <div className="profile-onboarding-highest-wing">
+                {highestWing.imageUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={highestWing.imageUrl}
+                    alt=""
+                    className="profile-onboarding-highest-wing-img"
+                  />
+                ) : null}
+                <div>
+                  <p className="profile-onboarding-label">Highest earned wing</p>
+                  <p className="profile-onboarding-award-title">{highestWing.title}</p>
+                  <Link
+                    href="/dashboard/pilot/achievements"
+                    className="profile-onboarding-inline-link"
+                  >
+                    View Digital Wings →
+                  </Link>
+                </div>
+              </div>
+            ) : (
+              <p className="profile-onboarding-muted">
+                No wings earned yet.{" "}
+                <Link
+                  href="/dashboard/pilot/verifications/request-wings"
+                  className="profile-onboarding-inline-link"
+                >
+                  Request Wings →
+                </Link>
+              </p>
+            )}
+            {certificates.length > 0 ? (
+              <ul className="profile-onboarding-credential-list">
+                {certificates.map((cert) => (
+                  <li key={cert.id} className="profile-onboarding-credential-chip">
+                    <span>{cert.templateName}</span>
+                    <span className="profile-onboarding-credential-meta">
+                      {cert.certificateNumber}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="profile-onboarding-muted">
+                No platform certificates issued yet.
+              </p>
+            )}
           </section>
         </div>
 

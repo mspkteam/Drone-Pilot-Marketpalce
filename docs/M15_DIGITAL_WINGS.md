@@ -72,10 +72,10 @@ Certificate templates are issued manually. After issue, wing evaluation runs. To
 ## UI
 
 - Pilot: `/dashboard/pilot/achievements` — earned wings grid
-- Pilot: `/dashboard/pilot/verifications/request-wings` — Request Wings form (Figma `1229:6885`)
+- Pilot: `/dashboard/pilot/verifications/request-wings` — Request Wings form (Figma `1229:6885`), also linked from the Pilot sidebar
 - Admin: `/dashboard/admin/achievements` — definitions, conditions, manual award
 - Admin: `/dashboard/admin/verifications` — Wings requests queue
-- Public: `/pilots/[id]` — wing badges alongside verifications
+- Public: `/pilots/[id]` — highest earned wing in the hero, plus wing badges and approved credentials
 
 ## Seed
 

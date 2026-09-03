@@ -8,7 +8,7 @@ import {
 
 describe("pilot public format", () => {
   it("collapses equal hourly min and max", () => {
-    assert.equal(formatPilotRateRange(150, 150), "USD 150/hr");
+    assert.equal(formatPilotRateRange(150, 150), "$150/hr");
   });
 
   it("shows service radius in miles to match the dashboard", () => {

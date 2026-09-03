@@ -4,6 +4,23 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.70] — 2026-09-03
+
+### Fixed
+
+- Public and dashboard profiles show the **highest earned digital wing**, approved verification credentials, and issued platform certificates.
+- Hourly rate field uses a real `$` (no mirrored SVG). Public rate copy uses `$150/hr`.
+- Aerial Video and Photography service chips toggle independently; unselected chips no longer look gold/active.
+- LICENSE & COMPLIANCE is read-only from approved Verification uploads (FAA Part 107, FAA Aircraft Registration, EASA C-1/C-2/C-3/STS/LPC, Insurance, Business Registration).
+- Request Wings is in the pilot sidebar (`/dashboard/pilot/verifications/request-wings`); Certificates remains at `/dashboard/pilot/certificates`.
+- Public pilot profile, Request Wings, and profile editor stack more cleanly on phones (single-column wing cards under 480px, wrapping hero stats).
+
+### Added
+
+- Verification catalog entries for EASA classes, FAA aircraft registration, insurance, and business registration.
+
+---
+
 ## [0.27.69] — 2026-09-02
 
 ### Fixed

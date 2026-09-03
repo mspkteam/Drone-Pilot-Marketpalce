@@ -55,6 +55,7 @@ export type PilotWingDto = {
   description: string;
   category: WingCategory;
   iconLabel: string | null;
+  imageUrl: string | null;
   source: WingSource;
   earnedAt: string;
 };
@@ -72,6 +73,8 @@ export type PublicPilotWingDto = {
   title: string;
   description: string;
   category: WingCategory;
+  rarity: BadgeRarity;
   iconLabel: string | null;
+  imageUrl: string | null;
   earnedAt: string;
 };

@@ -34,7 +34,17 @@ Multipart fields: `type`, `file`, optional `notes`, optional `documentUrl` (if n
 
 - MIME allowlist + size cap server-side
 - Files served only to document owner (pilot) or admin roles
-- Public pilot profiles show badges only — no document download
+Public pilot profiles show badges only — no document download.
+
+Profile LICENSE & COMPLIANCE is read-only. Approved uploads from this catalog appear there and on the public profile:
+
+- FAA Part 107
+- FAA Aircraft Registration
+- EASA C-1 / C-2 / C-3 / STS / LPC
+- Insurance Certificate (optional)
+- Business Registration (optional)
+
+Government ID and additional certifications stay on the Verification tab only.
 
 ## Smoke test
 

@@ -252,7 +252,15 @@ function ServiceChip({ label }: { label: string }) {
   );
 }
 
-export function PublicPilotProfile({ pilot }: { pilot: PublicPilotProfileDto }) {
+export function PublicPilotProfile({
+  pilot,
+  messageHref = "/register?role=client",
+  hireHref = "/register?role=client",
+}: {
+  pilot: PublicPilotProfileDto;
+  messageHref?: string;
+  hireHref?: string;
+}) {
   const location = formatPilotLocation(
     pilot.locationCity,
     pilot.locationRegion,
@@ -427,7 +435,7 @@ export function PublicPilotProfile({ pilot }: { pilot: PublicPilotProfileDto }) 
 
           <div className="figma-pilot-public-actions mt-8 flex flex-col gap-3 border-t border-[rgba(255,255,255,0.06)] pt-6 sm:flex-row sm:flex-wrap sm:items-center">
             <Link
-              href="/register?role=client"
+              href={messageHref}
               className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-[rgba(216,179,57,0.35)] bg-[rgba(216,179,57,0.08)] text-gold transition-colors hover:border-gold/55 hover:bg-[rgba(216,179,57,0.14)] hover:text-gold-light"
               aria-label={`Message ${pilot.displayName}`}
               title="Message pilot"
@@ -435,7 +443,7 @@ export function PublicPilotProfile({ pilot }: { pilot: PublicPilotProfileDto }) 
               <IconChat className="h-5 w-5" />
             </Link>
             <Button
-              href="/register?role=client"
+              href={hireHref}
               className="h-11 min-w-44 flex-1 sm:flex-none"
             >
               Hire via marketplace
@@ -742,7 +750,7 @@ export function PublicPilotProfile({ pilot }: { pilot: PublicPilotProfileDto }) 
           pilots on the marketplace.
         </p>
         <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row sm:items-center">
-          <Button href="/register">Hire via marketplace</Button>
+          <Button href={hireHref}>Hire via marketplace</Button>
           <Button href="/pilots" variant="secondary">
             Browse more pilots
           </Button>

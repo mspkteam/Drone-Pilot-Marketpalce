@@ -4,6 +4,18 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.74] — 2026-09-03
+
+### Fixed
+
+- **QA pass (Pilot + Client):** Terms acknowledgment no longer unchecks when opening the Terms link; terms link goes to `/terms`; proposal terms modal blocks click-through (higher z-index).
+- Password show/hide on login, register, and client/pilot settings.
+- Client post-project wizard Back / Edit notes; logged-in clients get Messages + Hire CTAs on public pilot profiles.
+- Notification mark-all always available; smaller “0” badge; booking/dispute notification deep-links for pilots; draft proposals link after Save Draft.
+- Review form no longer defaults to 5 stars; dark select option colors on pilot marketplace/proposal forms.
+
+---
+
 ## [0.27.73] — 2026-09-03
 
 ### Fixed

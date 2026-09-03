@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
@@ -672,7 +673,14 @@ export function PilotSubmitProposalView({ jobId, initial }: PilotSubmitProposalV
                   {savingDraft ? "Saving…" : draftSaved ? "Draft saved" : "Save Draft"}
                 </button>
                 <span className="pilot-submit-draft-hint">
-                  ⓘ Saved to your account — you can finish and submit later
+                  ⓘ Saved to your account — open{" "}
+                  <Link
+                    href="/dashboard/pilot/proposals?status=DRAFT"
+                    className="pilot-submit-draft-link"
+                  >
+                    My Proposals → Draft
+                  </Link>{" "}
+                  to finish later
                 </span>
               </div>
             </div>

@@ -14,7 +14,7 @@ type ReviewFormProps = {
 
 export function ReviewForm({ bookingId, targetLabel, apiBase }: ReviewFormProps) {
   const router = useRouter();
-  const [rating, setRating] = useState(5);
+  const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -65,6 +65,9 @@ export function ReviewForm({ bookingId, targetLabel, apiBase }: ReviewFormProps)
           disabled={submitting}
         />
       </FormField>
+      {rating < 1 ? (
+        <p className="text-xs text-muted-foreground">Select a star rating to continue.</p>
+      ) : null}
       <FormField
         label="Comment"
         htmlFor="comment"
@@ -81,7 +84,7 @@ export function ReviewForm({ bookingId, targetLabel, apiBase }: ReviewFormProps)
           placeholder="Share how the mission went…"
         />
       </FormField>
-      <Button type="submit" disabled={submitting}>
+      <Button type="submit" disabled={submitting || rating < 1}>
         {submitting ? "Submitting…" : "Submit review"}
       </Button>
     </form>

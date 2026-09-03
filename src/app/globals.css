@@ -3768,7 +3768,50 @@ a.dashboard-card:hover {
 
 .client-post-project-terms-checkbox--modal {
   margin-top: 0;
+  cursor: default;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.5rem;
+}
+
+.client-post-project-terms-checkbox--modal input {
+  margin-top: 0.2rem;
+  flex-shrink: 0;
+}
+
+.client-post-project-terms-checkbox--modal .client-post-project-terms-checkbox-copy {
+  display: inline;
+  margin: 0;
+  padding: 0;
   cursor: pointer;
+}
+
+.client-post-project-terms-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+
+.client-post-project-terms-hint {
+  margin: 0;
+  padding-left: 0.25rem;
+  font-size: 0.75rem;
+  color: var(--color-text-dim);
+}
+
+.client-post-project-terms-link {
+  color: var(--color-gold);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+}
+
+.client-post-project-terms-link:hover {
+  color: var(--color-gold-soft);
 }
 
 .client-post-project-terms-modal-backdrop {

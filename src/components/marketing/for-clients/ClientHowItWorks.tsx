@@ -14,11 +14,11 @@ export function ClientHowItWorks() {
             Hire a Pilot in 5 Simple Steps
           </h2>
         </div>
-        <ol className="figma-client-steps-scroll -mx-[var(--dashboard-padding-mobile)] mt-10 flex snap-x snap-mandatory gap-5 overflow-x-auto px-[var(--dashboard-padding-mobile)] pb-4 pt-6 sm:mx-0 sm:px-0 md:grid md:grid-cols-2 md:overflow-visible md:snap-none lg:mt-14 lg:grid-cols-5">
+        <ol className="figma-client-steps-grid mt-10 grid grid-cols-1 gap-5 pt-6 sm:grid-cols-2 lg:mt-14 lg:grid-cols-5">
           {CLIENT_HOW_IT_WORKS_STEPS.map((step) => (
             <li
               key={step.number}
-              className="figma-marketing-card relative min-w-[15rem] shrink-0 snap-start px-[25px] pb-[25px] pt-[2.3125rem] md:min-w-0"
+              className="figma-marketing-card relative px-[25px] pb-[25px] pt-[2.3125rem]"
             >
               <span className="figma-client-step-badge absolute -top-4 left-6">
                 {step.number}

@@ -4,6 +4,16 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.72] — 2026-09-03
+
+### Fixed
+
+- **Mobile polish:** For Clients “5 steps” stacks on phones instead of a hidden horizontal carousel.
+- Post-project stepper uses short labels under 480px; admin personnel directory uses stacked cards under 900px.
+- Pricing comparison keeps a sticky Feature column and a swipe hint on small screens.
+
+---
+
 ## [0.27.71] — 2026-09-03
 
 ### Fixed

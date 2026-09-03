@@ -331,6 +331,46 @@ export function AdminFleetPersonnel({
           </table>
         </div>
 
+        <div className="admin-personnel-mobile-list">
+          {pageRows.length > 0 ? (
+            pageRows.map((row) => (
+              <article key={row.id} className="admin-personnel-mobile-row">
+                <div className="admin-personnel-mobile-top">
+                  <div>
+                    <span className="admin-personnel-name">{row.name}</span>
+                    <span className="admin-personnel-id">{row.displayId}</span>
+                  </div>
+                  <StatusBadge row={row} />
+                </div>
+                <dl className="admin-personnel-mobile-grid">
+                  <div>
+                    <dt>Role</dt>
+                    <dd>{row.roleLabel}</dd>
+                  </div>
+                  <div>
+                    <dt>Wings</dt>
+                    <dd>{row.wingsLabel}</dd>
+                  </div>
+                  <div>
+                    <dt>Joined</dt>
+                    <dd>{row.joinedLabel}</dd>
+                  </div>
+                </dl>
+                <Link
+                  href={profileHrefForRow(row)}
+                  className="admin-personnel-action"
+                >
+                  Open profile
+                </Link>
+              </article>
+            ))
+          ) : (
+            <p className="admin-personnel-empty admin-personnel-mobile-empty">
+              No personnel match the selected filters.
+            </p>
+          )}
+        </div>
+
         <div className="admin-personnel-directory-footer">
           <p className="admin-personnel-footer-count">
             SHOWING {rangeStart}-{rangeEnd} OF {filteredRows.length.toLocaleString()}{" "}

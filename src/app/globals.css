@@ -2898,8 +2898,31 @@ a.dashboard-card:hover {
   white-space: nowrap;
 }
 
+.client-post-project-progress-label-short {
+  display: none;
+}
+
 .client-post-project-progress-item--active .client-post-project-progress-label {
   color: var(--color-gold);
+}
+
+@media (max-width: 479px) {
+  .client-post-project-progress-list {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .client-post-project-progress-item {
+    min-width: 0;
+  }
+
+  .client-post-project-progress-label-full {
+    display: none;
+  }
+
+  .client-post-project-progress-label-short {
+    display: inline;
+  }
 }
 
 .client-post-project-card {

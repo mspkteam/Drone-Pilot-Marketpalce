@@ -18,10 +18,11 @@ type PilotPortfolioAddModalProps = {
 
 const EMPTY_DRAFT: PilotPortfolioDraft = {
   title: "",
-  type: "VIDEO",
+  type: "PHOTOSET",
   tags: [],
   description: "",
   thumbnailUrl: null,
+  mediaUrl: null,
 };
 
 export function PilotPortfolioAddModal({
@@ -58,6 +59,7 @@ export function PilotPortfolioAddModal({
         tags: item.tags,
         description: item.description ?? "",
         thumbnailUrl: item.thumbnailUrl,
+        mediaUrl: item.mediaUrl ?? null,
       });
       setTagsInput(item.tags.join(", "));
       return;
@@ -130,7 +132,7 @@ export function PilotPortfolioAddModal({
         <p className="pilot-portfolio-modal-sub">
           {isEdit
             ? "Update the title, type, tags, or preview. Changes appear on your public profile."
-            : "Add a flight gallery item. It appears on your profile and public listing."}
+            : "Add a flight gallery item. Upload a cover image (PNG/JPEG/WebP/GIF). For videos, add an external link — video file upload is not supported yet."}
         </p>
 
         <div className="pilot-portfolio-modal-fields">
@@ -182,8 +184,28 @@ export function PilotPortfolioAddModal({
             />
           </label>
 
+          <label className="pilot-portfolio-field">
+            <span className="pilot-portfolio-label">
+              {draft.type === "VIDEO" ? "Video link (YouTube, Vimeo, Drive…)" : "Media link (optional)"}
+            </span>
+            <input
+              className="pilot-portfolio-input"
+              type="url"
+              value={draft.mediaUrl ?? ""}
+              onChange={(e) =>
+                setDraft((d) => ({ ...d, mediaUrl: e.target.value }))
+              }
+              placeholder="https://"
+            />
+          </label>
+
           <div className="pilot-portfolio-field">
-            <span className="pilot-portfolio-label">Preview image</span>
+            <span className="pilot-portfolio-label">
+              {draft.type === "VIDEO" ? "Cover image" : "Preview image"}
+            </span>
+            <p className="pilot-portfolio-modal-sub" style={{ marginTop: 0 }}>
+              Images only (PNG, JPEG, WebP, GIF · max 5 MB). This is the gallery thumbnail.
+            </p>
             {draft.thumbnailUrl ? (
               <div className="pilot-portfolio-modal-preview">
                 {/* eslint-disable-next-line @next/next/no-img-element */}

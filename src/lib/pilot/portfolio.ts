@@ -8,6 +8,8 @@ export type PilotPortfolioItem = {
   title: string;
   tags: string[];
   thumbnailUrl: string | null;
+  /** Optional external video or gallery URL (YouTube, Vimeo, Drive, etc.). */
+  mediaUrl?: string | null;
   description?: string;
   createdAt: string;
 };
@@ -46,6 +48,9 @@ function isPortfolioItem(value: unknown): value is PilotPortfolioItem {
     typeof item.title === "string" &&
     Array.isArray(item.tags) &&
     (item.thumbnailUrl === null || typeof item.thumbnailUrl === "string") &&
+    (item.mediaUrl === undefined ||
+      item.mediaUrl === null ||
+      typeof item.mediaUrl === "string") &&
     typeof item.createdAt === "string"
   );
 }
@@ -59,6 +64,7 @@ export type PilotPortfolioDraft = {
   title: string;
   tags: string[];
   thumbnailUrl: string | null;
+  mediaUrl?: string | null;
   description?: string;
 };
 
@@ -69,6 +75,7 @@ export function createPortfolioItem(draft: PilotPortfolioDraft): PilotPortfolioI
     title: draft.title.trim(),
     tags: draft.tags.length > 0 ? draft.tags : ["PORTFOLIO"],
     thumbnailUrl: draft.thumbnailUrl,
+    mediaUrl: draft.mediaUrl?.trim() || null,
     description: draft.description?.trim() || undefined,
     createdAt: new Date().toISOString(),
   };
@@ -84,6 +91,7 @@ export function updatePortfolioItem(
     title: draft.title.trim(),
     tags: draft.tags.length > 0 ? draft.tags : ["PORTFOLIO"],
     thumbnailUrl: draft.thumbnailUrl,
+    mediaUrl: draft.mediaUrl?.trim() || null,
     description: draft.description?.trim() || undefined,
   };
 }

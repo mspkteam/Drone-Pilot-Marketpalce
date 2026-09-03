@@ -22,6 +22,7 @@ export type JobApplicationDto = {
   proposalDetails: ProposalDetails | null;
   draftForm?: Record<string, unknown> | null;
   shortlistedAt: string | null;
+  clientViewedAt: string | null;
   status: ApplicationStatus;
   submittedAt: string;
   updatedAt: string;

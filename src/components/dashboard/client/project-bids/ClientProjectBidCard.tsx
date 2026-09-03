@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect } from "react";
 import { UserAvatar } from "@/components/ui/UserAvatar";
 import {
   CLIENT_PROJECT_BIDS_ROUTES,
@@ -30,6 +33,15 @@ export function ClientProjectBidCard({
   onDecline,
   onAccept,
 }: ClientProjectBidCardProps) {
+  useEffect(() => {
+    void fetch(
+      `/api/client/jobs/${bid.jobId}/applications/${bid.applicationId}/view`,
+      { method: "POST" },
+    ).catch(() => {
+      /* best-effort read receipt */
+    });
+  }, [bid.jobId, bid.applicationId]);
+
   const isAccepted = bid.status === "Accepted";
   const isDeclined = bid.status === "Declined";
   const actionsLocked =

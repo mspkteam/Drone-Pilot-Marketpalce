@@ -515,9 +515,15 @@ export function PilotProfileCompletionView({
                   <button
                     type="button"
                     className="profile-onboarding-equip-add"
-                    disabled={!canEdit || loading || !extras.droneEquipment.trim()}
-                    onClick={addMainDroneFromEquipment}
-                    title="Add from Drone Equipment field"
+                    disabled={!canEdit || loading}
+                    onClick={() => {
+                      if (!extras.droneEquipment.trim()) {
+                        document.getElementById("droneEquipment")?.focus();
+                        return;
+                      }
+                      addMainDroneFromEquipment();
+                    }}
+                    title="Add from Drone Equipment field above"
                   >
                     +
                   </button>

@@ -326,6 +326,26 @@ export function PilotProposalDetailView({ initial }: PilotProposalDetailViewProp
         </section>
       ) : null}
 
+      {details?.attachments?.length ? (
+        <section className="pilot-proposal-detail-card">
+          <h2 className="pilot-proposal-detail-card-title">Attachments</h2>
+          <ul className="pilot-proposal-detail-links">
+            {details.attachments.map((item) => (
+              <li key={item.url}>
+                <a
+                  href={item.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="pilot-proposal-detail-link"
+                >
+                  {item.name}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+
       {canWithdraw ? (
         <section className="pilot-proposal-detail-card pilot-proposal-detail-card--danger">
           <h2 className="pilot-proposal-detail-card-title">Withdraw proposal</h2>

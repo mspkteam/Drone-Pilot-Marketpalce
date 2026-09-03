@@ -45,6 +45,7 @@ export function toApplicationDto(app: JobApplication): JobApplicationDto {
     proposalDetails: draftForm ? null : parseProposalDetails(app.proposalDetailsJson),
     draftForm,
     shortlistedAt: app.shortlistedAt?.toISOString() ?? null,
+    clientViewedAt: app.clientViewedAt?.toISOString() ?? null,
     status: app.status as ApplicationStatus,
     submittedAt: app.submittedAt.toISOString(),
     updatedAt: app.updatedAt.toISOString(),

@@ -35,6 +35,7 @@ describe("pilot proposals map", () => {
       client: "Client",
       bid: "$1",
       sent: "1d ago",
+      viewedLabel: "Not Viewed" as const,
       status: row.status,
       badgeLabel: row.status,
       viewHref: "/",

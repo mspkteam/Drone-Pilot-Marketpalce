@@ -17,6 +17,7 @@ export type PilotProposalRow = {
   client: string;
   bid: string;
   sent: string;
+  viewedLabel: "Not Viewed" | "Viewed";
   status: PilotProposalUiStatus;
   badgeLabel: string;
   viewHref: string;
@@ -116,6 +117,7 @@ export function mapApplicationToProposalRow(
     client: app.job.clientDisplayName,
     bid: formatBid(app.proposedAmount, app.currency),
     sent: formatSentAgo(app.submittedAt),
+    viewedLabel: app.clientViewedAt ? "Viewed" : "Not Viewed",
     status: mapApplicationStatusToUi(app.status, app.shortlistedAt),
     badgeLabel: proposalBadgeLabel(
       mapApplicationStatusToUi(app.status, app.shortlistedAt),

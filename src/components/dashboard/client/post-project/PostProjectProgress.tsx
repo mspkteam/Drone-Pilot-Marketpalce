@@ -25,6 +25,8 @@ export function PostProjectProgress({ currentStep }: PostProjectProgressProps) {
                 active && "client-post-project-progress-item--active",
                 complete && "client-post-project-progress-item--complete",
               )}
+              aria-current={active ? "step" : undefined}
+              aria-label={step.label}
             >
               <span
                 className={cn(
@@ -33,7 +35,14 @@ export function PostProjectProgress({ currentStep }: PostProjectProgressProps) {
                 )}
                 aria-hidden
               />
-              <span className="client-post-project-progress-label">{step.label}</span>
+              <span className="client-post-project-progress-label" aria-hidden>
+                <span className="client-post-project-progress-label-full">
+                  {step.label}
+                </span>
+                <span className="client-post-project-progress-label-short">
+                  {step.shortLabel}
+                </span>
+              </span>
             </li>
           );
         })}

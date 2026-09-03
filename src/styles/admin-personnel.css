@@ -296,6 +296,7 @@
 
 /* Table */
 .admin-personnel-table-wrap {
+  display: none;
   overflow-x: auto;
 }
 
@@ -383,6 +384,64 @@
   text-align: left;
   white-space: nowrap;
   width: 1%;
+}
+
+.admin-personnel-mobile-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-personnel-mobile-row {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--color-border-divider);
+}
+
+.admin-personnel-mobile-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.admin-personnel-mobile-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem 1rem;
+  margin: 0.875rem 0;
+}
+
+.admin-personnel-mobile-grid div {
+  min-width: 0;
+}
+
+.admin-personnel-mobile-grid dt {
+  margin: 0;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-soft);
+}
+
+.admin-personnel-mobile-grid dd {
+  margin: 0.25rem 0 0;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.admin-personnel-mobile-empty {
+  margin: 0;
+  padding: 1.25rem;
+}
+
+@media (min-width: 900px) {
+  .admin-personnel-table-wrap {
+    display: block;
+  }
+
+  .admin-personnel-mobile-list {
+    display: none;
+  }
 }
 
 .admin-personnel-actions {

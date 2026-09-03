@@ -37,11 +37,11 @@ export {
 } from "@/lib/client/post-project-constants";
 
 export const POST_PROJECT_STEPS = [
-  { id: "service", label: "Service" },
-  { id: "location", label: "Location" },
-  { id: "requirements", label: "Requirements" },
-  { id: "budget", label: "Budget & Timeline" },
-  { id: "review", label: "Review" },
+  { id: "service", label: "Service", shortLabel: "Service" },
+  { id: "location", label: "Location", shortLabel: "Location" },
+  { id: "requirements", label: "Requirements", shortLabel: "Reqs" },
+  { id: "budget", label: "Budget & Timeline", shortLabel: "Budget" },
+  { id: "review", label: "Review", shortLabel: "Review" },
 ] as const;
 
 export type PostProjectStepId = (typeof POST_PROJECT_STEPS)[number]["id"];

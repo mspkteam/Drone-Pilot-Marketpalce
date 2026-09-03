@@ -19,12 +19,15 @@ export function PricingComparison() {
         </div>
 
         <div className="figma-pricing-table-scroll mt-14 overflow-x-auto rounded-[10px] border border-[rgba(216,179,57,0.12)] bg-surface">
+          <p className="figma-pricing-table-hint px-4 pt-3 text-xs text-ras-soft md:hidden">
+            Swipe sideways to compare grades
+          </p>
           <table className="w-full min-w-[52rem] border-collapse text-left text-sm">
             <thead>
               <tr className="border-b border-[rgba(255,255,255,0.06)]">
                 <th
                   scope="col"
-                  className="px-6 py-4 text-left text-sm font-bold text-ras-text"
+                  className="sticky left-0 z-10 bg-surface px-6 py-4 text-left text-sm font-bold text-ras-text"
                 >
                   Feature
                 </th>
@@ -51,7 +54,7 @@ export function PricingComparison() {
                 >
                   <th
                     scope="row"
-                    className="px-6 py-4 text-left text-sm font-medium text-ras-text"
+                    className="sticky left-0 z-10 bg-surface px-6 py-4 text-left text-sm font-medium text-ras-text"
                   >
                     {row.feature}
                   </th>

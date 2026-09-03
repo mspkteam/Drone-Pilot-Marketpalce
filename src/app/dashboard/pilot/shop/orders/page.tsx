@@ -1,11 +1,12 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { PilotUniformOrdersList } from "@/components/shop/PilotUniformOrdersList";
-import { PageHeader } from "@/components/layout/PageHeader";
+import { DashboardPageLayout } from "@/components/dashboard";
 import {
   getPilotProfileByUserId,
   isOnboardingComplete,
 } from "@/lib/pilot/profile";
+import "@/styles/pilot-shop.css";
 
 export const metadata = { title: "Uniform orders" };
 
@@ -21,11 +22,8 @@ export default async function PilotShopOrdersPage() {
   }
 
   return (
-    <>
-      <PageHeader title="Uniform orders" description="Track shop orders and payment." />
-      <div className="mt-8 max-w-2xl">
-        <PilotUniformOrdersList />
-      </div>
-    </>
+    <DashboardPageLayout className="pilot-shop-shell">
+      <PilotUniformOrdersList />
+    </DashboardPageLayout>
   );
 }

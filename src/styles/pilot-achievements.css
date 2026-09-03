@@ -1,0 +1,181 @@
+/* Pilot Digital Wings / Achievements page */
+
+.pilot-achievements-shell.dashboard-page {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: none;
+}
+
+.pilot-achievements-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+  min-width: 0;
+}
+
+.pilot-achievements-bracket-card {
+  position: relative;
+}
+
+.pilot-achievements-bracket-card::before,
+.pilot-achievements-bracket-card::after {
+  content: "";
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  pointer-events: none;
+}
+
+.pilot-achievements-bracket-card::before {
+  top: 14px;
+  left: 14px;
+  border-top: 1px solid rgba(244, 241, 234, 0.22);
+  border-left: 1px solid rgba(244, 241, 234, 0.22);
+}
+
+.pilot-achievements-bracket-card::after {
+  right: 14px;
+  bottom: 14px;
+  border-right: 1px solid rgba(244, 241, 234, 0.22);
+  border-bottom: 1px solid rgba(244, 241, 234, 0.22);
+}
+
+.pilot-achievements-header {
+  border: 1px solid var(--dashboard-card-border);
+  border-radius: 0.375rem;
+  background: var(--color-card-warm);
+  padding: 1.5625rem;
+}
+
+.pilot-achievements-eyebrow {
+  margin: 0;
+  font-size: 0.7rem;
+  font-weight: 400;
+  letter-spacing: 0.084em;
+  text-transform: uppercase;
+  color: var(--color-text-soft);
+}
+
+.pilot-achievements-title-main {
+  margin: 0.25rem 0 0;
+  font-size: clamp(1.75rem, 3vw, 2.25rem);
+  font-weight: 600;
+  line-height: 1.11;
+  letter-spacing: -0.001em;
+  color: var(--color-text);
+}
+
+.pilot-achievements-lead {
+  margin: 0.5rem 0 0;
+  max-width: 40rem;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: var(--color-text-soft);
+}
+
+.pilot-achievements-panel {
+  border: 1px solid var(--dashboard-card-border);
+  border-radius: 0.375rem;
+  background: var(--color-card-warm);
+  padding: 0 0 1.0625rem;
+}
+
+.pilot-achievements-panel-title {
+  margin: 0;
+  padding: 0.75rem 1rem 0.8125rem;
+  border-bottom: 1px solid var(--dashboard-card-border);
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  color: var(--color-gold);
+}
+
+.pilot-achievements-banner {
+  margin: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  background: rgba(239, 68, 68, 0.08);
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  color: var(--color-danger);
+}
+
+.pilot-achievements-loading,
+.pilot-achievements-empty {
+  margin: 1rem 1rem 0;
+  font-size: 0.875rem;
+  color: var(--color-text-soft);
+}
+
+.pilot-achievements-empty-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.25rem;
+  margin: 0.875rem 1rem 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pilot-achievements-empty-links a {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-gold);
+  text-decoration: none;
+}
+
+.pilot-achievements-empty-links a:hover {
+  color: var(--color-gold-soft);
+  text-decoration: underline;
+}
+
+.pilot-achievements-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 1rem 0.875rem 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pilot-achievements-card {
+  border: 1px solid var(--dashboard-card-border);
+  border-radius: 0.25rem;
+  background: var(--color-card-warm-alt);
+  padding: 0.875rem 1rem;
+}
+
+.pilot-achievements-card-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.pilot-achievements-source {
+  font-size: 0.6875rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-soft);
+}
+
+.pilot-achievements-card-desc {
+  margin: 0.75rem 0 0;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: var(--color-text-soft);
+}
+
+.pilot-achievements-card-meta {
+  margin: 0.5rem 0 0;
+  font-size: 0.75rem;
+  color: var(--color-text-soft);
+}
+
+@media (max-width: 720px) {
+  .pilot-achievements-grid {
+    grid-template-columns: 1fr;
+  }
+}

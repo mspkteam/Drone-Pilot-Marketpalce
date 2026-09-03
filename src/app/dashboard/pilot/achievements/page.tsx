@@ -1,11 +1,12 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { PilotWingsPanel } from "@/components/wings/PilotWingsPanel";
-import { PageHeader } from "@/components/layout/PageHeader";
+import { PilotAchievementsView } from "@/components/dashboard/pilot/achievements/PilotAchievementsView";
+import { DashboardPageLayout } from "@/components/dashboard";
 import {
   getPilotProfileByUserId,
   isOnboardingComplete,
 } from "@/lib/pilot/profile";
+import "@/styles/pilot-achievements.css";
 
 export const metadata = { title: "Digital Wings" };
 
@@ -21,14 +22,8 @@ export default async function PilotAchievementsPage() {
   }
 
   return (
-    <>
-      <PageHeader
-        title="Digital Wings"
-        description="Milestone badges earned on the marketplace."
-      />
-      <div className="mt-8 max-w-3xl">
-        <PilotWingsPanel />
-      </div>
-    </>
+    <DashboardPageLayout className="pilot-achievements-shell">
+      <PilotAchievementsView />
+    </DashboardPageLayout>
   );
 }

@@ -1,12 +1,13 @@
 import { notFound, redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { PilotUniformOrderDetail } from "@/components/shop/PilotUniformOrderDetail";
-import { PageHeader } from "@/components/layout/PageHeader";
+import { DashboardPageLayout } from "@/components/dashboard";
 import { getOrderForUser } from "@/lib/shop/shop";
 import {
   getPilotProfileByUserId,
   isOnboardingComplete,
 } from "@/lib/pilot/profile";
+import "@/styles/pilot-shop.css";
 
 type PageProps = { params: Promise<{ id: string }> };
 
@@ -28,11 +29,8 @@ export default async function PilotShopOrderDetailPage({ params }: PageProps) {
   }
 
   return (
-    <>
-      <PageHeader title="Order" description={order.orderNumber} />
-      <div className="mt-8">
-        <PilotUniformOrderDetail initialOrder={order} />
-      </div>
-    </>
+    <DashboardPageLayout className="pilot-shop-shell">
+      <PilotUniformOrderDetail initialOrder={order} />
+    </DashboardPageLayout>
   );
 }

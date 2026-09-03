@@ -13,6 +13,7 @@ import {
   notificationPreferencesFromProfile,
   type ClientNotificationPreferences,
 } from "@/lib/client/settings-notifications";
+import { PasswordField } from "@/components/ui/PasswordField";
 import type { AccountDto } from "@/types/account";
 import type { ClientProfileDto } from "@/types/client";
 import { ClientSettingsToggle } from "./ClientSettingsToggle";
@@ -364,42 +365,42 @@ export function ClientAccountSettings() {
           className="client-settings-password-form"
           onSubmit={(e) => void handlePasswordChange(e)}
         >
-          <label className="client-settings-field client-settings-field--full">
-            <span className="client-settings-label">Current password</span>
-            <input
-              className="client-settings-input"
-              type="password"
-              autoComplete="current-password"
-              value={currentPassword}
-              onChange={(e) => setCurrentPassword(e.target.value)}
-              required
-            />
-          </label>
+          <PasswordField
+            id="client-current-password"
+            label="Current password"
+            autoComplete="current-password"
+            required
+            value={currentPassword}
+            onChange={setCurrentPassword}
+            className="client-settings-field client-settings-field--full"
+            labelClassName="client-settings-label"
+            inputClassName="client-settings-input"
+          />
           <div className="client-settings-field-grid">
-            <label className="client-settings-field">
-              <span className="client-settings-label">New password</span>
-              <input
-                className="client-settings-input"
-                type="password"
-                autoComplete="new-password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                minLength={8}
-                required
-              />
-            </label>
-            <label className="client-settings-field">
-              <span className="client-settings-label">Confirm new password</span>
-              <input
-                className="client-settings-input"
-                type="password"
-                autoComplete="new-password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                minLength={8}
-                required
-              />
-            </label>
+            <PasswordField
+              id="client-new-password"
+              label="New password"
+              autoComplete="new-password"
+              required
+              minLength={8}
+              value={newPassword}
+              onChange={setNewPassword}
+              className="client-settings-field"
+              labelClassName="client-settings-label"
+              inputClassName="client-settings-input"
+            />
+            <PasswordField
+              id="client-confirm-password"
+              label="Confirm new password"
+              autoComplete="new-password"
+              required
+              minLength={8}
+              value={confirmPassword}
+              onChange={setConfirmPassword}
+              className="client-settings-field"
+              labelClassName="client-settings-label"
+              inputClassName="client-settings-input"
+            />
           </div>
           <button
             type="submit"

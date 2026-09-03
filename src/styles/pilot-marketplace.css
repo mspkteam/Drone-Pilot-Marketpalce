@@ -195,6 +195,12 @@
   color: var(--color-text-soft);
 }
 
+.pilot-marketplace-filter-field select option,
+.pilot-marketplace-panel select option {
+  background: var(--color-bg-deeper, #15110c);
+  color: var(--color-text);
+}
+
 .pilot-marketplace-filter-input,
 .pilot-marketplace-filter-select {
   height: 2.25rem;

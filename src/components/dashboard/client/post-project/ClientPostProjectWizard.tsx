@@ -155,22 +155,48 @@ export function ClientPostProjectWizard() {
                   disabled={loading}
                   onClick={() => {
                     setError(null);
-                    setStep(0);
+                    setStep((s) => Math.max(0, s - 1));
                   }}
                 >
-                  Edit Project
+                  Back
+                </button>
+                <button
+                  type="button"
+                  className="client-post-project-btn-secondary"
+                  disabled={loading}
+                  onClick={() => {
+                    setError(null);
+                    setStep(2);
+                  }}
+                >
+                  Edit notes
                 </button>
               </div>
             ) : (
-              <button
-                type="button"
-                className="client-post-project-btn-primary client-post-project-btn-primary--continue"
-                disabled={loading}
-                onClick={goNext}
-              >
-                Continue
-                <ArrowRightIcon />
-              </button>
+              <div className="client-post-project-review-actions">
+                {step > 0 ? (
+                  <button
+                    type="button"
+                    className="client-post-project-btn-secondary"
+                    disabled={loading}
+                    onClick={() => {
+                      setError(null);
+                      setStep((s) => Math.max(0, s - 1));
+                    }}
+                  >
+                    Back
+                  </button>
+                ) : null}
+                <button
+                  type="button"
+                  className="client-post-project-btn-primary client-post-project-btn-primary--continue"
+                  disabled={loading}
+                  onClick={goNext}
+                >
+                  Continue
+                  <ArrowRightIcon />
+                </button>
+              </div>
             )}
           </footer>
         </article>

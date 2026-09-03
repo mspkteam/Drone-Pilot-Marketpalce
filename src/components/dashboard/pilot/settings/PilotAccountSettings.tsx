@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import { signOut } from "next-auth/react";
 import { PilotDeactivateModal } from "./PilotDeactivateModal";
 import { PilotSettingsCheckbox } from "./PilotSettingsCheckbox";
+import { PasswordField } from "@/components/ui/PasswordField";
 import type { AccountDto } from "@/types/account";
 import type { PilotProfileDto } from "@/types/pilot";
 import { PILOT_NOTIFICATION_DEFAULTS } from "@/lib/pilot/profile-extras";
@@ -471,45 +472,42 @@ export function PilotAccountSettings() {
               onSubmit={(e) => void handlePasswordChange(e)}
               className="pilot-settings-password-form"
             >
-              <label className="pilot-settings-field pilot-settings-field--full">
-                <span className="pilot-settings-label">Current Password</span>
-                <input
-                  id="current-password"
-                  type="password"
-                  autoComplete="current-password"
-                  className="pilot-settings-input"
-                  value={currentPassword}
-                  onChange={(e) => setCurrentPassword(e.target.value)}
-                  required
-                />
-              </label>
+              <PasswordField
+                id="current-password"
+                label="Current Password"
+                autoComplete="current-password"
+                required
+                value={currentPassword}
+                onChange={setCurrentPassword}
+                className="pilot-settings-field pilot-settings-field--full"
+                labelClassName="pilot-settings-label"
+                inputClassName="pilot-settings-input"
+              />
               <div className="pilot-settings-field-grid">
-                <label className="pilot-settings-field">
-                  <span className="pilot-settings-label">New Password</span>
-                  <input
-                    id="new-password"
-                    type="password"
-                    autoComplete="new-password"
-                    className="pilot-settings-input"
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    minLength={8}
-                    required
-                  />
-                </label>
-                <label className="pilot-settings-field">
-                  <span className="pilot-settings-label">Confirm New Password</span>
-                  <input
-                    id="confirm-password"
-                    type="password"
-                    autoComplete="new-password"
-                    className="pilot-settings-input"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    minLength={8}
-                    required
-                  />
-                </label>
+                <PasswordField
+                  id="new-password"
+                  label="New Password"
+                  autoComplete="new-password"
+                  required
+                  minLength={8}
+                  value={newPassword}
+                  onChange={setNewPassword}
+                  className="pilot-settings-field"
+                  labelClassName="pilot-settings-label"
+                  inputClassName="pilot-settings-input"
+                />
+                <PasswordField
+                  id="confirm-password"
+                  label="Confirm New Password"
+                  autoComplete="new-password"
+                  required
+                  minLength={8}
+                  value={confirmPassword}
+                  onChange={setConfirmPassword}
+                  className="pilot-settings-field"
+                  labelClassName="pilot-settings-label"
+                  inputClassName="pilot-settings-input"
+                />
               </div>
               <button
                 type="submit"

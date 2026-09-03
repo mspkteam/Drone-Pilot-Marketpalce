@@ -78,7 +78,7 @@ export function getNotificationHref(
       if (area === "pilot" && bookingId) {
         return `/dashboard/pilot/bookings/${bookingId}`;
       }
-      return area === "pilot" ? "/dashboard/pilot/bookings" : null;
+      return area === "pilot" ? "/dashboard/pilot/contracts" : null;
 
     case "booking_status":
     case "booking_completed":
@@ -89,7 +89,7 @@ export function getNotificationHref(
         return `/dashboard/pilot/bookings/${bookingId}`;
       }
       if (area === "client") return "/dashboard/client/bookings";
-      if (area === "pilot") return "/dashboard/pilot/bookings";
+      if (area === "pilot") return "/dashboard/pilot/contracts";
       return null;
 
     case "review_received":
@@ -118,8 +118,10 @@ export function getNotificationHref(
         return `/dashboard/client/bookings/${bookingId}`;
       }
       if (bookingId && area === "pilot") {
-        return `/dashboard/pilot/bookings/${bookingId}`;
+        return `/dashboard/pilot/bookings/${bookingId}#dispute`;
       }
+      if (area === "client") return "/dashboard/client/disputes";
+      if (area === "pilot") return "/dashboard/pilot/contracts";
       if (area === "admin") return "/dashboard/admin/disputes";
       return null;
 

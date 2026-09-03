@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
+import { PasswordField } from "@/components/ui/PasswordField";
 import { resolvePostLoginRedirect } from "@/lib/auth/permissions";
 import type { UserRole } from "@/types/roles";
 
@@ -86,21 +87,17 @@ export function LoginForm() {
           />
         </div>
 
-        <div>
-          <label htmlFor="password" className="block text-sm font-medium">
-            Password
-          </label>
-          <input
-            id="password"
-            name="password"
-            type="password"
-            autoComplete="current-password"
-            required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="mt-1 block w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold"
-          />
-        </div>
+        <PasswordField
+          id="password"
+          name="password"
+          label="Password"
+          autoComplete="current-password"
+          required
+          value={password}
+          onChange={setPassword}
+          labelClassName="block text-sm font-medium"
+          inputClassName="mt-0 block w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold"
+        />
 
         <Button type="submit" className="w-full" disabled={loading}>
           {loading ? "Signing in…" : "Log in"}

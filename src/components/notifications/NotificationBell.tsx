@@ -136,6 +136,13 @@ export function NotificationBell({
               {unreadCount > 9 ? "9+" : unreadCount}
             </span>
           )
+        ) : indicator === "count" ? (
+          <span
+            className="absolute -right-0.5 -top-0.5 flex h-3.5 min-w-3.5 items-center justify-center rounded-full border border-border bg-background px-1 text-[8px] font-semibold text-muted-foreground"
+            aria-hidden
+          >
+            0
+          </span>
         ) : null}
       </button>
 
@@ -154,15 +161,14 @@ export function NotificationBell({
           >
             <div className="flex items-center justify-between border-b border-border px-4 py-3">
               <p className="text-sm font-semibold">Notifications</p>
-              {unreadCount > 0 ? (
-                <button
+              <button
                   type="button"
-                  className="text-xs text-gold-dark hover:text-gold"
+                  className="text-xs text-gold-dark hover:text-gold disabled:opacity-50"
+                  disabled={unreadCount === 0}
                   onClick={() => void markAllRead()}
                 >
                   Mark all read
                 </button>
-              ) : null}
             </div>
             <div className="max-h-80 overflow-y-auto">
               {loading && notifications.length === 0 ? (

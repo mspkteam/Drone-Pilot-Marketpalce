@@ -65,7 +65,7 @@ const FIELD_PRESETS: Array<{
     id: "wings",
     label: "Wings award",
     hint: "Name, member # + date, certificate number",
-    fields: ["pilotName", "memberNumber", "certificateNumber"],
+    fields: ["pilotName", "memberNumber", "awardDateShort", "certificateNumber"],
   },
   {
     id: "captain",

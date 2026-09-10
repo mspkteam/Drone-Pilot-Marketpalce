@@ -1,3 +1,5 @@
+import { formatDisplayDateShort } from "@/lib/format/date";
+
 export function initialsFromName(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean);
   if (parts.length >= 2) {
@@ -24,12 +26,12 @@ export function formatConversationTime(iso: string | null): string {
   if (diffDays === 1) return "Yesterday";
   if (diffDays < 7) return `${diffDays}d`;
 
-  return date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+  return formatDisplayDateShort(date);
 }
 
 export function formatBubbleTime(iso: string): string {
-  return new Date(iso).toLocaleTimeString(undefined, {
-    hour: "2-digit",
+  return new Date(iso).toLocaleTimeString("en-US", {
+    hour: "numeric",
     minute: "2-digit",
   });
 }

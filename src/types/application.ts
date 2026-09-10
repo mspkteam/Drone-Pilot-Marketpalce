@@ -16,6 +16,9 @@ export type JobApplicationDto = {
   jobId: string;
   pilotProfileId: string;
   proposedAmount: number;
+  /** Baseline for +20% revise cap; falls back to proposedAmount when unset. */
+  originalProposedAmount: number;
+  revisionCount: number;
   currency: string;
   message: string | null;
   estimatedDeliveryDate: string | null;

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { WingBadge } from "@/components/wings/WingBadge";
+import { formatDisplayDateShort } from "@/lib/format/date";
 import { getWingCategoryLabel } from "@/lib/wings/status";
 import type { PilotWingDto } from "@/types/wing";
 
@@ -96,7 +97,7 @@ export function PilotAchievementsView() {
                 <p className="pilot-achievements-card-desc">{wing.description}</p>
                 <p className="pilot-achievements-card-meta">
                   {getWingCategoryLabel(wing.category)} · Earned{" "}
-                  {new Date(wing.earnedAt).toLocaleDateString()}
+                  {formatDisplayDateShort(wing.earnedAt)}
                 </p>
               </li>
             ))}

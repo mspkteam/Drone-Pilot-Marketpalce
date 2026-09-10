@@ -37,8 +37,16 @@ export async function ensureCanonicalCertificateTemplates(): Promise<void> {
         autoRule: canon.autoRule,
         threshold: canon.threshold ?? null,
         isActive: canon.isActive,
-        // Preserve admin artwork + placement. Overwriting these on every page
-        // load wiped uploaded certificates and saved overlays after reload.
+        layoutKey: canon.layoutKey,
+        // Fillable files under public/certificates were replaced with high-res
+        // PNGs at the same URLs. Clear saved overlays so Form 275 member/date
+        // slots use the corrected code layouts (not concatenated date strings).
+        ...(canon.layoutKey === "aviator-wings" ||
+        canon.layoutKey === "senior-aviator-wings" ||
+        canon.layoutKey === "master-aviator-wings" ||
+        canon.layoutKey === "captain-promotion"
+          ? { overlayPositionsJson: null }
+          : {}),
       },
       create: {
         name: canon.name,

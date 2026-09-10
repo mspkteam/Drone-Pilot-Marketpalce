@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { FormField, inputClassName } from "@/components/ui/FormField";
 import type { ConversationDetailDto, MessageDto } from "@/types/messaging";
 import { MessageAttachmentList } from "@/components/messaging/MessageAttachmentList";
+import { formatDisplayDateTime } from "@/lib/format/date";
 import { uploadMessageFiles } from "@/lib/messaging/upload-message-files";
 import { cn } from "@/lib/utils";
 
@@ -157,7 +158,7 @@ export function ConversationThread({
               <p className="mt-1 whitespace-pre-wrap">{m.body}</p>
               <MessageAttachmentList attachments={m.attachments} />
               <p className="mt-1 text-xs text-muted-foreground">
-                {new Date(m.createdAt).toLocaleString()}
+                {formatDisplayDateTime(m.createdAt)}
               </p>
             </div>
           ))

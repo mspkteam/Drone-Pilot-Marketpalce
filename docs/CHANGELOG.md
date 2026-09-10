@@ -4,6 +4,17 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.77] — 2026-09-10
+
+### Fixed
+
+- **US dates:** Display dates as Month Day, Year (e.g. September 7, 2026) via shared `formatDisplayDate*` helpers across proposals, messages, notifications, bookings, disputes, shop, certificates.
+- **Revise proposal:** Pilots can revise open bids before hire (max +20% vs original) from proposal detail; contracts show Request Revision + clearer Submit Revisions when the client requests delivery changes.
+- **Review reset:** Pilot “Request review reset” submits an in-app request (no CMS/support divert). Moderators/admins get `/dashboard/admin/reviews` to approve (hide non-5★) or set ratings to 5★ / hide / publish.
+- **Certificates:** Replaced low-res JPEG-as-PNG wings fillables with high-res PNGs; split Form 275 member # vs award date overlays; sniff image magic bytes; retuned Captain Promotion layout for higher-res artwork.
+
+---
+
 ## [0.27.76] — 2026-09-03
 
 ### Changed

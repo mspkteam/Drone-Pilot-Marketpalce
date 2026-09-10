@@ -9,6 +9,7 @@ import {
   buildPilotContractActions,
   resolvePilotContractPhase,
 } from "@/lib/bookings/contract-actions";
+import { formatDisplayDateTime } from "@/lib/format/date";
 import { formatContractId } from "@/lib/pilot/active-contracts-map";
 import type { BookingListItemDto } from "@/types/booking";
 
@@ -17,14 +18,7 @@ type PilotBookingDetailViewProps = {
 };
 
 function formatWhen(iso: string | null): string {
-  if (!iso) return "—";
-  return new Date(iso).toLocaleString(undefined, {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  });
+  return formatDisplayDateTime(iso);
 }
 
 function formatMoney(amount: number, currency: string): string {

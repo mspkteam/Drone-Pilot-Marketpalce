@@ -106,6 +106,7 @@ model PilotProfile {
   conversationsAsPilot  Conversation[] @relation("PilotConversations")
   certificates          PilotCertificate[]
   wings                 PilotWing[]
+  reviewResetRequests   ReviewResetRequest[]
 }
 
 model Verification {
@@ -192,6 +193,9 @@ model JobApplication {
   pilotProfileId        String
   pilotProfile          PilotProfile @relation(fields: [pilotProfileId], references: [id], onDelete: Cascade)
   proposedAmount        Float
+  /** Baseline bid used for +20% revise cap (set on first submit). */
+  originalProposedAmount Float?
+  revisionCount         Int          @default(0)
   currency              String       @default("USD")
   message               String?
   estimatedDeliveryDate DateTime?
@@ -525,6 +529,24 @@ model Review {
   @@index([targetPilotProfileId])
   @@index([targetClientProfileId])
   @@index([authorUserId])
+}
+
+/** Pilot request to remove/hide non-5★ reviews (moderator approves). */
+model ReviewResetRequest {
+  id               String       @id @default(cuid())
+  pilotProfileId   String
+  pilotProfile     PilotProfile @relation(fields: [pilotProfileId], references: [id], onDelete: Cascade)
+  status           String       @default("pending")
+  note             String?
+  reviewIdsJson    String       @default("[]")
+  resolvedByUserId String?
+  resolvedAt       DateTime?
+  resolutionNote   String?
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  @@index([pilotProfileId])
+  @@index([status])
 }
 
 model SubscriptionPlan {

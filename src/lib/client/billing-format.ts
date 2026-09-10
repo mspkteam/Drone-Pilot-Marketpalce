@@ -1,3 +1,5 @@
+import { formatDisplayDate } from "@/lib/format/date";
+
 export type ClientBillingInvoice = {
   id: string;
   invoiceId: string;
@@ -19,9 +21,5 @@ export function formatInvoiceAmount(amount: number, currency: string): string {
 }
 
 export function formatInvoiceDate(iso: string): string {
-  return new Date(iso).toLocaleDateString(undefined, {
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-  });
+  return formatDisplayDate(iso);
 }

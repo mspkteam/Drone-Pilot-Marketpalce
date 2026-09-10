@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { PilotProposalStatusBadge } from "@/components/dashboard/pilot/proposals/PilotProposalStatusBadge";
+import { formatDisplayDateShort } from "@/lib/format/date";
 import { formatJobBudget } from "@/lib/jobs/format-budget";
 import {
   mapApplicationStatusToUi,
@@ -17,12 +18,7 @@ function categoryLabel(id: string): string {
 }
 
 function formatDate(iso: string | null): string {
-  if (!iso) return "Flexible / TBD";
-  return new Date(iso).toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
+  return formatDisplayDateShort(iso, "Flexible / TBD");
 }
 
 function formatMoney(amount: number, currency: string): string {

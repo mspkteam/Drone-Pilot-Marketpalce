@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { UniformOrderStatusBadge } from "@/components/shop/UniformOrderStatusBadge";
+import { formatDisplayDateShort } from "@/lib/format/date";
 import type { UniformOrderDto } from "@/types/shop";
 
 export function PilotUniformOrdersList() {
@@ -58,7 +59,7 @@ export function PilotUniformOrdersList() {
                     <p className="pilot-shop-order-number">{o.orderNumber}</p>
                     <p className="pilot-shop-order-meta">
                       ${o.total.toFixed(2)} ·{" "}
-                      {new Date(o.placedAt).toLocaleDateString()}
+                      {formatDisplayDateShort(o.placedAt)}
                     </p>
                   </div>
                   <UniformOrderStatusBadge status={o.status} />

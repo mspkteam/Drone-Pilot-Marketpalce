@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ApplicationStatusBadge } from "@/components/applications/ApplicationStatusBadge";
+import { formatDisplayDateShort } from "@/lib/format/date";
 import type { PilotApplicationListItemDto } from "@/types/application";
 import type { ApplicationStatus } from "@/types/application";
 
@@ -68,7 +69,7 @@ export function PilotApplicationsList() {
                 {app.proposedAmount.toLocaleString()}
               </p>
               <p className="mt-1 text-xs text-muted-foreground">
-                Submitted {new Date(app.submittedAt).toLocaleDateString()}
+                Submitted {formatDisplayDateShort(app.submittedAt)}
               </p>
             </div>
             <ApplicationStatusBadge status={app.status as ApplicationStatus} />

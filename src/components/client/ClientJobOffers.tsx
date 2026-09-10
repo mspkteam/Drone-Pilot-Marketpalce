@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ApplicationStatusBadge } from "@/components/applications/ApplicationStatusBadge";
 import { Button } from "@/components/ui/Button";
+import { formatDisplayDateShort } from "@/lib/format/date";
 import type { ApplicationStatus } from "@/types/application";
 import type { ClientJobApplicationDto } from "@/types/booking";
 
@@ -136,7 +137,7 @@ export function ClientJobOffers({ jobId }: ClientJobOffersProps) {
                   <p className="mt-2 text-sm">
                     {offer.currency} {offer.proposedAmount.toLocaleString()}
                     {offer.estimatedDeliveryDate
-                      ? ` · Delivery ${new Date(offer.estimatedDeliveryDate).toLocaleDateString()}`
+                      ? ` · Delivery ${formatDisplayDateShort(offer.estimatedDeliveryDate)}`
                       : ""}
                   </p>
                   {offer.message ? (

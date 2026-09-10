@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { formatDisplayDateShort } from "@/lib/format/date";
 import type { PilotCertificateDto } from "@/types/certificate";
 
 export function PilotCertificatesView() {
@@ -77,7 +78,7 @@ export function PilotCertificatesView() {
                     {c.certificateNumber}
                   </p>
                   <p className="pilot-certificates-card-meta">
-                    Issued {new Date(c.issuedAt).toLocaleDateString()}
+                    Issued {formatDisplayDateShort(c.issuedAt)}
                   </p>
                   {c.notes ? (
                     <p className="pilot-certificates-card-notes">{c.notes}</p>

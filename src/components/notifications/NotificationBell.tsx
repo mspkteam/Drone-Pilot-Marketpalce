@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { NotificationDto } from "@/types/notification";
+import { formatDisplayDateTime } from "@/lib/format/date";
 import { cn } from "@/lib/utils";
 
 type NotificationBellProps = {
@@ -200,7 +201,7 @@ export function NotificationBell({
                           {n.body}
                         </p>
                         <p className="mt-1 flex items-center justify-between gap-2 text-[10px] text-muted-foreground">
-                          <span>{new Date(n.createdAt).toLocaleString()}</span>
+                          <span>{formatDisplayDateTime(n.createdAt)}</span>
                           {n.href ? (
                             <span className="text-gold-dark">View →</span>
                           ) : null}

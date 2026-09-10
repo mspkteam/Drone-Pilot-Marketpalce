@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { UniformOrderStatusBadge } from "@/components/shop/UniformOrderStatusBadge";
+import { formatDisplayDateTime } from "@/lib/format/date";
 import { getUniformPaymentStatusLabel } from "@/lib/shop/status";
 import type { UniformOrderDto } from "@/types/shop";
 
@@ -55,7 +56,7 @@ export function PilotUniformOrderDetail({
 
         <p className="pilot-shop-order-detail-meta">
           Payment: {getUniformPaymentStatusLabel(order.paymentStatus)} · Placed{" "}
-          {new Date(order.placedAt).toLocaleString()}
+          {formatDisplayDateTime(order.placedAt)}
         </p>
 
         {error ? (

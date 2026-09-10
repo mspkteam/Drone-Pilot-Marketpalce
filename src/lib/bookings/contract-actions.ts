@@ -18,6 +18,7 @@ export type ContractActionId =
   | "view_delivery"
   | "view_contract"
   | "message"
+  | "request_revision"
   | "dispute"
   | "view_dispute";
 
@@ -95,7 +96,7 @@ export function buildPilotContractActions(input: {
     case "revisions_requested":
       actions.push({
         id: "resubmit",
-        label: "Resubmit Work",
+        label: "Submit Revisions",
         href: deliverHref,
         tone: "gold",
       });
@@ -135,6 +136,15 @@ export function buildPilotContractActions(input: {
     href: messageHref,
     tone: "outline",
   });
+
+  if (phase === "ready" || phase === "in_progress") {
+    actions.push({
+      id: "request_revision",
+      label: "Request Revision",
+      href: `${messageHref}${messageHref.includes("?") ? "&" : "?"}intent=revision`,
+      tone: "outline",
+    });
+  }
 
   if (
     phase === "ready" ||

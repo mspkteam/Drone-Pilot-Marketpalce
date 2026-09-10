@@ -4,7 +4,12 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { PilotProposalStatusBadge } from "@/components/dashboard/pilot/proposals/PilotProposalStatusBadge";
-import { canWithdrawApplication } from "@/lib/applications/status";
+import {
+  canReviseApplication,
+  canWithdrawApplication,
+  maxRevisedProposalAmount,
+} from "@/lib/applications/status";
+import { formatDisplayDate } from "@/lib/format/date";
 import { formatJobBudget } from "@/lib/jobs/format-budget";
 import {
   mapApplicationStatusToUi,
@@ -24,22 +29,18 @@ function categoryLabel(id: string): string {
 
 function formatDate(iso: string | null): string {
   if (!iso) return "TBD";
-  return new Date(iso).toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
+  return formatDisplayDate(iso, "TBD");
 }
 
 function formatMoney(amount: number, currency: string): string {
   try {
-    return new Intl.NumberFormat(undefined, {
+    return new Intl.NumberFormat("en-US", {
       style: "currency",
       currency,
       maximumFractionDigits: 0,
     }).format(amount);
   } catch {
-    return `${currency} ${amount.toLocaleString()}`;
+    return `${currency} ${amount.toLocaleString("en-US")}`;
   }
 }
 
@@ -47,6 +48,10 @@ export function PilotProposalDetailView({ initial }: PilotProposalDetailViewProp
   const router = useRouter();
   const [application, setApplication] = useState(initial);
   const [withdrawing, setWithdrawing] = useState(false);
+  const [revising, setRevising] = useState(false);
+  const [reviseOpen, setReviseOpen] = useState(false);
+  const [reviseAmount, setReviseAmount] = useState(String(initial.proposedAmount));
+  const [reviseMessage, setReviseMessage] = useState(initial.message ?? "");
   const [error, setError] = useState<string | null>(null);
 
   const uiStatus = mapApplicationStatusToUi(
@@ -61,6 +66,9 @@ export function PilotProposalDetailView({ initial }: PilotProposalDetailViewProp
     application.job.currency,
   );
   const canWithdraw = canWithdrawApplication(application.status);
+  const canRevise = canReviseApplication(application.status);
+  const baseline = application.originalProposedAmount || application.proposedAmount;
+  const maxAmount = maxRevisedProposalAmount(baseline);
 
   async function handleWithdraw() {
     if (!canWithdraw || withdrawing) return;
@@ -90,6 +98,50 @@ export function PilotProposalDetailView({ initial }: PilotProposalDetailViewProp
       setError("Failed to withdraw proposal.");
     } finally {
       setWithdrawing(false);
+    }
+  }
+
+  async function handleRevise() {
+    if (!canRevise || revising) return;
+    const amount = Number(reviseAmount);
+    if (!Number.isFinite(amount) || amount <= 0) {
+      setError("Enter a valid proposed amount.");
+      return;
+    }
+    if (amount > maxAmount + 0.001) {
+      setError(
+        `Revised amount cannot exceed ${formatMoney(maxAmount, application.currency)} (20% above your original bid).`,
+      );
+      return;
+    }
+
+    setError(null);
+    setRevising(true);
+    try {
+      const res = await fetch(`/api/pilot/applications/${application.id}/revise`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          proposedAmount: amount,
+          message: reviseMessage.trim() || null,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error ?? "Failed to revise proposal.");
+        return;
+      }
+      setApplication((current) => ({
+        ...current,
+        ...data.application,
+        job: current.job,
+      }));
+      setReviseOpen(false);
+      router.refresh();
+    } catch {
+      setError("Failed to revise proposal.");
+    } finally {
+      setRevising(false);
     }
   }
 
@@ -343,6 +395,75 @@ export function PilotProposalDetailView({ initial }: PilotProposalDetailViewProp
               </li>
             ))}
           </ul>
+        </section>
+      ) : null}
+
+      {canRevise ? (
+        <section className="pilot-proposal-detail-card">
+          <h2 className="pilot-proposal-detail-card-title">Revise proposal</h2>
+          <p className="pilot-proposal-detail-help">
+            Update your offer before the client hires you. Price may increase by
+            at most 20% above your original bid (
+            {formatMoney(baseline, application.currency)} → max{" "}
+            {formatMoney(maxAmount, application.currency)}).
+            {application.revisionCount > 0
+              ? ` Revised ${application.revisionCount} time(s).`
+              : ""}
+          </p>
+          {!reviseOpen ? (
+            <button
+              type="button"
+              className="pilot-proposal-detail-revise"
+              onClick={() => {
+                setReviseAmount(String(application.proposedAmount));
+                setReviseMessage(application.message ?? "");
+                setReviseOpen(true);
+                setError(null);
+              }}
+            >
+              Revise proposal
+            </button>
+          ) : (
+            <div className="pilot-proposal-detail-revise-form">
+              <label className="pilot-proposal-detail-field">
+                <span>Proposed amount (USD)</span>
+                <input
+                  type="number"
+                  min={1}
+                  step="0.01"
+                  max={maxAmount}
+                  value={reviseAmount}
+                  onChange={(e) => setReviseAmount(e.target.value)}
+                />
+              </label>
+              <label className="pilot-proposal-detail-field">
+                <span>Message to client</span>
+                <textarea
+                  rows={3}
+                  value={reviseMessage}
+                  onChange={(e) => setReviseMessage(e.target.value)}
+                />
+              </label>
+              <div className="pilot-proposal-detail-revise-actions">
+                <button
+                  type="button"
+                  className="pilot-proposal-detail-revise"
+                  disabled={revising}
+                  onClick={() => void handleRevise()}
+                >
+                  {revising ? "Saving…" : "Save revision"}
+                </button>
+                <button
+                  type="button"
+                  className="pilot-proposal-detail-revise-cancel"
+                  disabled={revising}
+                  onClick={() => setReviseOpen(false)}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
         </section>
       ) : null}
 

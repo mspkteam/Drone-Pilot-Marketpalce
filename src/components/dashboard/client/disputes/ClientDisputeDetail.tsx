@@ -4,6 +4,7 @@ import Link from "next/link";
 import { BookingDisputeSection } from "@/components/disputes/BookingDisputeSection";
 import { DisputeStatusBadge } from "@/components/disputes/DisputeStatusBadge";
 import { getDisputeResolutionLabel } from "@/lib/disputes/status";
+import { formatDisplayDateShort } from "@/lib/format/date";
 import type { BookingStatus } from "@/types/booking";
 import type { DisputeDetailDto } from "@/types/dispute";
 
@@ -24,11 +25,7 @@ function formatAmount(amount: number, currency: string): string {
 }
 
 function formatDisputeDate(iso: string): string {
-  return new Date(iso).toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
+  return formatDisplayDateShort(iso);
 }
 
 export function ClientDisputeDetail({ dispute }: ClientDisputeDetailProps) {

@@ -108,14 +108,84 @@ export function PilotReviewsView() {
         <Link href="/dashboard/pilot/contracts" className="pilot-reviews-btn-gold">
           Active Contracts
         </Link>
-        <Link
-          href="/dashboard/pilot/support"
-          className="pilot-reviews-btn-outline"
-          title="Contact ground control to request a review reset"
-        >
-          Review Reset
-        </Link>
+        <ReviewResetButton />
       </div>
+    </div>
+  );
+}
+
+function ReviewResetButton() {
+  const [pending, setPending] = useState(false);
+  const [nonFiveStarCount, setNonFiveStarCount] = useState(0);
+  const [hasPending, setHasPending] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/pilot/reviews/reset-request")
+      .then(async (res) => {
+        const data = await res.json();
+        if (!res.ok || cancelled) return;
+        setNonFiveStarCount(data.nonFiveStarCount ?? 0);
+        setHasPending(Boolean(data.pendingRequest));
+      })
+      .catch(() => {
+        /* ignore */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  async function submit() {
+    if (busy || hasPending) return;
+    if (nonFiveStarCount === 0) {
+      setMessage("You have no published reviews below 5 stars.");
+      return;
+    }
+    const confirmed = window.confirm(
+      `Request removal of ${nonFiveStarCount} review(s) that are not 5 stars? A moderator will review and approve.`,
+    );
+    if (!confirmed) return;
+
+    setBusy(true);
+    setMessage(null);
+    try {
+      const res = await fetch("/api/pilot/reviews/reset-request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          note: "Please remove all non-5★ reviews from my profile.",
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setMessage(data.error ?? "Could not submit reset request.");
+      } else {
+        setHasPending(true);
+        setPending(true);
+        setMessage("Reset request submitted. Moderators will review it shortly.");
+      }
+    } catch {
+      setMessage("Could not submit reset request.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="pilot-reviews-reset-wrap">
+      <button
+        type="button"
+        className="pilot-reviews-btn-outline"
+        disabled={busy || hasPending}
+        onClick={() => void submit()}
+        title="Request that reviews below 5 stars be removed"
+      >
+        {hasPending || pending ? "Reset requested" : "Request review reset"}
+      </button>
+      {message ? <p className="pilot-reviews-reset-msg">{message}</p> : null}
     </div>
   );
 }

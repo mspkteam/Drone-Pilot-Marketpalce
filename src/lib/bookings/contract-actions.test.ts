@@ -41,7 +41,7 @@ describe("pilot contract actions", () => {
     });
 
     assert.equal(actions[0]?.id, "resubmit");
-    assert.equal(actions[0]?.label, "Resubmit Work");
+    assert.equal(actions[0]?.label, "Submit Revisions");
   });
 
   it("shows view submission while awaiting client review", () => {

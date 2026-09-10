@@ -29,6 +29,11 @@ export const adminNavGroups: readonly DashboardNavGroup[] = [
       },
       { label: "Disputes", href: "/dashboard/admin/disputes", icon: "disputes" },
       {
+        label: "Reviews",
+        href: "/dashboard/admin/reviews",
+        icon: "reviews",
+      },
+      {
         label: "Squadron Voting",
         href: "/dashboard/admin/squadron-voting",
         icon: "disputes",

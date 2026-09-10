@@ -269,6 +269,24 @@
   border-color: rgba(216, 179, 57, 0.45);
 }
 
+.pilot-reviews-reset-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  align-items: flex-start;
+}
+
+.pilot-reviews-reset-msg {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--color-text-soft);
+}
+
+.pilot-reviews-btn-outline:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
 @media (max-width: 639px) {
   .pilot-reviews-row-top {
     flex-wrap: wrap;

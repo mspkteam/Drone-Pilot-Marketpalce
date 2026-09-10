@@ -74,14 +74,26 @@ const WINGS_AWARD_LAYOUT: Omit<CertificateLayout, "key"> = {
       align: "center",
     },
     {
-      // Digits on the “RAS MEMBER NUMBER & AWARD DATE” blank (after #)
+      // Digits only over the RAS MEMBER NUMBER segment (after #)
       field: "memberNumber",
-      x: 72,
+      x: 58,
       y: 85.5,
-      maxWidth: 24,
+      maxWidth: 14,
       fontSize: 14,
       font: "arial",
       align: "left",
+      letterSpacing: 1.5,
+    },
+    {
+      // MM/DD/YY over the Form 275 award-date / / guides
+      field: "awardDateShort",
+      x: 78,
+      y: 85.5,
+      maxWidth: 16,
+      fontSize: 14,
+      font: "arial",
+      align: "left",
+      letterSpacing: 1,
     },
     {
       // Digits only over sample after printed “CERTIFICATE NO.”
@@ -175,15 +187,15 @@ export const CERTIFICATE_LAYOUTS: Record<string, CertificateLayout> = {
   "captain-promotion": {
     key: "captain-promotion",
     orientation: "portrait",
-    width: 2593,
-    height: 3300,
+    width: 3890,
+    height: 4950,
     fields: [
       {
         field: "pilotName",
         x: 50,
         y: 32,
         maxWidth: 75,
-        fontSize: 52,
+        fontSize: 78,
         font: "colchester",
         align: "center",
       },
@@ -192,7 +204,7 @@ export const CERTIFICATE_LAYOUTS: Record<string, CertificateLayout> = {
         x: 50,
         y: 42,
         maxWidth: 60,
-        fontSize: 48,
+        fontSize: 72,
         font: "engravers",
         align: "center",
         weight: "bold",
@@ -201,27 +213,27 @@ export const CERTIFICATE_LAYOUTS: Record<string, CertificateLayout> = {
       {
         field: "day",
         x: 32,
-        y: 68,
+        y: 68.2,
         maxWidth: 12,
-        fontSize: 16,
+        fontSize: 24,
         font: "harrowgate",
         align: "center",
       },
       {
         field: "month",
         x: 48,
-        y: 68,
-        maxWidth: 18,
-        fontSize: 16,
+        y: 68.2,
+        maxWidth: 20,
+        fontSize: 24,
         font: "harrowgate",
         align: "center",
       },
       {
         field: "year",
         x: 62,
-        y: 68,
+        y: 68.2,
         maxWidth: 10,
-        fontSize: 16,
+        fontSize: 24,
         font: "harrowgate",
         align: "center",
       },
@@ -639,14 +651,12 @@ export function resolveOverlayText(
       return digits.slice(-6).padStart(6, "0");
     }
     case "memberNumber": {
-      // Wings forms: one blank for “RAS MEMBER NUMBER & AWARD DATE”
-      // Never print names/licenses — digits only (6-digit RAS member #).
+      // Digits only — date is a separate awardDateShort overlay on Form 275.
       const raw = values.memberNumber?.trim().replace(/^#\s*/, "") ?? "";
-      const num = looksLikeMemberNumber(raw) ? formatMemberNumber(raw) : "";
-      const date = formatShortAwardDate(issued);
-      if (num && date) return `${num}  ${date}`;
-      if (num) return num;
-      return date || "001000";
+      if (looksLikeMemberNumber(raw)) return formatMemberNumber(raw);
+      const digits = raw.replace(/\D/g, "");
+      if (digits) return digits.slice(-6).padStart(6, "0");
+      return "001000";
     }
     case "issuedAt":
       return issued

@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
   buildCalendarMonth,
+  formatDisplayDate,
+  formatDisplayDateShort,
   formatIsoDateForDisplay,
   isoDateFromParts,
   parseIsoDate,
@@ -9,9 +11,15 @@ import {
 } from "./date";
 
 describe("date format helpers", () => {
-  it("formats ISO dates for display", () => {
-    assert.equal(formatIsoDateForDisplay("2026-07-15"), "15/07/2026");
+  it("formats ISO dates as US Month Day, Year", () => {
+    assert.equal(formatIsoDateForDisplay("2026-07-15"), "July 15, 2026");
     assert.equal(formatIsoDateForDisplay("legacy text"), "legacy text");
+  });
+
+  it("formats display dates in en-US long form", () => {
+    assert.equal(formatDisplayDate("2026-09-07"), "September 7, 2026");
+    assert.equal(formatDisplayDateShort("2026-09-07"), "Sep 7, 2026");
+    assert.equal(formatDisplayDate(null), "—");
   });
 
   it("parses valid ISO dates", () => {

@@ -25,12 +25,80 @@ export function parseIsoDate(
   return { year, month, day };
 }
 
+const US_DATE_LONG: Intl.DateTimeFormatOptions = {
+  month: "long",
+  day: "numeric",
+  year: "numeric",
+};
+
+const US_DATE_SHORT: Intl.DateTimeFormatOptions = {
+  month: "short",
+  day: "numeric",
+  year: "numeric",
+};
+
+const US_DATETIME: Intl.DateTimeFormatOptions = {
+  month: "short",
+  day: "numeric",
+  year: "numeric",
+  hour: "numeric",
+  minute: "2-digit",
+};
+
+function toValidDate(value: string | Date | null | undefined): Date | null {
+  if (value == null || value === "") return null;
+  if (value instanceof Date) {
+    return Number.isNaN(value.getTime()) ? null : value;
+  }
+  const iso = parseIsoDate(value);
+  if (iso) return new Date(iso.year, iso.month - 1, iso.day);
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
+
+/** US display: "September 7, 2026" */
+export function formatDisplayDate(
+  value: string | Date | null | undefined,
+  fallback = "—",
+): string {
+  const date = toValidDate(value);
+  if (!date) {
+    if (typeof value === "string" && value.trim() && !toValidDate(value)) {
+      return value.trim();
+    }
+    return fallback;
+  }
+  return date.toLocaleDateString("en-US", US_DATE_LONG);
+}
+
+/** US compact: "Sep 7, 2026" */
+export function formatDisplayDateShort(
+  value: string | Date | null | undefined,
+  fallback = "—",
+): string {
+  const date = toValidDate(value);
+  if (!date) return fallback;
+  return date.toLocaleDateString("en-US", US_DATE_SHORT);
+}
+
+/** US datetime: "Sep 7, 2026, 3:45 PM" */
+export function formatDisplayDateTime(
+  value: string | Date | null | undefined,
+  fallback = "—",
+): string {
+  const date = toValidDate(value);
+  if (!date) return fallback;
+  return date.toLocaleString("en-US", US_DATETIME);
+}
+
+/** ISO calendar date → US long form (replaces former DD/MM/YYYY). */
 export function formatIsoDateForDisplay(value: string): string {
   const parsed = parseIsoDate(value);
   if (!parsed) return value.trim();
-
-  const { year, month, day } = parsed;
-  return `${String(day).padStart(2, "0")}/${String(month).padStart(2, "0")}/${year}`;
+  return formatDisplayDate(
+    new Date(parsed.year, parsed.month - 1, parsed.day),
+    value.trim(),
+  );
 }
 
 export function todayIsoDate(): string {

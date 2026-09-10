@@ -21,6 +21,7 @@ import {
   PROPOSAL_DELIVERABLE_OPTIONS,
   type ProposalDeliverable,
 } from "@/lib/applications/proposal-metadata";
+import { formatDisplayDate as formatSharedDisplayDate } from "@/lib/format/date";
 import { formatJobBudget } from "@/lib/jobs/format-budget";
 import { JOB_CATEGORIES } from "@/types/job";
 import type { PilotJobDetailDto, PilotOpenJobDto } from "@/types/application";
@@ -43,12 +44,7 @@ function categoryLabel(id: string): string {
 }
 
 function formatDisplayDate(iso: string | null): string {
-  if (!iso) return "TBD";
-  return new Date(iso).toLocaleDateString(undefined, {
-    month: "2-digit",
-    day: "2-digit",
-    year: "numeric",
-  });
+  return formatSharedDisplayDate(iso, "TBD");
 }
 
 function formatUsd(amount: number, currency: string): string {

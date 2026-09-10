@@ -1,3 +1,4 @@
+import { formatDisplayDate } from "@/lib/format/date";
 import { PILOT_MOCK_REVIEWS } from "@/lib/pilot/dashboard-overview-mock";
 import type { ReviewListItemDto } from "@/types/review";
 
@@ -22,10 +23,7 @@ export type PilotReviewsSummary = {
 };
 
 function formatReviewDate(iso: string): string {
-  const d = new Date(iso);
-  return `${d
-    .toLocaleString("en-US", { month: "short" })
-    .toUpperCase()} ${d.getDate()} ${d.getFullYear()}`;
+  return formatDisplayDate(iso);
 }
 
 export function mapReviewToPilotRow(review: ReviewListItemDto): PilotReviewRow {

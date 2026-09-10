@@ -2,6 +2,7 @@ import Link from "next/link";
 import { BookingStatusActions } from "@/components/bookings/BookingStatusActions";
 import { BookingStatusBadge } from "@/components/bookings/BookingStatusBadge";
 import type { BookingActor } from "@/lib/bookings/status";
+import { formatDisplayDateTime } from "@/lib/format/date";
 import type { BookingListItemDto, BookingStatus } from "@/types/booking";
 
 type BookingDetailCardProps = {
@@ -48,7 +49,7 @@ export function BookingDetailCard({
               Created
             </dt>
             <dd className="mt-1 text-sm">
-              {new Date(booking.createdAt).toLocaleString()}
+              {formatDisplayDateTime(booking.createdAt)}
             </dd>
           </div>
           {booking.completedAt ? (
@@ -57,7 +58,7 @@ export function BookingDetailCard({
                 Completed
               </dt>
               <dd className="mt-1 text-sm">
-                {new Date(booking.completedAt).toLocaleString()}
+                {formatDisplayDateTime(booking.completedAt)}
               </dd>
             </div>
           ) : null}

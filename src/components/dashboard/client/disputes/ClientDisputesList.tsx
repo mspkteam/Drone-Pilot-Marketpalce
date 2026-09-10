@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { DisputeStatusBadge } from "@/components/disputes/DisputeStatusBadge";
+import { formatDisplayDateShort } from "@/lib/format/date";
 import { disputeStatusFilterTabs } from "@/lib/ui/status-filter-tabs";
 import type { DisputeListItemDto, DisputeStatus } from "@/types/dispute";
 import { cn } from "@/lib/utils";
@@ -11,11 +12,7 @@ const FILTERS = disputeStatusFilterTabs();
 const DISPUTES_API = "/api/client/disputes" as const;
 
 function formatDisputeDate(iso: string): string {
-  return new Date(iso).toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
+  return formatDisplayDateShort(iso);
 }
 
 function formatAmount(amount: number, currency: string): string {

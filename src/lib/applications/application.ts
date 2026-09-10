@@ -1,5 +1,5 @@
 import type { Job, JobApplication } from "@/generated/prisma/client";
-import { canWithdrawApplication } from "@/lib/applications/status";
+import { canWithdrawApplication, canReviseApplication, maxRevisedProposalAmount } from "@/lib/applications/status";
 import {
   parseProposalDetails,
   parseProposalDraftForm,
@@ -39,6 +39,11 @@ export function toApplicationDto(app: JobApplication): JobApplicationDto {
     jobId: app.jobId,
     pilotProfileId: app.pilotProfileId,
     proposedAmount: app.proposedAmount,
+    originalProposedAmount:
+      app.originalProposedAmount != null && app.originalProposedAmount > 0
+        ? app.originalProposedAmount
+        : app.proposedAmount,
+    revisionCount: app.revisionCount ?? 0,
     currency: app.currency,
     message: app.message,
     estimatedDeliveryDate: app.estimatedDeliveryDate?.toISOString() ?? null,
@@ -377,6 +382,10 @@ export async function createJobApplication(
   const application = await prisma.$transaction(async (tx) => {
     const payload = {
       proposedAmount: input.proposedAmount,
+      originalProposedAmount:
+        existing?.originalProposedAmount != null && existing.originalProposedAmount > 0
+          ? existing.originalProposedAmount
+          : input.proposedAmount,
       currency: input.currency || job.currency,
       message: input.message,
       estimatedDeliveryDate,
@@ -621,6 +630,93 @@ export async function withdrawApplication(
   const updated = await prisma.jobApplication.update({
     where: { id: applicationId },
     data: { status: "withdrawn" },
+  });
+
+  return { ok: true, application: toApplicationDto(updated) };
+}
+
+export async function reviseApplication(
+  applicationId: string,
+  pilotProfileId: string,
+  input: {
+    proposedAmount: number;
+    message?: string | null;
+    estimatedDeliveryDate?: string | null;
+    proposalDetails?: ProposalDetails | null;
+  },
+): Promise<
+  | { ok: true; application: JobApplicationDto }
+  | { ok: false; error: string; status: 400 | 403 | 404 | 409 }
+> {
+  const app = await prisma.jobApplication.findFirst({
+    where: { id: applicationId, pilotProfileId },
+    include: { job: { select: { status: true, title: true } } },
+  });
+
+  if (!app) {
+    return { ok: false, error: "Proposal not found.", status: 404 };
+  }
+
+  if (!canReviseApplication(app.status as ApplicationStatus)) {
+    return {
+      ok: false,
+      error: "This proposal can no longer be revised.",
+      status: 409,
+    };
+  }
+
+  if (app.job.status !== "open" && app.job.status !== "in_bidding") {
+    return {
+      ok: false,
+      error: "This job is no longer accepting proposal revisions.",
+      status: 409,
+    };
+  }
+
+  if (!Number.isFinite(input.proposedAmount) || input.proposedAmount <= 0) {
+    return { ok: false, error: "Enter a valid proposed amount.", status: 400 };
+  }
+
+  const baseline =
+    app.originalProposedAmount != null && app.originalProposedAmount > 0
+      ? app.originalProposedAmount
+      : app.proposedAmount;
+  const maxAmount = maxRevisedProposalAmount(baseline);
+
+  if (input.proposedAmount > maxAmount + 0.001) {
+    return {
+      ok: false,
+      error: `Revised amount cannot exceed ${maxAmount.toFixed(2)} (20% above your original bid of ${baseline.toFixed(2)}).`,
+      status: 400,
+    };
+  }
+
+  const estimatedDeliveryDate =
+    input.estimatedDeliveryDate === undefined
+      ? undefined
+      : input.estimatedDeliveryDate
+        ? new Date(input.estimatedDeliveryDate)
+        : null;
+
+  const updated = await prisma.jobApplication.update({
+    where: { id: applicationId },
+    data: {
+      proposedAmount: input.proposedAmount,
+      originalProposedAmount: baseline,
+      revisionCount: { increment: 1 },
+      ...(input.message !== undefined ? { message: input.message } : {}),
+      ...(estimatedDeliveryDate !== undefined
+        ? { estimatedDeliveryDate }
+        : {}),
+      ...(input.proposalDetails !== undefined
+        ? {
+            proposalDetailsJson:
+              input.proposalDetails == null
+                ? null
+                : serializeProposalDetails(input.proposalDetails),
+          }
+        : {}),
+    },
   });
 
   return { ok: true, application: toApplicationDto(updated) };

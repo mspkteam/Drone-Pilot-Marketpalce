@@ -109,6 +109,7 @@ export async function getPublicPilotById(
     where: {
       targetPilotProfileId: profile.id,
       status: "published",
+      rating: 5,
     },
     include: {
       authorUser: {

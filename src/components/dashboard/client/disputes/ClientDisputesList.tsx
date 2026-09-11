@@ -9,7 +9,13 @@ import type { DisputeListItemDto, DisputeStatus } from "@/types/dispute";
 import { cn } from "@/lib/utils";
 
 const FILTERS = disputeStatusFilterTabs();
-const DISPUTES_API = "/api/client/disputes" as const;
+
+type ClientDisputesListProps = {
+  apiPath?: string;
+  detailBase?: string;
+  bookingsHref?: string;
+  counterpartLabel?: "Pilot" | "Client";
+};
 
 function formatDisputeDate(iso: string): string {
   return formatDisplayDateShort(iso);
@@ -27,7 +33,12 @@ function formatAmount(amount: number, currency: string): string {
   }
 }
 
-export function ClientDisputesList() {
+export function ClientDisputesList({
+  apiPath = "/api/client/disputes",
+  detailBase = "/dashboard/client/disputes",
+  bookingsHref = "/dashboard/client/bookings",
+  counterpartLabel = "Pilot",
+}: ClientDisputesListProps) {
   const [filter, setFilter] = useState<DisputeStatus | "all">("all");
   const [disputes, setDisputes] = useState<DisputeListItemDto[]>([]);
   const [loading, setLoading] = useState(true);
@@ -37,7 +48,7 @@ export function ClientDisputesList() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`${DISPUTES_API}?status=${filter}`);
+      const res = await fetch(`${apiPath}?status=${filter}`);
       const data = await res.json();
       if (!res.ok) {
         setError(data.error ?? "Failed to load disputes.");
@@ -51,7 +62,7 @@ export function ClientDisputesList() {
     } finally {
       setLoading(false);
     }
-  }, [filter]);
+  }, [apiPath, filter]);
 
   useEffect(() => {
     void load();
@@ -105,7 +116,7 @@ export function ClientDisputesList() {
               booking detail page while the job is confirmed, in progress, or
               completed.
             </p>
-            <Link href="/dashboard/client/bookings" className="client-disputes-link">
+            <Link href={bookingsHref} className="client-disputes-link">
               View bookings →
             </Link>
           </div>
@@ -114,7 +125,7 @@ export function ClientDisputesList() {
             {disputes.map((d) => (
               <li key={d.id}>
                 <Link
-                  href={`/dashboard/client/disputes/${d.id}`}
+                  href={`${detailBase}/${d.id}`}
                   className="client-disputes-card"
                 >
                   <div className="client-disputes-card-top">
@@ -125,8 +136,13 @@ export function ClientDisputesList() {
                   </div>
                   <p className="client-disputes-card-reason">{d.reason}</p>
                   <p className="client-disputes-card-meta">
-                    Pilot: {d.booking.pilot.displayName} ·{" "}
-                    {formatAmount(d.booking.agreedAmount, d.booking.currency)} ·{" "}
+                    {counterpartLabel}:{" "}
+                    {counterpartLabel === "Pilot"
+                      ? d.booking.pilot.displayName
+                      : d.booking.client.contactName ||
+                        d.booking.client.companyName ||
+                        "Client"}{" "}
+                    · {formatAmount(d.booking.agreedAmount, d.booking.currency)} ·{" "}
                     {d.entryCount} {d.entryCount === 1 ? "entry" : "entries"} ·
                     Updated {formatDisputeDate(d.updatedAt)}
                   </p>

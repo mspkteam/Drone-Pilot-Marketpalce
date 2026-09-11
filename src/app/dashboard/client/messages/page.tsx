@@ -6,15 +6,21 @@ import "@/styles/client-messages.css";
 
 export const metadata = { title: "Messages" };
 
-export default async function ClientMessagesPage() {
+type PageProps = {
+  searchParams: Promise<{ pilot?: string }>;
+};
+
+export default async function ClientMessagesPage({ searchParams }: PageProps) {
   const session = await auth();
   if (!session?.user?.id || session.user.role !== "client") {
     redirect("/login");
   }
 
+  const params = await searchParams;
+
   return (
     <DashboardPageLayout className="client-messages-shell">
-      <ClientMessagesView />
+      <ClientMessagesView preferredPilotId={params.pilot ?? null} />
     </DashboardPageLayout>
   );
 }

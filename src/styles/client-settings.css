@@ -133,6 +133,13 @@
   color: var(--color-text);
 }
 
+.client-settings-optional {
+  margin-left: 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-text-dim);
+}
+
 .client-settings-shell .client-settings-input {
   box-sizing: border-box;
   width: 100%;

@@ -10,6 +10,9 @@ import type { DisputeDetailDto } from "@/types/dispute";
 
 type ClientDisputeDetailProps = {
   dispute: DisputeDetailDto;
+  listHref?: string;
+  bookingsBase?: string;
+  actor?: "client" | "pilot";
 };
 
 function formatAmount(amount: number, currency: string): string {
@@ -28,13 +31,18 @@ function formatDisputeDate(iso: string): string {
   return formatDisplayDateShort(iso);
 }
 
-export function ClientDisputeDetail({ dispute }: ClientDisputeDetailProps) {
+export function ClientDisputeDetail({
+  dispute,
+  listHref = "/dashboard/client/disputes",
+  bookingsBase = "/dashboard/client/bookings",
+  actor = "client",
+}: ClientDisputeDetailProps) {
   const bookingStatus = dispute.booking.status as BookingStatus;
 
   return (
     <div className="client-disputes-page">
       <header className="client-disputes-header">
-        <Link href="/dashboard/client/disputes" className="client-disputes-back">
+        <Link href={listHref} className="client-disputes-back">
           ← All disputes
         </Link>
         <div className="client-disputes-detail-head">
@@ -49,7 +57,13 @@ export function ClientDisputeDetail({ dispute }: ClientDisputeDetailProps) {
 
       <div className="client-disputes-summary-bar" role="status">
         <span>
-          Pilot: <strong>{dispute.booking.pilot.displayName}</strong>
+          {actor === "client" ? "Pilot" : "Client"}:{" "}
+          <strong>
+            {actor === "client"
+              ? dispute.booking.pilot.displayName
+              : dispute.booking.client.companyName ||
+                dispute.booking.client.contactName}
+          </strong>
           {" · "}
           {formatAmount(dispute.booking.agreedAmount, dispute.booking.currency)}
           {" · "}
@@ -65,7 +79,13 @@ export function ClientDisputeDetail({ dispute }: ClientDisputeDetailProps) {
         <dl className="client-disputes-summary-grid">
           <div>
             <dt>Opened by</dt>
-            <dd>{dispute.openedByRole === "client" ? "You" : "Pilot"}</dd>
+            <dd>
+              {dispute.openedByRole === actor
+                ? "You"
+                : dispute.openedByRole === "client"
+                  ? "Client"
+                  : "Pilot"}
+            </dd>
           </div>
           <div>
             <dt>Status</dt>
@@ -77,7 +97,7 @@ export function ClientDisputeDetail({ dispute }: ClientDisputeDetailProps) {
             <dt>Booking</dt>
             <dd>
               <Link
-                href={`/dashboard/client/bookings/${dispute.bookingId}`}
+                href={`${bookingsBase}/${dispute.bookingId}`}
                 className="client-disputes-link"
               >
                 View booking
@@ -104,7 +124,7 @@ export function ClientDisputeDetail({ dispute }: ClientDisputeDetailProps) {
         <BookingDisputeSection
           bookingId={dispute.bookingId}
           bookingStatus={bookingStatus}
-          actor="client"
+          actor={actor}
           embedded
         />
       </section>

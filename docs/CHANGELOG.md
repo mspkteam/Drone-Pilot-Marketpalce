@@ -4,6 +4,22 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.78] — 2026-09-11
+
+### Fixed
+
+- **Aug 21 QA (Client / Pilot / Admin):** Public pilot Message/Hire deep-links open client messages (`?pilot=`) and post-project (`?preferredPilot=`) with guidance banners; job reference files download from project overview; company name marked optional for individuals.
+- **Reports tabs:** Admin Reports metric cards switch the chart series (missions / new clients / pilot onboarding).
+- **Disputes:** Pilot dashboard disputes list + detail + APIs; admin FILTER menu closes on outside click / Escape; select chevrons visible.
+- **Public reviews:** Only 5★ published reviews on public pilot profiles; contract deadlines show US short date + days remaining.
+- **Demo seed:** A-1 student linked to A-4 instructor for instructor QA.
+
+### Deferred (unchanged)
+
+- Stripe / billing / escrow, Squadron Vote (commander votes), full Figma visual pass (Google Doc marketing notes).
+
+---
+
 ## [0.27.77] — 2026-09-10
 
 ### Fixed

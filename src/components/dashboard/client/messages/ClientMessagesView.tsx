@@ -22,6 +22,7 @@ const API_BASE = "/api/client/conversations" as const;
 
 type ClientMessagesViewProps = {
   initialConversationId?: string;
+  preferredPilotId?: string | null;
 };
 
 type ThreadMessage = {
@@ -34,6 +35,7 @@ type ThreadMessage = {
 
 export function ClientMessagesView({
   initialConversationId,
+  preferredPilotId = null,
 }: ClientMessagesViewProps) {
   const [conversations, setConversations] = useState<ConversationListItemDto[]>(
     [],
@@ -82,9 +84,21 @@ export function ClientMessagesView({
   }, [loadList]);
 
   useEffect(() => {
+    if (!preferredPilotId || conversations.length === 0) return;
+    const match = conversations.find(
+      (c) => c.pilotProfileId === preferredPilotId,
+    );
+    if (match) {
+      setSelectedId(match.id);
+      setMobileChatOpen(true);
+    }
+  }, [preferredPilotId, conversations]);
+
+  useEffect(() => {
     if (selectedId || conversations.length === 0) return;
+    if (preferredPilotId) return;
     setSelectedId(conversations[0]?.id ?? null);
-  }, [conversations, selectedId]);
+  }, [conversations, selectedId, preferredPilotId]);
 
   useEffect(() => {
     if (!selectedId) {
@@ -240,6 +254,14 @@ export function ClientMessagesView({
     }
   }
 
+  const preferredPilotName = useMemo(() => {
+    if (!preferredPilotId) return null;
+    const fromConv = conversations.find(
+      (c) => c.pilotProfileId === preferredPilotId,
+    );
+    return fromConv?.counterpartName ?? null;
+  }, [preferredPilotId, conversations]);
+
   const showThread = Boolean(selectedId);
 
   return (
@@ -248,6 +270,14 @@ export function ClientMessagesView({
     >
       <aside className="client-messages-list">
         <h2 className="client-messages-list-title">Messages</h2>
+
+        {preferredPilotId ? (
+          <p className="client-messages-preferred-banner" role="status">
+            {preferredPilotName
+              ? `Showing threads with ${preferredPilotName}. Open a quote from their proposal to start a new conversation if none exists yet.`
+              : "Open a quote from this pilot’s proposal (My Projects → Quotes) to start messaging. Messaging requires an active proposal thread."}
+          </p>
+        ) : null}
 
         {listError ? (
           <p className="client-messages-list-error" role="alert">

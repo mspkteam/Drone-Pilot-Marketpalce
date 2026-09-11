@@ -4,11 +4,69 @@ import { useMemo, useState } from "react";
 import { AdminReportsExportButton } from "@/components/dashboard/admin/reports/AdminReportsExportButton";
 import { AdminReportsFooterStrip } from "@/components/dashboard/admin/reports/AdminReportsFooterStrip";
 import { AdminRevenueOperationsChart } from "@/components/dashboard/admin/reports/AdminRevenueOperationsChart";
-import type { AdminReportsAnalyticsData } from "@/types/admin-reports";
+import type {
+  AdminReportsAnalyticsData,
+  AdminRevenueMonthPoint,
+} from "@/types/admin-reports";
 
 type AdminReportsAnalyticsProps = {
   data: AdminReportsAnalyticsData;
 };
+
+function chartForStat(
+  data: AdminReportsAnalyticsData,
+  selectedStat: string | null,
+): {
+  months: AdminRevenueMonthPoint[];
+  title: string;
+  subtitle: string;
+  showFinancial: boolean;
+} {
+  switch (selectedStat) {
+    case "REVENUE (QTD)":
+      return {
+        months: data.revenueMonths,
+        title: "REVENUE OPERATIONS",
+        subtitle: "LAST 12 MONTHS · OPERATING PROFIT & MARGIN",
+        showFinancial: true,
+      };
+    case "MISSIONS COMPLETED":
+      return {
+        months: data.missionMonths,
+        title: "MISSIONS COMPLETED",
+        subtitle: "LAST 12 MONTHS · COMPLETED BOOKINGS",
+        showFinancial: false,
+      };
+    case "NEW CLIENTS":
+      return {
+        months: data.clientMonths,
+        title: "NEW CLIENTS",
+        subtitle: "LAST 12 MONTHS · CLIENT SIGN-UPS",
+        showFinancial: false,
+      };
+    case "PILOT ONBOARDING":
+      return {
+        months: data.pilotMonths,
+        title: "PILOT ONBOARDING",
+        subtitle: "LAST 12 MONTHS · COMPLETED ONBOARDINGS",
+        showFinancial: false,
+      };
+    case "OPEN CASES":
+      return {
+        months: data.missionMonths,
+        title: "OPERATIONS VOLUME",
+        subtitle: "LAST 12 MONTHS · MISSION ACTIVITY CONTEXT",
+        showFinancial: false,
+      };
+    default:
+      return {
+        months: data.revenueMonths,
+        title: data.chartTitle,
+        subtitle: data.chartSubtitle,
+        showFinancial: data.showFinancialChart,
+      };
+  }
+}
 
 export function AdminReportsAnalytics({ data }: AdminReportsAnalyticsProps) {
   const [selectedStat, setSelectedStat] = useState<string | null>(null);
@@ -34,6 +92,11 @@ export function AdminReportsAnalytics({ data }: AdminReportsAnalyticsProps) {
     return rows;
   }, [data.missionCategories]);
 
+  const chartView = useMemo(
+    () => chartForStat(data, selectedStat),
+    [data, selectedStat],
+  );
+
   return (
     <div className="admin-reports-page">
       <section
@@ -47,7 +110,7 @@ export function AdminReportsAnalytics({ data }: AdminReportsAnalyticsProps) {
             <h1 className="admin-reports-hero-title">Reports &amp; Analytics</h1>
             <p className="admin-reports-hero-desc">
               Track revenue, mission volume, pilot growth and client acquisition
-              over time.
+              over time. Select a metric card to switch the chart below.
             </p>
           </div>
           <AdminReportsExportButton exportRows={data.exportRows} />
@@ -92,7 +155,7 @@ export function AdminReportsAnalytics({ data }: AdminReportsAnalyticsProps) {
 
       {selectedStatCard ? (
         <p className="admin-reports-selection-detail" role="status">
-          Selected metric: <strong>{selectedStatCard.label}</strong> —{" "}
+          Showing chart for: <strong>{selectedStatCard.label}</strong> —{" "}
           {selectedStatCard.value} ({selectedStatCard.subtext})
         </p>
       ) : null}
@@ -101,10 +164,10 @@ export function AdminReportsAnalytics({ data }: AdminReportsAnalyticsProps) {
         <section className="admin-reports-panel admin-reports-panel--chart">
           <div className="admin-reports-panel-head">
             <div>
-              <h2 className="admin-reports-panel-title">{data.chartTitle}</h2>
-              <p className="admin-reports-panel-sub">{data.chartSubtitle}</p>
+              <h2 className="admin-reports-panel-title">{chartView.title}</h2>
+              <p className="admin-reports-panel-sub">{chartView.subtitle}</p>
             </div>
-            {data.showFinancialChart ? (
+            {chartView.showFinancial ? (
               <p className="admin-reports-panel-hint">
                 Hover or tap months · toggle series in the legend
               </p>
@@ -115,8 +178,8 @@ export function AdminReportsAnalytics({ data }: AdminReportsAnalyticsProps) {
             )}
           </div>
           <AdminRevenueOperationsChart
-            months={data.revenueMonths}
-            showFinancial={data.showFinancialChart}
+            months={chartView.months}
+            showFinancial={chartView.showFinancial}
           />
         </section>
 
@@ -183,7 +246,11 @@ export function AdminReportsAnalytics({ data }: AdminReportsAnalyticsProps) {
           </div>
 
           {segmentationOpen ? (
-            <div className="admin-reports-segmentation" role="region" aria-label="Full segmentation">
+            <div
+              className="admin-reports-segmentation"
+              role="region"
+              aria-label="Full segmentation"
+            >
               <ol className="admin-reports-segmentation-list">
                 {sortedCategories.map((row, index) => (
                   <li key={row.id}>

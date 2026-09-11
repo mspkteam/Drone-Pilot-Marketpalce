@@ -210,11 +210,15 @@ export function ClientAccountSettings() {
         <section className="client-settings-card">
           <h2 className="client-settings-card-title">Billing &amp; invoicing</h2>
           <p className="client-settings-card-hint">
-            Company name and billing address used on your invoices and receipts.
+            Company or individual details used on your invoices and receipts.
+            Leave company name blank if you work as an individual.
           </p>
 
           <label className="client-settings-field client-settings-field--full">
-            <span className="client-settings-label">Company name</span>
+            <span className="client-settings-label">
+              Company name{" "}
+              <span className="client-settings-optional">(optional)</span>
+            </span>
             <input
               className="client-settings-input"
               value={profileForm.companyName}

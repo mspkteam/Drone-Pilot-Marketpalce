@@ -5240,6 +5240,40 @@ a.dashboard-card:hover {
   color: var(--color-text);
 }
 
+.client-job-detail-file-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.client-job-detail-file-list a {
+  color: var(--color-gold, #c9a227);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.client-job-detail-file-list a:hover {
+  color: var(--color-gold-light, #e0c15a);
+}
+
+.client-preferred-pilot-banner {
+  margin: 0 0 1rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--dashboard-card-border, rgba(255, 255, 255, 0.12));
+  border-radius: 0.5rem;
+  background: rgba(201, 162, 39, 0.08);
+  color: var(--color-text);
+  font-size: 0.9375rem;
+  line-height: 1.45;
+}
+
+.client-preferred-pilot-banner strong {
+  color: var(--color-gold, #c9a227);
+}
+
 .client-job-detail-edit {
   display: flex;
   flex-direction: column;

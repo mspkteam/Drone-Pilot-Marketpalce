@@ -1,3 +1,4 @@
+import { formatDisplayDateShort } from "@/lib/format/date";
 import type { BookingListItemDto, BookingStatus } from "@/types/booking";
 import type { DeliveryStatus } from "@/types/delivery";
 import {
@@ -40,12 +41,15 @@ function daysUntil(iso: string): number {
 function formatDeadline(booking: BookingListItemDto): string {
   if (booking.scheduledEndAt) {
     const days = daysUntil(booking.scheduledEndAt);
-    if (days <= 0) return "Due today";
-    return `${days}d`;
+    const dateLabel = formatDisplayDateShort(booking.scheduledEndAt);
+    if (days <= 0) return `Due today · ${dateLabel}`;
+    return `${dateLabel} · ${days}d`;
   }
   if (booking.scheduledStartAt) {
     const days = daysUntil(booking.scheduledStartAt);
-    if (days > 0) return `${days}d`;
+    const dateLabel = formatDisplayDateShort(booking.scheduledStartAt);
+    if (days > 0) return `${dateLabel} · ${days}d`;
+    return dateLabel;
   }
   return "—";
 }

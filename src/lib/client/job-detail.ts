@@ -10,6 +10,8 @@ import type { JobDto } from "@/types/job";
 export type ClientJobOverviewDetail = {
   label: string;
   value: string;
+  /** Optional download/open links for reference files. */
+  links?: { label: string; href: string }[];
 };
 
 export function formatJobOverviewBudget(job: JobDto): string {
@@ -83,16 +85,21 @@ export function buildClientJobOverviewDetails(
 
     if (job.postProject.referenceFileNames.length > 0) {
       const urls = job.postProject.referenceFileUrls ?? [];
+      const links = job.postProject.referenceFileNames
+        .map((name, index) => {
+          const href = urls[index];
+          if (!href) return null;
+          return { label: name, href };
+        })
+        .filter((row): row is { label: string; href: string } => Boolean(row));
+
       details.push({
         label: "Reference files",
         value:
-          urls.length > 0
-            ? job.postProject.referenceFileNames
-                .map((name, index) =>
-                  urls[index] ? `${name} (${urls[index]})` : name,
-                )
-                .join(", ")
+          links.length > 0
+            ? `${links.length} file${links.length === 1 ? "" : "s"} attached`
             : job.postProject.referenceFileNames.join(", "),
+        links: links.length > 0 ? links : undefined,
       });
     }
   }

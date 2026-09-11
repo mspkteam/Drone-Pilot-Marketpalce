@@ -34,6 +34,12 @@ export type AdminReportsAnalyticsData = {
   isSuperAdmin: boolean;
   stats: AdminReportsStatCard[];
   revenueMonths: AdminRevenueMonthPoint[];
+  /** Completed missions per month (count in operatingProfit). */
+  missionMonths: AdminRevenueMonthPoint[];
+  /** New clients per month (count in operatingProfit). */
+  clientMonths: AdminRevenueMonthPoint[];
+  /** Pilot onboardings per month (count in operatingProfit). */
+  pilotMonths: AdminRevenueMonthPoint[];
   missionCategories: AdminMissionCategoryRow[];
   footerMetrics: AdminReportsFooterMetric[];
   showFinancialChart: boolean;

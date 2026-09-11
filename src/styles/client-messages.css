@@ -49,6 +49,15 @@
   color: var(--color-danger-soft);
 }
 
+.client-messages-preferred-banner {
+  margin: 0;
+  padding: 0.5rem 1.125rem 0.75rem;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: var(--color-text-soft);
+  border-bottom: 1px solid var(--dashboard-card-border);
+}
+
 .client-messages-list-scroll {
   flex: 1 1 auto;
   overflow-y: auto;

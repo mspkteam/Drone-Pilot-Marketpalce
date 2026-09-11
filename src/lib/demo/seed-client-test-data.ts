@@ -284,6 +284,15 @@ export async function seedClientTestMarketplace(
     });
   }
 
+  const instructorDemo = profilesByEmail.get("pilot-a4@dronepilot.local");
+  const studentDemo = profilesByEmail.get("pilot-a1@dronepilot.local");
+  if (instructorDemo && studentDemo) {
+    await prisma.pilotProfile.update({
+      where: { id: studentDemo.profileId },
+      data: { referredByInstructorId: instructorDemo.profileId },
+    });
+  }
+
   const pendingPilotUser = await ensureUser(
     prisma,
     "pending-pilot@dronepilot.local",

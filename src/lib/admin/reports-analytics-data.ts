@@ -149,6 +149,53 @@ async function getMissionMonths(): Promise<AdminRevenueMonthPoint[]> {
   });
 }
 
+async function getClientMonths(): Promise<AdminRevenueMonthPoint[]> {
+  const buckets = buildLast12MonthBuckets();
+  const rangeStart = buckets[0]!.start;
+
+  const clients = await prisma.clientProfile.findMany({
+    where: { createdAt: { gte: rangeStart } },
+    select: { createdAt: true },
+  });
+
+  return buckets.map((bucket) => {
+    const count = clients.filter(
+      (c) => c.createdAt >= bucket.start && c.createdAt < bucket.end,
+    ).length;
+
+    return {
+      monthLabel: bucket.monthLabel,
+      monthShort: bucket.monthShort,
+      operatingProfit: count,
+      grossMarginPct: 0,
+    };
+  });
+}
+
+async function getPilotMonths(): Promise<AdminRevenueMonthPoint[]> {
+  const buckets = buildLast12MonthBuckets();
+  const rangeStart = buckets[0]!.start;
+
+  const pilots = await prisma.pilotProfile.findMany({
+    where: { onboardingCompletedAt: { gte: rangeStart } },
+    select: { onboardingCompletedAt: true },
+  });
+
+  return buckets.map((bucket) => {
+    const count = pilots.filter((p) => {
+      const at = p.onboardingCompletedAt;
+      return at && at >= bucket.start && at < bucket.end;
+    }).length;
+
+    return {
+      monthLabel: bucket.monthLabel,
+      monthShort: bucket.monthShort,
+      operatingProfit: count,
+      grossMarginPct: 0,
+    };
+  });
+}
+
 async function getMissionCategories(): Promise<AdminMissionCategoryRow[]> {
   const bookings = await prisma.booking.findMany({
     where: { status: "completed" },
@@ -395,19 +442,31 @@ export async function getAdminReportsAnalyticsData(
   const isSuperAdmin = role === "super_admin";
   const showFinancialChart = isSuperAdmin;
 
-  const [stats, revenueMonths, missionMonths, missionCategories, footerMetrics] =
-    await Promise.all([
-      getStatCards(role),
-      getRevenueMonths(),
-      getMissionMonths(),
-      getMissionCategories(),
-      getFooterMetrics(role),
-    ]);
+  const [
+    stats,
+    revenueMonths,
+    missionMonths,
+    clientMonths,
+    pilotMonths,
+    missionCategories,
+    footerMetrics,
+  ] = await Promise.all([
+    getStatCards(role),
+    getRevenueMonths(),
+    getMissionMonths(),
+    getClientMonths(),
+    getPilotMonths(),
+    getMissionCategories(),
+    getFooterMetrics(role),
+  ]);
 
   const partial = {
     isSuperAdmin,
     stats,
     revenueMonths: showFinancialChart ? revenueMonths : missionMonths,
+    missionMonths,
+    clientMonths,
+    pilotMonths,
     missionCategories,
     footerMetrics,
     showFinancialChart,

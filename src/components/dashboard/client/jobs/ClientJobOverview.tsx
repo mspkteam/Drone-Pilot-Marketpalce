@@ -86,7 +86,26 @@ export function ClientJobOverview({
           {details.map((detail) => (
             <div key={detail.label} className="client-job-detail-field">
               <dt>{detail.label}</dt>
-              <dd>{detail.value}</dd>
+              <dd>
+                {detail.links && detail.links.length > 0 ? (
+                  <ul className="client-job-detail-file-list">
+                    {detail.links.map((file) => (
+                      <li key={file.href}>
+                        <a
+                          href={file.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          download
+                        >
+                          {file.label}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  detail.value
+                )}
+              </dd>
             </div>
           ))}
           <div className="client-job-detail-field">

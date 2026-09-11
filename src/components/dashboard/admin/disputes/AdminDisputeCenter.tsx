@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AdminDisputeResolveModal } from "@/components/dashboard/admin/disputes/AdminDisputeResolveModal";
 import { AdminDisputeVoteModal } from "@/components/dashboard/admin/disputes/AdminDisputeVoteModal";
 import {
@@ -53,10 +53,34 @@ export function AdminDisputeCenter({
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<SortOption>("priority");
   const [modal, setModal] = useState<ModalState>({ type: "none" });
+  const filterWrapRef = useRef<HTMLDivElement | null>(null);
 
   const { canPerform } = useModeratorPermissions();
   const canResolve = canPerform("disputes", "resolve");
   const canRecommend = canPerform("disputes", "recommend");
+
+  useEffect(() => {
+    if (!filterOpen) return;
+
+    function onPointerDown(event: MouseEvent) {
+      const root = filterWrapRef.current;
+      if (!root) return;
+      if (event.target instanceof Node && !root.contains(event.target)) {
+        setFilterOpen(false);
+      }
+    }
+
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") setFilterOpen(false);
+    }
+
+    document.addEventListener("mousedown", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [filterOpen]);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -156,10 +180,12 @@ export function AdminDisputeCenter({
             {showArchive ? "PRIOR ARCHIVE" : "ACTIVE DISPUTES"}
           </h2>
           <div className="admin-dispute-section-tools">
-            <div className="admin-dispute-filter-wrap">
+            <div className="admin-dispute-filter-wrap" ref={filterWrapRef}>
               <button
                 type="button"
                 className="admin-dispute-tool-btn"
+                aria-expanded={filterOpen}
+                aria-haspopup="true"
                 onClick={() => setFilterOpen((open) => !open)}
               >
                 FILTER

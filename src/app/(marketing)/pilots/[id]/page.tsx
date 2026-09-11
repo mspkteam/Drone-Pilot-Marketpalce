@@ -39,10 +39,10 @@ export default async function PublicPilotProfilePage({ params }: PageProps) {
   const session = await auth();
   const isClient = session?.user?.role === "client";
   const messageHref = isClient
-    ? "/dashboard/client/messages"
+    ? `/dashboard/client/messages?pilot=${encodeURIComponent(id)}`
     : "/register?role=client";
   const hireHref = isClient
-    ? "/dashboard/client/jobs/new"
+    ? `/dashboard/client/jobs/new?preferredPilot=${encodeURIComponent(id)}&preferredPilotName=${encodeURIComponent(pilot.displayName)}`
     : "/register?role=client";
 
   return (

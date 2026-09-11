@@ -17,6 +17,7 @@ export const pilotNavGroups: readonly DashboardNavGroup[] = [
       },
       { label: "My Proposals", href: "/dashboard/pilot/proposals", icon: "proposals" },
       { label: "Active Contracts", href: "/dashboard/pilot/contracts", icon: "contracts" },
+      { label: "Disputes", href: "/dashboard/pilot/disputes", icon: "disputes" },
       { label: "Messages", href: "/dashboard/pilot/messages", icon: "messages" },
     ],
   },

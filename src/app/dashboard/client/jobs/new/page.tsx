@@ -8,7 +8,14 @@ import {
 
 export const metadata = { title: "Post a new project" };
 
-export default async function ClientPostJobPage() {
+type PageProps = {
+  searchParams: Promise<{
+    preferredPilot?: string;
+    preferredPilotName?: string;
+  }>;
+};
+
+export default async function ClientPostJobPage({ searchParams }: PageProps) {
   const session = await auth();
   if (!session?.user?.id || session.user.role !== "client") {
     redirect("/login");
@@ -19,5 +26,18 @@ export default async function ClientPostJobPage() {
     redirect("/dashboard/client/onboarding");
   }
 
-  return <ClientPostProjectWizard />;
+  const params = await searchParams;
+  const preferredPilotName = params.preferredPilotName?.trim() || null;
+
+  return (
+    <>
+      {preferredPilotName ? (
+        <div className="client-preferred-pilot-banner" role="status">
+          Hiring <strong>{preferredPilotName}</strong> via marketplace — post
+          this project, then review their quote when they submit a proposal.
+        </div>
+      ) : null}
+      <ClientPostProjectWizard />
+    </>
+  );
 }

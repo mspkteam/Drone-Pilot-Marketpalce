@@ -1190,19 +1190,69 @@ a.dashboard-card:hover {
   background: var(--color-bg-section);
 }
 
-/* Figma public pilot profile (frame 279:58686) */
+/* Figma public pilot profile (frame 1604:2258) */
 .figma-pilot-public-hero {
-  background: #151310;
+  background: #131313;
+  box-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 1px rgba(255, 255, 255, 0.04);
+}
+
+.figma-pilot-module-card {
+  border: 1px solid rgba(235, 169, 65, 0.11);
+  border-radius: 0.875rem;
+  background: #191919;
+  box-shadow: none;
+}
+
+.figma-pilot-public-photo {
+  width: 100%;
+  max-width: 17.625rem;
+  height: 20.5rem;
+}
+
+.figma-pilot-dollar-sign {
+  display: inline-block;
+  font-family: inherit;
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: lining-nums;
+  font-feature-settings: "tnum" 1;
+  unicode-bidi: isolate;
+  direction: ltr;
+  color: inherit;
+}
+
+.figma-pilot-hero-aside {
+  align-self: start;
+  gap: 1rem;
+}
+
+@media (min-width: 1024px) {
+  .figma-pilot-hero-aside {
+    gap: 1rem;
+  }
 }
 
 .figma-pilot-hero-stat {
   min-height: 5.75rem;
-  height: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 1023px) {
+  .figma-pilot-public-photo {
+    max-width: none;
+    height: auto;
+    aspect-ratio: 282 / 328;
+  }
 }
 
 @media (max-width: 639px) {
   .figma-pilot-public-hero h1 {
     overflow-wrap: anywhere;
+    font-size: 1.75rem;
+    line-height: 1.2;
   }
 
   .figma-pilot-hero-stat {

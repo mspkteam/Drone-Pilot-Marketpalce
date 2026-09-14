@@ -4,6 +4,23 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.80] — 2026-09-14
+
+### Changed
+
+- **Public pilot profile:** Aligned `/pilots/[id]` layout to Figma frame `1604:2258` — square hero photo, rating/highest-wing/rank column, membership + certificates row, ratings + equipment, gallery, reviews, CTA (site gold/surface tokens preserved).
+- **Profile polish:** Literal `$` hourly-rate icon; hero actions span photo + identity; right-hand stats aligned to photo height.
+
+---
+
+## [0.27.79] — 2026-09-14
+
+### Fixed
+
+- **Home Captain's Club:** Replaced hardcoded mock captains (Alex Morgan, etc.) with live A-6+ public Captains Club pilots from the database.
+
+---
+
 ## [0.27.78] — 2026-09-11
 
 ### Fixed

@@ -50,9 +50,9 @@ export default async function PublicPilotProfilePage({ params }: PageProps) {
       <PublicPageContainer>
         <Link
           href="/pilots"
-          className="mb-8 inline-flex text-sm font-medium text-gold-light transition-colors hover:text-gold"
+          className="mb-8 inline-flex text-sm font-medium text-[#e4c55a] transition-colors hover:text-gold"
         >
-          ← Back to all pilots
+          ← Back to all Pilots
         </Link>
         <PublicPilotProfile
           pilot={pilot}

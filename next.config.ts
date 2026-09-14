@@ -27,9 +27,6 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  experimental: {
-    optimizePackageImports: ["next-auth"],
-  },
 };
 
 export default nextConfig;

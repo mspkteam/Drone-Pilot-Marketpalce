@@ -3,6 +3,7 @@ import { MembershipRankBadge } from "@/components/membership/MembershipRankBadge
 import { StarRating } from "@/components/reviews/StarRating";
 import { SubscriptionStatusBadge } from "@/components/subscriptions/SubscriptionStatusBadge";
 import { Button } from "@/components/ui/Button";
+import { formatDisplayDateShort } from "@/lib/format/date";
 import { formatJobVisibilityDelay } from "@/lib/subscriptions/status";
 import {
   formatPilotLocation,
@@ -32,22 +33,11 @@ function IconChat({ className }: { className?: string }) {
   );
 }
 
-function IconDollar({ className }: { className?: string }) {
+function DollarSignIcon({ className }: { className?: string }) {
   return (
-    <svg
-      className={className}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.5}
-      aria-hidden
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M12 6v12m-3-2.25h6a2.25 2.25 0 100-4.5h-3a2.25 2.25 0 110-4.5h6"
-      />
-    </svg>
+    <span className={cn("figma-pilot-dollar-sign", className)} aria-hidden>
+      $
+    </span>
   );
 }
 
@@ -82,25 +72,6 @@ function IconServices({ className }: { className?: string }) {
         strokeLinecap="round"
         strokeLinejoin="round"
         d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-      />
-    </svg>
-  );
-}
-
-function IconWings({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.5}
-      aria-hidden
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M12 3l2.5 6.5L21 11l-5 4.5L17 21l-5-3-5 3 1-5.5L3 11l6.5-1.5L12 3z"
       />
     </svg>
   );
@@ -163,6 +134,41 @@ function IconStar({ className }: { className?: string }) {
   );
 }
 
+function IconPin({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.5}
+      aria-hidden
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"
+      />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"
+      />
+    </svg>
+  );
+}
+
+function initialsFromName(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "P";
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return `${parts[0][0] ?? ""}${parts[1][0] ?? ""}`.toUpperCase();
+}
+
+function formatRatingScore(rating: number): string {
+  return String(Math.round(rating)).padStart(2, "0");
+}
+
 type ProfileModuleCardProps = {
   title: string;
   icon: React.ReactNode;
@@ -179,15 +185,15 @@ function ProfileModuleCard({
   return (
     <article
       className={cn(
-        "premium-card flex h-full flex-col p-6 transition-shadow duration-200",
+        "figma-pilot-module-card flex h-full flex-col p-6",
         className,
       )}
     >
-      <div className="flex items-center gap-3 border-b border-border/80 pb-4">
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-gold/35 bg-gold/10 text-gold">
+      <div className="flex items-center gap-3 border-b border-[rgba(42,42,42,0.8)] pb-4">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[0.875rem] border border-[rgba(216,179,57,0.35)] bg-[rgba(216,179,57,0.1)] text-gold">
           {icon}
         </span>
-        <h2 className="text-base font-semibold text-foreground">{title}</h2>
+        <h2 className="text-base font-semibold text-ras-text">{title}</h2>
       </div>
       <div className="mt-5 flex-1">{children}</div>
     </article>
@@ -206,14 +212,14 @@ function StatCard({ label, value, icon, className, children }: StatCardProps) {
   return (
     <article
       className={cn(
-        "premium-card flex h-full flex-col p-6 transition-shadow duration-200",
+        "figma-pilot-module-card flex h-full min-h-[10.625rem] flex-col p-6",
         className,
       )}
     >
-      <span className="flex h-11 w-11 items-center justify-center rounded-lg border border-gold/35 bg-gold/10 text-gold">
+      <span className="flex h-11 w-11 items-center justify-center rounded-[0.875rem] border border-[rgba(216,179,57,0.35)] bg-[rgba(216,179,57,0.1)] text-gold">
         {icon}
       </span>
-      <p className="mt-5 text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
+      <p className="mt-5 text-xs font-medium uppercase tracking-[0.14em] text-ras-muted">
         {label}
       </p>
       {children ? (
@@ -229,7 +235,7 @@ function StatCard({ label, value, icon, className, children }: StatCardProps) {
 
 function EmptyState({ message }: { message: string }) {
   return (
-    <p className="rounded-lg border border-dashed border-border bg-surface/40 px-4 py-8 text-center text-sm text-muted-foreground">
+    <p className="rounded-[0.875rem] border border-dashed border-border bg-surface/40 px-4 py-8 text-center text-sm text-ras-muted">
       {message}
     </p>
   );
@@ -238,15 +244,23 @@ function EmptyState({ message }: { message: string }) {
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-start justify-between gap-4 border-b border-border/60 py-3 last:border-0">
-      <dt className="text-sm text-muted-foreground">{label}</dt>
-      <dd className="text-right text-sm font-medium text-foreground">{value}</dd>
+      <dt className="text-sm text-ras-muted">{label}</dt>
+      <dd className="text-right text-sm font-medium text-ras-text">{value}</dd>
     </div>
   );
 }
 
 function ServiceChip({ label }: { label: string }) {
   return (
-    <span className="inline-flex rounded-full border border-gold/40 bg-gold/10 px-3 py-1 text-xs font-medium text-gold-light">
+    <span className="inline-flex rounded-full border border-[rgba(216,179,57,0.4)] bg-[rgba(216,179,57,0.12)] px-3 py-1 text-xs font-medium text-gold-light">
+      {label}
+    </span>
+  );
+}
+
+function CredentialChip({ label }: { label: string }) {
+  return (
+    <span className="inline-flex items-center rounded-md border border-[rgba(216,179,57,0.35)] bg-[rgba(216,179,57,0.12)] px-2 py-1 text-[0.525rem] font-bold uppercase tracking-[0.06em] text-gold-light">
       {label}
     </span>
   );
@@ -274,169 +288,171 @@ export function PublicPilotProfile({
     pilot.certificates.length > 0;
   const hasReviews = pilot.reviewCount > 0 && pilot.averageRating != null;
   const latestReview = pilot.recentReviews[0];
+  const galleryReviews = pilot.recentReviews.slice(
+    latestReview ? 1 : 0,
+  );
+  const initials = initialsFromName(pilot.displayName);
 
   return (
-    <div className="space-y-8 sm:space-y-10">
-      {/* Hero — Figma pilot profile frame (279:58686) */}
-      <article className="figma-pilot-public-hero relative overflow-hidden rounded-xl border border-[rgba(216,179,57,0.45)] bg-ras-card-warm p-4 shadow-[0_0_40px_rgba(216,179,57,0.08)] sm:p-8 lg:p-10">
+    <div className="figma-pilot-public space-y-8 sm:space-y-10">
+      {/* Hero — Figma 1604:2258 */}
+      <article className="figma-pilot-public-hero relative overflow-hidden rounded-[0.875rem] border border-[rgba(216,179,57,0.35)] shadow-[0_4px_24px_rgba(0,0,0,0.4)]">
         <div
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_55%_at_100%_0%,rgba(216,179,57,0.14),transparent_58%)]"
+          className="pointer-events-none absolute inset-0"
+          style={{
+            backgroundImage:
+              "linear-gradient(140.6deg, rgba(28,28,28,0.98) 0%, rgba(24,24,24,0.99) 50%, rgb(19,19,19) 100%)",
+          }}
+          aria-hidden
+        />
+        <div
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_55%_at_100%_0%,rgba(201,162,39,0.12),transparent_55%)]"
           aria-hidden
         />
 
-        <div className="relative">
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+        <div className="relative grid items-start gap-x-5 gap-y-6 p-5 sm:p-6 lg:grid-cols-[17.625rem_minmax(0,1fr)_9.125rem]">
+          <div className="figma-pilot-public-photo shrink-0 overflow-hidden rounded-xl border border-[rgba(216,179,57,0.35)]">
             {pilot.avatarUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={pilot.avatarUrl}
                 alt=""
-                className="h-24 w-24 shrink-0 rounded-full border border-[rgba(216,179,57,0.35)] object-cover"
+                className="h-full w-full object-cover"
               />
-            ) : null}
-            <div className="min-w-0 flex-1">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold">
-                {pilot.instructorListed
-                  ? "Remote Pilot Instructor"
-                  : "Licensed pilot"}
-              </p>
-              <h1 className="mt-2 text-2xl font-bold tracking-tight text-ras-text sm:text-3xl lg:text-4xl">
-                {pilot.displayName}
-              </h1>
-              {pilot.callSign ? (
-                <p className="mt-1 text-sm font-medium uppercase tracking-[0.16em] text-gold">
-                  {pilot.callSign}
-                </p>
-              ) : null}
-              {pilot.licenseCountry ? (
-                <p className="mt-2 text-sm text-ras-dim-alt">
-                  Licensed in {pilot.licenseCountry}
-                </p>
-              ) : null}
-              <p className="mt-3 flex items-center gap-2 text-sm text-ras-dim-alt sm:text-base">
-                <svg
-                  className="h-4 w-4 shrink-0 text-gold"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={1.5}
-                  aria-hidden
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"
-                  />
-                </svg>
-                {location}
-              </p>
-              {pilot.bio ? (
-                <p className="mt-5 max-w-2xl text-sm leading-relaxed text-ras-muted sm:text-base">
-                  {pilot.bio}
-                </p>
-              ) : null}
-              {pilot.languages.length > 0 ? (
-                <p className="mt-3 text-sm text-ras-dim-alt">
-                  Languages: {pilot.languages.join(" · ")}
-                </p>
-              ) : null}
-            </div>
-
-            <div className="flex w-full shrink-0 flex-row flex-wrap items-stretch gap-3 sm:w-auto sm:gap-4">
-              {pilot.highestWing ? (
-                <div className="figma-pilot-hero-stat flex w-full min-w-0 flex-col items-center justify-center self-stretch rounded-xl border border-[rgba(216,179,57,0.3)] bg-[rgba(216,179,57,0.06)] px-4 py-4 text-center sm:w-auto sm:min-w-[7.5rem] sm:max-w-[10rem]">
-                  {pilot.highestWing.imageUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={pilot.highestWing.imageUrl}
-                      alt=""
-                      className="mb-2 h-12 w-12 object-contain"
-                    />
-                  ) : (
-                    <WingBadge
-                      title={pilot.highestWing.title}
-                      iconLabel={pilot.highestWing.iconLabel}
-                      imageUrl={pilot.highestWing.imageUrl}
-                      category={pilot.highestWing.category}
-                      size="md"
-                      className="mb-2"
-                    />
-                  )}
-                  <p className="text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-gold">
-                    Highest wing
-                  </p>
-                  <p className="mt-1 text-sm font-semibold leading-snug text-ras-text">
-                    {pilot.highestWing.title}
-                  </p>
-                </div>
-              ) : null}
-              {pilot.membership ? (
-                <MembershipRankBadge
-                  tierCode={pilot.membership.tierCode}
-                  tierName={pilot.membership.tierName}
-                  size="lg"
-                  className="figma-pilot-hero-stat self-stretch"
-                />
-              ) : null}
-              {hasReviews ? (
-                <div className="figma-pilot-hero-stat flex min-w-[7.5rem] flex-col justify-center self-stretch rounded-xl border border-[rgba(216,179,57,0.3)] bg-[rgba(216,179,57,0.06)] px-5 py-4 text-center">
-                  <StarRating
-                    value={Math.round(pilot.averageRating!)}
-                    size="md"
-                  />
-                  <p className="mt-2 flex items-baseline justify-center gap-1.5 leading-none">
-                    <span className="text-2xl font-bold text-gold-light">
-                      {pilot.averageRating}
-                    </span>
-                    <span className="text-xs text-ras-dim-alt">
-                      {pilot.reviewCount} review
-                      {pilot.reviewCount === 1 ? "" : "s"}
-                    </span>
-                  </p>
-                </div>
-              ) : null}
-            </div>
+            ) : (
+              <div className="flex h-full w-full items-center justify-center bg-[rgba(216,179,57,0.08)] text-4xl font-bold tracking-wide text-gold">
+                {initials}
+              </div>
+            )}
           </div>
 
-          {hasBadges ? (
-            <div className="relative mt-8 border-t border-[rgba(255,255,255,0.06)] pt-6">
-              <p className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-ras-dim-alt">
-                Digital wings & verifications
+          <div className="flex min-w-0 flex-col">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#d8b339]">
+              {pilot.instructorListed
+                ? "Remote Pilot Instructor"
+                : "Licensed pilot"}
+            </p>
+            <h1 className="mt-2 text-[2.25rem] font-bold leading-10 tracking-[-0.025em] text-ras-text">
+              {pilot.displayName}
+            </h1>
+            {pilot.callSign ? (
+              <p className="mt-1 text-sm font-medium uppercase tracking-[0.16em] text-[#d8b339]">
+                {pilot.callSign}
               </p>
-              <div className="flex flex-wrap gap-2">
-                {pilot.wings.map((w) => (
-                  <WingBadge
-                    key={w.code}
-                    title={w.title}
-                    iconLabel={w.iconLabel}
-                    imageUrl={w.imageUrl}
-                    category={w.category}
-                    size="md"
-                  />
-                ))}
-                {pilot.approvedCredentials.map((c) => (
-                  <span key={c.catalogId} className="status-badge status-badge-warning">
-                    {c.title}
-                  </span>
-                ))}
-                {pilot.certificates.map((cert) => (
-                  <span key={cert.id} className="status-badge status-badge-warning">
-                    {cert.templateName}
-                  </span>
-                ))}
-              </div>
-            </div>
-          ) : null}
+            ) : null}
+            {pilot.licenseCountry ? (
+              <p className="mt-2 text-sm text-ras-dim-alt">
+                Licensed in {pilot.licenseCountry}
+              </p>
+            ) : null}
+            <p className="mt-3 flex items-center gap-2 text-base text-ras-dim-alt">
+              <IconPin className="h-4 w-4 shrink-0 text-gold" />
+              {location}
+            </p>
+            {pilot.bio ? (
+              <p className="mt-5 max-w-[26rem] text-base leading-relaxed text-ras-muted">
+                {pilot.bio}
+              </p>
+            ) : null}
+            {pilot.languages.length > 0 ? (
+              <p className="mt-3 text-sm text-ras-dim-alt">
+                Languages: {pilot.languages.join(" · ")}
+              </p>
+            ) : null}
 
-          <div className="figma-pilot-public-actions mt-8 flex flex-col gap-3 border-t border-[rgba(255,255,255,0.06)] pt-6 sm:flex-row sm:flex-wrap sm:items-center">
+            {hasBadges ? (
+              <div className="mt-8">
+                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-ras-dim-alt">
+                  Digital wings &amp; verifications
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {pilot.wings.map((w) => (
+                    <WingBadge
+                      key={w.code}
+                      title={w.title}
+                      iconLabel={w.iconLabel}
+                      imageUrl={w.imageUrl}
+                      category={w.category}
+                      size="md"
+                    />
+                  ))}
+                  {pilot.approvedCredentials.map((c) => (
+                    <CredentialChip key={c.catalogId} label={c.title} />
+                  ))}
+                  {pilot.certificates.map((cert) => (
+                    <CredentialChip
+                      key={cert.id}
+                      label={cert.templateName}
+                    />
+                  ))}
+                </div>
+              </div>
+            ) : null}
+          </div>
+
+          <aside className="figma-pilot-hero-aside flex w-full flex-row flex-wrap gap-3 lg:w-[9.125rem] lg:flex-col lg:gap-4">
+            {hasReviews ? (
+              <div className="figma-pilot-hero-stat flex min-h-[5.75rem] w-full min-w-[7.5rem] flex-1 flex-col items-center justify-center rounded-xl border border-[rgba(216,179,57,0.3)] bg-[rgba(216,179,57,0.06)] px-4 py-4 lg:flex-none">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[2.5rem] font-bold leading-8 text-[#e4c55a]">
+                    {formatRatingScore(pilot.averageRating!)}
+                  </span>
+                  <div className="flex flex-col items-start gap-0.5">
+                    <StarRating
+                      value={Math.round(pilot.averageRating!)}
+                      size="sm"
+                    />
+                    <p className="text-xs text-ras-dim-alt">
+                      {pilot.reviewCount} review
+                      {pilot.reviewCount === 1 ? "" : "s"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ) : null}
+
+            {pilot.highestWing ? (
+              <div className="figma-pilot-hero-stat flex min-h-[5.75rem] w-full min-w-[7.5rem] flex-1 flex-col items-center justify-center rounded-xl border border-[rgba(216,179,57,0.3)] bg-[rgba(216,179,57,0.06)] px-3 py-4 text-center lg:flex-none">
+                {pilot.highestWing.imageUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={pilot.highestWing.imageUrl}
+                    alt=""
+                    className="mb-2 h-12 w-12 object-contain"
+                  />
+                ) : (
+                  <WingBadge
+                    title={pilot.highestWing.title}
+                    iconLabel={pilot.highestWing.iconLabel}
+                    imageUrl={pilot.highestWing.imageUrl}
+                    category={pilot.highestWing.category}
+                    size="md"
+                    className="mb-2"
+                  />
+                )}
+                <p className="text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-[#d8b339]">
+                  Highest wing
+                </p>
+                <p className="mt-1 text-sm font-semibold leading-snug text-ras-text">
+                  {pilot.highestWing.title}
+                </p>
+              </div>
+            ) : null}
+
+            {pilot.membership ? (
+              <MembershipRankBadge
+                tierCode={pilot.membership.tierCode}
+                tierName={pilot.membership.tierName}
+                size="lg"
+                className="figma-pilot-hero-stat min-h-[5.75rem] w-full min-w-[7.5rem] flex-1 justify-center lg:flex-none"
+              />
+            ) : null}
+          </aside>
+
+          <div className="figma-pilot-public-actions col-span-full flex flex-col gap-3 border-t border-[rgba(255,255,255,0.06)] pt-6 sm:flex-row sm:flex-wrap sm:items-center lg:col-span-2">
             <Link
               href={messageHref}
-              className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-[rgba(216,179,57,0.35)] bg-[rgba(216,179,57,0.08)] text-gold transition-colors hover:border-gold/55 hover:bg-[rgba(216,179,57,0.14)] hover:text-gold-light"
+              className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-[0.875rem] border border-[rgba(216,179,57,0.35)] bg-[rgba(216,179,57,0.08)] text-gold transition-colors hover:border-gold/55 hover:bg-[rgba(216,179,57,0.14)] hover:text-gold-light"
               aria-label={`Message ${pilot.displayName}`}
               title="Message pilot"
             >
@@ -444,14 +460,14 @@ export function PublicPilotProfile({
             </Link>
             <Button
               href={hireHref}
-              className="h-11 min-w-44 flex-1 sm:flex-none"
+              className="h-11 min-w-44 flex-1 rounded-[0.875rem] sm:flex-none"
             >
               Hire via marketplace
             </Button>
             <Button
               href="/pilots"
               variant="secondary"
-              className="h-11 min-w-44 flex-1 border-[rgba(216,179,57,0.35)] sm:flex-none"
+              className="h-11 min-w-44 flex-1 rounded-[0.875rem] border-[rgba(216,179,57,0.45)] sm:flex-none"
             >
               Browse more pilots
             </Button>
@@ -459,12 +475,12 @@ export function PublicPilotProfile({
         </div>
       </article>
 
-      {/* Stats grid */}
-      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
+      {/* Metrics — Figma: three equal cards */}
+      <div className="grid items-stretch gap-6 sm:grid-cols-2 lg:grid-cols-3">
         <StatCard
           label="Hourly rate"
           value={rate}
-          icon={<IconDollar className="h-5 w-5" />}
+          icon={<DollarSignIcon />}
         />
         <StatCard
           label="Service radius"
@@ -475,7 +491,7 @@ export function PublicPilotProfile({
           label="Services"
           value=""
           icon={<IconServices className="h-5 w-5" />}
-          className="sm:col-span-2"
+          className="sm:col-span-2 lg:col-span-1"
         >
           {pilot.serviceLabels.length > 0 ? (
             <div className="flex flex-wrap gap-2">
@@ -484,78 +500,20 @@ export function PublicPilotProfile({
               ))}
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground">No services listed.</p>
+            <p className="text-sm text-ras-muted">No services listed.</p>
           )}
         </StatCard>
       </div>
 
-      {/* Extended grid */}
-      <div className="grid gap-5 md:grid-cols-2 lg:gap-6">
-        <ProfileModuleCard
-          title="Digital wings"
-          icon={<IconWings className="h-5 w-5" />}
-        >
-          {pilot.wings.length > 0 ? (
-            <div className="space-y-4">
-              <p className="text-sm text-muted-foreground">
-                <span className="font-semibold text-gold-light">
-                  {pilot.wings.length}
-                </span>{" "}
-                achievement{pilot.wings.length === 1 ? "" : "s"} earned
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {pilot.wings.map((w) => (
-                  <WingBadge
-                    key={w.code}
-                    title={w.title}
-                    iconLabel={w.iconLabel}
-                    imageUrl={w.imageUrl}
-                    category={w.category}
-                    size="md"
-                  />
-                ))}
-              </div>
-            </div>
-          ) : (
-            <EmptyState message="No wings earned yet." />
-          )}
-        </ProfileModuleCard>
-
-        <ProfileModuleCard
-          title="Certificates"
-          icon={<IconCertificate className="h-5 w-5" />}
-        >
-          {pilot.certificates.length > 0 ? (
-            <ul className="space-y-3">
-              {pilot.certificates.map((cert) => (
-                <li
-                  key={cert.id}
-                  className="rounded-lg border border-border bg-surface/50 px-4 py-3"
-                >
-                  <p className="font-medium text-foreground">
-                    {cert.templateName}
-                  </p>
-                  <p className="mt-1 font-mono text-xs text-gold-light">
-                    {cert.certificateNumber}
-                  </p>
-                  <p className="mt-2 text-xs text-muted-foreground">
-                    Issued {new Date(cert.issuedAt).toLocaleDateString()}
-                  </p>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <EmptyState message="No certificates issued yet." />
-          )}
-        </ProfileModuleCard>
-
+      {/* Membership + Certificates */}
+      <div className="grid gap-6 lg:grid-cols-2">
         <ProfileModuleCard
           title="Membership tier"
           icon={<IconTier className="h-5 w-5" />}
         >
           {pilot.membership ? (
             <div className="space-y-4">
-              <div className="flex items-center justify-between gap-4">
+              <div className="flex flex-wrap items-center justify-between gap-4">
                 <MembershipRankBadge
                   tierCode={pilot.membership.tierCode}
                   tierName={pilot.membership.tierName}
@@ -563,7 +521,7 @@ export function PublicPilotProfile({
                 />
                 <SubscriptionStatusBadge status={pilot.membership.status} />
               </div>
-              <dl className="rounded-lg border border-border bg-surface/50 px-4">
+              <dl className="rounded-[0.875rem] border border-border bg-surface/50 px-4">
                 <DetailRow
                   label="Job visibility"
                   value={formatJobVisibilityDelay(
@@ -604,36 +562,67 @@ export function PublicPilotProfile({
         </ProfileModuleCard>
 
         <ProfileModuleCard
+          title="Certificates"
+          icon={<IconCertificate className="h-5 w-5" />}
+        >
+          {pilot.certificates.length > 0 ? (
+            <ul className="grid gap-5 sm:grid-cols-2">
+              {pilot.certificates.map((cert) => (
+                <li
+                  key={cert.id}
+                  className="rounded-[0.875rem] border border-[#2a2a2a] bg-[rgba(26,26,26,0.5)] px-4 py-3"
+                >
+                  <p className="font-medium text-ras-text">
+                    {cert.templateName}
+                  </p>
+                  <p className="mt-1 font-mono text-xs text-gold-light">
+                    {cert.certificateNumber}
+                  </p>
+                  <p className="mt-2 text-xs text-ras-muted">
+                    Issued {formatDisplayDateShort(cert.issuedAt)}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <EmptyState message="No certificates issued yet." />
+          )}
+        </ProfileModuleCard>
+      </div>
+
+      {/* Ratings + equipment */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        <ProfileModuleCard
           title="Ratings & reviews"
           icon={<IconStar className="h-5 w-5" />}
         >
           {hasReviews ? (
             <div className="space-y-4">
               <div className="flex flex-wrap items-center gap-4">
-                <StarRating
-                  value={Math.round(pilot.averageRating!)}
-                  size="md"
-                />
+                <p className="text-4xl font-bold text-gold-light">
+                  {Math.round(pilot.averageRating!)}
+                </p>
                 <div>
-                  <p className="text-2xl font-bold text-gold-light">
-                    {pilot.averageRating}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
+                  <StarRating
+                    value={Math.round(pilot.averageRating!)}
+                    size="md"
+                  />
+                  <p className="mt-1 text-sm text-ras-muted">
                     {pilot.reviewCount} total review
                     {pilot.reviewCount === 1 ? "" : "s"}
                   </p>
                 </div>
               </div>
               {latestReview ? (
-                <div className="rounded-lg border border-border bg-surface/50 p-4">
+                <div className="rounded-[0.875rem] border border-border bg-surface/50 p-4">
                   <div className="flex items-center justify-between gap-2">
-                    <p className="text-sm font-medium text-foreground">
+                    <p className="text-sm font-medium text-ras-text">
                       {latestReview.authorLabel}
                     </p>
                     <StarRating value={latestReview.rating} size="sm" />
                   </div>
                   {latestReview.comment ? (
-                    <p className="mt-2 line-clamp-3 text-sm text-muted-foreground">
+                    <p className="mt-2 line-clamp-3 text-sm text-ras-muted">
                       {latestReview.comment}
                     </p>
                   ) : null}
@@ -644,45 +633,48 @@ export function PublicPilotProfile({
             <EmptyState message="No reviews yet." />
           )}
         </ProfileModuleCard>
-      </div>
 
-      {pilot.mainDrones.length > 0 || pilot.payloads.length > 0 ? (
-        <section className="grid gap-5 md:grid-cols-2 lg:gap-6">
-          {pilot.mainDrones.length > 0 ? (
-            <ProfileModuleCard
-              title="Main drones"
-              icon={<IconServices className="h-5 w-5" />}
-            >
+        <div className="grid gap-6">
+          <ProfileModuleCard
+            title="Main drones"
+            icon={<IconServices className="h-5 w-5" />}
+          >
+            {pilot.mainDrones.length > 0 ? (
               <div className="flex flex-wrap gap-2">
                 {pilot.mainDrones.map((drone) => (
                   <ServiceChip key={drone} label={drone} />
                 ))}
               </div>
-            </ProfileModuleCard>
-          ) : null}
-          {pilot.payloads.length > 0 ? (
-            <ProfileModuleCard
-              title="Payloads"
-              icon={<IconServices className="h-5 w-5" />}
-            >
+            ) : (
+              <EmptyState message="No drones listed." />
+            )}
+          </ProfileModuleCard>
+          <ProfileModuleCard
+            title="Payloads"
+            icon={<IconServices className="h-5 w-5" />}
+          >
+            {pilot.payloads.length > 0 ? (
               <div className="flex flex-wrap gap-2">
                 {pilot.payloads.map((item) => (
                   <ServiceChip key={item} label={item} />
                 ))}
               </div>
-            </ProfileModuleCard>
-          ) : null}
-        </section>
-      ) : null}
+            ) : (
+              <EmptyState message="No payloads listed." />
+            )}
+          </ProfileModuleCard>
+        </div>
+      </div>
 
-      {pilot.portfolio.length > 0 ? (
-        <section>
-          <h2 className="text-lg font-semibold text-foreground">Flight gallery</h2>
+      {/* Flight gallery */}
+      <section>
+        <h2 className="text-lg font-semibold text-ras-text">Flight gallery</h2>
+        {pilot.portfolio.length > 0 ? (
           <ul className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {pilot.portfolio.map((item) => (
               <li
                 key={item.id}
-                className="premium-card overflow-hidden p-0"
+                className="figma-pilot-module-card overflow-hidden p-0"
               >
                 {item.thumbnailUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -692,14 +684,14 @@ export function PublicPilotProfile({
                     className="h-40 w-full object-cover"
                   />
                 ) : (
-                  <div className="flex h-40 items-center justify-center bg-surface/50 text-xs uppercase tracking-[0.14em] text-muted-foreground">
-                    {item.type}
+                  <div className="flex h-40 flex-col items-center justify-center gap-2 bg-[rgba(26,26,26,0.8)] text-xs font-semibold uppercase tracking-[0.14em] text-ras-muted">
+                    <span>{item.type}</span>
                   </div>
                 )}
                 <div className="p-4">
-                  <p className="font-medium text-foreground">{item.title}</p>
+                  <p className="font-medium text-ras-text">{item.title}</p>
                   {item.tags.length > 0 ? (
-                    <p className="mt-1 text-xs text-muted-foreground">
+                    <p className="mt-1 text-xs uppercase tracking-[0.08em] text-ras-muted">
                       {item.tags.join(" · ")}
                     </p>
                   ) : null}
@@ -707,32 +699,35 @@ export function PublicPilotProfile({
               </li>
             ))}
           </ul>
-        </section>
-      ) : null}
+        ) : (
+          <p className="mt-4 text-sm text-ras-muted">
+            No flight gallery items yet.
+          </p>
+        )}
+      </section>
 
-      {/* Recent reviews list */}
-      {pilot.recentReviews.length > 1 ? (
+      {/* Recent reviews */}
+      {galleryReviews.length > 0 ? (
         <section>
-          <h2 className="text-lg font-semibold text-foreground">
+          <h2 className="text-lg font-semibold text-ras-text">
             Recent reviews
           </h2>
           <ul className="mt-4 grid gap-4 sm:grid-cols-2">
-            {pilot.recentReviews.slice(1).map((review) => (
-              <li
-                key={review.id}
-                className="premium-card p-5"
-              >
+            {galleryReviews.map((review) => (
+              <li key={review.id} className="figma-pilot-module-card p-5">
                 <div className="flex items-center justify-between gap-2">
-                  <p className="text-sm font-medium">{review.authorLabel}</p>
+                  <p className="text-sm font-medium text-ras-text">
+                    {review.authorLabel}
+                  </p>
                   <StarRating value={review.rating} size="sm" />
                 </div>
                 {review.comment ? (
-                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                  <p className="mt-2 text-sm leading-relaxed text-ras-muted">
                     {review.comment}
                   </p>
                 ) : null}
-                <p className="mt-3 text-xs text-muted-foreground">
-                  {new Date(review.createdAt).toLocaleDateString()}
+                <p className="mt-3 text-xs text-ras-muted">
+                  {formatDisplayDateShort(review.createdAt)}
                 </p>
               </li>
             ))}
@@ -741,17 +736,23 @@ export function PublicPilotProfile({
       ) : null}
 
       {/* CTA */}
-      <section className="glass-card border-gold/25 px-6 py-8 text-center sm:px-10 sm:py-10">
-        <h2 className="text-xl font-semibold text-foreground sm:text-2xl">
+      <section className="figma-pilot-module-card border-[rgba(216,179,57,0.25)] px-6 py-8 text-center sm:px-10 sm:py-10">
+        <h2 className="text-xl font-semibold text-ras-text sm:text-2xl">
           Ready to hire {pilot.displayName}?
         </h2>
-        <p className="mx-auto mt-2 max-w-lg text-sm text-muted-foreground">
+        <p className="mx-auto mt-2 max-w-lg text-sm text-ras-muted">
           Create a client account, post a job, and receive bids from verified
           pilots on the marketplace.
         </p>
         <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row sm:items-center">
-          <Button href={hireHref}>Hire via marketplace</Button>
-          <Button href="/pilots" variant="secondary">
+          <Button href={hireHref} className="rounded-[0.875rem]">
+            Hire via marketplace
+          </Button>
+          <Button
+            href="/pilots"
+            variant="secondary"
+            className="rounded-[0.875rem] border-[rgba(216,179,57,0.45)]"
+          >
             Browse more pilots
           </Button>
         </div>

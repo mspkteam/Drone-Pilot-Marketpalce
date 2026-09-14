@@ -11,6 +11,7 @@ import {
   buildCaptainClubStats,
   regionGroupForCountry,
   regionOptionsFromCaptains,
+  sortCaptainsClub,
   specialtyOptionsFromCaptains,
 } from "@/lib/pilot/captains-club";
 import { averageRating } from "@/lib/reviews/review";
@@ -230,4 +231,12 @@ export async function getCaptainsClubPageData(): Promise<{
     regions: regionOptionsFromCaptains(captains),
     specialties: specialtyOptionsFromCaptains(captains),
   };
+}
+
+/** Homepage showcase — highest-rated public Captains Club members. */
+export async function listFeaturedHomeCaptains(
+  limit = 4,
+): Promise<CaptainClubPilot[]> {
+  const captains = await listCaptainsClubPilots();
+  return sortCaptainsClub(captains, "highest_rated").slice(0, limit);
 }

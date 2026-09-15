@@ -24,11 +24,18 @@ export default async function AdminAchievementsPage() {
     canPerform(role, session.user.id, "badges", "create", permissionConfig) ||
     canPerform(role, session.user.id, "badges", "edit", permissionConfig) ||
     canPerform(role, session.user.id, "badges", "assign", permissionConfig);
+  const canAssign = canPerform(
+    role,
+    session.user.id,
+    "badges",
+    "assign",
+    permissionConfig,
+  );
 
   return (
     <DashboardPageLayout className="admin-badges-shell">
       <Suspense fallback={<p className="admin-badges-loading">Loading…</p>}>
-        <AdminBadgesWingsPortal canManage={canManage} />
+        <AdminBadgesWingsPortal canManage={canManage} canAssign={canAssign} />
       </Suspense>
     </DashboardPageLayout>
   );

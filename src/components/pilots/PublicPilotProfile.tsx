@@ -4,6 +4,10 @@ import { StarRating } from "@/components/reviews/StarRating";
 import { SubscriptionStatusBadge } from "@/components/subscriptions/SubscriptionStatusBadge";
 import { Button } from "@/components/ui/Button";
 import { formatDisplayDateShort } from "@/lib/format/date";
+import {
+  getDisplayCodeForTier,
+  getRankImageForTierCode,
+} from "@/lib/membership/rank-assets";
 import { formatJobVisibilityDelay } from "@/lib/subscriptions/status";
 import {
   formatPilotLocation,
@@ -212,7 +216,7 @@ function StatCard({ label, value, icon, className, children }: StatCardProps) {
   return (
     <article
       className={cn(
-        "figma-pilot-module-card flex h-full min-h-[10.625rem] flex-col p-6",
+        "figma-pilot-module-card figma-pilot-stat-card flex h-full flex-col p-6",
         className,
       )}
     >
@@ -233,11 +237,40 @@ function StatCard({ label, value, icon, className, children }: StatCardProps) {
   );
 }
 
-function EmptyState({ message }: { message: string }) {
+function EmptyInline({ message }: { message: string }) {
+  return <p className="figma-pilot-empty-inline">{message}</p>;
+}
+
+/** Figma hero aside: insignia + stacked A-6 / Captain */
+function HeroRankPill({
+  tierCode,
+  tierName,
+}: {
+  tierCode: string;
+  tierName: string;
+}) {
+  const rankImage = getRankImageForTierCode(tierCode);
+  const displayCode = getDisplayCodeForTier(tierCode);
+  const gradeName = tierName.replace(/^A-\d+\s+/i, "").trim() || tierName;
+
   return (
-    <p className="rounded-[0.875rem] border border-dashed border-border bg-surface/40 px-4 py-8 text-center text-sm text-ras-muted">
-      {message}
-    </p>
+    <div
+      className="figma-pilot-rank-pill"
+      title={`${displayCode} ${gradeName}`}
+    >
+      {rankImage ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={rankImage}
+          alt=""
+          className="figma-pilot-rank-pill-mark"
+        />
+      ) : null}
+      <div className="figma-pilot-rank-pill-text">
+        <span className="figma-pilot-rank-pill-code">{displayCode}</span>
+        <span className="figma-pilot-rank-pill-name">{gradeName}</span>
+      </div>
+    </div>
   );
 }
 
@@ -260,7 +293,7 @@ function ServiceChip({ label }: { label: string }) {
 
 function CredentialChip({ label }: { label: string }) {
   return (
-    <span className="inline-flex items-center rounded-md border border-[rgba(216,179,57,0.35)] bg-[rgba(216,179,57,0.12)] px-2 py-1 text-[0.525rem] font-bold uppercase tracking-[0.06em] text-gold-light">
+    <span className="inline-flex items-center rounded-full border border-[rgba(216,179,57,0.35)] bg-[rgba(216,179,57,0.12)] px-2.5 py-0.5 text-xs font-medium leading-none text-gold-light">
       {label}
     </span>
   );
@@ -288,15 +321,13 @@ export function PublicPilotProfile({
     pilot.certificates.length > 0;
   const hasReviews = pilot.reviewCount > 0 && pilot.averageRating != null;
   const latestReview = pilot.recentReviews[0];
-  const galleryReviews = pilot.recentReviews.slice(
-    latestReview ? 1 : 0,
-  );
+  const galleryReviews = pilot.recentReviews.slice(latestReview ? 1 : 0);
   const initials = initialsFromName(pilot.displayName);
 
   return (
-    <div className="figma-pilot-public space-y-8 sm:space-y-10">
+    <div className="figma-pilot-public">
       {/* Hero — Figma 1604:2258 */}
-      <article className="figma-pilot-public-hero relative overflow-hidden rounded-[0.875rem] border border-[rgba(216,179,57,0.35)] shadow-[0_4px_24px_rgba(0,0,0,0.4)]">
+      <article className="figma-pilot-public-hero relative overflow-hidden">
         <div
           className="pointer-events-none absolute inset-0"
           style={{
@@ -310,8 +341,8 @@ export function PublicPilotProfile({
           aria-hidden
         />
 
-        <div className="relative grid items-start gap-x-5 gap-y-6 p-5 sm:p-6 lg:grid-cols-[17.625rem_minmax(0,1fr)_9.125rem]">
-          <div className="figma-pilot-public-photo shrink-0 overflow-hidden rounded-xl border border-[rgba(216,179,57,0.35)]">
+        <div className="figma-pilot-public-hero-grid relative">
+          <div className="figma-pilot-public-photo shrink-0">
             {pilot.avatarUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
@@ -365,7 +396,7 @@ export function PublicPilotProfile({
                 <p className="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-ras-dim-alt">
                   Digital wings &amp; verifications
                 </p>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   {pilot.wings.map((w) => (
                     <WingBadge
                       key={w.code}
@@ -373,7 +404,7 @@ export function PublicPilotProfile({
                       iconLabel={w.iconLabel}
                       imageUrl={w.imageUrl}
                       category={w.category}
-                      size="md"
+                      size="sm"
                     />
                   ))}
                   {pilot.approvedCredentials.map((c) => (
@@ -390,35 +421,15 @@ export function PublicPilotProfile({
             ) : null}
           </div>
 
-          <aside className="figma-pilot-hero-aside flex w-full flex-row flex-wrap gap-3 lg:w-[9.125rem] lg:flex-col lg:gap-4">
-            {hasReviews ? (
-              <div className="figma-pilot-hero-stat flex min-h-[5.75rem] w-full min-w-[7.5rem] flex-1 flex-col items-center justify-center rounded-xl border border-[rgba(216,179,57,0.3)] bg-[rgba(216,179,57,0.06)] px-4 py-4 lg:flex-none">
-                <div className="flex items-center gap-1.5">
-                  <span className="text-[2.5rem] font-bold leading-8 text-[#e4c55a]">
-                    {formatRatingScore(pilot.averageRating!)}
-                  </span>
-                  <div className="flex flex-col items-start gap-0.5">
-                    <StarRating
-                      value={Math.round(pilot.averageRating!)}
-                      size="sm"
-                    />
-                    <p className="text-xs text-ras-dim-alt">
-                      {pilot.reviewCount} review
-                      {pilot.reviewCount === 1 ? "" : "s"}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            ) : null}
-
+          <aside className="figma-pilot-hero-aside">
             {pilot.highestWing ? (
-              <div className="figma-pilot-hero-stat flex min-h-[5.75rem] w-full min-w-[7.5rem] flex-1 flex-col items-center justify-center rounded-xl border border-[rgba(216,179,57,0.3)] bg-[rgba(216,179,57,0.06)] px-3 py-4 text-center lg:flex-none">
+              <div className="flex flex-col items-start text-left">
                 {pilot.highestWing.imageUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={pilot.highestWing.imageUrl}
                     alt=""
-                    className="mb-2 h-12 w-12 object-contain"
+                    className="h-8 w-24 object-contain object-left"
                   />
                 ) : (
                   <WingBadge
@@ -426,30 +437,45 @@ export function PublicPilotProfile({
                     iconLabel={pilot.highestWing.iconLabel}
                     imageUrl={pilot.highestWing.imageUrl}
                     category={pilot.highestWing.category}
-                    size="md"
-                    className="mb-2"
+                    size="sm"
                   />
                 )}
-                <p className="text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-[#d8b339]">
+                <p className="mt-2 text-[0.5625rem] font-semibold uppercase tracking-[0.12em] text-[#d8b339]">
                   Highest wing
                 </p>
-                <p className="mt-1 text-sm font-semibold leading-snug text-ras-text">
+                <p className="mt-1 text-xs font-semibold leading-snug text-ras-text">
                   {pilot.highestWing.title}
                 </p>
               </div>
             ) : null}
 
+            {hasReviews ? (
+              <div className="figma-pilot-hero-rating">
+                <span className="text-[2.5rem] font-bold leading-8 text-[#e4c55a]">
+                  {formatRatingScore(pilot.averageRating!)}
+                </span>
+                <div className="figma-pilot-hero-rating-stars">
+                  <StarRating
+                    value={Math.round(pilot.averageRating!)}
+                    size="sm"
+                  />
+                  <p className="text-xs text-[#a3a3a3]">
+                    {pilot.reviewCount} review
+                    {pilot.reviewCount === 1 ? "" : "s"}
+                  </p>
+                </div>
+              </div>
+            ) : null}
+
             {pilot.membership ? (
-              <MembershipRankBadge
+              <HeroRankPill
                 tierCode={pilot.membership.tierCode}
                 tierName={pilot.membership.tierName}
-                size="lg"
-                className="figma-pilot-hero-stat min-h-[5.75rem] w-full min-w-[7.5rem] flex-1 justify-center lg:flex-none"
               />
             ) : null}
           </aside>
 
-          <div className="figma-pilot-public-actions col-span-full flex flex-col gap-3 border-t border-[rgba(255,255,255,0.06)] pt-6 sm:flex-row sm:flex-wrap sm:items-center lg:col-span-2">
+          <div className="figma-pilot-public-actions">
             <Link
               href={messageHref}
               className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-[0.875rem] border border-[rgba(216,179,57,0.35)] bg-[rgba(216,179,57,0.08)] text-gold transition-colors hover:border-gold/55 hover:bg-[rgba(216,179,57,0.14)] hover:text-gold-light"
@@ -475,8 +501,8 @@ export function PublicPilotProfile({
         </div>
       </article>
 
-      {/* Metrics — Figma: three equal cards */}
-      <div className="grid items-stretch gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {/* Metrics — Figma 4-col, services spans 2 */}
+      <div className="figma-pilot-metrics">
         <StatCard
           label="Hourly rate"
           value={rate}
@@ -491,7 +517,7 @@ export function PublicPilotProfile({
           label="Services"
           value=""
           icon={<IconServices className="h-5 w-5" />}
-          className="sm:col-span-2 lg:col-span-1"
+          className="figma-pilot-metrics-services"
         >
           {pilot.serviceLabels.length > 0 ? (
             <div className="flex flex-wrap gap-2">
@@ -500,14 +526,119 @@ export function PublicPilotProfile({
               ))}
             </div>
           ) : (
-            <p className="text-sm text-ras-muted">No services listed.</p>
+            <EmptyInline message="No services listed." />
           )}
         </StatCard>
       </div>
 
-      {/* Membership + Certificates */}
-      <div className="grid gap-6 lg:grid-cols-2">
+      {/* Mid grid — Figma: Certs|Ratings, then Drones+Payloads|Membership */}
+      <div className="figma-pilot-mid-grid">
         <ProfileModuleCard
+          className="figma-pilot-mid-certs"
+          title="Certificates"
+          icon={<IconCertificate className="h-5 w-5" />}
+        >
+          {pilot.certificates.length > 0 ? (
+            <ul className="figma-pilot-cert-grid">
+              {pilot.certificates.map((cert) => (
+                <li
+                  key={cert.id}
+                  className="rounded-[0.875rem] border border-[#2a2a2a] bg-[rgba(26,26,26,0.5)] px-4 py-3"
+                >
+                  <p className="font-medium text-ras-text">
+                    {cert.templateName}
+                  </p>
+                  <p className="mt-1 font-mono text-xs text-gold-light">
+                    {cert.certificateNumber}
+                  </p>
+                  <p className="mt-2 text-xs text-ras-muted">
+                    Issued {formatDisplayDateShort(cert.issuedAt)}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <EmptyInline message="No certificates issued yet." />
+          )}
+        </ProfileModuleCard>
+
+        <ProfileModuleCard
+          className="figma-pilot-mid-ratings"
+          title="Ratings & reviews"
+          icon={<IconStar className="h-5 w-5" />}
+        >
+          {hasReviews ? (
+            <div className="space-y-4">
+              <div className="flex flex-wrap items-center gap-4">
+                <p className="text-4xl font-bold text-gold-light">
+                  {Math.round(pilot.averageRating!)}
+                </p>
+                <div>
+                  <StarRating
+                    value={Math.round(pilot.averageRating!)}
+                    size="md"
+                  />
+                  <p className="mt-1 text-sm text-ras-muted">
+                    {pilot.reviewCount} total review
+                    {pilot.reviewCount === 1 ? "" : "s"}
+                  </p>
+                </div>
+              </div>
+              {latestReview ? (
+                <div className="rounded-[0.875rem] border border-border bg-surface/50 p-4">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-sm font-medium text-ras-text">
+                      {latestReview.authorLabel}
+                    </p>
+                    <StarRating value={latestReview.rating} size="sm" />
+                  </div>
+                  {latestReview.comment ? (
+                    <p className="mt-2 line-clamp-3 text-sm text-ras-muted">
+                      {latestReview.comment}
+                    </p>
+                  ) : null}
+                </div>
+              ) : null}
+            </div>
+          ) : (
+            <EmptyInline message="No reviews yet." />
+          )}
+        </ProfileModuleCard>
+
+        <div className="figma-pilot-mid-equipment">
+          <ProfileModuleCard
+            title="Main drones"
+            icon={<IconServices className="h-5 w-5" />}
+          >
+            {pilot.mainDrones.length > 0 ? (
+              <div className="flex flex-wrap gap-2">
+                {pilot.mainDrones.map((drone) => (
+                  <ServiceChip key={drone} label={drone} />
+                ))}
+              </div>
+            ) : (
+              <EmptyInline message="No drones listed." />
+            )}
+          </ProfileModuleCard>
+
+          <ProfileModuleCard
+            title="Payloads"
+            icon={<IconServices className="h-5 w-5" />}
+          >
+            {pilot.payloads.length > 0 ? (
+              <div className="flex flex-wrap gap-2">
+                {pilot.payloads.map((item) => (
+                  <ServiceChip key={item} label={item} />
+                ))}
+              </div>
+            ) : (
+              <EmptyInline message="No payloads listed." />
+            )}
+          </ProfileModuleCard>
+        </div>
+
+        <ProfileModuleCard
+          className="figma-pilot-mid-membership"
           title="Membership tier"
           icon={<IconTier className="h-5 w-5" />}
         >
@@ -557,134 +688,30 @@ export function PublicPilotProfile({
               </dl>
             </div>
           ) : (
-            <EmptyState message="No active membership tier." />
+            <EmptyInline message="No active membership tier." />
           )}
         </ProfileModuleCard>
-
-        <ProfileModuleCard
-          title="Certificates"
-          icon={<IconCertificate className="h-5 w-5" />}
-        >
-          {pilot.certificates.length > 0 ? (
-            <ul className="grid gap-5 sm:grid-cols-2">
-              {pilot.certificates.map((cert) => (
-                <li
-                  key={cert.id}
-                  className="rounded-[0.875rem] border border-[#2a2a2a] bg-[rgba(26,26,26,0.5)] px-4 py-3"
-                >
-                  <p className="font-medium text-ras-text">
-                    {cert.templateName}
-                  </p>
-                  <p className="mt-1 font-mono text-xs text-gold-light">
-                    {cert.certificateNumber}
-                  </p>
-                  <p className="mt-2 text-xs text-ras-muted">
-                    Issued {formatDisplayDateShort(cert.issuedAt)}
-                  </p>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <EmptyState message="No certificates issued yet." />
-          )}
-        </ProfileModuleCard>
-      </div>
-
-      {/* Ratings + equipment */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        <ProfileModuleCard
-          title="Ratings & reviews"
-          icon={<IconStar className="h-5 w-5" />}
-        >
-          {hasReviews ? (
-            <div className="space-y-4">
-              <div className="flex flex-wrap items-center gap-4">
-                <p className="text-4xl font-bold text-gold-light">
-                  {Math.round(pilot.averageRating!)}
-                </p>
-                <div>
-                  <StarRating
-                    value={Math.round(pilot.averageRating!)}
-                    size="md"
-                  />
-                  <p className="mt-1 text-sm text-ras-muted">
-                    {pilot.reviewCount} total review
-                    {pilot.reviewCount === 1 ? "" : "s"}
-                  </p>
-                </div>
-              </div>
-              {latestReview ? (
-                <div className="rounded-[0.875rem] border border-border bg-surface/50 p-4">
-                  <div className="flex items-center justify-between gap-2">
-                    <p className="text-sm font-medium text-ras-text">
-                      {latestReview.authorLabel}
-                    </p>
-                    <StarRating value={latestReview.rating} size="sm" />
-                  </div>
-                  {latestReview.comment ? (
-                    <p className="mt-2 line-clamp-3 text-sm text-ras-muted">
-                      {latestReview.comment}
-                    </p>
-                  ) : null}
-                </div>
-              ) : null}
-            </div>
-          ) : (
-            <EmptyState message="No reviews yet." />
-          )}
-        </ProfileModuleCard>
-
-        <div className="grid gap-6">
-          <ProfileModuleCard
-            title="Main drones"
-            icon={<IconServices className="h-5 w-5" />}
-          >
-            {pilot.mainDrones.length > 0 ? (
-              <div className="flex flex-wrap gap-2">
-                {pilot.mainDrones.map((drone) => (
-                  <ServiceChip key={drone} label={drone} />
-                ))}
-              </div>
-            ) : (
-              <EmptyState message="No drones listed." />
-            )}
-          </ProfileModuleCard>
-          <ProfileModuleCard
-            title="Payloads"
-            icon={<IconServices className="h-5 w-5" />}
-          >
-            {pilot.payloads.length > 0 ? (
-              <div className="flex flex-wrap gap-2">
-                {pilot.payloads.map((item) => (
-                  <ServiceChip key={item} label={item} />
-                ))}
-              </div>
-            ) : (
-              <EmptyState message="No payloads listed." />
-            )}
-          </ProfileModuleCard>
-        </div>
       </div>
 
       {/* Flight gallery */}
       <section>
         <h2 className="text-lg font-semibold text-ras-text">Flight gallery</h2>
         {pilot.portfolio.length > 0 ? (
-          <ul className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <ul className="figma-pilot-gallery-grid mt-4">
             {pilot.portfolio.map((item) => (
               <li
                 key={item.id}
-                className="figma-pilot-module-card overflow-hidden p-0"
+                className="figma-pilot-module-card figma-pilot-gallery-card p-0"
               >
                 {item.thumbnailUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={item.thumbnailUrl}
                     alt={item.title}
-                    className="h-40 w-full object-cover"
+                    className="h-[9.5rem] w-full object-cover"
                   />
                 ) : (
-                  <div className="flex h-40 flex-col items-center justify-center gap-2 bg-[rgba(26,26,26,0.8)] text-xs font-semibold uppercase tracking-[0.14em] text-ras-muted">
+                  <div className="figma-pilot-gallery-media">
                     <span>{item.type}</span>
                   </div>
                 )}
@@ -700,7 +727,7 @@ export function PublicPilotProfile({
             ))}
           </ul>
         ) : (
-          <p className="mt-4 text-sm text-ras-muted">
+          <p className="figma-pilot-empty-inline mt-4">
             No flight gallery items yet.
           </p>
         )}
@@ -712,7 +739,7 @@ export function PublicPilotProfile({
           <h2 className="text-lg font-semibold text-ras-text">
             Recent reviews
           </h2>
-          <ul className="mt-4 grid gap-4 sm:grid-cols-2">
+          <ul className="figma-pilot-reviews-grid mt-4">
             {galleryReviews.map((review) => (
               <li key={review.id} className="figma-pilot-module-card p-5">
                 <div className="flex items-center justify-between gap-2">

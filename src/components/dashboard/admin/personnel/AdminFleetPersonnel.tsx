@@ -65,6 +65,9 @@ export function AdminFleetPersonnel({
   const [page, setPage] = useState(1);
   const [inviteOpen, setInviteOpen] = useState(false);
   const [rows, setRows] = useState(data.rows);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [actionMessage, setActionMessage] = useState<string | null>(null);
 
   useEffect(() => {
     setRows(data.rows);
@@ -122,6 +125,36 @@ export function AdminFleetPersonnel({
     anchor.click();
     URL.revokeObjectURL(url);
   }, [filteredRows]);
+
+  async function handleDeleteManagementUser(row: PersonnelRow) {
+    if (!canManageManagementUsers || !row.isManagementUser) return;
+    if (
+      !window.confirm(
+        `Delete ${row.roleLabel} account for ${row.name}? This cannot be undone.`,
+      )
+    ) {
+      return;
+    }
+    setDeletingId(row.id);
+    setActionError(null);
+    setActionMessage(null);
+    try {
+      const res = await fetch(`/api/admin/management-users/${row.id}`, {
+        method: "DELETE",
+      });
+      const json = (await res.json()) as { error?: string };
+      if (!res.ok) {
+        setActionError(json.error ?? "Failed to delete management user.");
+        return;
+      }
+      setRows((current) => current.filter((item) => item.id !== row.id));
+      setActionMessage(`Deleted ${row.roleLabel} account for ${row.name}.`);
+    } catch {
+      setActionError("Failed to delete management user.");
+    } finally {
+      setDeletingId(null);
+    }
+  }
 
   const pilotRosterView =
     roleFilter === "All pilots" || searchParams.get("role") === "pilot";
@@ -194,6 +227,17 @@ export function AdminFleetPersonnel({
           </div>
         </div>
       </section>
+
+      {actionError ? (
+        <p className="admin-personnel-banner-error" role="alert">
+          {actionError}
+        </p>
+      ) : null}
+      {actionMessage ? (
+        <p className="admin-personnel-banner-success" role="status">
+          {actionMessage}
+        </p>
+      ) : null}
 
       <section
         className="admin-personnel-stats-grid"
@@ -317,6 +361,16 @@ export function AdminFleetPersonnel({
                       >
                         Open profile
                       </Link>
+                      {canManageManagementUsers && row.isManagementUser ? (
+                        <button
+                          type="button"
+                          className="admin-personnel-action admin-personnel-action--danger"
+                          disabled={deletingId === row.id}
+                          onClick={() => void handleDeleteManagementUser(row)}
+                        >
+                          {deletingId === row.id ? "Deleting…" : "Delete"}
+                        </button>
+                      ) : null}
                     </td>
                   </tr>
                 ))
@@ -362,6 +416,16 @@ export function AdminFleetPersonnel({
                 >
                   Open profile
                 </Link>
+                {canManageManagementUsers && row.isManagementUser ? (
+                  <button
+                    type="button"
+                    className="admin-personnel-action admin-personnel-action--danger"
+                    disabled={deletingId === row.id}
+                    onClick={() => void handleDeleteManagementUser(row)}
+                  >
+                    {deletingId === row.id ? "Deleting…" : "Delete"}
+                  </button>
+                ) : null}
               </article>
             ))
           ) : (

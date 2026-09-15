@@ -8,8 +8,10 @@ import {
 import {
   applyOverlayPositionOverrides,
   getCertificateLayout,
+  getEffectiveFieldOverrides,
   OVERLAY_FIELD_LABELS,
   resolveOverlayText,
+  setActiveOverlayFields,
   updateFieldOverride,
   type CertificateFieldStyle,
   type CertificateOverlayField,
@@ -58,13 +60,21 @@ function fontSizeCqw(fontSize: number, layoutWidth: number): string {
   return `${pct}cqw`;
 }
 
+function letterSpacingCqw(
+  letterSpacing: number | undefined,
+  layoutWidth: number,
+): string | undefined {
+  if (letterSpacing == null || letterSpacing === 0) return undefined;
+  return `${(letterSpacing / layoutWidth) * 100}cqw`;
+}
+
 export function CertificateCanvas({
-  memberName = "[MEMBER NAME]",
-  memberNumber = null,
+  memberName = "Jonathan Doe",
+  memberNumber = "001000",
   backgroundImageUrl,
   layoutKey,
-  gradeOrTitle,
-  certificateNumber,
+  gradeOrTitle = "First Officer",
+  certificateNumber = "DPM-2026-000001",
   issuedAt,
   overlayPositions,
   editable = false,
@@ -76,6 +86,10 @@ export function CertificateCanvas({
   const overridesRef = useRef<OverlayFieldOverride[] | null>(
     overlayPositions ?? null,
   );
+  /** Pointer offset from field anchor so grab does not jump on first move. */
+  const dragOffsetRef = useRef<{ dx: number; dy: number } | null>(null);
+  /** Skip position writes until the pointer actually moves (avoids snap-on-click). */
+  const dragMovedRef = useRef(false);
   const [draggingField, setDraggingField] = useState<CertificateOverlayField | null>(
     null,
   );
@@ -159,40 +173,102 @@ export function CertificateCanvas({
     updateFieldPosition,
   ]);
 
-  function handlePointerDown(
-    event: React.PointerEvent<HTMLSpanElement>,
-    field: CertificateOverlayField,
-  ) {
-    if (!editable || !canvasRef.current) return;
-    event.preventDefault();
-    event.stopPropagation();
-    onFieldSelect?.(field);
-    event.currentTarget.setPointerCapture(event.pointerId);
-    setDraggingField(field);
-  }
-
-  function handlePointerMove(
-    event: React.PointerEvent<HTMLSpanElement>,
-    field: CertificateOverlayField,
-  ) {
-    if (!editable || draggingField !== field || !canvasRef.current) return;
-    const rect = canvasRef.current.getBoundingClientRect();
-    if (rect.width <= 0 || rect.height <= 0) return;
-    const x = ((event.clientX - rect.left) / rect.width) * 100;
-    const y = ((event.clientY - rect.top) / rect.height) * 100;
-    updateFieldPosition(field, x, y);
-  }
-
-  function handlePointerUp(event: React.PointerEvent<HTMLSpanElement>) {
+  function handlePointerUp(event: React.PointerEvent<HTMLElement>) {
     if (!editable) return;
     try {
       event.currentTarget.releasePointerCapture(event.pointerId);
     } catch {
       /* already released */
     }
+    dragOffsetRef.current = null;
+    dragMovedRef.current = false;
     setDraggingField(null);
     setSnapH(false);
     setSnapV(false);
+  }
+
+  function handleRemoveField(
+    event: React.MouseEvent<HTMLButtonElement>,
+    field: CertificateOverlayField,
+  ) {
+    event.preventDefault();
+    event.stopPropagation();
+    if (!editable || !baseLayout || !onOverlayPositionsChange) return;
+    const current = getEffectiveFieldOverrides(baseLayout, overridesRef.current);
+    const nextFields = current.map((item) => item.field).filter((f) => f !== field);
+    if (!nextFields.length) return;
+    const next = setActiveOverlayFields(
+      baseLayout,
+      overridesRef.current,
+      nextFields,
+    );
+    overridesRef.current = next;
+    onOverlayPositionsChange(next);
+    if (selectedField === field) {
+      onFieldSelect?.(nextFields[0]!);
+    }
+  }
+
+  function handlePointerDown(
+    event: React.PointerEvent<HTMLElement>,
+    field: CertificateOverlayField,
+  ) {
+    if (!editable || !canvasRef.current || !baseLayout) return;
+    if (event.button !== 0) return;
+    event.preventDefault();
+    event.stopPropagation();
+    onFieldSelect?.(field);
+
+    const rect = canvasRef.current.getBoundingClientRect();
+    const current =
+      getEffectiveFieldOverrides(baseLayout, overridesRef.current).find(
+        (o) => o.field === field,
+      ) ?? baseLayout.fields.find((f) => f.field === field);
+
+    if (current && rect.width > 0 && rect.height > 0) {
+      const pointerX = ((event.clientX - rect.left) / rect.width) * 100;
+      const pointerY = ((event.clientY - rect.top) / rect.height) * 100;
+      dragOffsetRef.current = {
+        dx: pointerX - current.x,
+        dy: pointerY - current.y,
+      };
+    } else {
+      dragOffsetRef.current = { dx: 0, dy: 0 };
+    }
+    dragMovedRef.current = false;
+
+    event.currentTarget.setPointerCapture(event.pointerId);
+    setDraggingField(field);
+  }
+
+  function handlePointerMove(
+    event: React.PointerEvent<HTMLElement>,
+    field: CertificateOverlayField,
+  ) {
+    if (!editable || draggingField !== field || !canvasRef.current) return;
+    const rect = canvasRef.current.getBoundingClientRect();
+    if (rect.width <= 0 || rect.height <= 0) return;
+    const offset = dragOffsetRef.current ?? { dx: 0, dy: 0 };
+    const x = ((event.clientX - rect.left) / rect.width) * 100 - offset.dx;
+    const y = ((event.clientY - rect.top) / rect.height) * 100 - offset.dy;
+
+    // Require a tiny move before writing so click/select never snaps the field.
+    if (!dragMovedRef.current) {
+      const current =
+        getEffectiveFieldOverrides(baseLayout!, overridesRef.current).find(
+          (o) => o.field === field,
+        ) ?? baseLayout!.fields.find((f) => f.field === field);
+      if (
+        current &&
+        Math.abs(x - current.x) < 0.25 &&
+        Math.abs(y - current.y) < 0.25
+      ) {
+        return;
+      }
+      dragMovedRef.current = true;
+    }
+
+    updateFieldPosition(field, x, y);
   }
 
   if (!backgroundImageUrl || !layout) {
@@ -207,9 +283,11 @@ export function CertificateCanvas({
     pilotName: memberName,
     gradeOrTitle: gradeOrTitle ?? undefined,
     certificateNumber: certificateNumber ?? "DPM-2026-000001",
-    memberNumber: memberNumber ?? undefined,
+    memberNumber: memberNumber ?? "001000",
     issuedAt: issued,
   };
+
+  const canRemoveField = editable && (layout?.fields.length ?? 0) > 1;
 
   return (
     <div
@@ -248,7 +326,7 @@ export function CertificateCanvas({
         const isDragging = draggingField === field.field;
         const isSelected = selectedField === field.field;
         return (
-          <span
+          <div
             key={field.field}
             className={`cert-png-overlay${
               editable ? " cert-png-overlay--draggable" : ""
@@ -269,9 +347,10 @@ export function CertificateCanvas({
               fontFamily: fontFamilyFor(field.font),
               fontSize: fontSizeCqw(field.fontSize, layout.width),
               fontWeight: field.weight === "bold" ? 700 : 400,
-              letterSpacing: field.letterSpacing
-                ? `${field.letterSpacing}px`
-                : undefined,
+              letterSpacing: letterSpacingCqw(
+                field.letterSpacing,
+                layout.width,
+              ),
               touchAction: editable ? "none" : undefined,
             }}
             title={
@@ -287,8 +366,23 @@ export function CertificateCanvas({
             onPointerUp={handlePointerUp}
             onPointerCancel={handlePointerUp}
           >
-            {text}
-          </span>
+            {canRemoveField ? (
+              <button
+                type="button"
+                className="cert-png-overlay-remove"
+                aria-label={`Remove ${OVERLAY_FIELD_LABELS[field.field]}`}
+                title="Remove field"
+                onPointerDown={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                }}
+                onClick={(e) => handleRemoveField(e, field.field)}
+              >
+                <span aria-hidden="true">X</span>
+              </button>
+            ) : null}
+            <span className="cert-png-overlay-text">{text}</span>
+          </div>
         );
       })}
     </div>

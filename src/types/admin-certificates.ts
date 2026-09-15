@@ -41,7 +41,8 @@ export type CertificateTemplateFormInput = {
   name: string;
   description: string;
   title: string;
-  bodyTemplate: string;
+  /** Omit on edit so existing bodyTemplate is preserved. */
+  bodyTemplate?: string;
   isActive: boolean;
   backgroundImageUrl?: string | null;
   layoutKey?: string | null;

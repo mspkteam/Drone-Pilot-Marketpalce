@@ -237,6 +237,17 @@ export const CANONICAL_CERTIFICATE_TEMPLATES: Array<{
   },
 ];
 
+/** Plain-PDF fallback body for a layout/slug; used only when creating templates. */
+export function defaultBodyTemplateForLayout(
+  layoutKey: string | null | undefined,
+): string {
+  if (!layoutKey) return DEFAULT_CERTIFICATE_BODY;
+  const match = CANONICAL_CERTIFICATE_TEMPLATES.find(
+    (tpl) => tpl.layoutKey === layoutKey || tpl.slug === layoutKey,
+  );
+  return match?.bodyTemplate ?? DEFAULT_CERTIFICATE_BODY;
+}
+
 /** Slugs that were examples / obsolete — deactivate on ensure. */
 export const OBSOLETE_CERTIFICATE_SLUGS = [
   "certificate-of-promotion-example",

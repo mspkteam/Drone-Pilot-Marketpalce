@@ -15,25 +15,28 @@ type MembershipRankBadgeProps = {
 
 const sizeClasses = {
   sm: {
-    image: "h-9 w-auto",
-    code: "text-[10px]",
-    name: "text-[11px]",
+    image: "h-8 w-[1.125rem]",
+    code: "text-[10px] leading-none tracking-[0.08em]",
+    name: "text-[11px] leading-none tracking-[0.04em]",
     gap: "gap-2",
-    padding: "px-3 py-2",
+    padding: "px-2.5 py-1.5",
+    textGap: "gap-0.5",
   },
   md: {
-    image: "h-11 w-auto",
-    code: "text-xs",
-    name: "text-sm",
+    image: "h-11 w-[1.625rem]",
+    code: "text-xs leading-none tracking-[0.08em]",
+    name: "text-sm leading-none tracking-[0.04em]",
     gap: "gap-3",
     padding: "px-4 py-3",
+    textGap: "gap-1",
   },
   lg: {
-    image: "h-14 w-auto",
-    code: "text-sm",
-    name: "text-base",
+    image: "h-14 w-[2rem]",
+    code: "text-sm leading-none tracking-[0.08em]",
+    name: "text-base leading-none tracking-[0.04em]",
     gap: "gap-3",
     padding: "px-5 py-4",
+    textGap: "gap-1",
   },
 } as const;
 
@@ -66,7 +69,7 @@ export function MembershipRankBadge({
   return (
     <div
       className={cn(
-        "flex items-center rounded-xl border border-[rgba(216,179,57,0.35)] bg-[rgba(216,179,57,0.06)]",
+        "inline-flex items-center rounded-xl border border-[rgba(216,179,57,0.35)] bg-[rgba(216,179,57,0.06)]",
         styles.gap,
         styles.padding,
         className,
@@ -78,13 +81,13 @@ export function MembershipRankBadge({
         alt={`${displayCode} ${gradeName} rank insignia`}
         width={27}
         height={46}
-        className={cn("shrink-0 object-contain", styles.image)}
+        className={cn("shrink-0 object-contain object-center", styles.image)}
       />
       {showLabel ? (
-        <div className="min-w-0">
+        <div className={cn("flex min-w-0 flex-col justify-center", styles.textGap)}>
           <p
             className={cn(
-              "font-mono font-bold uppercase tracking-[0.12em] text-gold",
+              "font-mono font-bold uppercase text-gold",
               styles.code,
             )}
           >
@@ -92,7 +95,7 @@ export function MembershipRankBadge({
           </p>
           <p
             className={cn(
-              "mt-0.5 font-semibold uppercase tracking-wide text-ras-text",
+              "font-semibold uppercase text-ras-text",
               styles.name,
             )}
           >

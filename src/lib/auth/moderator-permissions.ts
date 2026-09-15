@@ -139,7 +139,7 @@ export const PERMISSION_MODULES: PermissionModuleDef[] = [
       { key: "view", label: "View" },
       { key: "create", label: "Create badge" },
       { key: "edit", label: "Edit badge" },
-      { key: "assign", label: "Assign badge" },
+      { key: "assign", label: "Assign / revoke badge" },
     ],
   },
   {

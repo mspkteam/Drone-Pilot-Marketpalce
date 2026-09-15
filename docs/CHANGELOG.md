@@ -4,6 +4,55 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.85] — 2026-09-15
+
+### Fixed
+
+- **Fine-tune layout:** X / Y / size / width sit in a compact editable 2×2 grid under Position (no accordion pushing Template details down).
+- **Drag grab jump:** Overlay drag keeps pointer offset from the field anchor and ignores tiny click noise / center-snap so fields stay put until you actually move.
+- **Remove control:** Minimal plain `X` on overlays (no red circle badge).
+
+---
+
+## [0.27.84] — 2026-09-15
+
+### Fixed
+
+- **Certificate field remove:** Editable overlays show an × control to remove a dragged field quickly (keeps at least one field).
+- **Certificate preview data:** Live / fullscreen / issue previews use consistent sample name, member #, grade, date, and cert number so saved templates show real-looking overlays.
+- **No stretch:** Certificate canvas background uses `object-fit: contain` (was `fill`) so artwork and text keep true aspect on preview and assign.
+
+---
+
+## [0.27.83] — 2026-09-15
+
+### Fixed
+
+- **Certificate templates stick on save:** Canonical ensure is seed-if-missing only — no longer overwrites admin metadata or clears wing/captain overlay positions on every engine load.
+- **Manual issue fields:** Derived from saved overlay checklist when present (not full layout defaults), so trimmed custom field sets no longer demand unused grade/date inputs.
+- **Template edit:** Stop forcing `DEFAULT_CERTIFICATE_BODY` on every save; create uses layout-appropriate body, edit leaves existing body untouched.
+
+---
+
+## [0.27.82] — 2026-09-15
+
+### Added
+
+- **Admin revoke wings/badges:** `DELETE /api/admin/wings/[id]` plus Revoke on Achievements recent awards and pilot profile wing list (requires badges assign permission).
+- **Admin delete management users UI:** Delete on Fleet & Personnel roster (Admin/Moderator rows) and Staff Permissions detail panel (Super Admin; API already existed).
+
+---
+
+## [0.27.81] — 2026-09-15
+
+### Changed
+
+- **Public pilot profile:** Perfect-pass alignment to Figma `1604:2258` — hero border `#2a2a2a`, 22px hero padding / 282×328 photo, 4-col metrics with services span-2, certificate 2-col gaps, gallery 152px media, soft empty states.
+- **Hero A-6 pill:** Compact 32px horizontal insignia + `A-6` + `Captain` (Figma), not stacked MembershipRankBadge.
+- **Mid grid:** Certs|Ratings then Drones+Payloads|Membership; equipment column stretches so no orphan gap above Flight gallery.
+
+---
+
 ## [0.27.80] — 2026-09-14
 
 ### Changed

@@ -600,6 +600,25 @@ export async function grantWingToPilot(
   return { ok: true, wing: toPilotWingDto(row), created: true };
 }
 
+export async function revokeWingFromPilot(
+  pilotWingId: string,
+): Promise<
+  | { ok: true; deletedId: string }
+  | { ok: false; error: string; status: 404 }
+> {
+  const existing = await prisma.pilotWing.findUnique({
+    where: { id: pilotWingId },
+    select: { id: true },
+  });
+
+  if (!existing) {
+    return { ok: false, error: "Awarded wing not found.", status: 404 };
+  }
+
+  await prisma.pilotWing.delete({ where: { id: pilotWingId } });
+  return { ok: true, deletedId: pilotWingId };
+}
+
 export async function evaluateAndAssignWings(
   pilotProfileId: string,
 ): Promise<PilotWingDto[]> {

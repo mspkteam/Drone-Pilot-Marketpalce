@@ -8,7 +8,7 @@ import {
 describe("getManualIssueFields", () => {
   it("includes member number and award date for wings layouts", () => {
     const fields = getManualIssueFields("master-aviator-wings");
-    assert.deepEqual(fields, ["memberNumber"]);
+    assert.deepEqual(fields, ["memberNumber", "issuedAt"]);
   });
 
   it("includes grade for promotion layouts", () => {
@@ -24,6 +24,23 @@ describe("getManualIssueFields", () => {
   it("includes issue date for recreational wings", () => {
     const fields = getManualIssueFields("recreational-pilot-wings");
     assert.deepEqual(fields, ["issuedAt"]);
+  });
+
+  it("uses saved overlay fields only when overrides are present", () => {
+    const fields = getManualIssueFields("custom", [
+      { field: "pilotName" },
+      { field: "certificateNumber" },
+    ]);
+    assert.deepEqual(fields, []);
+  });
+
+  it("requires grade when saved overlays include gradeOrTitle", () => {
+    const fields = getManualIssueFields("custom", [
+      { field: "pilotName" },
+      { field: "gradeOrTitle" },
+      { field: "certificateNumber" },
+    ]);
+    assert.deepEqual(fields, ["gradeOrTitle"]);
   });
 });
 

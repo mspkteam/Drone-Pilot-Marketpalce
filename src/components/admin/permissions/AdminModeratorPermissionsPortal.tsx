@@ -76,6 +76,7 @@ export function AdminModeratorPermissionsPortal({
   const [showSaveConfirm, setShowSaveConfirm] = useState(false);
   const [showAddUser, setShowAddUser] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [staffFilter, setStaffFilter] = useState<"all" | "admin" | "moderator">(
     "all",
   );
@@ -127,6 +128,40 @@ export function AdminModeratorPermissionsPortal({
     setSelectedId(mod.id);
     setNotice(null);
     void load(mod.id);
+  }
+
+  async function handleDeleteStaff(mod: ModeratorPermissionListItem) {
+    if (!canManage) return;
+    if (
+      !window.confirm(
+        `Delete ${roleBadgeLabel(mod.role)} account for ${mod.name} (${mod.email})? This cannot be undone.`,
+      )
+    ) {
+      return;
+    }
+    setDeletingId(mod.id);
+    setError(null);
+    setNotice(null);
+    try {
+      const res = await fetch(`/api/admin/management-users/${mod.id}`, {
+        method: "DELETE",
+      });
+      const json = (await res.json()) as { error?: string };
+      if (!res.ok) {
+        setError(json.error ?? "Failed to delete staff account.");
+        return;
+      }
+      setNotice(`Deleted ${roleBadgeLabel(mod.role)} account for ${mod.name}.`);
+      if (selectedId === mod.id) {
+        setSelectedId(null);
+        setDraft(null);
+      }
+      await load();
+    } catch {
+      setError("Failed to delete staff account.");
+    } finally {
+      setDeletingId(null);
+    }
   }
 
   function handlePresetChange(preset: PermissionPreset) {
@@ -362,6 +397,18 @@ export function AdminModeratorPermissionsPortal({
                     {selectedStaff.email} · {roleBadgeLabel(selectedStaff.role)}
                   </p>
                 </div>
+                {canManage ? (
+                  <button
+                    type="button"
+                    className="admin-perms-btn-danger"
+                    disabled={deletingId === selectedStaff.id}
+                    onClick={() => void handleDeleteStaff(selectedStaff)}
+                  >
+                    {deletingId === selectedStaff.id
+                      ? "Deleting…"
+                      : "Delete account"}
+                  </button>
+                ) : null}
               </div>
 
               <section className="admin-perms-presets" aria-label="Access presets">

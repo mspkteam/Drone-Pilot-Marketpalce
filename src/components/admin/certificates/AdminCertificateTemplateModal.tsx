@@ -4,7 +4,7 @@ import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { CertificateCanvas } from "@/components/admin/certificates/CertificateCanvas";
 import { CertificateOverlayFieldEditor } from "@/components/admin/certificates/CertificateOverlayFieldEditor";
 import { DashboardModalPortal } from "@/components/ui/DashboardModalPortal";
-import { DEFAULT_CERTIFICATE_BODY } from "@/lib/admin/certificate-display";
+import { defaultBodyTemplateForLayout } from "@/lib/admin/certificate-display";
 import { CERTIFICATE_CONDITION_CATALOG } from "@/lib/certificates/conditions";
 import {
   getCertificateLayout,
@@ -249,7 +249,11 @@ export function AdminCertificateTemplateModal({
       name,
       description,
       title,
-      bodyTemplate: DEFAULT_CERTIFICATE_BODY,
+      ...(mode === "create"
+        ? {
+            bodyTemplate: defaultBodyTemplateForLayout(resolvedLayoutKey),
+          }
+        : {}),
       isActive,
       backgroundImageUrl,
       layoutKey: resolvedLayoutKey,
@@ -273,7 +277,7 @@ export function AdminCertificateTemplateModal({
     memberName: "Jonathan Doe",
     memberNumber: "001000",
     certificateNumber: "DPM-2026-000001",
-    issuedAt: new Date("2026-01-01"),
+    issuedAt: new Date("2026-07-27"),
   } as const;
 
   return (

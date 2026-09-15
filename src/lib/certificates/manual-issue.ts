@@ -8,9 +8,16 @@ import {
 /** Admin-entered values on manual issue (auto fields like pilot name are excluded). */
 export type ManualIssueFieldKey = "memberNumber" | "issuedAt" | "gradeOrTitle";
 
-const AUTO_OVERLAY_FIELDS = new Set<CertificateOverlayField>([
+const MANUAL_OVERLAY_FIELDS = new Set<CertificateOverlayField>([
   "pilotName",
   "certificateNumber",
+  "gradeOrTitle",
+  "memberNumber",
+  "issuedAt",
+  "awardDateShort",
+  "day",
+  "month",
+  "year",
 ]);
 
 function collectOverlayFields(
@@ -18,24 +25,23 @@ function collectOverlayFields(
   overlayPositions?: Array<{ field: string }> | null,
 ): Set<CertificateOverlayField> {
   const fields = new Set<CertificateOverlayField>();
+
+  // Saved overlays are the active field set (same rule as PDF rendering).
+  if (overlayPositions && overlayPositions.length > 0) {
+    for (const override of overlayPositions) {
+      if (
+        typeof override.field === "string" &&
+        MANUAL_OVERLAY_FIELDS.has(override.field as CertificateOverlayField)
+      ) {
+        fields.add(override.field as CertificateOverlayField);
+      }
+    }
+    return fields;
+  }
+
   const layout = getCertificateLayout(layoutKey);
   for (const style of layout?.fields ?? []) {
     fields.add(style.field);
-  }
-  for (const override of overlayPositions ?? []) {
-    if (
-      typeof override.field === "string" &&
-      (AUTO_OVERLAY_FIELDS.has(override.field as CertificateOverlayField) ||
-        override.field === "gradeOrTitle" ||
-        override.field === "memberNumber" ||
-        override.field === "issuedAt" ||
-        override.field === "awardDateShort" ||
-        override.field === "day" ||
-        override.field === "month" ||
-        override.field === "year")
-    ) {
-      fields.add(override.field as CertificateOverlayField);
-    }
   }
   return fields;
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import {
   getEffectiveFieldOverrides,
   OVERLAY_FIELD_LABELS,
@@ -20,6 +21,8 @@ type CertificateOverlayFieldEditorProps = {
   variant?: "default" | "rail";
 };
 
+type FineTuneKey = "x" | "y" | "fontSize" | "maxWidth";
+
 function round1(n: number) {
   return Math.round(n * 10) / 10;
 }
@@ -34,6 +37,21 @@ const ALIGN_GLYPH: Record<"left" | "center" | "right", string> = {
   right: "⫸",
 };
 
+const FINE_TUNE_BOUNDS: Record<
+  FineTuneKey,
+  { min: number; max: number; step: number }
+> = {
+  x: { min: 0, max: 100, step: 0.1 },
+  y: { min: 0, max: 100, step: 0.1 },
+  fontSize: { min: 6, max: 200, step: 1 },
+  maxWidth: { min: 5, max: 100, step: 1 },
+};
+
+function formatFineTune(key: FineTuneKey, value: number): string {
+  if (key === "x" || key === "y") return String(round1(value));
+  return String(Math.round(value));
+}
+
 export function CertificateOverlayFieldEditor({
   layout,
   overrides,
@@ -47,6 +65,11 @@ export function CertificateOverlayFieldEditor({
   const active =
     effective.find((f) => f.field === selectedField) ?? effective[0] ?? null;
   const isRail = variant === "rail";
+  const [drafts, setDrafts] = useState<Partial<Record<FineTuneKey, string>>>({});
+
+  useEffect(() => {
+    setDrafts({});
+  }, [active?.field]);
 
   function patch(partial: Partial<Omit<OverlayFieldOverride, "field">>) {
     if (!active) return;
@@ -61,6 +84,37 @@ export function CertificateOverlayFieldEditor({
   function nudgeSize(delta: number) {
     if (!active) return;
     patch({ fontSize: clamp(Math.round((active.fontSize ?? 24) + delta), 6, 200) });
+  }
+
+  function fineTuneValue(key: FineTuneKey): number {
+    if (!active) return 0;
+    if (key === "fontSize") return active.fontSize ?? 24;
+    if (key === "maxWidth") return active.maxWidth ?? 70;
+    return active[key];
+  }
+
+  function fineTuneDisplay(key: FineTuneKey): string {
+    if (drafts[key] !== undefined) return drafts[key]!;
+    return formatFineTune(key, fineTuneValue(key));
+  }
+
+  function commitFineTune(key: FineTuneKey, raw: string) {
+    const bounds = FINE_TUNE_BOUNDS[key];
+    const parsed = Number(raw);
+    setDrafts((prev) => {
+      const next = { ...prev };
+      delete next[key];
+      return next;
+    });
+    if (!Number.isFinite(parsed)) return;
+    const next =
+      key === "x" || key === "y"
+        ? round1(clamp(parsed, bounds.min, bounds.max))
+        : Math.round(clamp(parsed, bounds.min, bounds.max));
+    if (key === "x") patch({ x: next });
+    else if (key === "y") patch({ y: next });
+    else if (key === "fontSize") patch({ fontSize: next });
+    else patch({ maxWidth: next });
   }
 
   if (!effective.length) {
@@ -182,14 +236,43 @@ export function CertificateOverlayFieldEditor({
                 </button>
                 <span aria-hidden />
               </div>
-              <p className="admin-cert-coord-readout" aria-live="polite">
-                <span>
-                  X <strong>{round1(active.x)}</strong>
-                </span>
-                <span>
-                  Y <strong>{round1(active.y)}</strong>
-                </span>
-              </p>
+
+              <div className="admin-cert-finetune-grid" aria-label="Fine-tune numbers">
+                {(
+                  [
+                    ["x", "X %"],
+                    ["y", "Y %"],
+                    ["fontSize", "Size"],
+                    ["maxWidth", "Width %"],
+                  ] as const
+                ).map(([key, label]) => {
+                  const bounds = FINE_TUNE_BOUNDS[key];
+                  return (
+                    <label key={key} className="admin-cert-finetune-field">
+                      <span>{label}</span>
+                      <input
+                        type="number"
+                        inputMode="decimal"
+                        min={bounds.min}
+                        max={bounds.max}
+                        step={bounds.step}
+                        value={fineTuneDisplay(key)}
+                        disabled={disabled}
+                        onChange={(e) =>
+                          setDrafts((prev) => ({
+                            ...prev,
+                            [key]: e.target.value,
+                          }))
+                        }
+                        onBlur={(e) => commitFineTune(key, e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") e.currentTarget.blur();
+                        }}
+                      />
+                    </label>
+                  );
+                })}
+              </div>
             </div>
 
             <div className="admin-cert-style-panel">
@@ -311,60 +394,6 @@ export function CertificateOverlayFieldEditor({
               Bottom right
             </button>
           </div>
-
-          <details className="admin-cert-advanced">
-            <summary>Fine-tune numbers</summary>
-            <div className="admin-cert-overlay-grid">
-              <label className="admin-certificates-field admin-certificates-field--compact">
-                <span>X (%)</span>
-                <input
-                  type="number"
-                  min={0}
-                  max={100}
-                  step={0.1}
-                  value={round1(active.x)}
-                  disabled={disabled}
-                  onChange={(e) => patch({ x: Number(e.target.value) })}
-                />
-              </label>
-              <label className="admin-certificates-field admin-certificates-field--compact">
-                <span>Y (%)</span>
-                <input
-                  type="number"
-                  min={0}
-                  max={100}
-                  step={0.1}
-                  value={round1(active.y)}
-                  disabled={disabled}
-                  onChange={(e) => patch({ y: Number(e.target.value) })}
-                />
-              </label>
-              <label className="admin-certificates-field admin-certificates-field--compact">
-                <span>Font size</span>
-                <input
-                  type="number"
-                  min={6}
-                  max={200}
-                  step={1}
-                  value={Math.round(active.fontSize ?? 24)}
-                  disabled={disabled}
-                  onChange={(e) => patch({ fontSize: Number(e.target.value) })}
-                />
-              </label>
-              <label className="admin-certificates-field admin-certificates-field--compact">
-                <span>Width (%)</span>
-                <input
-                  type="number"
-                  min={5}
-                  max={100}
-                  step={1}
-                  value={Math.round(active.maxWidth ?? 70)}
-                  disabled={disabled}
-                  onChange={(e) => patch({ maxWidth: Number(e.target.value) })}
-                />
-              </label>
-            </div>
-          </details>
         </div>
       ) : null}
     </section>

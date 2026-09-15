@@ -17,7 +17,9 @@ import type {
   AdminCertificateTemplateCardDto,
 } from "@/types/admin-certificates";
 
-/** Upsert six fillable RAS templates; deactivate obsolete example rows. */
+/** Seed six fillable RAS templates if missing; deactivate obsolete example rows.
+ * Does not overwrite admin edits or clear overlayPositionsJson on existing rows.
+ */
 export async function ensureCanonicalCertificateTemplates(): Promise<void> {
   for (const slug of OBSOLETE_CERTIFICATE_SLUGS) {
     await prisma.certificateTemplate.updateMany({
@@ -27,28 +29,14 @@ export async function ensureCanonicalCertificateTemplates(): Promise<void> {
   }
 
   for (const canon of CANONICAL_CERTIFICATE_TEMPLATES) {
-    await prisma.certificateTemplate.upsert({
+    const existing = await prisma.certificateTemplate.findUnique({
       where: { slug: canon.slug },
-      update: {
-        name: canon.name,
-        title: canon.title,
-        description: canon.description,
-        bodyTemplate: canon.bodyTemplate,
-        autoRule: canon.autoRule,
-        threshold: canon.threshold ?? null,
-        isActive: canon.isActive,
-        layoutKey: canon.layoutKey,
-        // Fillable files under public/certificates were replaced with high-res
-        // PNGs at the same URLs. Clear saved overlays so Form 275 member/date
-        // slots use the corrected code layouts (not concatenated date strings).
-        ...(canon.layoutKey === "aviator-wings" ||
-        canon.layoutKey === "senior-aviator-wings" ||
-        canon.layoutKey === "master-aviator-wings" ||
-        canon.layoutKey === "captain-promotion"
-          ? { overlayPositionsJson: null }
-          : {}),
-      },
-      create: {
+      select: { id: true },
+    });
+    if (existing) continue;
+
+    await prisma.certificateTemplate.create({
+      data: {
         name: canon.name,
         slug: canon.slug,
         description: canon.description,

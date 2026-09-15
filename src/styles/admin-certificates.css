@@ -531,6 +531,7 @@
 }
 
 .admin-cert-preview-expand-canvas-wrap .cert-png-canvas--portrait {
+  width: 100%;
   max-width: min(100%, 38rem);
   max-height: min(78vh, 58rem);
   margin-inline: auto;
@@ -557,7 +558,7 @@
 /* Dense control rail inside expand workspace */
 .admin-cert-overlay-editor--rail {
   gap: 0.7rem;
-  height: 100%;
+  flex-shrink: 0;
   padding: 0.9rem 0.95rem 1rem;
   border-color: rgba(216, 179, 57, 0.28);
   background:
@@ -625,15 +626,97 @@
   text-align: center;
 }
 
-.admin-cert-overlay-editor--rail .admin-cert-advanced {
-  margin-top: 0;
+.admin-cert-finetune {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.65rem 0.7rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.5rem;
+  background: rgba(0, 0, 0, 0.22);
 }
 
-/* Client PNG certificate preview */
+.admin-cert-finetune-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.admin-cert-finetune-head .admin-cert-panel-label {
+  margin: 0;
+}
+
+.admin-cert-finetune-toggle {
+  flex-shrink: 0;
+  padding: 0.2rem 0.5rem;
+  border: 1px solid rgba(216, 179, 57, 0.35);
+  border-radius: 0.3rem;
+  background: rgba(216, 179, 57, 0.1);
+  color: var(--color-gold-soft, #e8d48b);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+}
+
+.admin-cert-finetune-toggle:hover {
+  border-color: rgba(216, 179, 57, 0.55);
+  background: rgba(216, 179, 57, 0.18);
+}
+
+.admin-cert-overlay-editor--rail .admin-cert-finetune-grid {
+  margin-top: 0.15rem;
+}
+
+.admin-cert-finetune-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.45rem 0.5rem;
+}
+
+.admin-cert-finetune-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  margin: 0;
+  min-width: 0;
+}
+
+.admin-cert-finetune-field span {
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-text-soft, #9a9488);
+}
+
+.admin-cert-finetune-field input {
+  width: 100%;
+  min-height: 1.85rem;
+  padding: 0.25rem 0.4rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 0.3rem;
+  background: rgba(0, 0, 0, 0.28);
+  color: var(--color-text, #f5f0e6);
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+  pointer-events: auto;
+  user-select: text;
+}
+
+.admin-cert-finetune-field input:focus {
+  outline: none;
+  border-color: rgba(216, 179, 57, 0.65);
+}
+
+/* Client PNG certificate preview — keep true aspect (no stretch) */
 .cert-png-canvas {
   position: relative;
   container-type: inline-size;
   width: 100%;
+  height: auto;
+  max-width: 100%;
   overflow: hidden;
   border: 1px solid #d0d0d0;
   border-radius: 0.25rem;
@@ -641,32 +724,79 @@
 }
 
 .cert-png-canvas--landscape {
-  max-height: 28rem;
+  width: 100%;
+  max-height: min(28rem, 70vh);
+  margin-inline: auto;
 }
 
 .cert-png-canvas--portrait {
-  max-width: 22rem;
+  width: 100%;
+  max-width: min(22rem, 100%);
+  max-height: min(32rem, 75vh);
   margin-inline: auto;
-  max-height: 32rem;
 }
 
 .cert-png-canvas-bg {
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: fill;
+  object-fit: contain;
+  object-position: center;
   user-select: none;
   pointer-events: none;
 }
 
 .cert-png-overlay {
   position: absolute;
+  box-sizing: border-box;
   color: #111;
-  line-height: 1.1;
+  line-height: 1.15;
   white-space: nowrap;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.cert-png-overlay-text {
+  display: block;
   overflow: hidden;
   text-overflow: ellipsis;
-  pointer-events: none;
+  max-width: 100%;
+}
+
+.cert-png-overlay-remove {
+  position: absolute;
+  top: 0.05rem;
+  right: 0.1rem;
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 0.85rem;
+  height: 0.85rem;
+  padding: 0;
+  border: none;
+  border-radius: 0.1rem;
+  background: transparent;
+  color: rgba(55, 35, 25, 0.7);
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1;
+  cursor: pointer;
+  pointer-events: auto;
+  opacity: 0.5;
+}
+
+.cert-png-overlay-remove:hover {
+  opacity: 1;
+  color: #991b1b;
+  background: rgba(255, 255, 255, 0.45);
+}
+
+.cert-png-canvas--editable .cert-png-overlay--selected .cert-png-overlay-remove,
+.cert-png-canvas--editable .cert-png-overlay--draggable:hover .cert-png-overlay-remove {
+  opacity: 0.85;
 }
 
 .cert-png-canvas--editable .cert-png-overlay--draggable {
@@ -674,10 +804,10 @@
   cursor: grab;
   user-select: none;
   z-index: 2;
-  padding: 0.15rem 0.35rem;
+  padding: 0.2rem 0.45rem;
   border: 1px dashed rgba(180, 40, 40, 0.55);
   border-radius: 0.2rem;
-  background: rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.4);
   box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.4);
 }
 
@@ -696,7 +826,7 @@
   content: attr(data-field-label);
   position: absolute;
   left: 50%;
-  bottom: calc(100% + 0.25rem);
+  bottom: calc(100% + 0.35rem);
   transform: translateX(-50%);
   padding: 0.15rem 0.4rem;
   border-radius: 0.25rem;
@@ -1914,6 +2044,7 @@
 }
 
 .admin-cert-studio-canvas-wrap .cert-png-canvas--portrait {
+  width: 100%;
   max-width: min(100%, 38rem);
   max-height: min(78vh, 56rem);
   margin-inline: auto;

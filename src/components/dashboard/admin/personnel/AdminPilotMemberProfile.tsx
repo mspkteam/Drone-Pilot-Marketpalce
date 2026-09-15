@@ -94,6 +94,7 @@ export function AdminPilotMemberProfile({
   const [assignNote, setAssignNote] = useState("");
   const [assigningWing, setAssigningWing] = useState(false);
   const [deletingCertId, setDeletingCertId] = useState<string | null>(null);
+  const [revokingWingId, setRevokingWingId] = useState<string | null>(null);
 
   const [promoteTierCode, setPromoteTierCode] = useState(
     pilot.membership?.tierCode ?? "A1_STUDENT",
@@ -359,6 +360,36 @@ export function AdminPilotMemberProfile({
       setError("Failed to delete certificate.");
     } finally {
       setDeletingCertId(null);
+    }
+  }
+
+  async function handleRevokeWing(wingId: string, wingTitle: string) {
+    if (!canAssignBadges) return;
+    if (
+      !window.confirm(
+        `Revoke "${wingTitle}" from this pilot? It will be removed from their profile.`,
+      )
+    ) {
+      return;
+    }
+    setRevokingWingId(wingId);
+    setError(null);
+    setMessage(null);
+    try {
+      const res = await fetch(`/api/admin/wings/${wingId}`, {
+        method: "DELETE",
+      });
+      const json = (await res.json()) as { error?: string };
+      if (!res.ok) {
+        setError(json.error ?? "Failed to revoke wing.");
+        return;
+      }
+      setMessage(`Revoked "${wingTitle}".`);
+      router.refresh();
+    } catch {
+      setError("Failed to revoke wing.");
+    } finally {
+      setRevokingWingId(null);
     }
   }
 
@@ -780,13 +811,25 @@ export function AdminPilotMemberProfile({
         <section className="admin-member-section admin-ops-bracket-card">
           <h2 className="admin-member-section-title">Wings &amp; badges</h2>
           {pilot.wings.length ? (
-            <ul className="admin-member-list">
+            <ul className="admin-member-list admin-member-wing-list">
               {pilot.wings.map((wing) => (
-                <li key={wing.id}>
-                  <strong>{wing.title}</strong>
-                  <span>
-                    {wing.code} · {formatDate(wing.earnedAt)}
-                  </span>
+                <li key={wing.id} className="admin-member-wing-row">
+                  <div>
+                    <strong>{wing.title}</strong>
+                    <span>
+                      {wing.code} · {formatDate(wing.earnedAt)}
+                    </span>
+                  </div>
+                  {canAssignBadges ? (
+                    <button
+                      type="button"
+                      className="admin-personnel-action admin-personnel-action--danger"
+                      disabled={revokingWingId === wing.id}
+                      onClick={() => void handleRevokeWing(wing.id, wing.title)}
+                    >
+                      {revokingWingId === wing.id ? "Revoking…" : "Revoke"}
+                    </button>
+                  ) : null}
                 </li>
               ))}
             </ul>

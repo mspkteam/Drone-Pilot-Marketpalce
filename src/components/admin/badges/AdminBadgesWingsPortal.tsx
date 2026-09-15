@@ -21,9 +21,13 @@ function isPositiveGrowth(subtext: string): boolean {
 
 type AdminBadgesWingsPortalProps = {
   canManage: boolean;
+  canAssign?: boolean;
 };
 
-export function AdminBadgesWingsPortal({ canManage }: AdminBadgesWingsPortalProps) {
+export function AdminBadgesWingsPortal({
+  canManage,
+  canAssign = false,
+}: AdminBadgesWingsPortalProps) {
   const searchParams = useSearchParams();
   const preselectedPilotId = searchParams.get("pilot") ?? "";
   const [data, setData] = useState<AdminBadgeEngineDataDto | null>(null);
@@ -42,6 +46,7 @@ export function AdminBadgesWingsPortal({ canManage }: AdminBadgesWingsPortalProp
   const [assignBadge, setAssignBadge] = useState<AdminBadgeCardDto | null>(null);
   const [saving, setSaving] = useState(false);
   const [assigning, setAssigning] = useState(false);
+  const [revokingId, setRevokingId] = useState<string | null>(null);
   const [modalError, setModalError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
@@ -193,6 +198,37 @@ export function AdminBadgesWingsPortal({ canManage }: AdminBadgesWingsPortalProp
       setModalError("Assign failed.");
     } finally {
       setAssigning(false);
+    }
+  }
+
+  async function handleRevokeAward(award: AdminPilotWingDto) {
+    if (!canAssign) return;
+    if (
+      !window.confirm(
+        `Revoke "${award.title}" from ${award.pilot.displayName}? It will be removed from their profile.`,
+      )
+    ) {
+      return;
+    }
+
+    setRevokingId(award.id);
+    setError(null);
+    setSuccess(null);
+    try {
+      const res = await fetch(`/api/admin/wings/${award.id}`, {
+        method: "DELETE",
+      });
+      const json = (await res.json()) as { error?: string };
+      if (!res.ok) {
+        setError(json.error ?? "Revoke failed.");
+        return;
+      }
+      setSuccess(`Revoked "${award.title}" from ${award.pilot.displayName}.`);
+      await load();
+    } catch {
+      setError("Revoke failed.");
+    } finally {
+      setRevokingId(null);
     }
   }
 
@@ -373,6 +409,16 @@ export function AdminBadgesWingsPortal({ canManage }: AdminBadgesWingsPortalProp
                 <span className="admin-badges-recent-date">
                   {new Date(award.earnedAt).toLocaleDateString()}
                 </span>
+                {canAssign ? (
+                  <button
+                    type="button"
+                    className="admin-badges-recent-revoke"
+                    disabled={revokingId === award.id}
+                    onClick={() => void handleRevokeAward(award)}
+                  >
+                    {revokingId === award.id ? "Revoking…" : "Revoke"}
+                  </button>
+                ) : null}
               </li>
             ))}
           </ul>

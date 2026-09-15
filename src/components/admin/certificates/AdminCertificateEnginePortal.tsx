@@ -12,6 +12,7 @@ import type {
   CertificateTemplateFormInput,
 } from "@/types/admin-certificates";
 import type { AdminPilotCertificateDto } from "@/types/certificate";
+import { defaultBodyTemplateForLayout } from "@/lib/admin/certificate-display";
 import { manualIssueFieldLabel } from "@/lib/certificates/manual-issue";
 import type { ManualIssueFieldKey } from "@/lib/certificates/manual-issue";
 import type { OverlayFieldOverride } from "@/lib/certificates/layouts";
@@ -154,7 +155,9 @@ export function AdminCertificateEnginePortal({
             name: input.name,
             description: input.description || null,
             title: input.title,
-            bodyTemplate: input.bodyTemplate,
+            bodyTemplate:
+              input.bodyTemplate ??
+              defaultBodyTemplateForLayout(input.layoutKey),
             backgroundImageUrl: input.backgroundImageUrl ?? null,
             layoutKey: input.layoutKey ?? null,
             overlayPositions: input.overlayPositions ?? null,
@@ -180,7 +183,6 @@ export function AdminCertificateEnginePortal({
               name: input.name,
               description: input.description || null,
               title: input.title,
-              bodyTemplate: input.bodyTemplate,
               isActive: input.isActive,
               backgroundImageUrl: input.backgroundImageUrl ?? null,
               layoutKey: input.layoutKey ?? null,
@@ -494,11 +496,18 @@ export function AdminCertificateEnginePortal({
                     overlayPositions={
                       selectedTemplate.overlayPositions as OverlayFieldOverride[] | null
                     }
-                    gradeOrTitle={selectedTemplate.previewGrade}
+                    gradeOrTitle={
+                      selectedTemplate.previewGrade ||
+                      (selectedTemplate.manualIssueFields?.includes(
+                        "gradeOrTitle",
+                      )
+                        ? "First Officer"
+                        : undefined)
+                    }
                     memberName="Jonathan Doe"
                     memberNumber="001000"
                     certificateNumber="DPM-2026-000001"
-                    issuedAt={new Date("2026-01-01")}
+                    issuedAt={new Date("2026-07-27")}
                   />
                 </div>
               </div>
@@ -738,11 +747,17 @@ export function AdminCertificateEnginePortal({
                   memberNumber={
                     issueMemberNumber ||
                     selectedPilot.memberNumber ||
-                    undefined
+                    "001000"
                   }
-                  gradeOrTitle={issueGrade || issueTemplate.previewGrade || undefined}
-                  certificateNumber="000001"
-                  issuedAt={issueIssuedAt}
+                  gradeOrTitle={
+                    issueGrade ||
+                    issueTemplate.previewGrade ||
+                    (issueTemplate.manualIssueFields?.includes("gradeOrTitle")
+                      ? "First Officer"
+                      : undefined)
+                  }
+                  certificateNumber="DPM-2026-000001"
+                  issuedAt={issueIssuedAt || new Date()}
                 />
               </div>
             </div>

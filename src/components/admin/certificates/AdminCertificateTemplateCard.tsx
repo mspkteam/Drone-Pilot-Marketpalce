@@ -6,18 +6,22 @@ type AdminCertificateTemplateCardProps = {
   template: AdminCertificateTemplateCardDto;
   selected: boolean;
   canEdit: boolean;
+  deleting?: boolean;
   onSelect: () => void;
   onPreview: () => void;
   onEdit: () => void;
+  onDelete?: () => void;
 };
 
 export function AdminCertificateTemplateCard({
   template,
   selected,
   canEdit,
+  deleting = false,
   onSelect,
   onPreview,
   onEdit,
+  onDelete,
 }: AdminCertificateTemplateCardProps) {
   return (
     <article
@@ -52,7 +56,7 @@ export function AdminCertificateTemplateCard({
       </div>
       <div className="admin-certificates-template-body">
         {!template.isActive ? (
-          <span className="admin-certificates-template-badge">Reference</span>
+          <span className="admin-certificates-template-badge">Inactive</span>
         ) : null}
         <h3 className="admin-certificates-template-name">
           {template.name.toUpperCase()}
@@ -84,6 +88,19 @@ export function AdminCertificateTemplateCard({
               }}
             >
               EDIT
+            </button>
+          ) : null}
+          {canEdit && onDelete ? (
+            <button
+              type="button"
+              className="admin-certificates-btn-delete"
+              disabled={deleting}
+              onClick={(event) => {
+                event.stopPropagation();
+                onDelete();
+              }}
+            >
+              {deleting ? "…" : "DELETE"}
             </button>
           ) : null}
         </div>

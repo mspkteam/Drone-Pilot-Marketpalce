@@ -742,6 +742,12 @@ model UniformProduct {
   imageUrl    String?
   isActive    Boolean                  @default(true)
   sortOrder   Int                      @default(0)
+  /// Admin catalog category (UNIFORM, DIGITAL, PATCHES, …).
+  category    String?
+  /// Digital goods skip physical shipping UX when true.
+  isDigital   Boolean                  @default(false)
+  /// Per-product low-stock threshold for admin inventory badges.
+  lowStockThreshold Int                @default(10)
   /// Minimum membership tier code (e.g. A6_CAPTAIN). Null = no minimum.
   minTierCode String?
   /// Exact membership tier required (e.g. epaulettes for that grade only).

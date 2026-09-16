@@ -20,10 +20,20 @@ export default async function AdminAchievementsPage() {
   const permissionConfig = usesStaffPermissionMap(role)
     ? await getModeratorPermissionsFromDb(session.user.id)
     : null;
-  const canManage =
-    canPerform(role, session.user.id, "badges", "create", permissionConfig) ||
-    canPerform(role, session.user.id, "badges", "edit", permissionConfig) ||
-    canPerform(role, session.user.id, "badges", "assign", permissionConfig);
+  const canCreate = canPerform(
+    role,
+    session.user.id,
+    "badges",
+    "create",
+    permissionConfig,
+  );
+  const canEdit = canPerform(
+    role,
+    session.user.id,
+    "badges",
+    "edit",
+    permissionConfig,
+  );
   const canAssign = canPerform(
     role,
     session.user.id,
@@ -35,7 +45,11 @@ export default async function AdminAchievementsPage() {
   return (
     <DashboardPageLayout className="admin-badges-shell">
       <Suspense fallback={<p className="admin-badges-loading">Loading…</p>}>
-        <AdminBadgesWingsPortal canManage={canManage} canAssign={canAssign} />
+        <AdminBadgesWingsPortal
+          canCreate={canCreate}
+          canEdit={canEdit}
+          canAssign={canAssign}
+        />
       </Suspense>
     </DashboardPageLayout>
   );

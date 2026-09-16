@@ -4,6 +4,20 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.86] — 2026-09-16
+
+### Fixed
+
+- **Certificate create saves:** Custom templates persist reliably — unique slugs, required artwork, create/edit permission parity, overlays + background kept; custom templates always listed after save. Production uploads fail clearly if Blob storage is missing (no ephemeral `/public` writes).
+- **Public flight gallery:** Portfolio video/media URLs are clickable on public pilot profiles.
+- **Shop Category / Digital / Low-stock threshold:** Persisted on `UniformProduct` and round-trip through create/edit.
+- **Notification preferences:** Email delivery respects pilot/client notification toggles (in-app still delivered).
+- **Pilot avatar:** Upload persists immediately when a profile exists; extras merge no longer risks wiping other fields.
+- **Client primary email:** Shown read-only (account email) instead of a fake editable field.
+- **Admin capability flags:** Certificates / Shop / Badges Create·Edit·Assign buttons match API permissions (no more OR that shows actions staff cannot complete).
+
+---
+
 ## [0.27.85] — 2026-09-15
 
 ### Fixed

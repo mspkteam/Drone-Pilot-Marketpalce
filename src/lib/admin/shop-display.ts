@@ -50,7 +50,7 @@ export function deriveStockStatus(
 
 export function mapProductToInventoryRow(
   product: UniformProductDto,
-  threshold = LOW_STOCK_THRESHOLD,
+  threshold = product.lowStockThreshold ?? LOW_STOCK_THRESHOLD,
 ): AdminInventoryRowDto | null {
   const activeVariants = product.variants.filter((variant) => variant.isActive);
   if (activeVariants.length === 0 && product.variants.length === 0) return null;
@@ -58,6 +58,7 @@ export function mapProductToInventoryRow(
   const variants = activeVariants.length > 0 ? activeVariants : product.variants;
   const totalStock = variants.reduce((sum, variant) => sum + variant.stockQuantity, 0);
   const primary = pickPrimaryVariant({ ...product, variants }) ?? variants[0];
+  const resolvedThreshold = product.lowStockThreshold ?? threshold;
 
   return {
     productId: product.id,
@@ -67,8 +68,8 @@ export function mapProductToInventoryRow(
     price: primary?.price ?? 0,
     stockQuantity: totalStock,
     stockLabel: `${totalStock.toLocaleString()} on hand`,
-    status: deriveStockStatus(totalStock, threshold),
-    category: categoryFromProduct(product),
+    status: deriveStockStatus(totalStock, resolvedThreshold),
+    category: product.category ?? categoryFromProduct(product),
     imageSrc: imageFromProduct(product),
     imageUrls: product.images.length
       ? product.images.map((img) => img.url)
@@ -77,6 +78,8 @@ export function mapProductToInventoryRow(
         : [],
     description: product.description,
     isActive: product.isActive,
+    isDigital: Boolean(product.isDigital) || product.category === "DIGITAL",
+    stockThreshold: resolvedThreshold,
     minTierCode: product.minTierCode,
     exactTierCode: product.exactTierCode,
     requiredWingCode: product.requiredWingCode,
@@ -147,6 +150,8 @@ export const MOCK_INVENTORY_ROWS: AdminInventoryRowDto[] = [
     imageUrls: ["/marketing/hero-pilot.jpg"],
     description: "Official flight suit for platform pilots.",
     isActive: true,
+    isDigital: false,
+    stockThreshold: 10,
     variantCount: 1,
     minTierCode: null,
     exactTierCode: null,
@@ -168,6 +173,8 @@ export const MOCK_INVENTORY_ROWS: AdminInventoryRowDto[] = [
     imageUrls: [homeAssets.ranks.a1],
     description: "Operations cap with squadron insignia.",
     isActive: true,
+    isDigital: false,
+    stockThreshold: 10,
     variantCount: 1,
     minTierCode: null,
     exactTierCode: null,
@@ -189,6 +196,8 @@ export const MOCK_INVENTORY_ROWS: AdminInventoryRowDto[] = [
     imageUrls: [homeAssets.ranks.a3],
     description: "Metal wing pin for uniform display.",
     isActive: true,
+    isDigital: false,
+    stockThreshold: 10,
     variantCount: 1,
     minTierCode: null,
     exactTierCode: null,
@@ -210,6 +219,8 @@ export const MOCK_INVENTORY_ROWS: AdminInventoryRowDto[] = [
     imageUrls: ["/marketing/hero-pilot.jpg"],
     description: "Premium aviator jacket.",
     isActive: true,
+    isDigital: false,
+    stockThreshold: 10,
     variantCount: 1,
     minTierCode: null,
     exactTierCode: null,

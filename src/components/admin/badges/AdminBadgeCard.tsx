@@ -6,7 +6,8 @@ import type { AdminBadgeCardDto } from "@/types/admin-badges";
 
 type AdminBadgeCardProps = {
   badge: AdminBadgeCardDto;
-  canManage: boolean;
+  canEdit: boolean;
+  canAssign: boolean;
   onEdit: (badge: AdminBadgeCardDto) => void;
   onAssign: (badge: AdminBadgeCardDto) => void;
 };
@@ -49,12 +50,14 @@ function rarityValueClass(rarity: AdminBadgeCardDto["rarity"]): string {
 
 export function AdminBadgeCard({
   badge,
-  canManage,
+  canEdit,
+  canAssign,
   onEdit,
   onAssign,
 }: AdminBadgeCardProps) {
   const [imageFailed, setImageFailed] = useState(false);
   const showImage = Boolean(badge.imageUrl) && !imageFailed;
+  const showActions = canEdit || canAssign;
 
   return (
     <article
@@ -101,24 +104,28 @@ export function AdminBadgeCard({
         </p>
       </div>
 
-      {canManage ? (
+      {showActions ? (
         <div className="admin-badges-card-actions">
-          <button
-            type="button"
-            className="admin-badges-btn-edit"
-            onClick={() => onEdit(badge)}
-          >
-            Edit
-          </button>
-          <button
-            type="button"
-            className="admin-badges-btn-assign"
-            onClick={() => onAssign(badge)}
-            disabled={badge.isMock}
-            title={badge.isMock ? "Assign after real badge definitions exist" : undefined}
-          >
-            Assign
-          </button>
+          {canEdit ? (
+            <button
+              type="button"
+              className="admin-badges-btn-edit"
+              onClick={() => onEdit(badge)}
+            >
+              Edit
+            </button>
+          ) : null}
+          {canAssign ? (
+            <button
+              type="button"
+              className="admin-badges-btn-assign"
+              onClick={() => onAssign(badge)}
+              disabled={badge.isMock}
+              title={badge.isMock ? "Assign after real badge definitions exist" : undefined}
+            >
+              Assign
+            </button>
+          ) : null}
         </div>
       ) : null}
     </article>

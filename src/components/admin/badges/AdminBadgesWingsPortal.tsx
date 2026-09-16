@@ -20,13 +20,15 @@ function isPositiveGrowth(subtext: string): boolean {
 }
 
 type AdminBadgesWingsPortalProps = {
-  canManage: boolean;
-  canAssign?: boolean;
+  canCreate: boolean;
+  canEdit: boolean;
+  canAssign: boolean;
 };
 
 export function AdminBadgesWingsPortal({
-  canManage,
-  canAssign = false,
+  canCreate,
+  canEdit,
+  canAssign,
 }: AdminBadgesWingsPortalProps) {
   const searchParams = useSearchParams();
   const preselectedPilotId = searchParams.get("pilot") ?? "";
@@ -97,7 +99,8 @@ export function AdminBadgesWingsPortal({
   }, [data?.badges, search, rarityFilter, activeFilter]);
 
   async function handleSaveBadge(input: BadgeFormInput) {
-    if (!canManage) return;
+    if (modalMode === "create" && !canCreate) return;
+    if (modalMode === "edit" && !canEdit) return;
     if (modalMode === "edit" && editingBadge?.isMock) {
       setModalError(
         "Sample badges are preview-only until wing definitions exist in the database.",
@@ -163,7 +166,7 @@ export function AdminBadgesWingsPortal({
     pilotProfileId: string;
     note: string;
   }) {
-    if (!canManage || !assignBadge || assignBadge.isMock) return;
+    if (!canAssign || !assignBadge || assignBadge.isMock) return;
 
     setAssigning(true);
     setModalError(null);
@@ -266,7 +269,7 @@ export function AdminBadgesWingsPortal({
               achievements anytime.
             </p>
           </div>
-          {canManage ? (
+          {canCreate ? (
             <button
               type="button"
               className="admin-badges-btn-gold"
@@ -381,7 +384,8 @@ export function AdminBadgesWingsPortal({
             <AdminBadgeCard
               key={badge.id}
               badge={badge}
-              canManage={canManage}
+              canEdit={canEdit && !badge.isMock}
+              canAssign={canAssign && !badge.isMock}
               onEdit={(item) => {
                 setModalError(null);
                 setEditingBadge(item);

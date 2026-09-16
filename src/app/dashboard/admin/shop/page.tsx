@@ -20,13 +20,27 @@ export default async function AdminShopPage() {
   const permissionConfig = usesStaffPermissionMap(role)
     ? await getModeratorPermissionsFromDb(session.user.id)
     : null;
-  const canManageProducts =
-    canPerform(role, session.user.id, "shop", "create", permissionConfig) ||
-    canPerform(role, session.user.id, "shop", "manageInventory", permissionConfig);
+  const canCreateProducts = canPerform(
+    role,
+    session.user.id,
+    "shop",
+    "create",
+    permissionConfig,
+  );
+  const canManageInventory = canPerform(
+    role,
+    session.user.id,
+    "shop",
+    "manageInventory",
+    permissionConfig,
+  );
 
   return (
     <DashboardPageLayout className="admin-shop-shell">
-      <AdminUniformShopPortal canManageProducts={canManageProducts} />
+      <AdminUniformShopPortal
+        canCreateProducts={canCreateProducts}
+        canManageInventory={canManageInventory}
+      />
     </DashboardPageLayout>
   );
 }

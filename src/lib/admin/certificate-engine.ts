@@ -85,8 +85,9 @@ export async function getAdminCertificateEngineData(): Promise<AdminCertificateE
       }
     }
   }
+  // Custom / non-canonical templates (created in Certificate Studio).
+  // Include inactive so admins can reactivate; issue UI already filters active.
   for (const remaining of realBySlug.values()) {
-    if (!remaining.isActive) continue;
     templates.push(remaining);
   }
 

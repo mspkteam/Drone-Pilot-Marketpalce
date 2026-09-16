@@ -86,7 +86,7 @@ export function AdminShopProductModal({
       setCategory(product.category);
       setPrice(String(product.price));
       setStockQuantity(String(product.stockQuantity));
-      setStockThreshold("10");
+      setStockThreshold(String(product.stockThreshold ?? 10));
       setDescription(product.description);
       setImageUrls(
         product.imageUrls.length
@@ -96,7 +96,7 @@ export function AdminShopProductModal({
             : [],
       );
       setIsActive(product.isActive);
-      setIsDigital(product.category === "DIGITAL");
+      setIsDigital(Boolean(product.isDigital) || product.category === "DIGITAL");
       setMinTierCode(product.minTierCode ?? "");
       setExactTierCode(product.exactTierCode ?? "");
       setRequiredWingCode(product.requiredWingCode ?? "");

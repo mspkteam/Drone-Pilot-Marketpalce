@@ -21,14 +21,28 @@ export default async function AdminCertificatesPage() {
   const permissionConfig = usesStaffPermissionMap(role)
     ? await getModeratorPermissionsFromDb(session.user.id)
     : null;
-  const canManageTemplates =
-    canPerform(role, session.user.id, "certificates", "create", permissionConfig) ||
-    canPerform(role, session.user.id, "certificates", "edit", permissionConfig);
+  const canCreateTemplates = canPerform(
+    role,
+    session.user.id,
+    "certificates",
+    "create",
+    permissionConfig,
+  );
+  const canEditTemplates = canPerform(
+    role,
+    session.user.id,
+    "certificates",
+    "edit",
+    permissionConfig,
+  );
 
   return (
     <DashboardPageLayout className="admin-certificates-shell">
       <Suspense fallback={<p className="admin-certificates-loading">Loading…</p>}>
-        <AdminCertificateEnginePortal canManageTemplates={canManageTemplates} />
+        <AdminCertificateEnginePortal
+          canCreateTemplates={canCreateTemplates}
+          canEditTemplates={canEditTemplates}
+        />
       </Suspense>
     </DashboardPageLayout>
   );

@@ -40,7 +40,23 @@ function slugify(name: string) {
   return name
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "");
+    .replace(/^-|-$/g, "")
+    .slice(0, 72);
+}
+
+async function uniqueTemplateSlug(baseName: string): Promise<string> {
+  const base = slugify(baseName) || `custom-template-${Date.now()}`;
+  let candidate = base;
+  let n = 2;
+  while (await prisma.certificateTemplate.findUnique({ where: { slug: candidate } })) {
+    candidate = `${base}-${n}`.slice(0, 80);
+    n += 1;
+    if (n > 50) {
+      candidate = `${base}-${Date.now()}`.slice(0, 80);
+      break;
+    }
+  }
+  return candidate;
 }
 
 export async function generateCertificateNumber(): Promise<string> {
@@ -130,22 +146,30 @@ export async function createCertificateTemplate(input: {
   const title = input.title.trim();
   const bodyTemplate = input.bodyTemplate.trim();
 
-  if (!name || !title || bodyTemplate.length < 20) {
+  const resolvedBody =
+    bodyTemplate.length >= 20
+      ? bodyTemplate
+      : `This certifies that {{pilotName}} has earned ${title || name} on Remote Air Service.
+
+Certificate number: {{certificateNumber}}
+Issue date: {{issueDate}}`;
+
+  if (!name || !title) {
     return {
       ok: false,
-      error: "Name, title, and body template (min 20 chars) are required.",
+      error: "Name and title are required.",
     };
   }
 
-  const slug = slugify(name);
-  const existing = await prisma.certificateTemplate.findUnique({
-    where: { slug },
-  });
-  if (existing) {
-    return { ok: false, error: "A template with this name already exists." };
+  if (!input.backgroundImageUrl?.trim()) {
+    return {
+      ok: false,
+      error: "Upload a fillable certificate image before saving.",
+    };
   }
 
-  const backgroundImageUrl = input.backgroundImageUrl?.trim() || null;
+  const slug = await uniqueTemplateSlug(name);
+  const backgroundImageUrl = input.backgroundImageUrl.trim();
   const layoutKey =
     input.layoutKey?.trim() || (backgroundImageUrl ? "custom" : null);
 
@@ -153,21 +177,22 @@ export async function createCertificateTemplate(input: {
     ? input.autoRule
     : "manual_only";
 
+  const overlays = sanitizeOverlayOverrides(input.overlayPositions);
+
   const row = await prisma.certificateTemplate.create({
     data: {
       name,
       slug,
       description: input.description?.trim() || null,
       title,
-      bodyTemplate,
+      bodyTemplate: resolvedBody,
       backgroundImageUrl,
       layoutKey,
-      overlayPositionsJson: serializeOverlayPositions(
-        sanitizeOverlayOverrides(input.overlayPositions),
-      ),
+      overlayPositionsJson: serializeOverlayPositions(overlays),
       autoRule,
       ruleParam: input.ruleParam?.trim() || null,
       threshold: input.threshold ?? null,
+      isActive: true,
     },
     include: { _count: { select: { certificates: true } } },
   });

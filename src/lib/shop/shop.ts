@@ -100,6 +100,9 @@ function toProductDto(
     images,
     isActive: p.isActive,
     sortOrder: p.sortOrder,
+    category: p.category ?? null,
+    isDigital: p.isDigital ?? false,
+    lowStockThreshold: p.lowStockThreshold ?? 10,
     minTierCode: p.minTierCode ?? null,
     exactTierCode: p.exactTierCode ?? null,
     requiredWingCode: p.requiredWingCode ?? null,
@@ -126,6 +129,9 @@ function toProductDtoAdmin(
     images,
     isActive: p.isActive,
     sortOrder: p.sortOrder,
+    category: p.category ?? null,
+    isDigital: p.isDigital ?? false,
+    lowStockThreshold: p.lowStockThreshold ?? 10,
     minTierCode: p.minTierCode ?? null,
     exactTierCode: p.exactTierCode ?? null,
     requiredWingCode: p.requiredWingCode ?? null,
@@ -355,6 +361,9 @@ export async function createProduct(input: {
   imageUrl?: string | null;
   sortOrder?: number;
   isActive?: boolean;
+  category?: string | null;
+  isDigital?: boolean;
+  lowStockThreshold?: number;
   minTierCode?: string | null;
   exactTierCode?: string | null;
   requiredWingCode?: string | null;
@@ -400,6 +409,15 @@ export async function createProduct(input: {
     input.imageUrls?.filter((u) => u.trim()) ??
     (input.imageUrl?.trim() ? [input.imageUrl.trim()] : []);
 
+  const category =
+    input.isDigital
+      ? "DIGITAL"
+      : input.category?.trim().toUpperCase() || null;
+  const lowStockThreshold =
+    input.lowStockThreshold != null && Number.isFinite(input.lowStockThreshold)
+      ? Math.max(0, Math.round(input.lowStockThreshold))
+      : 10;
+
   const row = await prisma.uniformProduct.create({
     data: {
       name,
@@ -408,6 +426,9 @@ export async function createProduct(input: {
       imageUrl: imageUrls[0] ?? null,
       sortOrder: input.sortOrder ?? 0,
       isActive: input.isActive ?? true,
+      category,
+      isDigital: Boolean(input.isDigital),
+      lowStockThreshold,
       minTierCode,
       exactTierCode,
       requiredWingCode,
@@ -520,6 +541,9 @@ export async function updateProduct(
     imageUrls: string[];
     sortOrder: number;
     isActive: boolean;
+    category: string | null;
+    isDigital: boolean;
+    lowStockThreshold: number;
     minTierCode: string | null;
     exactTierCode: string | null;
     requiredWingCode: string | null;
@@ -575,6 +599,23 @@ export async function updateProduct(
         : {}),
       ...(input.sortOrder !== undefined ? { sortOrder: input.sortOrder } : {}),
       ...(input.isActive !== undefined ? { isActive: input.isActive } : {}),
+      ...(input.isDigital !== undefined ? { isDigital: input.isDigital } : {}),
+      ...(input.category !== undefined || input.isDigital !== undefined
+        ? {
+            category: input.isDigital
+              ? "DIGITAL"
+              : input.category !== undefined
+                ? input.category?.trim().toUpperCase() || null
+                : existing.category,
+          }
+        : {}),
+      ...(input.lowStockThreshold !== undefined
+        ? {
+            lowStockThreshold: Number.isFinite(input.lowStockThreshold)
+              ? Math.max(0, Math.round(input.lowStockThreshold))
+              : 10,
+          }
+        : {}),
       ...(minTierCode !== undefined ? { minTierCode } : {}),
       ...(exactTierCode !== undefined ? { exactTierCode } : {}),
       ...(requiredWingCode !== undefined ? { requiredWingCode } : {}),

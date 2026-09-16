@@ -5,7 +5,7 @@ import {
   serializeServicesOffered,
   toPilotProfileDto,
 } from "@/lib/pilot/profile";
-import { serializeProfileExtrasJson, parseProfileExtrasJson } from "@/lib/pilot/profile-extras";
+import { serializeProfileExtrasJson, parseProfileExtrasJson, mergePilotProfileExtras } from "@/lib/pilot/profile-extras";
 import { validatePilotProfileInput } from "@/lib/pilot/validation";
 import { prisma } from "@/lib/db";
 
@@ -158,13 +158,12 @@ export async function PATCH(request: Request) {
           licenseCountry: data.licenseCountry?.trim() || null,
         }),
         ...(data.extras !== undefined && {
-          profileExtrasJson: serializeProfileExtrasJson({
-            ...parseProfileExtrasJson(existing.profileExtrasJson),
-            ...data.extras,
-            notifications:
-              data.extras.notifications ??
-              parseProfileExtrasJson(existing.profileExtrasJson).notifications,
-          }),
+          profileExtrasJson: serializeProfileExtrasJson(
+            mergePilotProfileExtras(
+              parseProfileExtrasJson(existing.profileExtrasJson),
+              data.extras,
+            ),
+          ),
         }),
         ...(data.isPublic !== undefined && { isPublic: data.isPublic }),
         ...(completing && {

@@ -16,6 +16,8 @@ export type AdminInventoryRowDto = {
   imageUrls: string[];
   description: string;
   isActive: boolean;
+  isDigital: boolean;
+  stockThreshold: number;
   variantCount: number;
   minTierCode: string | null;
   exactTierCode: string | null;

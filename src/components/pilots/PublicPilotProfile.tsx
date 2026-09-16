@@ -698,25 +698,53 @@ export function PublicPilotProfile({
         <h2 className="text-lg font-semibold text-ras-text">Flight gallery</h2>
         {pilot.portfolio.length > 0 ? (
           <ul className="figma-pilot-gallery-grid mt-4">
-            {pilot.portfolio.map((item) => (
+            {pilot.portfolio.map((item) => {
+              const mediaHref = item.mediaUrl?.trim() || null;
+              const media = item.thumbnailUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={item.thumbnailUrl}
+                  alt={item.title}
+                  className="h-[9.5rem] w-full object-cover"
+                />
+              ) : (
+                <div className="figma-pilot-gallery-media">
+                  <span>{item.type}</span>
+                </div>
+              );
+              return (
               <li
                 key={item.id}
                 className="figma-pilot-module-card figma-pilot-gallery-card p-0"
               >
-                {item.thumbnailUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={item.thumbnailUrl}
-                    alt={item.title}
-                    className="h-[9.5rem] w-full object-cover"
-                  />
+                {mediaHref ? (
+                  <a
+                    href={mediaHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block"
+                    title={`Open ${item.title}`}
+                  >
+                    {media}
+                  </a>
                 ) : (
-                  <div className="figma-pilot-gallery-media">
-                    <span>{item.type}</span>
-                  </div>
+                  media
                 )}
                 <div className="p-4">
-                  <p className="font-medium text-ras-text">{item.title}</p>
+                  <p className="font-medium text-ras-text">
+                    {mediaHref ? (
+                      <a
+                        href={mediaHref}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hover:text-ras-gold"
+                      >
+                        {item.title}
+                      </a>
+                    ) : (
+                      item.title
+                    )}
+                  </p>
                   {item.tags.length > 0 ? (
                     <p className="mt-1 text-xs uppercase tracking-[0.08em] text-ras-muted">
                       {item.tags.join(" · ")}
@@ -724,7 +752,8 @@ export function PublicPilotProfile({
                   ) : null}
                 </div>
               </li>
-            ))}
+              );
+            })}
           </ul>
         ) : (
           <p className="figma-pilot-empty-inline mt-4">

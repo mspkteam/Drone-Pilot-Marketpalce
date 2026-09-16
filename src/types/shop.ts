@@ -46,6 +46,9 @@ export type UniformProductDto = {
   images: UniformProductImageDto[];
   isActive: boolean;
   sortOrder: number;
+  category: string | null;
+  isDigital: boolean;
+  lowStockThreshold: number;
   minTierCode: string | null;
   exactTierCode: string | null;
   requiredWingCode: string | null;

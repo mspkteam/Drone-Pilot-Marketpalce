@@ -388,9 +388,13 @@ export function ClientProfileCompletionView({
                   type="email"
                   className="profile-onboarding-input"
                   value={extras.primaryEmail}
-                  onChange={(e) => patchExtras({ primaryEmail: e.target.value })}
-                  disabled={!canEdit || loading}
+                  readOnly
+                  disabled
+                  title="Account email — change it from Account Settings"
                 />
+                <p className="profile-onboarding-hint">
+                  Account login email (change in Account Settings).
+                </p>
               </div>
               <div className="profile-onboarding-field">
                 <label className="profile-onboarding-label" htmlFor="phone">

@@ -22,11 +22,13 @@ function isPositiveGrowth(subtext: string): boolean {
 }
 
 type AdminCertificateEnginePortalProps = {
-  canManageTemplates: boolean;
+  canCreateTemplates: boolean;
+  canEditTemplates: boolean;
 };
 
 export function AdminCertificateEnginePortal({
-  canManageTemplates,
+  canCreateTemplates,
+  canEditTemplates,
 }: AdminCertificateEnginePortalProps) {
   const searchParams = useSearchParams();
   const [data, setData] = useState<AdminCertificateEngineDataDto | null>(null);
@@ -138,7 +140,8 @@ export function AdminCertificateEnginePortal({
   }
 
   async function handleSaveTemplate(input: CertificateTemplateFormInput) {
-    if (!canManageTemplates) return;
+    if (modalMode === "create" && !canCreateTemplates) return;
+    if (modalMode === "edit" && !canEditTemplates && !canCreateTemplates) return;
     if (modalMode === "edit" && editingTemplate?.isMock) {
       setModalError("Sample templates are preview-only until real templates exist in the database.");
       return;
@@ -162,6 +165,7 @@ export function AdminCertificateEnginePortal({
             layoutKey: input.layoutKey ?? null,
             overlayPositions: input.overlayPositions ?? null,
             autoRule: input.autoRule ?? "manual_only",
+            // Create always starts active; edit controls Active toggle.
           }),
         });
         if (!res.ok) {
@@ -169,10 +173,14 @@ export function AdminCertificateEnginePortal({
           return;
         }
         const json = (await res.json()) as { template?: { id?: string } };
+        const createdId = json.template?.id ?? null;
         setSuccess("Template created.");
         setModalMode(null);
         await load(true);
-        if (json.template?.id) setSelectedId(json.template.id);
+        if (createdId) {
+          setSelectedId(createdId);
+          setIssueTemplateId(createdId);
+        }
       } else if (modalMode === "edit" && editingTemplate) {
         const res = await fetch(
           `/api/admin/certificate-templates/${editingTemplate.id}`,
@@ -344,7 +352,7 @@ export function AdminCertificateEnginePortal({
               milestones.
             </p>
           </div>
-          {canManageTemplates ? (
+          {canCreateTemplates ? (
             <button
               type="button"
               className="admin-certificates-btn-gold"
@@ -437,7 +445,7 @@ export function AdminCertificateEnginePortal({
                 key={template.id}
                 template={template}
                 selected={template.id === selectedTemplate.id}
-                canEdit={canManageTemplates && !template.isMock}
+                canEdit={(canEditTemplates || canCreateTemplates) && !template.isMock}
                 onSelect={() => setSelectedId(template.id)}
                 onPreview={() => {
                   setSelectedId(template.id);

@@ -54,6 +54,13 @@ export async function writePublicAsset(
     }
   }
 
+  // On Vercel, the filesystem is ephemeral — local /public writes do not persist.
+  if (process.env.VERCEL) {
+    throw new Error(
+      "File storage is not configured for production. Set BLOB_READ_WRITE_TOKEN in Vercel env.",
+    );
+  }
+
   const dir = path.join(
     /*turbopackIgnore: true*/ process.cwd(),
     "public",

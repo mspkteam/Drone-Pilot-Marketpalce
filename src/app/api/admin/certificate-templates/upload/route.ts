@@ -146,9 +146,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ url, layoutKey: "custom" }, { status: 201 });
   } catch (error) {
     console.error("[certificate-templates/upload]", error);
-    return NextResponse.json(
-      { error: "Failed to store the image. Try again." },
-      { status: 500 },
-    );
+    const message =
+      error instanceof Error && error.message.trim()
+        ? error.message
+        : "Failed to store the image. Try again.";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

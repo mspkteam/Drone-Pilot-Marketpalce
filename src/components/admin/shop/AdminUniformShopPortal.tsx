@@ -20,12 +20,15 @@ function formatMoney(amount: number): string {
 }
 
 type AdminUniformShopPortalProps = {
-  canManageProducts: boolean;
+  canCreateProducts: boolean;
+  canManageInventory: boolean;
 };
 
 export function AdminUniformShopPortal({
-  canManageProducts,
+  canCreateProducts,
+  canManageInventory,
 }: AdminUniformShopPortalProps) {
+  const canEditProducts = canCreateProducts || canManageInventory;
   const [data, setData] = useState<AdminShopEngineDataDto | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -75,7 +78,8 @@ export function AdminUniformShopPortal({
   }, [data?.inventory, inventorySearch]);
 
   async function handleSaveProduct(input: ShopProductFormInput) {
-    if (!canManageProducts) return;
+    if (modalMode === "create" && !canCreateProducts) return;
+    if (modalMode === "edit" && !canEditProducts) return;
     if (modalMode === "edit" && editingProduct?.isMock) {
       setModalError(
         "Sample products are preview-only until real catalog items exist in the database.",
@@ -106,6 +110,9 @@ export function AdminUniformShopPortal({
             description: input.description,
             imageUrls: input.imageUrls,
             isActive: input.isActive,
+            category: input.category,
+            isDigital: input.isDigital,
+            stockThreshold: input.stockThreshold,
             minTierCode: input.minTierCode || null,
             exactTierCode: input.exactTierCode || null,
             requiredWingCode: input.requiredWingCode || null,
@@ -132,6 +139,9 @@ export function AdminUniformShopPortal({
               description: input.description,
               imageUrls: input.imageUrls,
               isActive: input.isActive,
+              category: input.category,
+              isDigital: input.isDigital,
+              stockThreshold: input.stockThreshold,
               minTierCode: input.minTierCode || null,
               exactTierCode: input.exactTierCode || null,
               requiredWingCode: input.requiredWingCode || null,
@@ -180,7 +190,7 @@ export function AdminUniformShopPortal({
               Official uniform store: products, inventory and fulfillment in one place.
             </p>
           </div>
-          {canManageProducts ? (
+          {canCreateProducts ? (
             <button
               type="button"
               className="admin-shop-btn-gold"
@@ -273,7 +283,7 @@ export function AdminUniformShopPortal({
                 <AdminShopInventoryRow
                   key={row.productId}
                   row={row}
-                  canManage={canManageProducts}
+                  canManage={canEditProducts}
                   onEdit={(item) => {
                     setModalError(null);
                     setEditingProduct(item);

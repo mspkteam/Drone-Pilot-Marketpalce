@@ -35,6 +35,14 @@ export async function POST(request: Request) {
     imageUrl: body.imageUrl,
     sortOrder: body.sortOrder,
     isActive: body.isActive,
+    category: body.category ?? null,
+    isDigital: body.isDigital,
+    lowStockThreshold:
+      typeof body.stockThreshold === "number"
+        ? body.stockThreshold
+        : typeof body.lowStockThreshold === "number"
+          ? body.lowStockThreshold
+          : undefined,
     minTierCode: body.minTierCode ?? null,
     exactTierCode: body.exactTierCode ?? null,
     requiredWingCode: body.requiredWingCode ?? null,

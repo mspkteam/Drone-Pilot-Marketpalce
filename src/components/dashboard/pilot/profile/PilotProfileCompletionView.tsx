@@ -223,12 +223,39 @@ export function PilotProfileCompletionView({
     setLoading(true);
     const { uploadUserImage } = await import("@/lib/storage/upload-browser");
     const result = await uploadUserImage({ kind: "avatar", file });
-    setLoading(false);
     if (!result.ok) {
+      setLoading(false);
       setError(result.error);
       return;
     }
     patchExtras({ avatarPreview: result.url });
+
+    // Persist immediately when a profile already exists so leave-without-Save
+    // does not drop the new avatar.
+    if (profile) {
+      const nextExtras = extrasPayload({
+        ...extras,
+        avatarPreview: result.url,
+      });
+      const res = await fetch("/api/pilot/profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          extras: nextExtras,
+        }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setLoading(false);
+        setError(
+          (data as { error?: string }).error ??
+            "Avatar uploaded but failed to save to profile. Click Save Profile.",
+        );
+        return;
+      }
+      setSuccess("Avatar saved.");
+    }
+    setLoading(false);
   }
 
   function addMainDroneFromEquipment() {

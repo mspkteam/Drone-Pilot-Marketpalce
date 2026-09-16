@@ -22,7 +22,11 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const authResult = await requireAdminPermission("certificates", "create");
+  // Match upload/PATCH: staff with create OR edit may add custom templates.
+  const createAuth = await requireAdminPermission("certificates", "create");
+  const authResult = createAuth.ok
+    ? createAuth
+    : await requireAdminPermission("certificates", "edit");
   if (!authResult.ok) {
     return NextResponse.json(
       { error: authResult.error },

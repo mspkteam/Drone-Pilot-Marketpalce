@@ -60,7 +60,7 @@ Six RAS fillable PNGs under `/certificates/*-fillable.png` (examples on disk are
 ### APIs
 
 - `GET/POST /api/admin/certificate-templates`
-- `PATCH /api/admin/certificate-templates/[id]`
+- `PATCH/DELETE /api/admin/certificate-templates/[id]`
 - `POST /api/admin/certificate-templates/upload`
 - `GET/POST /api/admin/certificates`
 - `GET /api/admin/certificates/[id]/download`

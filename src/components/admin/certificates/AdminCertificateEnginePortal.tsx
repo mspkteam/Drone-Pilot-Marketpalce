@@ -52,6 +52,9 @@ export function AdminCertificateEnginePortal({
   );
   const [issuing, setIssuing] = useState(false);
   const [removingId, setRemovingId] = useState<string | null>(null);
+  const [deletingTemplateId, setDeletingTemplateId] = useState<string | null>(
+    null,
+  );
   const [fullscreenPreview, setFullscreenPreview] = useState(false);
   const issuedSectionRef = useRef<HTMLElement | null>(null);
 
@@ -319,6 +322,63 @@ export function AdminCertificateEnginePortal({
     }
   }
 
+  async function handleDeleteTemplate(template: AdminCertificateTemplateCardDto) {
+    if (!canEditTemplates && !canCreateTemplates) return;
+    if (template.isMock) return;
+
+    const issued = template.issuedCount;
+    const confirmMsg =
+      issued > 0
+        ? `Delete template "${template.name}"?\n\nCustom templates are removed permanently along with ${issued.toLocaleString()} issued certificate(s). Built-in RAS templates are only deactivated.`
+        : `Delete template "${template.name}"?\n\nCustom templates are removed permanently. Built-in RAS templates are only deactivated.`;
+
+    if (!window.confirm(confirmMsg)) {
+      return;
+    }
+
+    setDeletingTemplateId(template.id);
+    setError(null);
+    setSuccess(null);
+    try {
+      const res = await fetch(
+        `/api/admin/certificate-templates/${template.id}`,
+        { method: "DELETE" },
+      );
+      const json = (await res.json()) as {
+        error?: string;
+        mode?: "deleted" | "deactivated";
+        issuedRemoved?: number;
+      };
+      if (!res.ok) {
+        setError(json.error ?? "Failed to delete template.");
+        return;
+      }
+      if (json.mode === "deactivated") {
+        setSuccess(
+          `"${template.name}" deactivated (built-in templates stay in the catalog as inactive).`,
+        );
+      } else {
+        const removed = json.issuedRemoved ?? 0;
+        setSuccess(
+          removed > 0
+            ? `Deleted "${template.name}" and ${removed.toLocaleString()} issued certificate(s).`
+            : `Deleted "${template.name}".`,
+        );
+      }
+      if (selectedId === template.id) setSelectedId(null);
+      if (issueTemplateId === template.id) setIssueTemplateId("");
+      if (editingTemplate?.id === template.id) {
+        setEditingTemplate(null);
+        setModalMode(null);
+      }
+      await load(true);
+    } catch {
+      setError("Failed to delete template.");
+    } finally {
+      setDeletingTemplateId(null);
+    }
+  }
+
   const stats = data?.stats;
   const realTemplates = templates.filter((template) => !template.isMock);
   const issueTemplate =
@@ -446,6 +506,7 @@ export function AdminCertificateEnginePortal({
                 template={template}
                 selected={template.id === selectedTemplate.id}
                 canEdit={(canEditTemplates || canCreateTemplates) && !template.isMock}
+                deleting={deletingTemplateId === template.id}
                 onSelect={() => setSelectedId(template.id)}
                 onPreview={() => {
                   setSelectedId(template.id);
@@ -456,6 +517,13 @@ export function AdminCertificateEnginePortal({
                   setModalError(null);
                   setModalMode("edit");
                 }}
+                onDelete={
+                  (canEditTemplates || canCreateTemplates) && !template.isMock
+                    ? () => {
+                        void handleDeleteTemplate(template);
+                      }
+                    : undefined
+                }
               />
             ))}
           </div>

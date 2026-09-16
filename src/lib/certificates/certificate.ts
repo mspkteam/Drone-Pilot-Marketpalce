@@ -2,6 +2,7 @@ import type {
   CertificateTemplate,
   PilotCertificate,
 } from "@/generated/prisma/client";
+import { CANONICAL_CERTIFICATE_TEMPLATES } from "@/lib/admin/certificate-display";
 import { prisma } from "@/lib/db";
 import { notifyAsync, sendNotification } from "@/lib/notifications/notify";
 import {
@@ -198,6 +199,68 @@ Issue date: {{issueDate}}`;
   });
 
   return { ok: true, template: toTemplateDto(row) };
+}
+
+export async function deleteCertificateTemplate(
+  id: string,
+): Promise<
+  | { ok: true; mode: "deleted" | "deactivated"; issuedRemoved: number }
+  | { ok: false; error: string; status?: 404 | 400 }
+> {
+  const existing = await prisma.certificateTemplate.findUnique({
+    where: { id },
+  });
+  if (!existing) {
+    return { ok: false, error: "Template not found.", status: 404 };
+  }
+
+  const canonicalSlugs = new Set(
+    CANONICAL_CERTIFICATE_TEMPLATES.map((t) => t.slug),
+  );
+  const isCanonical = canonicalSlugs.has(existing.slug);
+
+  // Built-in RAS templates are reseeded if hard-deleted — deactivate instead.
+  if (isCanonical) {
+    if (!existing.isActive) {
+      return {
+        ok: false,
+        error: "This built-in template is already inactive.",
+        status: 400,
+      };
+    }
+    await prisma.certificateTemplate.update({
+      where: { id },
+      data: { isActive: false },
+    });
+    return { ok: true, mode: "deactivated", issuedRemoved: 0 };
+  }
+
+  const issued = await prisma.pilotCertificate.findMany({
+    where: { templateId: id },
+    select: { id: true, pdfFileName: true },
+  });
+
+  await prisma.$transaction(async (tx) => {
+    if (issued.length) {
+      await tx.pilotCertificate.deleteMany({ where: { templateId: id } });
+    }
+    await tx.certificateTemplate.delete({ where: { id } });
+  });
+
+  for (const cert of issued) {
+    if (!cert.pdfFileName) continue;
+    try {
+      await deleteCertificatePdf(cert.pdfFileName);
+    } catch {
+      /* template row is already gone */
+    }
+  }
+
+  return {
+    ok: true,
+    mode: "deleted",
+    issuedRemoved: issued.length,
+  };
 }
 
 export async function updateCertificateTemplate(

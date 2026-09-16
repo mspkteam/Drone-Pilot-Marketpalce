@@ -4,6 +4,14 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.87] — 2026-09-16
+
+### Added
+
+- **Admin certificate template delete:** DELETE on template cards at `/dashboard/admin/certificates`. Custom templates (and their issued certs) are removed; built-in RAS templates are deactivated so they are not reseeded.
+
+---
+
 ## [0.27.86] — 2026-09-16
 
 ### Fixed

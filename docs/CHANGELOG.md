@@ -4,6 +4,17 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.88] — 2026-09-17
+
+### Fixed
+
+- **Contract delivery date:** Accepting a proposal copies the pilot’s estimated delivery date onto the booking so contracts show the agreed date.
+- **Wing catalog sharpness:** Canonical wing tiles use high-res `/wings/request/*` art instead of 44px placeholders (legacy DB paths remapped; custom uploads untouched).
+- **Admin invite password:** Show/hide eye on temporary password in Fleet & Personnel invite.
+- **Shop order shipping:** Pilot order detail clearly shows Preparing / Shipped / Delivered with ship timestamp when available.
+
+---
+
 ## [0.27.87] — 2026-09-16
 
 ### Added

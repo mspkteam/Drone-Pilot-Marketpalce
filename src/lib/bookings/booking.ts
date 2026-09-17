@@ -192,6 +192,12 @@ export async function acceptJobApplication(
     };
   }
 
+  const proposedDelivery = application.estimatedDeliveryDate;
+  const scheduledEndAt =
+    proposedDelivery && !Number.isNaN(proposedDelivery.getTime())
+      ? proposedDelivery
+      : null;
+
   const result = await prisma.$transaction(async (tx) => {
     const booking = await tx.booking.create({
       data: {
@@ -202,6 +208,7 @@ export async function acceptJobApplication(
         agreedAmount: application.proposedAmount,
         currency: application.currency,
         status: "pending",
+        ...(scheduledEndAt ? { scheduledEndAt } : {}),
       },
       include: bookingInclude,
     });

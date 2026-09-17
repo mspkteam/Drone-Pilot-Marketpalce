@@ -29,6 +29,7 @@ export function getUniformOrderStatusTone(
 ): "neutral" | "warning" | "success" | "error" {
   switch (status) {
     case "delivered":
+    case "shipped":
     case "paid":
       return "success";
     case "cancelled":

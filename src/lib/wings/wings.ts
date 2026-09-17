@@ -48,7 +48,7 @@ function toDefinitionDto(
     category: row.category as WingCategory,
     rarity: resolveRarity(row.rarity, row.code),
     iconLabel: row.iconLabel,
-    imageUrl: row.imageUrl,
+    imageUrl: resolveWingCatalogImageUrl(row.code, row.imageUrl),
     autoRule: row.autoRule as WingAutoRule | null,
     ruleParam: row.ruleParam,
     threshold: row.threshold,
@@ -73,7 +73,7 @@ function toPilotWingDto(
     description: w.description,
     category: w.category as WingCategory,
     iconLabel: w.iconLabel,
-    imageUrl: w.imageUrl,
+    imageUrl: resolveWingCatalogImageUrl(w.code, w.imageUrl),
     source: row.source as WingSource,
     earnedAt: row.earnedAt.toISOString(),
   };
@@ -82,8 +82,8 @@ function toPilotWingDto(
 /**
  * Canonical Remote Air Service wings shown on the Achievements page.
  * Mirrors Figma 808:38130 (six wings, exact titles/descriptions/order).
- * `imageUrl` points at /public/wings/<code>.png — drop matching artwork there
- * (or upload via the Edit modal) and the tile renders it; otherwise the card
+ * `imageUrl` uses high-res art under /public/wings/request/ (same assets as
+ * Request Wings). Admins can still override via Edit; otherwise the tile
  * falls back to the vector icon.
  */
 export const DEFAULT_WING_DEFINITIONS: Array<{
@@ -107,7 +107,7 @@ export const DEFAULT_WING_DEFINITIONS: Array<{
     category: "community",
     rarity: "COMMON",
     iconLabel: "medal",
-    imageUrl: "/wings/remote-aviation-crew-silver.png",
+    imageUrl: "/wings/request/student.png",
     autoRule: "manual_only",
     sortOrder: 10,
   },
@@ -119,7 +119,7 @@ export const DEFAULT_WING_DEFINITIONS: Array<{
     category: "milestone",
     rarity: "UNCOMMON",
     iconLabel: "star-outline",
-    imageUrl: "/wings/recreational-aviator-gold.png",
+    imageUrl: "/wings/request/recreational.png",
     autoRule: "active_membership",
     sortOrder: 20,
   },
@@ -131,7 +131,7 @@ export const DEFAULT_WING_DEFINITIONS: Array<{
     category: "trust",
     rarity: "RARE",
     iconLabel: "star",
-    imageUrl: "/wings/aviator-wings-basic-silver.png",
+    imageUrl: "/wings/request/student.png",
     autoRule: "manual_only",
     sortOrder: 30,
   },
@@ -142,7 +142,7 @@ export const DEFAULT_WING_DEFINITIONS: Array<{
     category: "trust",
     rarity: "EPIC",
     iconLabel: "award",
-    imageUrl: "/wings/aviator-wings-basic-gold.png",
+    imageUrl: "/wings/request/aviator.png",
     autoRule: "approved_verification",
     ruleParam: "license",
     sortOrder: 40,
@@ -155,7 +155,7 @@ export const DEFAULT_WING_DEFINITIONS: Array<{
     category: "milestone",
     rarity: "LEGENDARY",
     iconLabel: "trophy",
-    imageUrl: "/wings/aviator-wings-senior.png",
+    imageUrl: "/wings/request/senior.png",
     autoRule: "completed_bookings_count",
     threshold: 5,
     sortOrder: 50,
@@ -168,7 +168,7 @@ export const DEFAULT_WING_DEFINITIONS: Array<{
     category: "milestone",
     rarity: "MYTHIC",
     iconLabel: "trophy",
-    imageUrl: "/wings/aviator-wings-master.png",
+    imageUrl: "/wings/request/master.png",
     autoRule: "manual_only",
     sortOrder: 60,
   },
@@ -178,7 +178,29 @@ const CANONICAL_WING_CODES = new Set(
   DEFAULT_WING_DEFINITIONS.map((def) => def.code),
 );
 
-/** Keep canonical wing rarities aligned with the catalog progression. */
+const LEGACY_LOWRES_WING_IMAGE_URLS = new Set([
+  "/wings/remote-aviation-crew-silver.png",
+  "/wings/recreational-aviator-gold.png",
+  "/wings/aviator-wings-basic-silver.png",
+  "/wings/aviator-wings-basic-gold.png",
+  "/wings/aviator-wings-senior.png",
+  "/wings/aviator-wings-master.png",
+]);
+
+/** Prefer high-res catalog art; leave custom/admin uploads untouched. */
+function resolveWingCatalogImageUrl(
+  code: string,
+  imageUrl: string | null,
+): string | null {
+  const def = DEFAULT_WING_DEFINITIONS.find((d) => d.code === code);
+  if (!def) return imageUrl;
+  if (!imageUrl || LEGACY_LOWRES_WING_IMAGE_URLS.has(imageUrl)) {
+    return def.imageUrl;
+  }
+  return imageUrl;
+}
+
+/** Keep canonical wing rarities + sharp catalog art aligned with the catalog. */
 export async function backfillCanonicalWingRaritiesIfNeeded(): Promise<void> {
   try {
     for (const def of DEFAULT_WING_DEFINITIONS) {
@@ -189,11 +211,23 @@ export async function backfillCanonicalWingRaritiesIfNeeded(): Promise<void> {
         },
         data: { rarity: def.rarity },
       });
+
+      // Replace known 44px placeholder paths; leave admin custom uploads alone.
+      await prisma.wingDefinition.updateMany({
+        where: {
+          code: def.code,
+          OR: [
+            { imageUrl: null },
+            { imageUrl: { in: [...LEGACY_LOWRES_WING_IMAGE_URLS] } },
+          ],
+        },
+        data: { imageUrl: def.imageUrl },
+      });
     }
   } catch (err) {
     // Stale Prisma client (dev HMR) may not know `rarity` yet — never block the page.
     console.warn(
-      "[wings] rarity backfill skipped:",
+      "[wings] rarity/image backfill skipped:",
       err instanceof Error ? err.message : err,
     );
   }
@@ -682,7 +716,10 @@ export async function listPublicPilotWings(
     category: r.wingDefinition.category as WingCategory,
     rarity: resolveRarity(r.wingDefinition.rarity, r.wingDefinition.code),
     iconLabel: r.wingDefinition.iconLabel,
-    imageUrl: r.wingDefinition.imageUrl,
+    imageUrl: resolveWingCatalogImageUrl(
+      r.wingDefinition.code,
+      r.wingDefinition.imageUrl,
+    ),
     earnedAt: r.earnedAt.toISOString(),
   }));
 }

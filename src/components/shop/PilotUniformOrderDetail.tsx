@@ -59,6 +59,34 @@ export function PilotUniformOrderDetail({
           {formatDisplayDateTime(order.placedAt)}
         </p>
 
+        {order.status === "shipped" || order.status === "delivered" ? (
+          <div className="pilot-shop-order-ship-status" role="status">
+            <p className="pilot-shop-order-ship-status-title">
+              {order.status === "delivered"
+                ? "Delivered"
+                : "Your order has shipped"}
+            </p>
+            <p className="pilot-shop-order-ship-status-copy">
+              {order.shippedAt
+                ? `Shipped ${formatDisplayDateTime(order.shippedAt)}.`
+                : null}
+              {order.status === "shipped"
+                ? " Track fulfillment from this status — admin marks the order shipped when it leaves the warehouse."
+                : " This order is marked delivered."}
+            </p>
+          </div>
+        ) : order.status === "processing" || order.status === "paid" ? (
+          <div className="pilot-shop-order-ship-status" role="status">
+            <p className="pilot-shop-order-ship-status-title">
+              Preparing your order
+            </p>
+            <p className="pilot-shop-order-ship-status-copy">
+              Payment received. You will see Shipped here once the uniform leaves
+              fulfillment.
+            </p>
+          </div>
+        ) : null}
+
         {error ? (
           <p className="pilot-shop-banner" role="alert">
             {error}

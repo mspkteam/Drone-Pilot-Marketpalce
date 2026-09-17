@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { PasswordField } from "@/components/ui/PasswordField";
 import type { ManagementUserRole } from "@/types/roles";
 
 type AdminPersonnelInviteModalProps = {
@@ -157,22 +158,19 @@ export function AdminPersonnelInviteModal({
                 disabled={loading}
               />
             </label>
-            <label className="admin-personnel-field">
-              <span className="admin-personnel-field-label">
-                Temporary password
-              </span>
-              <input
-                type="password"
-                className="admin-personnel-input"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="At least 8 characters"
-                minLength={8}
-                required
-                disabled={loading}
-                autoComplete="new-password"
-              />
-            </label>
+            <PasswordField
+              className="admin-personnel-field"
+              labelClassName="admin-personnel-field-label"
+              inputClassName="admin-personnel-input"
+              label="Temporary password"
+              value={password}
+              onChange={setPassword}
+              placeholder="At least 8 characters"
+              minLength={8}
+              required
+              disabled={loading}
+              autoComplete="new-password"
+            />
 
             <fieldset className="admin-personnel-role-fieldset" disabled={loading}>
               <legend className="admin-personnel-field-label">Role</legend>

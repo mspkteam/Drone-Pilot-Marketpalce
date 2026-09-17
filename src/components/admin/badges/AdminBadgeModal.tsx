@@ -316,7 +316,7 @@ export function AdminBadgeModal({
                     className="admin-badges-image-url"
                     value={imageUrl}
                     onChange={(event) => setImageUrl(event.target.value)}
-                    placeholder="/wings/aviator-wings-senior.png or https://…"
+                    placeholder="/wings/request/aviator.png or https://…"
                   />
                   <div className="admin-badges-image-actions">
                     <label className="admin-badges-btn-upload">

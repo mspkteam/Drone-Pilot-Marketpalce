@@ -12,6 +12,8 @@ type PasswordFieldProps = {
   required?: boolean;
   autoComplete?: string;
   minLength?: number;
+  disabled?: boolean;
+  placeholder?: string;
   className?: string;
   inputClassName?: string;
   labelClassName?: string;
@@ -26,6 +28,8 @@ export function PasswordField({
   required,
   autoComplete = "current-password",
   minLength,
+  disabled,
+  placeholder,
   className,
   inputClassName,
   labelClassName,
@@ -47,6 +51,8 @@ export function PasswordField({
           required={required}
           autoComplete={autoComplete}
           minLength={minLength}
+          disabled={disabled}
+          placeholder={placeholder}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           className={cn("w-full pr-11", inputClassName)}
@@ -56,6 +62,7 @@ export function PasswordField({
           className="absolute inset-y-0 right-0 flex items-center px-3 text-muted-foreground hover:text-foreground"
           aria-label={visible ? "Hide password" : "Show password"}
           aria-pressed={visible}
+          disabled={disabled}
           onClick={() => setVisible((current) => !current)}
         >
           {visible ? <EyeOffIcon /> : <EyeIcon />}

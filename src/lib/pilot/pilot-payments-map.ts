@@ -1,3 +1,7 @@
+import {
+  calculateCommission,
+  DEFAULT_COMMISSION_RATE,
+} from "@/lib/commission/constants";
 import type { PaymentListItemDto } from "@/types/payment";
 
 export type PilotPaymentsSummary = {
@@ -8,10 +12,9 @@ export type PilotPaymentsSummary = {
 };
 
 export function getPlatformFee(payment: PaymentListItemDto): number {
-  if (payment.commission) {
-    return payment.commission.amount;
-  }
-  return Math.round((payment.amountGross - payment.amountNet) * 100) / 100;
+  // Marketplace fee is always the flat platform rate (15%). Ignore legacy
+  // grade-based rates that may still be stored on older commission rows.
+  return calculateCommission(payment.amountGross, DEFAULT_COMMISSION_RATE).amount;
 }
 
 export function formatPilotPaymentAmount(

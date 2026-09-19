@@ -729,11 +729,71 @@ async function applyResolutionPayment(
   resolutionAmount: number | null,
   agreedAmount: number,
 ) {
-  const payment = await prisma.payment.findUnique({
+  // Ensure an in-platform payment row exists (no Stripe). Create one if the
+  // booking completed without a ledger entry yet.
+  let payment = await prisma.payment.findUnique({
     where: { bookingId },
     include: { commission: true },
   });
-  if (!payment) return;
+
+  if (!payment) {
+    const { recordPaymentForCompletedBooking } = await import(
+      "@/lib/payments/payment"
+    );
+    await recordPaymentForCompletedBooking(bookingId);
+    payment = await prisma.payment.findUnique({
+      where: { bookingId },
+      include: { commission: true },
+    });
+  }
+
+  if (!payment) {
+    // Booking may not be completed yet — still create a pending internal ledger
+    // so resolve can record refund/payout without a card gateway.
+    const booking = await prisma.booking.findUnique({
+      where: { id: bookingId },
+      include: {
+        clientProfile: { select: { userId: true } },
+        pilotProfile: { select: { id: true, userId: true } },
+      },
+    });
+    if (!booking) return;
+
+    const { amount, amountNet } = calculateCommission(
+      agreedAmount,
+      DEFAULT_COMMISSION_RATE,
+    );
+
+    payment = await prisma.$transaction(async (tx) => {
+      const created = await tx.payment.create({
+        data: {
+          bookingId: booking.id,
+          payerUserId: booking.clientProfile.userId,
+          payeeUserId: booking.pilotProfile.userId,
+          amountGross: agreedAmount,
+          amountNet,
+          currency: booking.currency,
+          provider: "internal",
+          status: "pending",
+        },
+        include: { commission: true },
+      });
+      await tx.commission.create({
+        data: {
+          bookingId: booking.id,
+          paymentId: created.id,
+          rate: DEFAULT_COMMISSION_RATE,
+          amount,
+          currency: booking.currency,
+          status: "calculated",
+        },
+      });
+      return tx.payment.findUniqueOrThrow({
+        where: { id: created.id },
+        include: { commission: true },
+      });
+    });
+  }
 
   if (resolutionType === "refund") {
     await prisma.$transaction(async (tx) => {

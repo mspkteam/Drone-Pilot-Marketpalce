@@ -93,14 +93,17 @@
 .pilot-proposals-tabs-wrap {
   width: 100%;
   min-width: 0;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
 }
 
 .pilot-proposals-tabs {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
   gap: 0.5rem;
-  width: 100%;
+  width: max-content;
+  min-width: 100%;
 }
 
 .pilot-proposals-tab {

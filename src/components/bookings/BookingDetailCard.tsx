@@ -79,6 +79,20 @@ export function BookingDetailCard({
             apiBase={apiBase}
           />
         </div>
+        {actor === "client" ? (
+          <p className="mt-4">
+            <Link
+              href={
+                booking.conversationId
+                  ? `/dashboard/client/messages?conversation=${booking.conversationId}`
+                  : `/dashboard/client/messages?pilot=${booking.pilotProfileId}`
+              }
+              className="inline-flex items-center rounded-md border border-gold/40 bg-gold/10 px-3 py-2 text-sm font-semibold text-gold-dark hover:bg-gold/20"
+            >
+              Message pilot
+            </Link>
+          </p>
+        ) : null}
       </div>
 
       {actor === "client" ? (

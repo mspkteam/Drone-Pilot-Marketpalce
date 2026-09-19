@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AdminDisputeResolveModal } from "@/components/dashboard/admin/disputes/AdminDisputeResolveModal";
-import { AdminDisputeVoteModal } from "@/components/dashboard/admin/disputes/AdminDisputeVoteModal";
 import {
   sortDisputeRows,
   toDisputeCenterRow,
@@ -26,7 +25,6 @@ type SortOption = "priority" | "newest" | "oldest";
 
 type ModalState =
   | { type: "none" }
-  | { type: "vote"; row: AdminDisputeCenterRow }
   | {
       type: "resolve";
       row: AdminDisputeCenterRow;
@@ -284,7 +282,8 @@ export function AdminDisputeCenter({
                   <button
                     type="button"
                     className="admin-dispute-btn admin-dispute-btn--ghost"
-                    onClick={() => setModal({ type: "vote", row })}
+                    disabled
+                    title="Squadron Vote is deferred (post-MVP)."
                   >
                     SEND TO SQUADRON VOTE
                   </button>
@@ -325,14 +324,6 @@ export function AdminDisputeCenter({
           </div>
         )}
       </section>
-
-      <AdminDisputeVoteModal
-        open={modal.type === "vote"}
-        disputeId={modal.type === "vote" ? modal.row.id : ""}
-        disputeLabel={modal.type === "vote" ? modal.row.disputeId : ""}
-        startReview={modal.type === "vote" ? modal.row.status === "open" : false}
-        onCancel={() => setModal({ type: "none" })}
-      />
 
       <AdminDisputeResolveModal
         open={modal.type === "resolve"}

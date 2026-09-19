@@ -1,4 +1,7 @@
-import { DEFAULT_COMMISSION_RATE } from "@/lib/commission/constants";
+import {
+  calculateCommission,
+  DEFAULT_COMMISSION_RATE,
+} from "@/lib/commission/constants";
 import type { PaymentDto } from "@/types/payment";
 
 type PaymentBreakdownProps = {
@@ -7,7 +10,12 @@ type PaymentBreakdownProps = {
 };
 
 export function PaymentBreakdown({ payment, viewerRole }: PaymentBreakdownProps) {
-  const commission = payment.commission;
+  // Flat platform fee (15%). Recompute for display so legacy grade-based
+  // commission rows (e.g. 13.5% → $405 on $3000) do not mislead pilots.
+  const { amount: feeAmount, amountNet } = calculateCommission(
+    payment.amountGross,
+    DEFAULT_COMMISSION_RATE,
+  );
   const ratePercent = Math.round(DEFAULT_COMMISSION_RATE * 100);
 
   return (
@@ -20,22 +28,20 @@ export function PaymentBreakdown({ payment, viewerRole }: PaymentBreakdownProps)
             {payment.currency} {payment.amountGross.toLocaleString()}
           </dd>
         </div>
-        {commission ? (
-          <div>
-            <dt className="text-muted-foreground">
-              Platform fee ({ratePercent}%)
-            </dt>
-            <dd className="font-medium">
-              {payment.currency} {commission.amount.toLocaleString()}
-            </dd>
-          </div>
-        ) : null}
+        <div>
+          <dt className="text-muted-foreground">
+            Platform fee ({ratePercent}%)
+          </dt>
+          <dd className="font-medium">
+            {payment.currency} {feeAmount.toLocaleString()}
+          </dd>
+        </div>
         <div>
           <dt className="text-muted-foreground">
             {viewerRole === "client" ? "Paid to pilot" : "Your payout"}
           </dt>
           <dd className="font-medium text-gold-dark">
-            {payment.currency} {payment.amountNet.toLocaleString()}
+            {payment.currency} {amountNet.toLocaleString()}
           </dd>
         </div>
         <div>

@@ -17,6 +17,16 @@ describe("pilot proposals map", () => {
     assert.equal(proposalBadgeLabel("REVISED"), "SHORTLISTED");
   });
 
+  it("maps rejected and expired to Rejected tab", () => {
+    assert.equal(mapApplicationStatusToUi("rejected", null), "REJECTED");
+    assert.equal(
+      mapApplicationStatusToUi("rejected", "2026-01-01T00:00:00.000Z"),
+      "REJECTED",
+    );
+    assert.equal(mapApplicationStatusToUi("expired", null), "REJECTED");
+    assert.equal(proposalBadgeLabel("REJECTED"), "REJECTED");
+  });
+
   it("keeps unsubmitted applications in Pending tab", () => {
     assert.equal(mapApplicationStatusToUi("submitted", null), "PENDING");
     assert.equal(proposalBadgeLabel("PENDING"), "PENDING");

@@ -78,6 +78,11 @@ export function AdminDisputeResolveModal({
         <p className="admin-dispute-modal-text">
           Case: <strong>{disputeLabel}</strong>
         </p>
+        <p className="admin-dispute-modal-info">
+          Resolutions update the in-platform payment ledger (refund / full
+          payout / partial payout). Card billing and Stripe payouts are not
+          enabled yet.
+        </p>
 
         {needsReview ? (
           <p className="admin-dispute-modal-info">

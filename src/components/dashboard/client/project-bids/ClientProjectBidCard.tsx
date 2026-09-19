@@ -133,12 +133,20 @@ export function ClientProjectBidCard({
 
         <div className="client-project-bids-card-actions">
           <Link
-            href={CLIENT_PROJECT_BIDS_ROUTES.messages}
+            href={`${CLIENT_PROJECT_BIDS_ROUTES.messages}?pilot=${bid.pilotProfileId}`}
             className="client-project-bids-btn-outline"
           >
             <MessageIcon />
             Message
           </Link>
+          {canManage ? (
+            <Link
+              href={`${CLIENT_PROJECT_BIDS_ROUTES.messages}?pilot=${bid.pilotProfileId}&counter=${encodeURIComponent(bid.bidAmount)}`}
+              className="client-project-bids-btn-outline"
+            >
+              Counter bid
+            </Link>
+          ) : null}
           {showProfileLink ? (
             <Link
               href={CLIENT_PROJECT_BIDS_ROUTES.pilotProfile(bid.pilotProfileId)}

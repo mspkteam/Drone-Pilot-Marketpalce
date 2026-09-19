@@ -97,13 +97,15 @@ export function PilotUniformShop() {
   );
 
   const cartPreviewSrc = useMemo(() => {
+    // Only show cart media for the selected/added product — never a ghost
+    // thumbnail from an unrelated catalog item when the cart is empty.
     if (previewVariantId) {
       return imageForVariant(previewVariantId, displayProducts);
     }
     if (cartDetails[0]) {
       return imageForVariant(cartDetails[0].variantId, displayProducts);
     }
-    return displayProducts.find((item) => item.imageSrc)?.imageSrc ?? "";
+    return "";
   }, [previewVariantId, cartDetails, displayProducts]);
 
   function addToCart(variantId: string) {

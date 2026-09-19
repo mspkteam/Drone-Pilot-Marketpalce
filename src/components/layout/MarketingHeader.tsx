@@ -131,9 +131,12 @@ function NavLink({
 
 export function MarketingHeader() {
   const pathname = usePathname();
+  const { data: session } = useSession();
   const [open, setOpen] = useState(false);
   const closeMenu = () => setOpen(false);
-  const visibleNav = getVisibleMarketingNav();
+  const visibleNav = getVisibleMarketingNav(
+    (session?.user?.role as UserRole | undefined) ?? null,
+  );
 
   // Close on Escape, lock body scroll, and auto-close when the viewport grows
   // to the desktop breakpoint (so a menu opened on mobile doesn't linger).

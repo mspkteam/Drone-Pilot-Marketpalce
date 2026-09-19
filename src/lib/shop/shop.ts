@@ -1190,7 +1190,7 @@ export async function seedUniformCatalog(): Promise<void> {
     {
       name: "Official RAS Patch",
       description: "Official Remote Air Service embroidered patch.",
-      imageUrl: null,
+      imageUrl: "/shop/epaulettes.png",
       sortOrder: 20,
       variants: [
         { sku: "PATCH-RAS", label: "One size", size: "OSFA", color: null, price: 15, stock: 80 },
@@ -1219,7 +1219,7 @@ export async function seedUniformCatalog(): Promise<void> {
     {
       name: "Operations Cap",
       description: "Structured operations cap with gold accent stitching.",
-      imageUrl: null,
+      imageUrl: "/shop/flight-shirt.png",
       sortOrder: 50,
       variants: [
         { sku: "CAP-OPS", label: "One size", size: "OSFA", color: "Gold/Black", price: 28, stock: 50 },

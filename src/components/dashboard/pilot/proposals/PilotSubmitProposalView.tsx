@@ -327,6 +327,21 @@ export function PilotSubmitProposalView({ jobId, initial }: PilotSubmitProposalV
     if (!form.proposedAmount || Number(form.proposedAmount) <= 0) {
       return "Enter a valid proposed amount.";
     }
+    const amount = Number(form.proposedAmount);
+    if (
+      job.budgetMax != null &&
+      Number.isFinite(job.budgetMax) &&
+      amount > job.budgetMax + 0.001
+    ) {
+      return `Proposed amount cannot exceed the client budget of $${job.budgetMax.toLocaleString()}.`;
+    }
+    if (
+      job.budgetMin != null &&
+      Number.isFinite(job.budgetMin) &&
+      amount < job.budgetMin - 0.001
+    ) {
+      return `Proposed amount must be at least $${job.budgetMin.toLocaleString()}.`;
+    }
     if (form.estimatedDurationAmount < 1) {
       return "Estimated hours or days is required.";
     }
@@ -416,8 +431,15 @@ export function PilotSubmitProposalView({ jobId, initial }: PilotSubmitProposalV
     if (nextError) {
       setError(nextError);
       const complianceMissing = nextError.toLowerCase().includes("permits");
+      const amountMissing =
+        nextError.toLowerCase().includes("budget") ||
+        nextError.toLowerCase().includes("proposed amount");
       const target = document.getElementById(
-        complianceMissing ? "pilot-submit-compliance" : "pilot-submit-error",
+        complianceMissing
+          ? "pilot-submit-compliance"
+          : amountMissing
+            ? "pilot-submit-amount"
+            : "pilot-submit-error",
       );
       target?.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
@@ -463,7 +485,7 @@ export function PilotSubmitProposalView({ jobId, initial }: PilotSubmitProposalV
 
             <div className="pilot-submit-form-body">
               <div className="pilot-submit-grid-2">
-                <label className="pilot-submit-field">
+                <label className="pilot-submit-field" id="pilot-submit-amount">
                   <span>
                     Proposed Amount (USD) <i>*</i>
                   </span>
@@ -702,40 +724,48 @@ export function PilotSubmitProposalView({ jobId, initial }: PilotSubmitProposalV
 
                 <div className="pilot-submit-field" style={{ marginTop: "1rem" }}>
                   <span>Attach files (images or PDF)</span>
-                  <input
-                    type="file"
-                    accept="image/png,image/jpeg,image/webp,image/gif,application/pdf"
-                    disabled={submitting}
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      e.target.value = "";
-                      if (!file) return;
-                      void (async () => {
-                        setError(null);
-                        const { uploadUserImage } = await import(
-                          "@/lib/storage/upload-browser"
-                        );
-                        const result = await uploadUserImage({
-                          kind: "message-attachment",
-                          file,
-                        });
-                        if (!result.ok) {
-                          setError(result.error);
-                          return;
-                        }
-                        patchForm({
-                          attachments: [
-                            ...form.attachments,
-                            {
-                              url: result.url,
-                              name: file.name,
-                              contentType: file.type || "application/octet-stream",
-                            },
-                          ],
-                        });
-                      })();
-                    }}
-                  />
+                  <label className="pilot-submit-file-picker">
+                    <span className="pilot-submit-file-picker-icon" aria-hidden>
+                      📎
+                    </span>
+                    <span>Choose file</span>
+                    <input
+                      type="file"
+                      accept="image/png,image/jpeg,image/webp,image/gif,application/pdf"
+                      disabled={submitting}
+                      className="pilot-submit-file-picker-input"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        e.target.value = "";
+                        if (!file) return;
+                        void (async () => {
+                          setError(null);
+                          const { uploadUserImage } = await import(
+                            "@/lib/storage/upload-browser"
+                          );
+                          const result = await uploadUserImage({
+                            kind: "message-attachment",
+                            file,
+                          });
+                          if (!result.ok) {
+                            setError(result.error);
+                            return;
+                          }
+                          patchForm({
+                            attachments: [
+                              ...form.attachments,
+                              {
+                                url: result.url,
+                                name: file.name,
+                                contentType:
+                                  file.type || "application/octet-stream",
+                              },
+                            ],
+                          });
+                        })();
+                      }}
+                    />
+                  </label>
                   {form.attachments.length > 0 ? (
                     <ul className="pilot-submit-attachment-list">
                       {form.attachments.map((item) => (

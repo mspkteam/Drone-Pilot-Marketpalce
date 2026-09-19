@@ -108,6 +108,8 @@ const FIGMA_SHOP_IMAGES: Record<string, string> = {
   jacket: "/shop/flight-shirt.png",
   polo: "/shop/pilot-wings.png",
   wings: "/shop/pilot-wings.png",
+  patch: "/shop/epaulettes.png",
+  cap: "/shop/flight-shirt.png",
 };
 
 function imageFromProduct(product: UniformProductDto): string {
@@ -115,11 +117,10 @@ function imageFromProduct(product: UniformProductDto): string {
   if (product.imageUrl) return product.imageUrl;
 
   const haystack = `${product.name} ${product.slug}`.toLowerCase();
-  if (haystack.includes("patch") || haystack.includes("cap")) return "";
   for (const [key, src] of Object.entries(FIGMA_SHOP_IMAGES)) {
     if (haystack.includes(key)) return src;
   }
-  return homeAssets.ranks.a3;
+  return "/shop/epaulettes.png";
 }
 
 function imagesFromProduct(product: UniformProductDto): string[] {
@@ -173,7 +174,7 @@ export function imageForVariant(
   const match = displayProducts.find((item) =>
     item.variants.some((v) => v.id === variantId),
   );
-  return match?.imageSrc ?? homeAssets.ranks.a3;
+  return match?.imageSrc || "/shop/epaulettes.png";
 }
 
 export function uniqueVariantValues(

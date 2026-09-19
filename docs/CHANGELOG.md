@@ -4,6 +4,22 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.90] — 2026-09-19
+
+### Fixed
+
+- **Support chat:** Multi-file attach with remove chips; minimize + close controls; FAB toggles Open/Close; attachment image fallback.
+- **Post-project terms:** Policy checkbox layout — Terms link no longer nested inside the ack label (won’t toggle checkbox when clicked).
+- **Admin reviews:** Professional layout, filter tabs, success toasts; moderation actions authorized for staff with Users module access.
+- **Squadron voting:** Re-enabled Send to Squadron Vote from disputes list; existing ballot flow remains available.
+- **Disputes:** Card actions stacked professionally; resolve creates/updates payment ledger using current platform rate.
+- **Commission:** Default 15%; admin can change platform % from Commissions ledger (and Configuration); displays use effective/stored rates.
+- **Pilot revision flow:** Request Revision opens client conversation with prefilled revision draft; Submit Revisions when client requested delivery changes.
+- **Messaging UX:** Client close (×); pending attachment chips with remove on client and pilot threads.
+- **CMS Resources:** Featured card + category filters use live CMS data only (no marketing mock featured slug).
+
+---
+
 ## [0.27.89] — 2026-09-19
 
 ### Fixed

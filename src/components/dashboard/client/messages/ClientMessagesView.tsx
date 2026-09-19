@@ -383,6 +383,20 @@ export function ClientMessagesView({
                   </p>
                 </div>
               </div>
+
+              <button
+                type="button"
+                className="pilot-messages-close-btn"
+                aria-label="Close conversation"
+                onClick={() => {
+                  setSelectedId(null);
+                  setDetail(null);
+                  setMobileChatOpen(false);
+                  setPendingFiles([]);
+                }}
+              >
+                ×
+              </button>
             </header>
 
             <div className="client-messages-thread">
@@ -455,9 +469,25 @@ export function ClientMessagesView({
                 />
               </div>
               {pendingFiles.length > 0 ? (
-                <p className="client-messages-pending-files">
-                  {pendingFiles.length} file{pendingFiles.length === 1 ? "" : "s"} ready to send
-                </p>
+                <ul className="client-messages-pending-list" aria-label="Attachments ready to send">
+                  {pendingFiles.map((file, index) => (
+                    <li key={`${file.name}-${file.lastModified}-${index}`} className="client-messages-pending-chip">
+                      <span title={file.name}>{file.name}</span>
+                      <button
+                        type="button"
+                        className="client-messages-pending-remove"
+                        aria-label={`Remove ${file.name}`}
+                        onClick={() =>
+                          setPendingFiles((current) =>
+                            current.filter((_, i) => i !== index),
+                          )
+                        }
+                      >
+                        ×
+                      </button>
+                    </li>
+                  ))}
+                </ul>
               ) : null}
               <button
                 type="submit"

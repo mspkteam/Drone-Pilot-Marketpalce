@@ -6,7 +6,7 @@ import type { PaymentListItemDto } from "@/types/payment";
 
 function paymentStub(
   amountGross: number,
-  storedRate?: number,
+  stored?: { rate: number; amount: number },
 ): PaymentListItemDto {
   return {
     id: "pay-1",
@@ -24,29 +24,31 @@ function paymentStub(
       id: "book-1",
       job: { id: "job-1", title: "Mission" },
     },
-    commission:
-      storedRate != null
-        ? {
-            id: "comm-1",
-            bookingId: "book-1",
-            paymentId: "pay-1",
-            rate: storedRate,
-            amount: Math.round(amountGross * storedRate * 100) / 100,
-            currency: "USD",
-            status: "calculated",
-            calculatedAt: new Date().toISOString(),
-          }
-        : null,
+    commission: stored
+      ? {
+          id: "comm-1",
+          bookingId: "book-1",
+          paymentId: "pay-1",
+          rate: stored.rate,
+          amount: stored.amount,
+          currency: "USD",
+          status: "calculated",
+          calculatedAt: new Date().toISOString(),
+        }
+      : null,
   };
 }
 
 describe("getPlatformFee", () => {
-  it("charges flat 15% ($450 on $3000)", () => {
+  it("defaults to flat 15% ($450 on $3000) when no commission row", () => {
     assert.equal(calculateCommission(3000, DEFAULT_COMMISSION_RATE).amount, 450);
     assert.equal(getPlatformFee(paymentStub(3000)), 450);
   });
 
-  it("ignores legacy grade-based stored rates (e.g. 13.5%)", () => {
-    assert.equal(getPlatformFee(paymentStub(3000, 0.135)), 450);
+  it("uses the stored commission amount when present (admin-configurable rate)", () => {
+    assert.equal(
+      getPlatformFee(paymentStub(3000, { rate: 0.12, amount: 360 })),
+      360,
+    );
   });
 });

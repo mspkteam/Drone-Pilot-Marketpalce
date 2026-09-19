@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { AdminRunPayoutsModal } from "@/components/admin/commissions/AdminRunPayoutsModal";
 import { useModeratorPermissions } from "@/contexts/ModeratorPermissionsContext";
 import {
@@ -15,7 +16,6 @@ import type {
 } from "@/types/admin-commissions";
 
 const PAGE_SIZE = 5;
-const COMMISSION_PCT = Math.round(DEFAULT_COMMISSION_RATE * 100);
 const ALL_STATUSES: Array<CommissionLedgerStatus | "ALL"> = [
   "ALL",
   "SETTLED",
@@ -84,6 +84,14 @@ export function AdminCommissionsPortal() {
   const [page, setPage] = useState(1);
   const [showPayoutModal, setShowPayoutModal] = useState(false);
   const [payoutNotice, setPayoutNotice] = useState<string | null>(null);
+  const [rateDraft, setRateDraft] = useState(
+    String(Math.round(DEFAULT_COMMISSION_RATE * 1000) / 10),
+  );
+  const [savingRate, setSavingRate] = useState(false);
+  const [rateNotice, setRateNotice] = useState<string | null>(null);
+
+  const ratePercent =
+    stats?.commissionRatePercent ?? Math.round(DEFAULT_COMMISSION_RATE * 100);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -98,6 +106,9 @@ export function AdminCommissionsPortal() {
       } else {
         setLedger(data.ledger ?? []);
         setStats(data.stats ?? null);
+        if (data.stats?.commissionRatePercent != null) {
+          setRateDraft(String(data.stats.commissionRatePercent));
+        }
         setTotalEntries(data.totalEntries ?? data.ledger?.length ?? 0);
         setUsingMockLedger(Boolean(data.usingMockLedger));
       }
@@ -153,6 +164,34 @@ export function AdminCommissionsPortal() {
     );
   }
 
+  async function savePlatformRate() {
+    const parsed = Number(rateDraft);
+    if (!Number.isFinite(parsed) || parsed < 0 || parsed > 100) {
+      setRateNotice("Enter a commission rate between 0 and 100%.");
+      return;
+    }
+    setSavingRate(true);
+    setRateNotice(null);
+    try {
+      const res = await fetch("/api/admin/configuration", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ defaultCommissionPercent: String(parsed) }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setRateNotice(data.error ?? "Could not update commission rate.");
+        return;
+      }
+      setRateNotice(`Platform commission rate set to ${parsed}%. New bookings will use this rate.`);
+      await load();
+    } catch {
+      setRateNotice("Could not update commission rate.");
+    } finally {
+      setSavingRate(false);
+    }
+  }
+
   const currency = stats?.currency ?? "USD";
 
   return (
@@ -167,8 +206,8 @@ export function AdminCommissionsPortal() {
             <p className="admin-ops-eyebrow">COMMISSION LEDGER</p>
             <h1 className="admin-commissions-hero-title">Commissions</h1>
             <p className="admin-commissions-hero-desc">
-              Live tracking of every {COMMISSION_PCT}% commission earned by the platform, broken
-              down per mission.
+              Live tracking of every {ratePercent}% commission earned by the platform, broken
+              down per mission. Default is 15% — change it below anytime.
             </p>
           </div>
           {canRunPayouts ? (
@@ -217,8 +256,44 @@ export function AdminCommissionsPortal() {
           </article>
           <article className="admin-commissions-stat-card">
             <p className="admin-commissions-stat-label">COMMISSION RATE</p>
-            <p className="admin-commissions-stat-value">{COMMISSION_PCT}%</p>
+            <p className="admin-commissions-stat-value">{ratePercent}%</p>
             <p className="admin-commissions-stat-sub">{stats.commissionRateSubtext}</p>
+            <div className="admin-commissions-rate-edit">
+              <label className="admin-commissions-rate-label" htmlFor="platform-commission-rate">
+                Change rate (%)
+              </label>
+              <div className="admin-commissions-rate-row">
+                <input
+                  id="platform-commission-rate"
+                  type="number"
+                  min={0}
+                  max={100}
+                  step={0.1}
+                  value={rateDraft}
+                  onChange={(e) => setRateDraft(e.target.value)}
+                  className="admin-commissions-rate-input"
+                />
+                <button
+                  type="button"
+                  className="admin-commissions-rate-save"
+                  disabled={savingRate}
+                  onClick={() => void savePlatformRate()}
+                >
+                  {savingRate ? "Saving…" : "Save"}
+                </button>
+              </div>
+              <Link
+                href="/dashboard/admin/configuration"
+                className="admin-commissions-rate-link"
+              >
+                Full configuration →
+              </Link>
+              {rateNotice ? (
+                <p className="admin-commissions-rate-notice" role="status">
+                  {rateNotice}
+                </p>
+              ) : null}
+            </div>
           </article>
           <article className="admin-commissions-stat-card">
             <p className="admin-commissions-stat-label">PENDING PAYOUTS</p>
@@ -250,7 +325,7 @@ export function AdminCommissionsPortal() {
           <div>
             <h2 className="admin-commissions-ledger-title">Transaction ledger</h2>
             <p className="admin-commissions-ledger-sub">
-              Fixed {COMMISSION_PCT}% platform commission on completed missions
+              Fixed {ratePercent}% platform commission on completed missions
             </p>
           </div>
           <div className="admin-commissions-ledger-actions">
@@ -352,7 +427,7 @@ export function AdminCommissionsPortal() {
                       <td className="admin-commissions-cell-gross">
                         {formatCommissionMoney(row.amountGross, row.currency)}
                       </td>
-                      <td className="admin-commissions-cell-rate">{COMMISSION_PCT}%</td>
+                      <td className="admin-commissions-cell-rate">{row.ratePercent}%</td>
                       <td className="admin-commissions-cell-commission">
                         {formatCommissionMoney(row.commissionAmount, row.currency)}
                       </td>
@@ -384,7 +459,7 @@ export function AdminCommissionsPortal() {
                       {formatCommissionMoney(row.amountGross, row.currency)}
                     </div>
                     <div>
-                      <strong>Rate:</strong> {COMMISSION_PCT}% ·{" "}
+                      <strong>Rate:</strong> {row.ratePercent}% ·{" "}
                       <strong>Commission:</strong>{" "}
                       {formatCommissionMoney(row.commissionAmount, row.currency)}
                     </div>

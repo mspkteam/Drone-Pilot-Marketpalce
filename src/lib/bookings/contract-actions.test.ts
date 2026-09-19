@@ -59,16 +59,31 @@ describe("pilot contract actions", () => {
     );
   });
 
-  it("routes Request Revision to the delivery revision section", () => {
+  it("routes Request Revision to messaging with revision intent", () => {
+    const actions = buildPilotContractActions({
+      phase: "in_progress",
+      detailHref: "/detail",
+      messageHref: "/messages?c=1",
+      deliverHref: "/detail#deliver",
+      disputeHref: "/detail#dispute",
+      canMessage: true,
+    });
+    const revision = actions.find((action) => action.id === "request_revision");
+    assert.equal(revision?.href, "/messages?c=1&intent=revision");
+  });
+
+  it("hides Request Revision when there is no conversation yet", () => {
     const actions = buildPilotContractActions({
       phase: "in_progress",
       detailHref: "/detail",
       messageHref: "/messages",
       deliverHref: "/detail#deliver",
       disputeHref: "/detail#dispute",
-      canMessage: true,
+      canMessage: false,
     });
-    const revision = actions.find((action) => action.id === "request_revision");
-    assert.equal(revision?.href, "/detail#deliver");
+    assert.equal(
+      actions.some((action) => action.id === "request_revision"),
+      false,
+    );
   });
 });

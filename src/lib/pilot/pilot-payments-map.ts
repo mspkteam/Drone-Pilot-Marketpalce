@@ -12,9 +12,16 @@ export type PilotPaymentsSummary = {
 };
 
 export function getPlatformFee(payment: PaymentListItemDto): number {
-  // Marketplace fee is always the flat platform rate (15%). Ignore legacy
-  // grade-based rates that may still be stored on older commission rows.
-  return calculateCommission(payment.amountGross, DEFAULT_COMMISSION_RATE).amount;
+  // Prefer stored commission amount (written with admin-configurable platform
+  // rate or per-pilot override). Fall back to flat 15% default.
+  if (payment.commission?.amount != null && payment.commission.amount >= 0) {
+    return payment.commission.amount;
+  }
+  const rate =
+    payment.commission?.rate != null && payment.commission.rate > 0
+      ? payment.commission.rate
+      : DEFAULT_COMMISSION_RATE;
+  return calculateCommission(payment.amountGross, rate).amount;
 }
 
 export function formatPilotPaymentAmount(

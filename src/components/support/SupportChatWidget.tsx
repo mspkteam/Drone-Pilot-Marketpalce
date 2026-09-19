@@ -473,14 +473,29 @@ function SupportChatWidgetInner({
                     {SUPPORT_STATUS_LABELS[thread.status]}
                   </span>
                 ) : null}
+                <div className="flex items-center gap-0.5">
                 <button
                   type="button"
                   className="rounded-md px-2 py-1 text-sm text-muted-foreground hover:bg-surface"
                   onClick={() => setView("closed")}
-                  aria-label="Minimize"
+                  aria-label="Minimize support chat"
+                  title="Minimize"
                 >
                   −
                 </button>
+                <button
+                  type="button"
+                  className="rounded-md px-2 py-1 text-sm text-muted-foreground hover:bg-surface hover:text-foreground"
+                  onClick={() => {
+                    setView("closed");
+                    stopTypingPulse();
+                  }}
+                  aria-label="Close support chat"
+                  title="Close"
+                >
+                  ×
+                </button>
+                </div>
               </div>
             </div>
           </div>
@@ -635,10 +650,12 @@ function SupportChatWidgetInner({
       <button
         type="button"
         onClick={() => void openWidget()}
+        aria-label={view === "closed" ? "Talk to Support" : "Close support chat"}
+        aria-expanded={view !== "closed"}
         className="relative rounded-full bg-gold px-5 py-3 text-sm font-semibold text-white shadow-lg transition-colors hover:bg-gold-light"
       >
-        Talk to Support
-        {hasUnread ? (
+        {view === "closed" ? "Talk to Support" : "Close chat"}
+        {hasUnread && view === "closed" ? (
           <span
             className="absolute -right-0.5 -top-0.5 h-3 w-3 rounded-full border-2 border-background bg-gold-light shadow-[0_0_8px_rgba(201,162,39,0.8)]"
             aria-label="New support message"

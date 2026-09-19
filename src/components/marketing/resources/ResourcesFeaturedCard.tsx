@@ -1,6 +1,5 @@
 import Image from "next/image";
 import Link from "next/link";
-import { FEATURED_RESOURCE } from "@/lib/marketing/resources-content";
 import { resourcesAssets } from "@/lib/marketing/resources-assets";
 
 function ArrowIcon({ className }: { className?: string }) {
@@ -18,22 +17,34 @@ function ArrowIcon({ className }: { className?: string }) {
   );
 }
 
-/** Figma component — frame 323:6564 */
-export function ResourcesFeaturedCard() {
+type ResourcesFeaturedCardProps = {
+  slug: string;
+  title: string;
+  description: string;
+  categoryLabel?: string;
+};
+
+/** Featured CMS article — uses live published content only. */
+export function ResourcesFeaturedCard({
+  slug,
+  title,
+  description,
+  categoryLabel = "Featured article",
+}: ResourcesFeaturedCardProps) {
   return (
     <Link
-      href={`/resources/${FEATURED_RESOURCE.slug}`}
+      href={`/resources/${slug}`}
       className="figma-resources-featured group flex flex-col overflow-hidden rounded-[20px] border transition-colors lg:min-h-[13.75rem] lg:flex-row lg:items-center lg:justify-between lg:gap-16"
     >
       <div className="order-2 flex flex-1 flex-col justify-center px-8 py-8 sm:px-10 sm:py-10 lg:order-1 lg:py-10 lg:pl-10 lg:pr-0">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold">
-          {FEATURED_RESOURCE.label}
+          {categoryLabel}
         </p>
         <h2 className="mt-4 max-w-[34rem] text-[1.625rem] font-extrabold leading-[1.2] tracking-tight text-ras-text sm:text-[1.75rem] lg:text-[2rem]">
-          {FEATURED_RESOURCE.title}
+          {title}
         </h2>
         <p className="mt-4 max-w-[32rem] text-sm leading-[1.65] text-ras-warm sm:text-[15px]">
-          {FEATURED_RESOURCE.description}
+          {description}
         </p>
         <span className="mt-7 inline-flex h-10 w-fit items-center justify-center gap-2 rounded-[10px] bg-gold px-6 text-sm font-bold text-ras-cta transition-colors group-hover:bg-gold-light">
           Read Guide

@@ -23,12 +23,26 @@ type ResourcesArticleBrowseProps = {
   cmsResources?: CmsResource[];
 };
 
+function normalizeCategoryId(raw: string | null | undefined): ResourceCategoryId | undefined {
+  if (!raw) return undefined;
+  const hay = raw.trim().toLowerCase().replace(/[_\s]+/g, "-");
+  const match = RESOURCE_CATEGORIES.find(
+    (c) =>
+      c.id === hay ||
+      c.label.toLowerCase().replace(/[_\s]+/g, "-") === hay ||
+      hay.includes(c.id) ||
+      c.id.includes(hay),
+  );
+  return match?.id;
+}
+
 function mapCmsArticles(articles: CmsArticle[]): BrowseArticle[] {
   return articles.map((article) => ({
     slug: article.slug,
     categoryLabel: article.category,
     title: article.title,
     description: article.excerpt,
+    categoryId: normalizeCategoryId(article.category),
   }));
 }
 
@@ -38,6 +52,7 @@ function mapCmsResources(resources: CmsResource[]): BrowseArticle[] {
     categoryLabel: resource.category,
     title: resource.title,
     description: resource.summary,
+    categoryId: normalizeCategoryId(resource.category),
   }));
 }
 
@@ -50,13 +65,10 @@ export function ResourcesArticleBrowse({
   );
 
   const articles = useMemo<BrowseArticle[]>(() => {
-    const cmsMapped = [
-      ...mapCmsArticles(cmsArticles),
-      ...mapCmsResources(cmsResources),
-    ];
-    // Prefer live CMS only — do not fall back to hardcoded marketing articles.
-    return cmsMapped;
+    return [...mapCmsArticles(cmsArticles), ...mapCmsResources(cmsResources)];
   }, [cmsArticles, cmsResources]);
+
+  const featured = articles[0] ?? null;
 
   const filteredArticles = activeCategory
     ? articles.filter((article) => article.categoryId === activeCategory)
@@ -74,7 +86,14 @@ export function ResourcesArticleBrowse({
       aria-label="Resources content"
     >
       <div className="public-container space-y-8 sm:space-y-10">
-        <ResourcesFeaturedCard />
+        {featured ? (
+          <ResourcesFeaturedCard
+            slug={featured.slug}
+            title={featured.title}
+            description={featured.description}
+            categoryLabel={featured.categoryLabel}
+          />
+        ) : null}
 
         <div className="flex gap-2.5 overflow-x-auto pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] sm:flex-wrap sm:overflow-visible [&::-webkit-scrollbar]:hidden">
           {RESOURCE_CATEGORIES.map((category) => {

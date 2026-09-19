@@ -25,6 +25,7 @@ const API_BASE = "/api/pilot/conversations" as const;
 
 type PilotMessagesViewProps = {
   initialConversationId?: string;
+  initialDraft?: string;
 };
 
 type ThreadMessage = {
@@ -37,6 +38,7 @@ type ThreadMessage = {
 
 export function PilotMessagesView({
   initialConversationId,
+  initialDraft = "",
 }: PilotMessagesViewProps) {
   const [conversations, setConversations] = useState<ConversationListItemDto[]>(
     [],
@@ -50,7 +52,7 @@ export function PilotMessagesView({
   const [detail, setDetail] = useState<ConversationDetailDto | null>(null);
   const [loadingThread, setLoadingThread] = useState(false);
   const [threadError, setThreadError] = useState<string | null>(null);
-  const [draft, setDraft] = useState("");
+  const [draft, setDraft] = useState(initialDraft);
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
   const [sending, setSending] = useState(false);
 
@@ -392,9 +394,25 @@ export function PilotMessagesView({
             />
           </div>
           {pendingFiles.length > 0 ? (
-            <p className="client-messages-pending-files">
-              {pendingFiles.length} file{pendingFiles.length === 1 ? "" : "s"} ready to send
-            </p>
+            <ul className="client-messages-pending-list" aria-label="Attachments ready to send">
+              {pendingFiles.map((file, index) => (
+                <li key={`${file.name}-${file.lastModified}-${index}`} className="client-messages-pending-chip">
+                  <span title={file.name}>{file.name}</span>
+                  <button
+                    type="button"
+                    className="client-messages-pending-remove"
+                    aria-label={`Remove ${file.name}`}
+                    onClick={() =>
+                      setPendingFiles((current) =>
+                        current.filter((_, i) => i !== index),
+                      )
+                    }
+                  >
+                    ×
+                  </button>
+                </li>
+              ))}
+            </ul>
           ) : null}
           <button
             type="submit"

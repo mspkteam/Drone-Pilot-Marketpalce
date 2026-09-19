@@ -1,5 +1,6 @@
 /** Primary marketing header nav — Figma global header. */
 import { isMarketingNavHrefVisible } from "@/lib/public-access";
+import type { UserRole } from "@/types/roles";
 
 /** Figma 808 header — Hire Pilots, Join as Pilot, How It Works, Pricing, Safety */
 export const marketingNav = [
@@ -10,8 +11,15 @@ export const marketingNav = [
   { label: "Safety", href: "/safety", match: "/safety" },
 ] as const;
 
-export function getVisibleMarketingNav() {
-  return marketingNav.filter((item) => isMarketingNavHrefVisible(item.href));
+export function getVisibleMarketingNav(role?: UserRole | null) {
+  return marketingNav.filter((item) => {
+    if (!isMarketingNavHrefVisible(item.href)) return false;
+    // Logged-in pilots should not see client acquisition CTAs.
+    if (role === "pilot" && (item.href === "/for-clients" || item.href === "/for-pilots")) {
+      return false;
+    }
+    return true;
+  });
 }
 
 export function isMarketingNavActive(

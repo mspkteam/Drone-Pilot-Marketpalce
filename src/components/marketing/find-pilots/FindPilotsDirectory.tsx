@@ -82,6 +82,12 @@ export function FindPilotsDirectory({ pilots, initialRegion = null }: FindPilots
         <p className="find-pilots-club-note">
           Looking for elite A-6 captains?{" "}
           <Link href="/captains-club">Explore Captain&apos;s Club →</Link>
+          {" · "}
+          <Link href="/how-it-works">How it works</Link>
+          {" · "}
+          <Link href="/pricing">Pricing</Link>
+          {" · "}
+          <Link href="/for-clients">For clients</Link>
         </p>
 
         {pilots.length === 0 ? (

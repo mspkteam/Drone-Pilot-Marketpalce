@@ -1,5 +1,6 @@
 import { DEFAULT_COMMISSION_RATE } from "@/lib/commission/constants";
 import {
+  getEffectiveCommissionRate,
   getGradeCommissionRateForLabel,
 } from "@/lib/admin/platform-settings";
 import { prisma } from "@/lib/db";
@@ -160,7 +161,8 @@ export async function savePilotRateOverride(
 
 /**
  * Effective commission rate (fraction) for a pilot's payout: their enabled
- * per-pilot override, otherwise the persisted platform default.
+ * per-pilot override, otherwise the platform default (15%).
+ * Grade-based rates are not used for marketplace commission (business rule).
  */
 export async function getEffectiveCommissionRateForPilot(
   pilotProfileId: string,
@@ -170,12 +172,6 @@ export async function getEffectiveCommissionRateForPilot(
     select: {
       commissionOverrideEnabled: true,
       commissionOverrideRate: true,
-      subscriptions: {
-        where: { status: { in: [...ACTIVE_MEMBERSHIP] } },
-        include: { subscriptionPlan: { select: { code: true } } },
-        orderBy: { createdAt: "desc" },
-        take: 1,
-      },
     },
   });
 
@@ -186,12 +182,8 @@ export async function getEffectiveCommissionRateForPilot(
     return pilot.commissionOverrideRate;
   }
 
-  const gradeLabel = gradeLabelFromTierCode(
-    pilot?.subscriptions[0]?.subscriptionPlan.code,
-  );
-
   try {
-    return await getGradeCommissionRateForLabel(gradeLabel);
+    return await getEffectiveCommissionRate();
   } catch {
     return DEFAULT_COMMISSION_RATE;
   }

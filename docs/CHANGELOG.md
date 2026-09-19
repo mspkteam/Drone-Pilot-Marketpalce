@@ -4,6 +4,25 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.89] — 2026-09-19
+
+### Fixed
+
+- **Admin_.docx QA (A1–C6):** OPEN PROFILE action alignment; commission ledger `$` + rate; review moderation actions; support reply/attach sticky layout; CMS resources use live data only (no marketing fallback); dispute resolve creates/updates in-platform payment ledger without Stripe; squadron vote CTA deferred/disabled; wing assign ensures default definitions.
+- **Pilot fee math:** Platform fee always flat 15% (`$450` on `$3000`) in payment summary and payout maps — legacy grade rates ignored.
+- **Proposals:** Bid cannot exceed client budget; rejected/expired map to Rejected (not Accepted); revise capped at +20% with working Save revision.
+- **Messaging / revisions:** Close control on pilot messages; Message Client only when a conversation exists; Request Revision routes to delivery page; post-hire messaging deep-links work for client and pilot.
+- **Pilot UX:** Choose-file alignment; mandatory-field scroll/toast; proposal tabs alignment; deliverable download uses attachment disposition; review success without full refresh; logged-in pilots hide Hire/Join marketing CTAs.
+- **Shop + support:** Patch/cap catalog images; cart thumbnail only for selected/added product; support attachment serve + image fallback to download link.
+- **Client:** Offers card polish with counter bid + message + profile; booking Message pilot; terms modal ack layout; `/pilots` internal links.
+
+### Deferred
+
+- Stripe / live card billing / escrow payout rails
+- Squadron Vote expansion beyond existing admin ballot UI
+
+---
+
 ## [0.27.88] — 2026-09-17
 
 ### Fixed

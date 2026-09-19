@@ -4,7 +4,6 @@ import { useMemo, useState } from "react";
 import { ResourceArticleCard } from "@/components/marketing/resources/ResourceArticleCard";
 import { ResourcesFeaturedCard } from "@/components/marketing/resources/ResourcesFeaturedCard";
 import {
-  RESOURCE_ARTICLES,
   RESOURCE_CATEGORIES,
   type ResourceCategoryId,
 } from "@/lib/marketing/resources-content";
@@ -55,14 +54,8 @@ export function ResourcesArticleBrowse({
       ...mapCmsArticles(cmsArticles),
       ...mapCmsResources(cmsResources),
     ];
-    if (cmsMapped.length > 0) return cmsMapped;
-    return RESOURCE_ARTICLES.map((article) => ({
-      slug: article.slug,
-      categoryLabel: article.categoryLabel,
-      title: article.title,
-      description: article.description,
-      categoryId: article.categoryId,
-    }));
+    // Prefer live CMS only — do not fall back to hardcoded marketing articles.
+    return cmsMapped;
   }, [cmsArticles, cmsResources]);
 
   const filteredArticles = activeCategory
@@ -118,7 +111,7 @@ export function ResourcesArticleBrowse({
 
         {filteredArticles.length === 0 ? (
           <p className="text-sm text-ras-dim-alt">
-            No articles in this category yet. Check back soon.
+            No published CMS articles or resources yet. Add content in Admin → CMS.
           </p>
         ) : null}
       </div>

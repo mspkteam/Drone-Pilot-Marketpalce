@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { ReviewForm } from "@/components/reviews/ReviewForm";
 import { StarRating } from "@/components/reviews/StarRating";
-import type { BookingReviewsDto } from "@/types/review";
+import type { BookingReviewsDto, ReviewDto } from "@/types/review";
 
 type BookingReviewSectionProps = {
   bookingId: string;
@@ -16,6 +16,7 @@ export function BookingReviewSection({
 }: BookingReviewSectionProps) {
   const [data, setData] = useState<BookingReviewsDto | null>(null);
   const [loading, setLoading] = useState(true);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const apiBase =
     actor === "client" ? "/api/client/bookings" : "/api/pilot/bookings";
 
@@ -25,6 +26,23 @@ export function BookingReviewSection({
       .then((json) => setData(json.error ? null : json))
       .finally(() => setLoading(false));
   }, [apiBase, bookingId]);
+
+  function handleReviewSuccess(review: ReviewDto) {
+    setSuccessMessage("Review submitted successfully.");
+    setData((current) =>
+      current
+        ? {
+            ...current,
+            myReview: review,
+            canReview: false,
+            reviews: [
+              review,
+              ...current.reviews.filter((row) => row.id !== review.id),
+            ],
+          }
+        : current,
+    );
+  }
 
   if (loading) {
     return (
@@ -41,6 +59,15 @@ export function BookingReviewSection({
   return (
     <div className="rounded-lg border border-border p-6 space-y-6">
       <h3 className="font-medium">Reviews</h3>
+
+      {successMessage ? (
+        <p
+          className="rounded-md border border-gold/30 bg-gold/10 px-3 py-2 text-sm text-gold-dark"
+          role="status"
+        >
+          {successMessage}
+        </p>
+      ) : null}
 
       {data.myReview ? (
         <div className="rounded-md border border-gold/30 bg-gold/10 p-4">
@@ -62,6 +89,7 @@ export function BookingReviewSection({
           bookingId={bookingId}
           targetLabel={data.targetLabel}
           apiBase={apiBase}
+          onSuccess={handleReviewSuccess}
         />
       ) : (
         <p className="text-sm text-muted-foreground">
@@ -78,9 +106,7 @@ export function BookingReviewSection({
             <div key={review.id} className="text-sm">
               <StarRating value={review.rating} />
               {review.comment ? (
-                <p className="mt-2 whitespace-pre-wrap text-muted-foreground">
-                  {review.comment}
-                </p>
+                <p className="mt-1 whitespace-pre-wrap">{review.comment}</p>
               ) : null}
             </div>
           ))}

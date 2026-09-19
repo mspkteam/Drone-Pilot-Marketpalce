@@ -106,8 +106,9 @@ export function mapBookingToActiveContract(
   const detailHref = PILOT_ACTIVE_CONTRACTS_ROUTES.bookingDetail(booking.id);
   const deliverHref = `${detailHref}#deliver`;
   const disputeHref = `${detailHref}#dispute`;
-  const messageHref = booking.conversationId
-    ? PILOT_ACTIVE_CONTRACTS_ROUTES.conversation(booking.conversationId)
+  const hasConversation = Boolean(booking.conversationId);
+  const messageHref = hasConversation
+    ? PILOT_ACTIVE_CONTRACTS_ROUTES.conversation(booking.conversationId!)
     : PILOT_ACTIVE_CONTRACTS_ROUTES.messages;
 
   const phase = resolvePilotContractPhase(
@@ -133,6 +134,7 @@ export function mapBookingToActiveContract(
       messageHref,
       deliverHref,
       disputeHref,
+      canMessage: hasConversation,
     }),
   };
 }

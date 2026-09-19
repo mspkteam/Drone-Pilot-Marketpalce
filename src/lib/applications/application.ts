@@ -333,7 +333,7 @@ export async function createJobApplication(
   },
 ): Promise<
   | { ok: true; application: JobApplicationDto }
-  | { ok: false; error: string; status: 403 | 404 | 409 }
+  | { ok: false; error: string; status: 400 | 403 | 404 | 409 }
 > {
   const applyCheck = await canPilotApplyToJobById(pilotProfileId, jobId);
   if (!applyCheck.allowed) {
@@ -353,6 +353,21 @@ export async function createJobApplication(
       ok: false,
       error: "Job not found or not open for applications.",
       status: 404,
+    };
+  }
+
+  if (job.budgetMax != null && input.proposedAmount > job.budgetMax + 0.001) {
+    return {
+      ok: false,
+      error: `Proposed amount cannot exceed the client budget of ${job.budgetMax}.`,
+      status: 400,
+    };
+  }
+  if (job.budgetMin != null && input.proposedAmount < job.budgetMin - 0.001) {
+    return {
+      ok: false,
+      error: `Proposed amount must be at least ${job.budgetMin}.`,
+      status: 400,
     };
   }
 

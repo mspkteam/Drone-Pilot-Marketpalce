@@ -304,6 +304,21 @@ export function PilotMessagesView({
               )}
             </div>
           </div>
+
+          {selectedId ? (
+            <button
+              type="button"
+              className="pilot-messages-close-btn"
+              aria-label="Close conversation"
+              onClick={() => {
+                setSelectedId(null);
+                setDetail(null);
+                setMobileChatOpen(false);
+              }}
+            >
+              ×
+            </button>
+          ) : null}
         </header>
 
         <div className="client-messages-thread">

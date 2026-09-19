@@ -31,7 +31,7 @@ export async function GET(_request: Request, context: RouteContext) {
   return new NextResponse(new Uint8Array(result.buffer), {
     headers: {
       "Content-Type": result.mimeType,
-      "Content-Disposition": `inline; filename="${result.downloadName}"`,
+      "Content-Disposition": `attachment; filename="${result.downloadName.replace(/"/g, "")}"`,
     },
   });
 }

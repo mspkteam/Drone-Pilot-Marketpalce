@@ -92,13 +92,8 @@ export function PostProjectTermsAcknowledgment({
         htmlFor="post-project-terms-ack"
         className="client-post-project-terms-checkbox-copy"
       >
-        {POST_PROJECT_OFF_PLATFORM_ACK_BEFORE}
-      </label>
-      {termsControl}
-      <label
-        htmlFor="post-project-terms-ack"
-        className="client-post-project-terms-checkbox-copy"
-      >
+        {POST_PROJECT_OFF_PLATFORM_ACK_BEFORE}{" "}
+        {termsControl}{" "}
         {POST_PROJECT_OFF_PLATFORM_ACK_AFTER}
       </label>
     </div>

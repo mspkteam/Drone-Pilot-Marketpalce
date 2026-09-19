@@ -1,19 +1,24 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { StarRatingInput } from "@/components/reviews/StarRating";
 import { FormField, inputClassName } from "@/components/ui/FormField";
 import { Button } from "@/components/ui/Button";
+import type { ReviewDto } from "@/types/review";
 
 type ReviewFormProps = {
   bookingId: string;
   targetLabel: string;
   apiBase: "/api/client/bookings" | "/api/pilot/bookings";
+  onSuccess?: (review: ReviewDto) => void;
 };
 
-export function ReviewForm({ bookingId, targetLabel, apiBase }: ReviewFormProps) {
-  const router = useRouter();
+export function ReviewForm({
+  bookingId,
+  targetLabel,
+  apiBase,
+  onSuccess,
+}: ReviewFormProps) {
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -40,7 +45,8 @@ export function ReviewForm({ bookingId, targetLabel, apiBase }: ReviewFormProps)
         setError(data.error ?? "Failed to submit review.");
         return;
       }
-      router.refresh();
+      const review = (data.review ?? data) as ReviewDto;
+      onSuccess?.(review);
     } catch {
       setError("Failed to submit review.");
     } finally {
@@ -81,7 +87,6 @@ export function ReviewForm({ bookingId, targetLabel, apiBase }: ReviewFormProps)
           onChange={(e) => setComment(e.target.value)}
           className={inputClassName}
           disabled={submitting}
-          placeholder="Share how the mission went…"
         />
       </FormField>
       <Button type="submit" disabled={submitting || rating < 1}>

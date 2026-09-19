@@ -80,8 +80,17 @@ export function buildPilotContractActions(input: {
   messageHref: string;
   deliverHref: string;
   disputeHref: string;
+  /** Only show Message when a client-started conversation already exists. */
+  canMessage?: boolean;
 }): ContractAction[] {
-  const { phase, detailHref, messageHref, deliverHref, disputeHref } = input;
+  const {
+    phase,
+    detailHref,
+    messageHref,
+    deliverHref,
+    disputeHref,
+    canMessage = true,
+  } = input;
   const actions: ContractAction[] = [];
 
   switch (phase) {
@@ -130,18 +139,21 @@ export function buildPilotContractActions(input: {
       break;
   }
 
-  actions.push({
-    id: "message",
-    label: "Message Client",
-    href: messageHref,
-    tone: "outline",
-  });
+  // Client initiates chat — only show Message when a thread already exists.
+  if (canMessage) {
+    actions.push({
+      id: "message",
+      label: "Message Client",
+      href: messageHref,
+      tone: "outline",
+    });
+  }
 
   if (phase === "ready" || phase === "in_progress") {
     actions.push({
       id: "request_revision",
       label: "Request Revision",
-      href: `${messageHref}${messageHref.includes("?") ? "&" : "?"}intent=revision`,
+      href: deliverHref,
       tone: "outline",
     });
   }

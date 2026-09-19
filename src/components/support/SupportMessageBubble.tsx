@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { TypewriterMessage } from "@/components/support/TypewriterMessage";
 import {
   adminSenderLabel,
@@ -25,10 +26,14 @@ function AttachmentBlock({
   message: SupportChatMessageDto;
   guestToken?: string | null;
 }) {
+  const [imgFailed, setImgFailed] = useState(false);
+
   if (!message.attachmentUrl) return null;
 
   const href = supportAttachmentHref(message.attachmentUrl, guestToken);
-  const isImage = message.attachmentMimeType?.startsWith("image/");
+  const isImage =
+    Boolean(message.attachmentMimeType?.startsWith("image/")) && !imgFailed;
+  const label = message.attachmentFileName ?? "View attachment";
 
   if (isImage) {
     return (
@@ -41,8 +46,9 @@ function AttachmentBlock({
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={href}
-          alt={message.attachmentFileName ?? "Attachment"}
+          alt={label}
           className="max-h-28 w-auto max-w-full object-cover"
+          onError={() => setImgFailed(true)}
         />
       </a>
     );
@@ -55,9 +61,7 @@ function AttachmentBlock({
       rel="noreferrer"
       className="mt-2 flex items-center gap-2 rounded-md border border-gold/30 bg-surface px-3 py-2 text-xs text-gold-light hover:border-gold/50"
     >
-      <span className="font-medium">
-        {message.attachmentFileName ?? "View attachment"}
-      </span>
+      <span className="font-medium">{label}</span>
       <span className="text-muted-foreground">↗</span>
     </a>
   );

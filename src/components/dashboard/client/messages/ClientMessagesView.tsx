@@ -23,6 +23,7 @@ const API_BASE = "/api/client/conversations" as const;
 type ClientMessagesViewProps = {
   initialConversationId?: string;
   preferredPilotId?: string | null;
+  initialDraft?: string | null;
 };
 
 type ThreadMessage = {
@@ -36,6 +37,7 @@ type ThreadMessage = {
 export function ClientMessagesView({
   initialConversationId,
   preferredPilotId = null,
+  initialDraft = null,
 }: ClientMessagesViewProps) {
   const [conversations, setConversations] = useState<ConversationListItemDto[]>(
     [],
@@ -50,7 +52,7 @@ export function ClientMessagesView({
   const [detail, setDetail] = useState<ConversationDetailDto | null>(null);
   const [loadingThread, setLoadingThread] = useState(false);
   const [threadError, setThreadError] = useState<string | null>(null);
-  const [draft, setDraft] = useState("");
+  const [draft, setDraft] = useState(initialDraft ?? "");
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
   const [sending, setSending] = useState(false);
   const [startingId, setStartingId] = useState<string | null>(null);

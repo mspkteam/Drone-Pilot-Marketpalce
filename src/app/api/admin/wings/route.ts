@@ -4,6 +4,7 @@ import {
   requireAdminPermission,
 } from "@/lib/auth/require-admin-permission";
 import {
+  ensureDefaultWingDefinitions,
   grantWingToPilot,
   listPilotsForWingAssign,
   listRecentPilotWingsForAdmin,
@@ -46,6 +47,7 @@ export async function POST(request: Request) {
   }
 
   const note = typeof body.note === "string" ? body.note.trim() : "";
+  await ensureDefaultWingDefinitions();
   const result = await grantWingToPilot(
     body.pilotProfileId,
     body.wingDefinitionId,

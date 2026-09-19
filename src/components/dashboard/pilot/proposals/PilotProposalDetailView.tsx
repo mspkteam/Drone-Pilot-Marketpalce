@@ -53,6 +53,7 @@ export function PilotProposalDetailView({ initial }: PilotProposalDetailViewProp
   const [reviseAmount, setReviseAmount] = useState(String(initial.proposedAmount));
   const [reviseMessage, setReviseMessage] = useState(initial.message ?? "");
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
   const uiStatus = mapApplicationStatusToUi(
     application.status,
@@ -116,6 +117,7 @@ export function PilotProposalDetailView({ initial }: PilotProposalDetailViewProp
     }
 
     setError(null);
+    setSuccess(null);
     setRevising(true);
     try {
       const res = await fetch(`/api/pilot/applications/${application.id}/revise`, {
@@ -137,6 +139,7 @@ export function PilotProposalDetailView({ initial }: PilotProposalDetailViewProp
         job: current.job,
       }));
       setReviseOpen(false);
+      setSuccess("Revision saved. The client will see your updated offer.");
       router.refresh();
     } catch {
       setError("Failed to revise proposal.");
@@ -172,6 +175,11 @@ export function PilotProposalDetailView({ initial }: PilotProposalDetailViewProp
       {error ? (
         <p className="pilot-proposals-banner pilot-proposals-banner--error" role="alert">
           {error}
+        </p>
+      ) : null}
+      {success ? (
+        <p className="pilot-proposals-banner" role="status">
+          {success}
         </p>
       ) : null}
 

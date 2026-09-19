@@ -40,13 +40,16 @@ function ThemedSupportBubble({
 }: {
   message: SupportChatThreadDto["messages"][number];
 }) {
+  const [imgFailed, setImgFailed] = useState(false);
   const senderLabel = adminSenderLabel(message);
   const isSupport = message.senderRole === "admin";
   const isSystem = message.isSystem;
   const href = message.attachmentUrl
     ? supportAttachmentHref(message.attachmentUrl)
     : null;
-  const isImage = message.attachmentMimeType?.startsWith("image/");
+  const isImage =
+    Boolean(message.attachmentMimeType?.startsWith("image/")) && !imgFailed;
+  const fileLabel = message.attachmentFileName ?? "View attachment";
 
   return (
     <div
@@ -84,7 +87,11 @@ function ThemedSupportBubble({
           className="admin-support-bubble-attachment"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={href} alt={message.attachmentFileName ?? "Attachment"} />
+          <img
+            src={href}
+            alt={fileLabel}
+            onError={() => setImgFailed(true)}
+          />
         </a>
       ) : null}
       {href && !isImage ? (
@@ -94,7 +101,7 @@ function ThemedSupportBubble({
           rel="noreferrer"
           className="admin-support-bubble-file-link"
         >
-          {message.attachmentFileName ?? "View attachment"}
+          {fileLabel}
         </a>
       ) : null}
     </div>

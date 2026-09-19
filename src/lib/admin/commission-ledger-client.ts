@@ -1,5 +1,4 @@
 import type { AdminCommissionLedgerRowDto } from "@/types/admin-commissions";
-import { DEFAULT_COMMISSION_RATE } from "@/lib/commission/constants";
 
 export function formatCommissionMoney(
   amount: number,
@@ -28,7 +27,7 @@ export function buildCommissionLedgerCsv(
       escape(row.pilotName),
       escape(row.clientName),
       escape(formatCommissionMoney(row.amountGross, row.currency)),
-      `${Math.round(DEFAULT_COMMISSION_RATE * 100)}%`,
+      `${row.ratePercent}%`,
       escape(formatCommissionMoney(row.commissionAmount, row.currency)),
       escape(row.status),
     ].join(",");

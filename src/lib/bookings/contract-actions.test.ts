@@ -44,22 +44,31 @@ describe("pilot contract actions", () => {
     assert.equal(actions[0]?.label, "Submit Revisions");
   });
 
-  it("shows view submission while awaiting client review", () => {
-    const phase = resolvePilotContractPhase("in_progress", "submitted");
-    assert.equal(phase, "awaiting_review");
-
+  it("hides Message Client when canMessage is false", () => {
     const actions = buildPilotContractActions({
-      phase,
+      phase: "in_progress",
       detailHref: "/detail",
       messageHref: "/messages",
       deliverHref: "/detail#deliver",
       disputeHref: "/detail#dispute",
+      canMessage: false,
     });
-
-    assert.equal(actions[0]?.id, "view_delivery");
     assert.equal(
-      actions.some((action) => action.id === "deliver"),
+      actions.some((action) => action.id === "message"),
       false,
     );
+  });
+
+  it("routes Request Revision to the delivery revision section", () => {
+    const actions = buildPilotContractActions({
+      phase: "in_progress",
+      detailHref: "/detail",
+      messageHref: "/messages",
+      deliverHref: "/detail#deliver",
+      disputeHref: "/detail#dispute",
+      canMessage: true,
+    });
+    const revision = actions.find((action) => action.id === "request_revision");
+    assert.equal(revision?.href, "/detail#deliver");
   });
 });

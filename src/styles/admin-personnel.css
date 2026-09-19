@@ -384,6 +384,7 @@
   text-align: left;
   white-space: nowrap;
   width: 1%;
+  vertical-align: middle;
 }
 
 .admin-personnel-mobile-list {
@@ -447,10 +448,17 @@
 .admin-personnel-actions {
   padding-left: 1.25rem !important;
   padding-right: 1.25rem !important;
-  display: inline-flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem;
+  vertical-align: middle;
+}
+
+.admin-personnel-actions > .admin-personnel-action,
+.admin-personnel-actions > .admin-personnel-action--danger {
+  margin-right: 0.75rem;
+}
+
+.admin-personnel-actions > .admin-personnel-action:last-child,
+.admin-personnel-actions > .admin-personnel-action--danger:last-child {
+  margin-right: 0;
 }
 
 .admin-personnel-actions-row {
@@ -468,26 +476,34 @@
   justify-content: flex-start;
   margin: 0;
   width: auto;
+  max-width: max-content;
   min-width: 0;
   white-space: nowrap;
   padding: 0;
   border: none;
+  border-bottom: none;
   background: transparent;
   font-family: inherit;
   font-size: 0.6875rem;
   font-weight: 700;
   letter-spacing: 0.08em;
-  line-height: 1;
+  line-height: 1.25;
   text-transform: uppercase;
-  text-decoration: none;
+  text-decoration: none !important;
+  box-shadow: none;
   color: var(--color-gold);
   cursor: pointer;
   appearance: none;
   -webkit-appearance: none;
 }
 
-.admin-personnel-action:hover {
+.admin-personnel-action:hover,
+.admin-personnel-action:focus,
+.admin-personnel-action:focus-visible {
   color: var(--color-gold-soft);
+  text-decoration: none !important;
+  border-bottom: none;
+  outline: none;
 }
 
 .admin-personnel-action--disabled {
@@ -517,12 +533,15 @@
 
 .dashboard-app .admin-personnel-action,
 .dashboard-app .admin-personnel-action--danger {
+  display: inline-flex;
   min-height: 0;
   height: auto;
   min-width: 0;
-  width: 100%;
+  width: auto;
+  max-width: max-content;
   padding: 0;
   border: none;
+  border-bottom: none;
   border-radius: 0;
   background: transparent;
   box-shadow: none;
@@ -530,7 +549,9 @@
   font-size: 0.6875rem;
   font-weight: 700;
   letter-spacing: 0.08em;
+  line-height: 1.25;
   text-transform: uppercase;
+  text-decoration: none !important;
 }
 
 .admin-personnel-banner-error {

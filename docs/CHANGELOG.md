@@ -4,6 +4,15 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.91] — 2026-09-19
+
+### Fixed
+
+- **Email delivery:** Skip SMTP to seed/QA addresses (`@dronepilot.local`, `.test`, etc.) so MailChannels no longer bounces undeliverable hosts; real inboxes still send normally.
+- **Admin users table:** OPEN PROFILE action alignment — no full-width stretch or ghost underline.
+
+---
+
 ## [0.27.90] — 2026-09-19
 
 ### Fixed

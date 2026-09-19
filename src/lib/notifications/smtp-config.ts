@@ -71,3 +71,32 @@ export function getSmtpConfig(): SmtpConfig | null {
 export function isEmailDeliveryConfigured(): boolean {
   return getSmtpConfig() !== null;
 }
+
+/** Domains that exist only for local/QA seeds — never hand to a real SMTP relay. */
+const NON_DELIVERABLE_HOST_SUFFIXES = [
+  ".local",
+  ".localhost",
+  ".test",
+  ".invalid",
+  ".example",
+] as const;
+
+/**
+ * Returns false for seed/QA addresses like `qa.client@dronepilot.local`
+ * that cannot receive public internet mail (MailChannels bounce).
+ */
+export function isDeliverableEmailAddress(email: string): boolean {
+  const trimmed = email.trim().toLowerCase();
+  if (!trimmed || !trimmed.includes("@")) return false;
+
+  const at = trimmed.lastIndexOf("@");
+  if (at <= 0 || at === trimmed.length - 1) return false;
+
+  const host = trimmed.slice(at + 1);
+  if (!host || host === "localhost" || !host.includes(".")) return false;
+
+  return !NON_DELIVERABLE_HOST_SUFFIXES.some(
+    (suffix) => host === suffix.slice(1) || host.endsWith(suffix),
+  );
+}
+

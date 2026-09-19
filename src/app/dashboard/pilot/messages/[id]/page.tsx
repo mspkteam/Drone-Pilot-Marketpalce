@@ -3,22 +3,38 @@ import { auth } from "@/auth";
 import { PilotMessagesView } from "@/components/dashboard/pilot/messages/PilotMessagesView";
 import { DashboardPageLayout } from "@/components/dashboard";
 import "@/styles/client-messages.css";
-
-type PageProps = { params: Promise<{ id: string }> };
+import "@/styles/pilot-messages.css";
 
 export const metadata = { title: "Messages" };
 
-export default async function PilotConversationPage({ params }: PageProps) {
+type PageProps = {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ intent?: string }>;
+};
+
+const REVISION_DRAFT =
+  "Hi — I'd like to request a revision on the current scope/deliverables. Please review the details below and confirm how you'd like to proceed:\n\n";
+
+export default async function PilotMessagesConversationPage({
+  params,
+  searchParams,
+}: PageProps) {
   const session = await auth();
   if (!session?.user?.id || session.user.role !== "pilot") {
     redirect("/login");
   }
 
   const { id } = await params;
+  const query = await searchParams;
+  const initialDraft =
+    query.intent === "revision" ? REVISION_DRAFT : undefined;
 
   return (
-    <DashboardPageLayout className="client-messages-shell">
-      <PilotMessagesView initialConversationId={id} />
+    <DashboardPageLayout className="pilot-messages-shell">
+      <PilotMessagesView
+        initialConversationId={id}
+        initialDraft={initialDraft}
+      />
     </DashboardPageLayout>
   );
 }

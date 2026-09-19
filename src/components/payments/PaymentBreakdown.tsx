@@ -10,13 +10,21 @@ type PaymentBreakdownProps = {
 };
 
 export function PaymentBreakdown({ payment, viewerRole }: PaymentBreakdownProps) {
-  // Flat platform fee (15%). Recompute for display so legacy grade-based
-  // commission rows (e.g. 13.5% → $405 on $3000) do not mislead pilots.
-  const { amount: feeAmount, amountNet } = calculateCommission(
-    payment.amountGross,
-    DEFAULT_COMMISSION_RATE,
-  );
-  const ratePercent = Math.round(DEFAULT_COMMISSION_RATE * 100);
+  // Prefer the rate recorded on this payment (set from admin platform default
+  // or per-pilot override at completion). Fall back to the 15% platform default.
+  const rate =
+    payment.commission?.rate != null && payment.commission.rate > 0
+      ? payment.commission.rate
+      : DEFAULT_COMMISSION_RATE;
+  const feeAmount =
+    payment.commission?.amount != null && payment.commission.amount >= 0
+      ? payment.commission.amount
+      : calculateCommission(payment.amountGross, rate).amount;
+  const amountNet =
+    payment.commission != null
+      ? Math.round((payment.amountGross - feeAmount) * 100) / 100
+      : calculateCommission(payment.amountGross, rate).amountNet;
+  const ratePercent = Math.round(rate * 1000) / 10;
 
   return (
     <div className="rounded-lg border border-border bg-surface-elevated p-6 space-y-4">

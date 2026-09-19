@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
-import { requireAdminPermission } from "@/lib/auth/require-admin-permission";
+import { requireAdminModuleView } from "@/lib/auth/require-admin-permission";
 import { resolveReviewResetRequest } from "@/lib/reviews/review-reset";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
 export async function POST(request: Request, context: RouteContext) {
-  const authResult = await requireAdminPermission("users", "edit");
+  const authResult = await requireAdminModuleView("users");
   if (!authResult.ok) {
     return NextResponse.json(
       { error: authResult.error },

@@ -1,5 +1,6 @@
 import type { Dispute, DisputeEntry } from "@/generated/prisma/client";
-import { calculateCommission, DEFAULT_COMMISSION_RATE } from "@/lib/commission/constants";
+import { calculateCommission } from "@/lib/commission/constants";
+import { getEffectiveCommissionRate } from "@/lib/admin/platform-settings";
 import { prisma } from "@/lib/db";
 import { notifyAsync, sendNotification } from "@/lib/notifications/notify";
 import type { BookingStatus } from "@/types/booking";
@@ -759,9 +760,10 @@ async function applyResolutionPayment(
     });
     if (!booking) return;
 
+    const platformRate = await getEffectiveCommissionRate();
     const { amount, amountNet } = calculateCommission(
       agreedAmount,
-      DEFAULT_COMMISSION_RATE,
+      platformRate,
     );
 
     payment = await prisma.$transaction(async (tx) => {
@@ -782,7 +784,7 @@ async function applyResolutionPayment(
         data: {
           bookingId: booking.id,
           paymentId: created.id,
-          rate: DEFAULT_COMMISSION_RATE,
+          rate: platformRate,
           amount,
           currency: booking.currency,
           status: "calculated",
@@ -831,7 +833,7 @@ async function applyResolutionPayment(
     );
     const { amount: commissionAmount } = calculateCommission(
       payment.amountGross,
-      DEFAULT_COMMISSION_RATE,
+      await getEffectiveCommissionRate(),
     );
     const adjustedCommission = Math.min(
       commissionAmount,

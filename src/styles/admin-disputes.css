@@ -440,10 +440,16 @@
 
 .admin-dispute-card-actions {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
+  flex-direction: column;
+  align-items: stretch;
   gap: 0.5rem;
   flex-shrink: 0;
+  min-width: 11.5rem;
+}
+
+.admin-dispute-shell .admin-dispute-card-actions .admin-dispute-btn {
+  width: 100%;
+  justify-content: center;
 }
 
 .admin-dispute-card-demo {

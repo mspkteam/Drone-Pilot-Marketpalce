@@ -4,6 +4,14 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.92] — 2026-09-19
+
+### Fixed
+
+- **Registration open:** New client/pilot account creation is enabled by default (was gated closed). Set `REGISTRATION_ENABLED=false` to pause signups again.
+
+---
+
 ## [0.27.91] — 2026-09-19
 
 ### Fixed

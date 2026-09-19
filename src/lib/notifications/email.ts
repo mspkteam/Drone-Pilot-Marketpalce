@@ -1,5 +1,9 @@
 import { prisma } from "@/lib/db";
-import { getSmtpConfig, isEmailDeliveryConfigured } from "@/lib/notifications/smtp-config";
+import {
+  getSmtpConfig,
+  isDeliverableEmailAddress,
+  isEmailDeliveryConfigured,
+} from "@/lib/notifications/smtp-config";
 
 export type EmailPayload = {
   to: string;
@@ -7,7 +11,16 @@ export type EmailPayload = {
   text: string;
 };
 
+export { isDeliverableEmailAddress };
+
 export async function sendTransactionalEmail(payload: EmailPayload): Promise<boolean> {
+  if (!isDeliverableEmailAddress(payload.to)) {
+    console.info(
+      `[email] skip non-deliverable address (seed/QA): ${payload.to} — ${payload.subject}`,
+    );
+    return false;
+  }
+
   const smtp = getSmtpConfig();
 
   if (!smtp) {
@@ -22,7 +35,7 @@ export async function sendTransactionalEmail(payload: EmailPayload): Promise<boo
     }
 
     console.info(
-      `[email] (dev log) ${process.env.EMAIL_FROM ?? "noreply@dronepilot.local"} → ${payload.to}\n  Subject: ${payload.subject}\n  ${payload.text}`,
+      `[email] (dev log) ${process.env.EMAIL_FROM ?? "noreply@remoteairservice.com"} → ${payload.to}\n  Subject: ${payload.subject}\n  ${payload.text}`,
     );
     return true;
   }

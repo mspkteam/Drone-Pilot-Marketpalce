@@ -17,8 +17,14 @@ const stamp = new Date()
   .slice(0, 16)
   .replace(/[-:T]/g, "");
 
-const CLIENT_EMAIL = `qa.client.${stamp}@dronepilot.local`;
-const PILOT_EMAIL = `qa.pilot.${stamp}@dronepilot.local`;
+/**
+ * QA accounts default to `@dronepilot.local` (login-only seeds).
+ * Those addresses cannot receive real SMTP mail — production skips them.
+ * Set QA_EMAIL_DOMAIN to a real domain (e.g. your inbox) if you need email tests.
+ */
+const QA_DOMAIN = (process.env.QA_EMAIL_DOMAIN ?? "dronepilot.local").trim();
+const CLIENT_EMAIL = `qa.client.${stamp}@${QA_DOMAIN}`;
+const PILOT_EMAIL = `qa.pilot.${stamp}@${QA_DOMAIN}`;
 
 async function main() {
   const passwordHash = await hash(PASSWORD, 12);
@@ -99,7 +105,17 @@ async function main() {
   console.log(`  Client  ${CLIENT_EMAIL}`);
   console.log(`  Pilot   ${PILOT_EMAIL}`);
   console.log(`  Password for both: ${PASSWORD}`);
-  console.log("\nPilot grade: A-3 Flight Officer (can submit proposals).\n");
+  console.log("\nPilot grade: A-3 Flight Officer (can submit proposals).");
+  if (QA_DOMAIN.endsWith(".local") || QA_DOMAIN === "localhost") {
+    console.log(
+      "\nNote: @dronepilot.local cannot receive real email. SMTP skips these addresses.",
+    );
+    console.log(
+      "For inbox tests set QA_EMAIL_DOMAIN=your-real-domain.com when running this script.\n",
+    );
+  } else {
+    console.log("");
+  }
 }
 
 main()

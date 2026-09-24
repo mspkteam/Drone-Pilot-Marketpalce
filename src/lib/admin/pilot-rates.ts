@@ -1,8 +1,5 @@
 import { DEFAULT_COMMISSION_RATE } from "@/lib/commission/constants";
-import {
-  getEffectiveCommissionRate,
-  getGradeCommissionRateForLabel,
-} from "@/lib/admin/platform-settings";
+import { getEffectiveCommissionRate } from "@/lib/admin/platform-settings";
 import { prisma } from "@/lib/db";
 import type {
   PilotRateDetail,
@@ -72,7 +69,10 @@ export async function getPilotRateDetail(
   if (!pilot) return null;
 
   const rank = gradeLabelFromTierCode(pilot.subscriptions[0]?.subscriptionPlan.code);
-  const defaultRate = await getGradeCommissionRateForLabel(rank);
+  // Marketplace default is the platform rate (15%), not grade-table legacy fees.
+  const defaultRate = await getEffectiveCommissionRate().catch(
+    () => DEFAULT_COMMISSION_RATE,
+  );
 
   return {
     pilotProfileId: pilot.id,

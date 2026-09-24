@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/db";
-import { getGradeCommissionRateForLabel } from "@/lib/admin/platform-settings";
-import { gradeLabelFromTierCode } from "@/lib/admin/pilot-rates";
+import { getEffectiveCommissionRate } from "@/lib/admin/platform-settings";
+import { DEFAULT_COMMISSION_RATE } from "@/lib/commission/constants";
 import { ensureClientProfileForUser } from "@/lib/admin/user-edit";
 import {
   parseClientProfilePreferences,
@@ -311,10 +311,8 @@ export async function getMemberDetailForAdmin(
       : null,
   };
 
-  const tierCode = tier?.code ?? null;
-  const gradeLabel = gradeLabelFromTierCode(tierCode);
   const defaultCommissionRate = pilot
-    ? await getGradeCommissionRateForLabel(gradeLabel)
+    ? await getEffectiveCommissionRate().catch(() => DEFAULT_COMMISSION_RATE)
     : null;
 
   const openDisputeCount = client

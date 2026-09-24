@@ -69,6 +69,13 @@ export function BookingDisputeSection({
   const canOpen =
     !dispute && OPEN_DISPUTE_STATUSES.includes(bookingStatus);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (window.location.hash !== "#dispute") return;
+    if (!canOpen) return;
+    setShowOpenForm(true);
+  }, [canOpen, loading, dispute]);
+
   const showSection =
     dispute != null ||
     canOpen ||

@@ -42,6 +42,7 @@ describe("pilot contract actions", () => {
 
     assert.equal(actions[0]?.id, "resubmit");
     assert.equal(actions[0]?.label, "Submit Revisions");
+    assert.equal(actions[0]?.href, "/detail#deliver");
   });
 
   it("hides Message Client when canMessage is false", () => {
@@ -59,22 +60,9 @@ describe("pilot contract actions", () => {
     );
   });
 
-  it("routes Request Revision to messaging with revision intent", () => {
+  it("still offers Open Dispute without a conversation", () => {
     const actions = buildPilotContractActions({
-      phase: "in_progress",
-      detailHref: "/detail",
-      messageHref: "/messages?c=1",
-      deliverHref: "/detail#deliver",
-      disputeHref: "/detail#dispute",
-      canMessage: true,
-    });
-    const revision = actions.find((action) => action.id === "request_revision");
-    assert.equal(revision?.href, "/messages?c=1&intent=revision");
-  });
-
-  it("hides Request Revision when there is no conversation yet", () => {
-    const actions = buildPilotContractActions({
-      phase: "in_progress",
+      phase: "completed",
       detailHref: "/detail",
       messageHref: "/messages",
       deliverHref: "/detail#deliver",
@@ -82,8 +70,8 @@ describe("pilot contract actions", () => {
       canMessage: false,
     });
     assert.equal(
-      actions.some((action) => action.id === "request_revision"),
-      false,
+      actions.some((action) => action.id === "dispute"),
+      true,
     );
   });
 });

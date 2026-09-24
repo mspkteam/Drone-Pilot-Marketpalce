@@ -10,20 +10,21 @@ type PaymentBreakdownProps = {
 };
 
 export function PaymentBreakdown({ payment, viewerRole }: PaymentBreakdownProps) {
-  // Prefer the rate recorded on this payment (set from admin platform default
-  // or per-pilot override at completion). Fall back to the 15% platform default.
-  const rate =
+  // Marketplace fee display: platform default 15%. Ignore legacy grade-band
+  // rates (10–14%) so pilot summaries match the admin ledger. Keep intentional
+  // admin overrides outside that band (e.g. 7.5% or 20%).
+  const storedRate =
     payment.commission?.rate != null && payment.commission.rate > 0
       ? payment.commission.rate
+      : null;
+  const looksLikeLegacyGradeFee =
+    storedRate != null && storedRate >= 0.1 && storedRate < 0.145;
+  const rate =
+    storedRate != null && !looksLikeLegacyGradeFee
+      ? storedRate
       : DEFAULT_COMMISSION_RATE;
-  const feeAmount =
-    payment.commission?.amount != null && payment.commission.amount >= 0
-      ? payment.commission.amount
-      : calculateCommission(payment.amountGross, rate).amount;
-  const amountNet =
-    payment.commission != null
-      ? Math.round((payment.amountGross - feeAmount) * 100) / 100
-      : calculateCommission(payment.amountGross, rate).amountNet;
+  const feeAmount = calculateCommission(payment.amountGross, rate).amount;
+  const amountNet = calculateCommission(payment.amountGross, rate).amountNet;
   const ratePercent = Math.round(rate * 1000) / 10;
 
   return (

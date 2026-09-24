@@ -598,6 +598,20 @@ export async function grantWingToPilot(
   });
 
   if (existing) {
+    // Re-assign still notifies so pilots see the wing in their bell / Digita Wings list.
+    notifyAsync(async () => {
+      await sendNotification({
+        userId: pilot.userId,
+        type: "wing_earned",
+        title: "Digital Wing assigned",
+        body: `Admin confirmed "${definition.title}" is on your Digita Wings.`,
+        payload: {
+          wingDefinitionId: definition.id,
+          pilotWingId: existing.id,
+          alreadyHeld: true,
+        },
+      });
+    });
     return {
       ok: true,
       wing: toPilotWingDto(existing),

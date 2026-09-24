@@ -49,7 +49,9 @@ export function PilotProposalDetailView({ initial }: PilotProposalDetailViewProp
   const [application, setApplication] = useState(initial);
   const [withdrawing, setWithdrawing] = useState(false);
   const [revising, setRevising] = useState(false);
-  const [reviseOpen, setReviseOpen] = useState(false);
+  const [reviseOpen, setReviseOpen] = useState(() =>
+    canReviseApplication(initial.status),
+  );
   const [reviseAmount, setReviseAmount] = useState(String(initial.proposedAmount));
   const [reviseMessage, setReviseMessage] = useState(initial.message ?? "");
   const [error, setError] = useState<string | null>(null);

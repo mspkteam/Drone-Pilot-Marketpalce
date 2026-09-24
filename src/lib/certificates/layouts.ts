@@ -210,30 +210,33 @@ export const CERTIFICATE_LAYOUTS: Record<string, CertificateLayout> = {
         weight: "bold",
         uppercase: true,
       },
+      // Date line: "Given on this, the ____ day of ________, 20__, ..."
+      // Day sits in the blank before printed "day"; month after "of"; year after "20".
       {
         field: "day",
-        x: 32,
-        y: 68.2,
-        maxWidth: 12,
-        fontSize: 24,
+        x: 25.5,
+        y: 69.15,
+        maxWidth: 7,
+        fontSize: 22,
         font: "harrowgate",
         align: "center",
       },
       {
         field: "month",
-        x: 48,
-        y: 68.2,
-        maxWidth: 20,
-        fontSize: 24,
+        x: 42,
+        y: 69.15,
+        maxWidth: 18,
+        fontSize: 22,
         font: "harrowgate",
         align: "center",
+        uppercase: true,
       },
       {
         field: "year",
-        x: 62,
-        y: 68.2,
-        maxWidth: 10,
-        fontSize: 24,
+        x: 56.5,
+        y: 69.15,
+        maxWidth: 5,
+        fontSize: 22,
         font: "harrowgate",
         align: "center",
       },
@@ -671,8 +674,11 @@ export function resolveOverlayText(
     case "day":
       return String(issued.getDate());
     case "month":
-      return issued.toLocaleDateString("en-US", { month: "long" });
+      return issued
+        .toLocaleDateString("en-US", { month: "long" })
+        .toUpperCase();
     case "year":
+      // Form prints "20" already — overlay is the century-years only.
       return String(issued.getFullYear()).slice(-2);
     default:
       return "";

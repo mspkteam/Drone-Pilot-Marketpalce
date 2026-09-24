@@ -4,6 +4,27 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.93] — 2026-09-24
+
+### Fixed
+
+- **Client messages:** Close (×) dismisses the thread without auto-reopening the first conversation.
+- **Client profile strength:** Company Details completes from company name alone (role title optional).
+- **Client settings:** Notification preference PATCH merges without wiping project types or profile photo.
+- **Certificates:** Form 50 footer revision updated (SEP 26); Captain date overlays realigned on the printed blanks.
+- **Wings / notifications:** Admin wing assign always notifies (including already-held); Digita Wings list unchanged (newest earned first); sidebar unread badge uses high-contrast dark text on gold.
+- **Contracts / fees:** Message Client only when a conversation exists; Open Dispute opens the form via `#dispute`; payment summaries ignore legacy 10–14% grade fees and show platform 15%.
+- **Squadron voting:** Cast vote requires active membership grade A-4+.
+- **Admin support:** Thread layout — ticket / messages / reply flex polish; system bubbles no longer clip awkwardly.
+- **Admin reviews:** After Set 5★ / Hide / Publish, filter jumps to the matching view so actions feel complete.
+
+### Deferred
+
+- Stripe / live card billing / escrow
+- Full Squadron peer electorate product beyond grade gate + existing admin ballot
+
+---
+
 ## [0.27.92] — 2026-09-19
 
 ### Fixed

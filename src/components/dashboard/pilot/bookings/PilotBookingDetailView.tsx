@@ -67,6 +67,7 @@ export function PilotBookingDetailView({ booking }: PilotBookingDetailViewProps)
     messageHref,
     deliverHref,
     disputeHref,
+    canMessage: Boolean(booking.conversationId),
   }).filter((action) => action.id !== "view_contract");
 
   return (

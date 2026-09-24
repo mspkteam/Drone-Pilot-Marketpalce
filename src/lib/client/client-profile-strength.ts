@@ -14,7 +14,9 @@ export function computeClientProfileStrength(
 ): { pct: number; items: ProfileStrengthItem[] } {
   const contactDone =
     Boolean(form.contactName.trim()) && Boolean(form.phone.trim());
-  const companyDone = Boolean(form.companyName.trim()) && Boolean(ui.roleTitle.trim());
+  // Company Details is complete when company name is set; role title is optional
+  // enrichment (users often fill company without a separate role field).
+  const companyDone = Boolean(form.companyName.trim());
   const prefsStatus: ProfileStrengthItem["status"] =
     ui.projectTypes.length >= 3
       ? "done"

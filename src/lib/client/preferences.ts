@@ -89,16 +89,39 @@ export function mergeClientProfilePreferences(
   const current = parseClientProfilePreferences(existingJson);
   if (!patch) return current;
 
-  return normalizeClientProfilePreferencesInput({
-    ...current,
-    ...patch,
-    notifications:
-      patch.notifications !== undefined
-        ? normalizeNotificationPreferences(patch.notifications)
-        : current.notifications,
-    projectTypes:
-      patch.projectTypes !== undefined ? patch.projectTypes : current.projectTypes,
-  });
+  const next: ClientProfilePreferences = { ...current };
+
+  if (Object.prototype.hasOwnProperty.call(patch, "roleTitle")) {
+    next.roleTitle = patch.roleTitle?.trim() ?? "";
+  }
+  if (Object.prototype.hasOwnProperty.call(patch, "preferredContact")) {
+    next.preferredContact = patch.preferredContact;
+  }
+  if (Object.prototype.hasOwnProperty.call(patch, "typicalProjectArea")) {
+    next.typicalProjectArea = patch.typicalProjectArea?.trim() ?? "";
+  }
+  if (Object.prototype.hasOwnProperty.call(patch, "defaultBudgetRange")) {
+    next.defaultBudgetRange = patch.defaultBudgetRange?.trim() ?? "";
+  }
+  if (Object.prototype.hasOwnProperty.call(patch, "approvalContact")) {
+    next.approvalContact = patch.approvalContact?.trim() ?? "";
+  }
+  if (Object.prototype.hasOwnProperty.call(patch, "billingEmail")) {
+    next.billingEmail = patch.billingEmail?.trim() ?? "";
+  }
+  if (Object.prototype.hasOwnProperty.call(patch, "projectTypes")) {
+    next.projectTypes = Array.isArray(patch.projectTypes)
+      ? patch.projectTypes.filter((item) => typeof item === "string")
+      : [];
+  }
+  if (Object.prototype.hasOwnProperty.call(patch, "logoPath")) {
+    next.logoPath = patch.logoPath ?? null;
+  }
+  if (Object.prototype.hasOwnProperty.call(patch, "notifications")) {
+    next.notifications = normalizeNotificationPreferences(patch.notifications);
+  }
+
+  return normalizeClientProfilePreferencesInput(next);
 }
 
 export function normalizeClientProfilePreferencesInput(

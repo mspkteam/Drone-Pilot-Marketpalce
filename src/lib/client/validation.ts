@@ -1,6 +1,5 @@
 import type { ClientBillingAddress } from "@/types/client";
 import type { ClientProfilePreferences } from "@/lib/client/preferences";
-import { normalizeClientProfilePreferencesInput } from "@/lib/client/preferences";
 
 export type ClientProfileInput = {
   companyName?: string | null;
@@ -41,10 +40,12 @@ export function validateClientProfileInput(
   }
 
   const billing = normalizeBillingAddress(input.billingAddress);
+  // Keep preferences as a partial patch so PATCH { notifications } does not
+  // wipe projectTypes / logoPath via full normalize-before-merge.
   const preferences =
     input.preferences === undefined
       ? undefined
-      : normalizeClientProfilePreferencesInput(input.preferences ?? {});
+      : sanitizeClientPreferencesPatch(input.preferences);
 
   return {
     ok: true,
@@ -57,6 +58,44 @@ export function validateClientProfileInput(
       completeOnboarding: input.completeOnboarding,
     },
   };
+}
+
+function sanitizeClientPreferencesPatch(
+  input: Partial<ClientProfilePreferences> | null,
+): Partial<ClientProfilePreferences> {
+  if (!input) return {};
+
+  const patch: Partial<ClientProfilePreferences> = {};
+  if (Object.prototype.hasOwnProperty.call(input, "roleTitle")) {
+    patch.roleTitle = input.roleTitle?.trim() ?? "";
+  }
+  if (Object.prototype.hasOwnProperty.call(input, "preferredContact")) {
+    patch.preferredContact = input.preferredContact;
+  }
+  if (Object.prototype.hasOwnProperty.call(input, "typicalProjectArea")) {
+    patch.typicalProjectArea = input.typicalProjectArea?.trim() ?? "";
+  }
+  if (Object.prototype.hasOwnProperty.call(input, "defaultBudgetRange")) {
+    patch.defaultBudgetRange = input.defaultBudgetRange?.trim() ?? "";
+  }
+  if (Object.prototype.hasOwnProperty.call(input, "approvalContact")) {
+    patch.approvalContact = input.approvalContact?.trim() ?? "";
+  }
+  if (Object.prototype.hasOwnProperty.call(input, "billingEmail")) {
+    patch.billingEmail = input.billingEmail?.trim() ?? "";
+  }
+  if (Object.prototype.hasOwnProperty.call(input, "projectTypes")) {
+    patch.projectTypes = Array.isArray(input.projectTypes)
+      ? input.projectTypes.map((item) => item.trim()).filter(Boolean)
+      : [];
+  }
+  if (Object.prototype.hasOwnProperty.call(input, "logoPath")) {
+    patch.logoPath = input.logoPath ?? null;
+  }
+  if (Object.prototype.hasOwnProperty.call(input, "notifications")) {
+    patch.notifications = input.notifications;
+  }
+  return patch;
 }
 
 function normalizeBillingAddress(

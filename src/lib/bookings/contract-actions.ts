@@ -149,24 +149,6 @@ export function buildPilotContractActions(input: {
     });
   }
 
-  // Pilot can request a scope/delivery revision via the existing conversation
-  // (client-started), with a prefilled revision intent for the composer.
-  if (
-    canMessage &&
-    (phase === "ready" ||
-      phase === "in_progress" ||
-      phase === "awaiting_review" ||
-      phase === "revisions_requested")
-  ) {
-    const sep = messageHref.includes("?") ? "&" : "?";
-    actions.push({
-      id: "request_revision",
-      label: "Request Revision",
-      href: `${messageHref}${sep}intent=revision`,
-      tone: "outline",
-    });
-  }
-
   if (
     phase === "ready" ||
     phase === "in_progress" ||

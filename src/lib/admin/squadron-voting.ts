@@ -362,6 +362,27 @@ export async function castSquadronVote(
     return { ok: false, error: "Ballot is closed.", status: 409 };
   }
 
+  const voterPilot = await prisma.pilotProfile.findFirst({
+    where: { userId },
+    select: {
+      subscriptions: {
+        where: { status: "active" },
+        take: 1,
+        select: { subscriptionPlan: { select: { code: true } } },
+      },
+    },
+  });
+  const voterRank = membershipTierRank(
+    voterPilot?.subscriptions[0]?.subscriptionPlan.code,
+  );
+  if (voterRank < 4) {
+    return {
+      ok: false,
+      error: "Squadron voting requires grade A-4 or higher.",
+      status: 403,
+    };
+  }
+
   const votes = parseVotes(ballot.votesJson).filter((entry) => entry.userId !== userId);
   votes.push({
     userId,

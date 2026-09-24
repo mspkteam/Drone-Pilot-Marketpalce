@@ -45,10 +45,17 @@ describe("getPlatformFee", () => {
     assert.equal(getPlatformFee(paymentStub(3000)), 450);
   });
 
-  it("uses the stored commission amount when present (admin-configurable rate)", () => {
+  it("ignores legacy grade-band rates (10–14%) and uses platform 15%", () => {
     assert.equal(
       getPlatformFee(paymentStub(3000, { rate: 0.12, amount: 360 })),
-      360,
+      450,
+    );
+  });
+
+  it("keeps intentional admin overrides outside the legacy grade band", () => {
+    assert.equal(
+      getPlatformFee(paymentStub(3000, { rate: 0.075, amount: 225 })),
+      225,
     );
   });
 });

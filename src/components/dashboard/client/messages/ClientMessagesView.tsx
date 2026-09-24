@@ -48,6 +48,8 @@ export function ClientMessagesView({
   const [selectedId, setSelectedId] = useState<string | null>(
     initialConversationId ?? null,
   );
+  /** When true, skip auto-select so Close keeps the empty thread pane. */
+  const [threadDismissed, setThreadDismissed] = useState(false);
   const [mobileChatOpen, setMobileChatOpen] = useState(!!initialConversationId);
   const [detail, setDetail] = useState<ConversationDetailDto | null>(null);
   const [loadingThread, setLoadingThread] = useState(false);
@@ -91,16 +93,17 @@ export function ClientMessagesView({
       (c) => c.pilotProfileId === preferredPilotId,
     );
     if (match) {
+      setThreadDismissed(false);
       setSelectedId(match.id);
       setMobileChatOpen(true);
     }
   }, [preferredPilotId, conversations]);
 
   useEffect(() => {
-    if (selectedId || conversations.length === 0) return;
+    if (selectedId || conversations.length === 0 || threadDismissed) return;
     if (preferredPilotId) return;
     setSelectedId(conversations[0]?.id ?? null);
-  }, [conversations, selectedId, preferredPilotId]);
+  }, [conversations, selectedId, preferredPilotId, threadDismissed]);
 
   useEffect(() => {
     if (!selectedId) {
@@ -167,6 +170,7 @@ export function ClientMessagesView({
   }, [detail]);
 
   function selectConversation(id: string) {
+    setThreadDismissed(false);
     setSelectedId(id);
     setMobileChatOpen(true);
     setDraft("");
@@ -389,10 +393,13 @@ export function ClientMessagesView({
                 className="pilot-messages-close-btn"
                 aria-label="Close conversation"
                 onClick={() => {
+                  setThreadDismissed(true);
                   setSelectedId(null);
                   setDetail(null);
                   setMobileChatOpen(false);
                   setPendingFiles([]);
+                  setLoadingThread(false);
+                  setThreadError(null);
                 }}
               >
                 ×

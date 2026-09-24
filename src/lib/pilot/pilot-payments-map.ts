@@ -12,14 +12,15 @@ export type PilotPaymentsSummary = {
 };
 
 export function getPlatformFee(payment: PaymentListItemDto): number {
-  // Prefer stored commission amount (written with admin-configurable platform
-  // rate or per-pilot override). Fall back to flat 15% default.
-  if (payment.commission?.amount != null && payment.commission.amount >= 0) {
-    return payment.commission.amount;
-  }
-  const rate =
+  const storedRate =
     payment.commission?.rate != null && payment.commission.rate > 0
       ? payment.commission.rate
+      : null;
+  const looksLikeLegacyGradeFee =
+    storedRate != null && storedRate >= 0.1 && storedRate < 0.145;
+  const rate =
+    storedRate != null && !looksLikeLegacyGradeFee
+      ? storedRate
       : DEFAULT_COMMISSION_RATE;
   return calculateCommission(payment.amountGross, rate).amount;
 }

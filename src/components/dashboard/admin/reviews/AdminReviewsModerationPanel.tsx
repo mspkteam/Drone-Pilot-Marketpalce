@@ -95,7 +95,16 @@ export function AdminReviewsModerationPanel() {
         setError(data.error ?? "Failed to update review.");
       } else {
         setSuccess(successMessage);
-        await load(filter);
+        // After Hide, stay on Hidden; after Publish / Set 5★, jump to Published
+        // so the card doesn't look like the action failed.
+        const nextFilter: ReviewFilter =
+          payload.status === "hidden"
+            ? "hidden"
+            : payload.status === "published" || payload.rating === 5
+              ? "published"
+              : filter;
+        setFilter(nextFilter);
+        await load(nextFilter);
       }
     } catch {
       setError("Failed to update review.");

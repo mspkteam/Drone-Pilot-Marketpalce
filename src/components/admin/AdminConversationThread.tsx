@@ -50,39 +50,36 @@ export function AdminConversationThread({
   }, [load]);
 
   if (loading) {
-    return <p className="text-sm text-muted-foreground">Loading…</p>;
+    return <p className="ras-help">Loading…</p>;
   }
 
   if (!conversation) {
     return (
-      <p className="text-sm text-destructive">{error ?? "Not found."}</p>
+      <p className="ras-alert ras-alert--danger">{error ?? "Not found."}</p>
     );
   }
 
   return (
     <div className="max-w-3xl space-y-6">
-      <Link
-        href="/dashboard/admin/messages"
-        className="text-sm font-medium text-gold-dark hover:text-gold"
-      >
+      <Link href="/dashboard/admin/messages" className="ras-link text-sm">
         ← Back to messages
       </Link>
-      <div>
-        <h1 className="text-xl font-semibold">{conversation.jobTitle}</h1>
-        <p className="text-sm text-muted-foreground">
+      <div className="ras-panel">
+        <h1 className="ras-panel-heading">{conversation.jobTitle}</h1>
+        <p className="ras-help">
           {conversation.clientName} ↔ {conversation.pilotName}
           {conversation.bookingId ? " · Booking linked" : ""}
         </p>
-        <p className="mt-2 text-xs text-muted-foreground">Read-only (admin)</p>
+        <p className="mt-2 ras-soft text-xs">Read-only (admin)</p>
       </div>
-      <div className="space-y-3 rounded-lg border border-border p-4">
+      <div className="ras-panel space-y-3">
         {conversation.messages.map((m) => (
-          <div key={m.id} className="rounded-lg bg-surface px-3 py-2 text-sm">
-            <p className="text-xs text-muted-foreground">
+          <div key={m.id} className="ras-panel ras-panel--nested text-sm">
+            <p className="ras-soft text-xs">
               {m.senderEmail} ({m.senderRole})
             </p>
             <p className="mt-1 whitespace-pre-wrap">{m.body}</p>
-            <p className="mt-1 text-xs text-muted-foreground">
+            <p className="mt-1 ras-soft text-xs">
               {new Date(m.createdAt).toLocaleString()}
             </p>
           </div>

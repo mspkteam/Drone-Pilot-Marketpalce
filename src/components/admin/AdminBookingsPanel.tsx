@@ -90,30 +90,28 @@ export function AdminBookingsPanel() {
       </div>
 
       {error ? (
-        <p className="text-sm text-destructive" role="alert">
+        <p className="ras-alert ras-alert--danger" role="alert">
           {error}
         </p>
       ) : null}
 
       {loading ? (
-        <p className="text-sm text-muted-foreground">Loading bookings…</p>
+        <p className="ras-help">Loading bookings…</p>
       ) : bookings.length === 0 ? (
-        <p className="empty-state">
-          No bookings in this queue.
-        </p>
+        <p className="ras-panel ras-muted text-sm">No bookings in this queue.</p>
       ) : (
-        <ul className="list-panel">
+        <ul className="ras-panel ras-panel--flush divide-y divide-[var(--color-border-divider)] overflow-hidden">
           {bookings.map((b) => (
             <li
               key={b.id}
-              className="flex flex-col gap-3 p-4 sm:flex-row sm:items-start sm:justify-between"
+              className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-start sm:justify-between"
             >
               <div>
-                <p className="font-medium">{b.job.title}</p>
-                <p className="text-sm text-muted-foreground">
+                <p className="font-medium text-[var(--color-text)]">{b.job.title}</p>
+                <p className="ras-muted text-sm">
                   {b.pilot.displayName} · {b.client.contactName}
                 </p>
-                <p className="text-xs text-muted-foreground">
+                <p className="ras-soft text-xs">
                   {b.currency} {b.agreedAmount.toLocaleString()} ·{" "}
                   {b.job.locationLabel}
                 </p>

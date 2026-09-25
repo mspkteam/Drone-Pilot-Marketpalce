@@ -180,21 +180,19 @@ export function AdminDisputeDetailPanel({
       </dl>
 
       {error ? (
-        <p className="text-sm text-destructive" role="alert">
+        <p className="ras-alert ras-alert--danger" role="alert">
           {error}
         </p>
       ) : null}
 
-      <div className="rounded-lg border border-border p-4">
-        <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-          Initial reason
-        </p>
-        <p className="mt-2 text-sm whitespace-pre-wrap">{dispute.reason}</p>
+      <div className="ras-panel">
+        <p className="ras-panel-title">Initial reason</p>
+        <p className="mt-2 whitespace-pre-wrap text-sm">{dispute.reason}</p>
       </div>
 
       {dispute.resolutionType ? (
-        <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm">
-          <p className="font-medium text-emerald-800">Resolved</p>
+        <div className="ras-alert ras-alert--success text-sm">
+          <p className="font-medium">Resolved</p>
           <p className="mt-1">
             {getDisputeResolutionLabel(dispute.resolutionType)}
             {dispute.resolutionAmount != null
@@ -202,19 +200,16 @@ export function AdminDisputeDetailPanel({
               : null}
           </p>
           {dispute.resolutionNotes ? (
-            <p className="mt-1 text-muted-foreground">{dispute.resolutionNotes}</p>
+            <p className="mt-1 ras-muted">{dispute.resolutionNotes}</p>
           ) : null}
         </div>
       ) : null}
 
       <ul className="space-y-3">
         {dispute.entries.map((entry) => (
-          <li
-            key={entry.id}
-            className="rounded-md border border-border p-3 text-sm"
-          >
-            <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-              <span className="font-medium text-foreground">
+          <li key={entry.id} className="ras-panel ras-panel--nested text-sm">
+            <div className="flex flex-wrap gap-2 text-xs ras-muted">
+              <span className="font-medium text-[var(--color-text)]">
                 {entry.authorLabel}
               </span>
               <span>{getDisputeEntryTypeLabel(entry.entryType)}</span>
@@ -226,7 +221,7 @@ export function AdminDisputeDetailPanel({
                 href={entry.attachmentUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-1 block break-all text-xs text-gold-dark hover:underline"
+                className="ras-link mt-1 block break-all text-xs"
               >
                 {entry.attachmentUrl}
               </a>
@@ -236,8 +231,8 @@ export function AdminDisputeDetailPanel({
       </ul>
 
       {dispute.canAddEntry ? (
-        <div className="space-y-3 rounded-lg border border-border p-4">
-          <h3 className="font-medium text-sm">Moderator comment</h3>
+        <div className="ras-panel space-y-3">
+          <h3 className="ras-panel-title">Moderator comment</h3>
           <FormField label="Comment" htmlFor="mod-comment">
             <textarea
               id="mod-comment"

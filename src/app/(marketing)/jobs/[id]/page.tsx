@@ -81,7 +81,7 @@ export default async function PublicJobDetailPage({ params }: PageProps) {
         <div className="mt-10 flex flex-wrap gap-3">
           <Link
             href={`/register?role=pilot`}
-            className="inline-flex items-center justify-center rounded-sm bg-gold px-5 py-2.5 text-sm font-semibold text-black transition hover:bg-gold-light"
+            className="inline-flex items-center justify-center rounded-[var(--radius-control)] bg-[var(--color-gold)] px-5 py-2.5 text-sm font-semibold text-[var(--color-cta-dark)] transition hover:bg-[var(--color-gold-soft)]"
           >
             Join as pilot to apply
           </Link>

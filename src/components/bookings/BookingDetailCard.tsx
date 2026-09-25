@@ -21,53 +21,39 @@ export function BookingDetailCard({
 
   return (
     <div className="space-y-6">
-      <div className="rounded-lg border border-border bg-surface-elevated p-6">
+      <div className="ras-panel">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-lg font-semibold">{booking.job.title}</h2>
+          <h2 className="ras-panel-heading">{booking.job.title}</h2>
           <BookingStatusBadge status={booking.status as BookingStatus} />
         </div>
-        <p className="mt-2 text-sm text-muted-foreground">
-          {booking.job.locationLabel}
-        </p>
-        <dl className="mt-6 grid gap-4 sm:grid-cols-2">
+        <p className="ras-help">{booking.job.locationLabel}</p>
+        <dl className="ras-dl ras-dl--2 mt-6">
           <div>
-            <dt className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              {actor === "client" ? "Pilot" : "Client"}
-            </dt>
-            <dd className="mt-1 text-sm font-medium">{counterparty}</dd>
+            <dt>{actor === "client" ? "Pilot" : "Client"}</dt>
+            <dd>{counterparty}</dd>
           </div>
           <div>
-            <dt className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Agreed amount
-            </dt>
-            <dd className="mt-1 text-sm font-medium">
+            <dt>Agreed amount</dt>
+            <dd>
               {booking.currency} {booking.agreedAmount.toLocaleString()}
             </dd>
           </div>
           <div>
-            <dt className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Created
-            </dt>
-            <dd className="mt-1 text-sm">
-              {formatDisplayDateTime(booking.createdAt)}
-            </dd>
+            <dt>Created</dt>
+            <dd>{formatDisplayDateTime(booking.createdAt)}</dd>
           </div>
           {booking.completedAt ? (
             <div>
-              <dt className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Completed
-              </dt>
-              <dd className="mt-1 text-sm">
-                {formatDisplayDateTime(booking.completedAt)}
-              </dd>
+              <dt>Completed</dt>
+              <dd>{formatDisplayDateTime(booking.completedAt)}</dd>
             </div>
           ) : null}
         </dl>
       </div>
 
-      <div className="rounded-lg border border-border p-6">
-        <h3 className="font-medium">Actions</h3>
-        <p className="mt-1 text-sm text-muted-foreground">
+      <div className="ras-panel">
+        <h3 className="ras-panel-title">Actions</h3>
+        <p className="ras-help">
           Confirm the booking, start work, or cancel. Completion happens after
           deliverable approval.
         </p>
@@ -87,7 +73,7 @@ export function BookingDetailCard({
                   ? `/dashboard/client/messages?conversation=${booking.conversationId}`
                   : `/dashboard/client/messages?pilot=${booking.pilotProfileId}`
               }
-              className="inline-flex items-center rounded-md border border-gold/40 bg-gold/10 px-3 py-2 text-sm font-semibold text-gold-dark hover:bg-gold/20"
+              className="ras-link inline-flex items-center rounded-md border border-[rgba(216,179,57,0.35)] bg-[rgba(216,179,57,0.1)] px-3 py-2 text-sm"
             >
               Message pilot
             </Link>
@@ -96,10 +82,10 @@ export function BookingDetailCard({
       </div>
 
       {actor === "client" ? (
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm">
           <Link
             href={`/dashboard/client/jobs/${booking.jobId}`}
-            className="text-gold-dark hover:text-gold"
+            className="ras-link"
           >
             View related job →
           </Link>

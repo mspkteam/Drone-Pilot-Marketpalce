@@ -233,16 +233,16 @@ export function BookingDeliverySection({
   }
 
   return (
-    <div className="rounded-lg border border-border bg-surface-elevated p-6" id="deliver">
-      <h3 className="text-lg font-semibold">{sectionTitle}</h3>
-      <p className="mt-1 text-sm text-muted-foreground">{sectionHelp}</p>
+    <div className="ras-panel" id="deliver">
+      <h3 className="ras-panel-title">{sectionTitle}</h3>
+      <p className="ras-help">{sectionHelp}</p>
 
       {loading ? (
-        <p className="mt-4 text-sm text-muted-foreground">Loading deliverables…</p>
+        <p className="mt-4 ras-help">Loading deliverables…</p>
       ) : null}
 
       {error ? (
-        <p className="mt-4 text-sm text-destructive" role="alert">
+        <p className="mt-4 ras-danger text-sm" role="alert">
           {error}
         </p>
       ) : null}
@@ -254,7 +254,7 @@ export function BookingDeliverySection({
       ) : null}
 
       {delivery?.clientFeedback ? (
-        <p className="mt-3 rounded-md border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm">
+        <p className="ras-alert ras-alert--warn mt-3">
           Client feedback: {delivery.clientFeedback}
         </p>
       ) : null}
@@ -262,24 +262,21 @@ export function BookingDeliverySection({
       {delivery?.items.length ? (
         <ul className="mt-4 space-y-2">
           {delivery.items.map((item) => (
-            <li
-              key={item.id}
-              className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-border px-3 py-2 text-sm"
-            >
+            <li key={item.id} className="ras-list-row">
               <span>{item.label}</span>
               {item.kind === "link" && item.url ? (
                 <a
                   href={item.url}
                   target="_blank"
                   rel="noreferrer"
-                  className="text-gold-dark hover:text-gold"
+                  className="ras-link"
                 >
                   Open link →
                 </a>
               ) : item.storedFileName ? (
                 <a
                   href={`${apiBase}/${bookingId}/delivery/files/${item.id}`}
-                  className="text-gold-dark hover:text-gold"
+                  className="ras-link"
                 >
                   Download →
                 </a>
@@ -288,11 +285,11 @@ export function BookingDeliverySection({
           ))}
         </ul>
       ) : (
-        <p className="mt-4 text-sm text-muted-foreground">No deliverables yet.</p>
+        <p className="mt-4 ras-help">No deliverables yet.</p>
       )}
 
       {delivery?.notes ? (
-        <p className="mt-4 text-sm whitespace-pre-wrap text-muted-foreground">
+        <p className="mt-4 whitespace-pre-wrap ras-help">
           Pilot notes: {delivery.notes}
         </p>
       ) : null}

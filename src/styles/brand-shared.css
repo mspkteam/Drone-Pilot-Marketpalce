@@ -645,3 +645,236 @@ form:not(.dashboard-app form) textarea:focus-visible {
 .ras-table tbody tr:hover td {
   background: rgba(216, 179, 57, 0.03);
 }
+
+/* ——— Shared RAS panels (booking / payment / auth / waitlist) ——— */
+.ras-panel {
+  box-sizing: border-box;
+  border: 1px solid var(--dashboard-card-border);
+  border-radius: var(--radius-card);
+  background: var(--color-card-warm);
+  color: var(--color-text);
+  box-shadow: var(--shadow-card);
+  padding: 1.25rem 1.35rem;
+}
+
+.ras-panel--flush {
+  padding: 0;
+}
+
+.ras-panel--nested {
+  box-shadow: none;
+  background: var(--color-panel);
+  padding: 0.85rem 1rem;
+}
+
+.ras-panel-title {
+  margin: 0;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-gold);
+}
+
+.ras-panel-heading {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text-heading);
+}
+
+.ras-muted {
+  color: var(--color-text-muted);
+}
+
+.ras-soft {
+  color: var(--color-text-soft);
+}
+
+.ras-danger {
+  color: var(--color-danger-soft);
+}
+
+.ras-accent {
+  color: var(--color-gold);
+  font-weight: 600;
+}
+
+.ras-help {
+  margin: 0.35rem 0 0;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+.ras-alert {
+  margin: 0;
+  border-radius: var(--radius-control);
+  border: 1px solid rgba(216, 179, 57, 0.28);
+  background: rgba(216, 179, 57, 0.1);
+  padding: 0.65rem 0.85rem;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--color-gold-soft);
+}
+
+.ras-alert--danger {
+  border-color: rgba(239, 68, 68, 0.35);
+  background: var(--color-danger-muted);
+  color: var(--color-danger-soft);
+}
+
+.ras-alert--success {
+  border-color: rgba(110, 231, 183, 0.3);
+  background: var(--color-success-muted);
+  color: var(--color-success);
+}
+
+.ras-alert--warn {
+  border-color: rgba(245, 158, 11, 0.35);
+  background: rgba(245, 158, 11, 0.1);
+  color: #fbbf24;
+}
+
+.ras-dl {
+  display: grid;
+  gap: 0.85rem;
+  margin: 0;
+}
+
+@media (min-width: 640px) {
+  .ras-dl--2 {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.ras-dl dt {
+  margin: 0;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-soft);
+}
+
+.ras-dl dd {
+  margin: 0.25rem 0 0;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.ras-list-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  border: 1px solid var(--dashboard-card-border);
+  border-radius: var(--radius-control);
+  background: var(--color-panel);
+  padding: 0.65rem 0.85rem;
+  font-size: 0.875rem;
+  color: var(--color-text);
+}
+
+.ras-link {
+  color: var(--color-gold);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.ras-link:hover {
+  color: var(--color-gold-soft);
+}
+
+.ras-divider {
+  border: 0;
+  border-top: 1px solid var(--color-border-divider);
+  margin: 1rem 0;
+}
+
+.ras-field,
+.ras-field input,
+.ras-field textarea,
+.ras-field select {
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.ras-field input,
+.ras-field textarea,
+.ras-field select,
+input.ras-input,
+textarea.ras-input,
+select.ras-input {
+  border: 1px solid var(--dashboard-card-border);
+  border-radius: var(--radius-control);
+  background: var(--color-bg-section);
+  color: var(--color-text);
+  padding: 0.65rem 0.85rem;
+  font-family: inherit;
+  font-size: 0.875rem;
+}
+
+.ras-field input:focus-visible,
+.ras-field textarea:focus-visible,
+.ras-field select:focus-visible,
+input.ras-input:focus-visible,
+textarea.ras-input:focus-visible,
+select.ras-input:focus-visible {
+  border-color: var(--color-gold);
+  outline: 2px solid rgba(216, 179, 57, 0.25);
+  outline-offset: 0;
+}
+
+.ras-auth-shell {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  background: var(--color-bg-soft);
+  color: var(--color-text-muted);
+}
+
+.ras-auth-header {
+  border-bottom: 1px solid var(--dashboard-card-border);
+  background: rgba(23, 21, 18, 0.88);
+  padding: 1rem 1.25rem;
+  backdrop-filter: blur(10px);
+}
+
+.ras-auth-main {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 1rem;
+}
+
+.ras-auth-card {
+  width: 100%;
+  max-width: 26rem;
+  border: 1px solid rgba(216, 179, 57, 0.22);
+  border-radius: var(--radius-card);
+  background: var(--color-card-warm);
+  box-shadow: var(--shadow-card);
+  padding: 1.75rem 1.5rem;
+}
+
+.ras-auth-footer {
+  border-top: 1px solid var(--dashboard-card-border);
+  padding: 1rem;
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--color-text-soft);
+}
+
+.ras-auth-footer a {
+  color: var(--color-gold);
+  text-decoration: none;
+}
+
+.ras-auth-footer a:hover {
+  color: var(--color-gold-soft);
+}

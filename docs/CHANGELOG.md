@@ -4,6 +4,14 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.94] — 2026-09-25
+
+### Changed
+
+- **Theme alignment (full platform):** Shared `.ras-panel` / auth card primitives for booking payment, delivery, dispute, and review surfaces; login/register/waitlist shells; admin messages/bookings/conversation/dispute/support leftovers; public jobs list cards use warm gold-border panels instead of flat gray/white stacks.
+
+---
+
 ## [0.27.93] — 2026-09-24
 
 ### Fixed

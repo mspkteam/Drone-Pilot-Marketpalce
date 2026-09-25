@@ -55,7 +55,7 @@ export function BookingStatusActions({
   return (
     <div className="space-y-3">
       {error ? (
-        <p className="text-sm text-destructive" role="alert">
+        <p className="ras-danger text-sm" role="alert">
           {error}
         </p>
       ) : null}

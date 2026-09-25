@@ -44,7 +44,7 @@ export function AdminMessagesPanel() {
 
   return (
     <div className="space-y-6">
-      <p className="text-sm text-muted-foreground">
+      <p className="ras-help">
         Read-only access for support and dispute review. Admins cannot send
         messages.
       </p>
@@ -53,31 +53,31 @@ export function AdminMessagesPanel() {
       </Button>
 
       {error ? (
-        <p className="text-sm text-destructive" role="alert">
+        <p className="ras-alert ras-alert--danger" role="alert">
           {error}
         </p>
       ) : null}
 
       {loading ? (
-        <p className="text-sm text-muted-foreground">Loading…</p>
+        <p className="ras-help">Loading…</p>
       ) : conversations.length === 0 ? (
-        <p className="empty-state">
-          No conversations yet.
-        </p>
+        <p className="ras-panel ras-muted text-sm">No conversations yet.</p>
       ) : (
-        <ul className="list-panel">
+        <ul className="ras-panel ras-panel--flush divide-y divide-[var(--color-border-divider)] overflow-hidden">
           {conversations.map((c) => (
             <li key={c.id}>
               <Link
                 href={`/dashboard/admin/messages/${c.id}`}
-                className="block p-4 transition-colors hover:bg-surface"
+                className="block px-4 py-4 transition-colors hover:bg-[rgba(216,179,57,0.05)]"
               >
-                <p className="font-medium">{c.jobTitle}</p>
-                <p className="text-sm text-muted-foreground">
+                <p className="font-medium text-[var(--color-text)]">{c.jobTitle}</p>
+                <p className="ras-muted text-sm">
                   {c.clientName} ↔ {c.pilotName}
                 </p>
                 {c.lastMessagePreview ? (
-                  <p className="mt-1 text-sm">{c.lastMessagePreview}</p>
+                  <p className="mt-1 text-sm text-[var(--color-text-muted)]">
+                    {c.lastMessagePreview}
+                  </p>
                 ) : null}
               </Link>
             </li>

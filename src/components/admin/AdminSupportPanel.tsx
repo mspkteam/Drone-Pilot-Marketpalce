@@ -245,7 +245,7 @@ export function AdminSupportPanel({
     return (
       <div className="space-y-6">
         {readOnly ? (
-          <p className="rounded-lg border border-border bg-surface-elevated px-4 py-3 text-sm text-muted-foreground">
+          <p className="ras-panel ras-muted text-sm">
             Read-only view — moderators cannot reply or change status.
           </p>
         ) : null}

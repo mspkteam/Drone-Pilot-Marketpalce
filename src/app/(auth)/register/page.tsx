@@ -11,26 +11,22 @@ export const metadata = { title: "Register" };
 
 function RegistrationClosedPanel() {
   return (
-    <div className="rounded-lg border border-border bg-background p-8 text-center">
-      <p className="text-xs font-bold uppercase tracking-[0.14em] text-gold">
-        Registration closed
-      </p>
-      <h1 className="mt-3 text-2xl font-semibold text-foreground">
-        New accounts are paused
-      </h1>
-      <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-muted-foreground">
+    <div className="ras-auth-card text-center">
+      <p className="ras-panel-title">Registration closed</p>
+      <h1 className="ras-panel-heading mt-3">New accounts are paused</h1>
+      <p className="ras-help mx-auto max-w-md">
         {REGISTRATION_CLOSED_MESSAGE}
       </p>
       <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
         <Link
           href="/waitlist"
-          className="inline-flex min-h-10 items-center justify-center rounded-md bg-gold px-5 text-sm font-semibold text-cta-dark hover:bg-gold-soft"
+          className="inline-flex min-h-10 items-center justify-center rounded-[var(--radius-control)] bg-[var(--color-gold)] px-5 text-sm font-semibold text-[var(--color-cta-dark)] hover:bg-[var(--color-gold-soft)]"
         >
           Join the waitlist
         </Link>
         <Link
           href="/login"
-          className="inline-flex min-h-10 items-center justify-center rounded-md border border-gold/40 px-5 text-sm font-semibold text-gold hover:bg-gold/10"
+          className="inline-flex min-h-10 items-center justify-center rounded-[var(--radius-control)] border border-[rgba(216,179,57,0.4)] px-5 text-sm font-semibold text-[var(--color-gold)] hover:bg-[rgba(216,179,57,0.1)]"
         >
           Sign in
         </Link>
@@ -49,7 +45,7 @@ export default async function RegisterPage() {
   return (
     <Suspense
       fallback={
-        <div className="rounded-lg border border-border bg-background p-8 text-center text-sm text-muted-foreground">
+        <div className="ras-auth-card text-center ras-muted text-sm">
           Loading…
         </div>
       }

@@ -62,16 +62,16 @@ export function WaitlistForm() {
 
   if (success) {
     return (
-      <div className="rounded-lg border border-gold/30 bg-gold/10 px-4 py-6 text-sm text-gold-dark">
+      <div className="ras-panel ras-alert space-y-2">
         <p className="font-medium" role="status">
           {alreadySubscribed
             ? "You're already on our waitlist."
             : "You're on the waitlist!"}
         </p>
-        <p className="mt-2">
+        <p>
           We&apos;ll email {email} when new regions and features launch.
         </p>
-        <div className="mt-6 flex flex-wrap gap-3">
+        <div className="mt-4 flex flex-wrap gap-3">
           <Button href="/register?role=pilot" size="sm">
             Register as pilot
           </Button>
@@ -79,7 +79,7 @@ export function WaitlistForm() {
             Register as client
           </Button>
         </div>
-        <p className="mt-4 text-xs text-muted-foreground">
+        <p className="ras-help">
           Marketplace is live in demo — you can sign up now instead of waiting.
         </p>
       </div>
@@ -87,9 +87,10 @@ export function WaitlistForm() {
   }
 
   return (
-    <div className="rounded-lg border border-border bg-background p-6 shadow-sm sm:p-8">
-      <h1 className="text-2xl font-semibold tracking-tight">Join the waitlist</h1>
-      <p className="mt-2 text-sm text-muted-foreground">
+    <div className="ras-auth-card">
+      <p className="ras-panel-title">Early access</p>
+      <h1 className="ras-panel-heading mt-2">Join the waitlist</h1>
+      <p className="ras-help">
         Get early access updates for new regions, pilot tools, and client features.
       </p>
 
@@ -102,7 +103,7 @@ export function WaitlistForm() {
             autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className={inputClassName}
+            className={`${inputClassName} ras-input`}
           />
         </FormField>
 
@@ -112,7 +113,7 @@ export function WaitlistForm() {
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className={inputClassName}
+            className={`${inputClassName} ras-input`}
           />
         </FormField>
 
@@ -124,7 +125,7 @@ export function WaitlistForm() {
             onChange={(e) =>
               setRoleInterest(e.target.value as WaitlistRoleInterest)
             }
-            className={inputClassName}
+            className={`${inputClassName} ras-input`}
           >
             {WAITLIST_ROLE_INTERESTS.map((r) => (
               <option key={r} value={r}>
@@ -145,12 +146,12 @@ export function WaitlistForm() {
             value={region}
             onChange={(e) => setRegion(e.target.value)}
             placeholder="e.g. Austin, TX"
-            className={inputClassName}
+            className={`${inputClassName} ras-input`}
           />
         </FormField>
 
         {error ? (
-          <p className="text-sm text-destructive" role="alert">
+          <p className="ras-alert ras-alert--danger" role="alert">
             {error}
           </p>
         ) : null}
@@ -166,9 +167,9 @@ export function WaitlistForm() {
         </Button>
       </form>
 
-      <p className="mt-6 text-center text-sm text-muted-foreground">
+      <p className="mt-6 text-center text-sm ras-muted">
         Already have an account?{" "}
-        <Link href="/login" className="font-medium text-gold-dark hover:text-gold">
+        <Link href="/login" className="ras-link">
           Log in
         </Link>
       </p>

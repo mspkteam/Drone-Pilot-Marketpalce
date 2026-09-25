@@ -9,6 +9,8 @@ import { PasswordField } from "@/components/ui/PasswordField";
 import { resolvePostLoginRedirect } from "@/lib/auth/permissions";
 import type { UserRole } from "@/types/roles";
 
+const inputCls = "ras-input mt-1";
+
 export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -55,24 +57,22 @@ export function LoginForm() {
   }
 
   return (
-    <div className="premium-panel p-6 sm:p-8">
-      <h1 className="text-2xl font-semibold tracking-tight">Log in</h1>
-      <p className="mt-2 text-sm text-muted-foreground">
+    <div className="ras-auth-card">
+      <p className="ras-panel-title">Account</p>
+      <h1 className="ras-panel-heading mt-2">Log in</h1>
+      <p className="ras-help">
         Access your pilot, client, or admin dashboard.
       </p>
 
       <form onSubmit={handleSubmit} className="mt-8 space-y-4">
         {error ? (
-          <p
-            className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive"
-            role="alert"
-          >
+          <p className="ras-alert ras-alert--danger" role="alert">
             {error}
           </p>
         ) : null}
 
-        <div>
-          <label htmlFor="email" className="block text-sm font-medium">
+        <div className="ras-field">
+          <label htmlFor="email" className="block text-sm font-medium text-[var(--color-text)]">
             Email
           </label>
           <input
@@ -83,7 +83,7 @@ export function LoginForm() {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="mt-1 block w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold"
+            className={inputCls}
           />
         </div>
 
@@ -95,8 +95,8 @@ export function LoginForm() {
           required
           value={password}
           onChange={setPassword}
-          labelClassName="block text-sm font-medium"
-          inputClassName="mt-0 block w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold"
+          labelClassName="block text-sm font-medium text-[var(--color-text)]"
+          inputClassName={inputCls}
         />
 
         <Button type="submit" className="w-full" disabled={loading}>
@@ -104,9 +104,9 @@ export function LoginForm() {
         </Button>
       </form>
 
-      <p className="mt-6 text-center text-sm text-muted-foreground">
+      <p className="mt-6 text-center text-sm ras-muted">
         No account?{" "}
-        <Link href="/waitlist" className="font-medium text-gold-dark hover:text-gold">
+        <Link href="/waitlist" className="ras-link">
           Join the waitlist
         </Link>
       </p>

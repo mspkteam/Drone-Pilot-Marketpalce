@@ -33,7 +33,7 @@ export default async function PublicJobsIndexPage() {
               <li key={job.id}>
                 <Link
                   href={`/jobs/${job.id}`}
-                  className="block border border-white/10 bg-white/[0.03] px-5 py-4 transition hover:border-gold/50"
+                  className="ras-panel block px-5 py-4 transition hover:border-[rgba(216,179,57,0.45)]"
                 >
                   <span className="text-lg font-medium text-white">
                     {job.title}

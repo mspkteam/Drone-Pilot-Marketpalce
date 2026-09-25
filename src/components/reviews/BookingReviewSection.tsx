@@ -45,9 +45,7 @@ export function BookingReviewSection({
   }
 
   if (loading) {
-    return (
-      <p className="text-sm text-muted-foreground">Loading reviews…</p>
-    );
+    return <p className="ras-help">Loading reviews…</p>;
   }
 
   if (!data) return null;
@@ -57,31 +55,26 @@ export function BookingReviewSection({
   );
 
   return (
-    <div className="rounded-lg border border-border p-6 space-y-6">
-      <h3 className="font-medium">Reviews</h3>
+    <div className="ras-panel space-y-6">
+      <h3 className="ras-panel-title">Reviews</h3>
 
       {successMessage ? (
-        <p
-          className="rounded-md border border-gold/30 bg-gold/10 px-3 py-2 text-sm text-gold-dark"
-          role="status"
-        >
+        <p className="ras-alert" role="status">
           {successMessage}
         </p>
       ) : null}
 
       {data.myReview ? (
-        <div className="rounded-md border border-gold/30 bg-gold/10 p-4">
-          <p className="text-xs font-medium uppercase tracking-wider text-gold-dark">
-            Your review
-          </p>
+        <div className="ras-panel ras-panel--nested">
+          <p className="ras-panel-title">Your review</p>
           <div className="mt-2 flex items-center gap-2">
             <StarRating value={data.myReview.rating} size="md" />
-            <span className="text-sm text-muted-foreground">
+            <span className="ras-muted text-sm">
               {new Date(data.myReview.createdAt).toLocaleDateString()}
             </span>
           </div>
           {data.myReview.comment ? (
-            <p className="mt-2 text-sm whitespace-pre-wrap">{data.myReview.comment}</p>
+            <p className="mt-2 whitespace-pre-wrap text-sm">{data.myReview.comment}</p>
           ) : null}
         </div>
       ) : data.canReview ? (
@@ -92,14 +85,14 @@ export function BookingReviewSection({
           onSuccess={handleReviewSuccess}
         />
       ) : (
-        <p className="text-sm text-muted-foreground">
+        <p className="ras-help">
           Reviews are available after the booking is marked completed.
         </p>
       )}
 
       {othersReviews.length > 0 ? (
-        <div className="space-y-3 border-t border-border pt-4">
-          <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+        <div className="space-y-3 border-t border-[var(--color-border-divider)] pt-4">
+          <p className="ras-panel-title">
             {actor === "client" ? "Pilot's review" : "Client's review"}
           </p>
           {othersReviews.map((review) => (

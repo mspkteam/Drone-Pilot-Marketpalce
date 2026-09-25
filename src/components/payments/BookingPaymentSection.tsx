@@ -38,14 +38,12 @@ export function BookingPaymentSection({
   }
 
   if (loading) {
-    return (
-      <p className="text-sm text-muted-foreground">Loading payment details…</p>
-    );
+    return <p className="ras-help">Loading payment details…</p>;
   }
 
   if (!payment) {
     return (
-      <p className="rounded-lg border border-border px-4 py-3 text-sm text-muted-foreground">
+      <p className="ras-panel ras-muted text-sm">
         Payment record will appear shortly after completion.
       </p>
     );

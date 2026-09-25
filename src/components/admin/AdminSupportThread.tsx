@@ -305,7 +305,7 @@ export function AdminSupportThread({
         </Link>
       ) : null}
 
-      <div className={embedded ? "admin-support-ticket-card" : "rounded-lg border border-border bg-surface-elevated p-4 sm:p-5"}>
+      <div className={embedded ? "admin-support-ticket-card" : "ras-panel"}>
         {embedded && onBack ? (
           <button
             type="button"
@@ -405,7 +405,7 @@ export function AdminSupportThread({
         </p>
       ) : null}
 
-      <div className={embedded ? "admin-support-messages" : "max-h-[min(55vh,520px)] space-y-3 overflow-y-auto rounded-lg border border-border bg-background/50 p-4"}>
+      <div className={embedded ? "admin-support-messages" : "ras-panel max-h-[min(55vh,520px)] space-y-3 overflow-y-auto"}>
         {thread.messages.map((m) =>
           embedded ? (
             <ThemedSupportBubble key={m.id} message={m} />
@@ -462,7 +462,7 @@ export function AdminSupportThread({
       ) : (
         <form
           onSubmit={(e) => void sendReply(e)}
-          className="space-y-4 rounded-lg border border-border bg-surface-elevated p-4"
+          className="ras-panel space-y-4"
         >
           <label className="block text-sm font-medium text-foreground">
             Reply as support
@@ -470,7 +470,7 @@ export function AdminSupportThread({
               rows={4}
               value={reply}
               onChange={(e) => handleReplyChange(e.target.value)}
-              className="mt-1.5 min-h-[100px] w-full resize-none rounded-lg border border-border bg-surface px-3 py-2"
+              className="ras-input mt-1.5 min-h-[100px] w-full resize-none"
               placeholder="Type your reply…"
             />
           </label>

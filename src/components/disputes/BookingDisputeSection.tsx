@@ -138,7 +138,7 @@ export function BookingDisputeSection({
     return embedded ? (
       <p className="client-disputes-muted">Loading dispute thread…</p>
     ) : (
-      <p className="text-sm text-muted-foreground">Loading dispute…</p>
+      <p className="ras-help">Loading dispute…</p>
     );
   }
 
@@ -324,21 +324,21 @@ export function BookingDisputeSection({
   }
 
   return (
-    <div id="dispute" className="rounded-lg border border-border p-6 space-y-4 scroll-mt-6">
+    <div id="dispute" className="ras-panel space-y-4 scroll-mt-6">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h3 className="font-medium">Dispute</h3>
+        <h3 className="ras-panel-title">Dispute</h3>
         {dispute ? <DisputeStatusBadge status={dispute.status} /> : null}
       </div>
 
       {error ? (
-        <p className="text-sm text-destructive" role="alert">
+        <p className="ras-danger text-sm" role="alert">
           {error}
         </p>
       ) : null}
 
       {!dispute && canOpen ? (
         <div className="space-y-3">
-          <p className="text-sm text-muted-foreground">
+          <p className="ras-help">
             Open a dispute to flag payment or delivery issues on this booking.
             Both parties can add notes and evidence; moderators review and an
             admin resolves with payout or refund.
@@ -384,8 +384,8 @@ export function BookingDisputeSection({
         <>
           <p className="text-sm whitespace-pre-wrap">{dispute.reason}</p>
           {dispute.resolutionType ? (
-            <div className="rounded-md border border-emerald-500/30 bg-emerald-500/10 p-3 text-sm">
-              <p className="font-medium text-emerald-800">Resolution</p>
+            <div className="ras-alert ras-alert--success text-sm">
+              <p className="font-medium">Resolution</p>
               <p className="mt-1">
                 {getDisputeResolutionLabel(dispute.resolutionType)}
                 {dispute.resolutionAmount != null
@@ -393,26 +393,26 @@ export function BookingDisputeSection({
                   : null}
               </p>
               {dispute.resolutionNotes ? (
-                <p className="mt-1 text-muted-foreground">
+                <p className="mt-1 ras-muted">
                   {dispute.resolutionNotes}
                 </p>
               ) : null}
             </div>
           ) : null}
 
-          <ul className="space-y-3 border-t border-border pt-4">
+          <ul className="space-y-3 border-t border-[var(--color-border-divider)] pt-4">
             {dispute.entries.map((entry) => (
               <li
                 key={entry.id}
                 className={cn(
-                  "rounded-md border p-3 text-sm",
+                  "ras-panel ras-panel--nested text-sm",
                   entry.authorRole === actor
-                    ? "border-gold/30 bg-gold/5"
-                    : "border-border",
+                    ? "border-[rgba(216,179,57,0.35)] bg-[rgba(216,179,57,0.08)]"
+                    : "",
                 )}
               >
-                <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                  <span className="font-medium text-foreground">
+                <div className="flex flex-wrap items-center gap-2 text-xs ras-muted">
+                  <span className="font-medium text-[var(--color-text)]">
                     {entry.authorLabel}
                   </span>
                   <span>{getDisputeEntryTypeLabel(entry.entryType)}</span>
@@ -427,7 +427,7 @@ export function BookingDisputeSection({
                       href={entry.attachmentUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-gold-dark hover:underline"
+                      className="ras-link"
                     >
                       {entry.attachmentUrl}
                     </a>
@@ -438,7 +438,7 @@ export function BookingDisputeSection({
           </ul>
 
           {dispute.canAddEntry ? (
-            <div className="space-y-3 border-t border-border pt-4">
+            <div className="space-y-3 border-t border-[var(--color-border-divider)] pt-4">
               <FormField label="Entry type" htmlFor="entry-type">
                 <select
                   id="entry-type"

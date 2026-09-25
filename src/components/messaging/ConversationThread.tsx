@@ -123,22 +123,19 @@ export function ConversationThread({
   return (
     <div className="flex max-w-3xl flex-col gap-6">
       <div>
-        <Link
-          href={backHref}
-          className="text-sm font-medium text-gold-dark hover:text-gold"
-        >
+        <Link href={backHref} className="ras-link text-sm">
           ← Back to messages
         </Link>
-        <h1 className="mt-2 text-xl font-semibold">{conversation.jobTitle}</h1>
-        <p className="text-sm text-muted-foreground">
+        <h1 className="ras-panel-heading mt-2">{conversation.jobTitle}</h1>
+        <p className="ras-help">
           With {conversation.counterpartName}
           {conversation.bookingId ? " · Booking linked" : ""}
         </p>
       </div>
 
-      <div className="min-h-[280px] space-y-3 rounded-lg border border-border bg-surface-elevated p-4">
+      <div className="ras-panel min-h-[280px] space-y-3">
         {conversation.messages.length === 0 ? (
-          <p className="text-center text-sm text-muted-foreground">
+          <p className="ras-help text-center">
             No messages yet. Say hello to get started.
           </p>
         ) : (
@@ -146,13 +143,13 @@ export function ConversationThread({
             <div
               key={m.id}
               className={cn(
-                "max-w-[85%] rounded-lg px-3 py-2 text-sm",
+                "max-w-[85%] rounded-[var(--radius-control)] px-3 py-2 text-sm",
                 m.isMine
-                  ? "ml-auto bg-gold/15 text-foreground"
-                  : "bg-surface text-foreground",
+                  ? "ml-auto border border-[rgba(216,179,57,0.3)] bg-[rgba(216,179,57,0.12)] text-[var(--color-text)]"
+                  : "ras-panel ras-panel--nested",
               )}
             >
-              <p className="text-xs font-medium text-muted-foreground">
+              <p className="ras-soft text-xs font-medium">
                 {m.senderLabel}
               </p>
               <p className="mt-1 whitespace-pre-wrap">{m.body}</p>

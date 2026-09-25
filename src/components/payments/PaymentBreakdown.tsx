@@ -28,37 +28,33 @@ export function PaymentBreakdown({ payment, viewerRole }: PaymentBreakdownProps)
   const ratePercent = Math.round(rate * 1000) / 10;
 
   return (
-    <div className="rounded-lg border border-border bg-surface-elevated p-6 space-y-4">
-      <h3 className="font-medium">Payment summary</h3>
-      <dl className="grid gap-3 text-sm sm:grid-cols-2">
+    <div className="ras-panel space-y-4">
+      <h3 className="ras-panel-title">Payment summary</h3>
+      <dl className="ras-dl ras-dl--2">
         <div>
-          <dt className="text-muted-foreground">Job total</dt>
-          <dd className="font-medium">
+          <dt>Job total</dt>
+          <dd>
             {payment.currency} {payment.amountGross.toLocaleString()}
           </dd>
         </div>
         <div>
-          <dt className="text-muted-foreground">
-            Platform fee ({ratePercent}%)
-          </dt>
-          <dd className="font-medium">
+          <dt>Platform fee ({ratePercent}%)</dt>
+          <dd>
             {payment.currency} {feeAmount.toLocaleString()}
           </dd>
         </div>
         <div>
-          <dt className="text-muted-foreground">
-            {viewerRole === "client" ? "Paid to pilot" : "Your payout"}
-          </dt>
-          <dd className="font-medium text-gold-dark">
+          <dt>{viewerRole === "client" ? "Paid to pilot" : "Your payout"}</dt>
+          <dd className="ras-accent">
             {payment.currency} {amountNet.toLocaleString()}
           </dd>
         </div>
         <div>
-          <dt className="text-muted-foreground">Status</dt>
+          <dt>Status</dt>
           <dd className="capitalize">{payment.status}</dd>
         </div>
       </dl>
-      <p className="text-xs text-muted-foreground">
+      <p className="ras-help">
         Recorded when the booking was marked completed. Payment gateway integration
         is planned for a later release.
       </p>

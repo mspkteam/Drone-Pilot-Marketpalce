@@ -1,12 +1,22 @@
 import type { ProfileStrengthItem } from "@/components/dashboard/shared/profile/ProfileStrengthPanel";
 import { parsePortfolioJson } from "@/lib/pilot/portfolio";
 import { parseProfileExtrasJson } from "@/lib/pilot/profile-extras";
-import { parseServicesOffered } from "@/lib/pilot/profile";
 
 type PilotStrengthForm = {
   bio: string;
   servicesOffered: string[];
 };
+
+/** Local parse — do not import `@/lib/pilot/profile` (pulls Prisma into the client bundle). */
+function parseServicesJson(json: string): string[] {
+  try {
+    const parsed = JSON.parse(json) as unknown;
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter((s): s is string => typeof s === "string");
+  } catch {
+    return [];
+  }
+}
 
 type PilotStrengthInput = {
   form: PilotStrengthForm;
@@ -60,7 +70,7 @@ export function computePilotGradeProgressPct(profile: {
   insuranceVerified?: boolean;
 }): number {
   const extras = parseProfileExtrasJson(profile.profileExtrasJson);
-  const services = parseServicesOffered(profile.servicesOffered);
+  const services = parseServicesJson(profile.servicesOffered);
   const portfolioCount = parsePortfolioJson(profile.portfolioJson).length;
   return computePilotProfileStrength({
     form: {

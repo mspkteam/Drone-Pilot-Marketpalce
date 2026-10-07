@@ -4,6 +4,14 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.96] — 2026-10-07
+
+### Fixed
+
+- **Production build:** `pilot-profile-strength` no longer imports `@/lib/pilot/profile` (Prisma/better-sqlite3), which Turbopack was pulling into the client profile bundle.
+
+---
+
 ## [0.27.95] — 2026-10-07
 
 ### Added

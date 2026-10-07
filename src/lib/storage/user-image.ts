@@ -16,12 +16,49 @@ export const USER_IMAGE_KINDS = [
 export type UserImageKind = (typeof USER_IMAGE_KINDS)[number];
 
 export const USER_IMAGE_MAX_BYTES: Record<UserImageKind, number> = {
-  avatar: 2 * 1024 * 1024,
-  logo: 2 * 1024 * 1024,
-  portfolio: 5 * 1024 * 1024,
-  "job-reference": 8 * 1024 * 1024,
-  "message-attachment": 8 * 1024 * 1024,
+  avatar: 10 * 1024 * 1024,
+  logo: 10 * 1024 * 1024,
+  portfolio: 10 * 1024 * 1024,
+  "job-reference": 10 * 1024 * 1024,
+  "message-attachment": 10 * 1024 * 1024,
 };
+
+/** Infer image mime when browsers leave File.type empty (common on mobile). */
+export function sniffImageMime(
+  buffer: Buffer,
+  declaredMime: string,
+): string {
+  const declared = declaredMime?.trim().toLowerCase();
+  if (declared && declared !== "application/octet-stream") {
+    return declared;
+  }
+  if (buffer.length >= 3 && buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff) {
+    return "image/jpeg";
+  }
+  if (
+    buffer.length >= 8 &&
+    buffer[0] === 0x89 &&
+    buffer[1] === 0x50 &&
+    buffer[2] === 0x4e &&
+    buffer[3] === 0x47
+  ) {
+    return "image/png";
+  }
+  if (
+    buffer.length >= 12 &&
+    buffer.toString("ascii", 0, 4) === "RIFF" &&
+    buffer.toString("ascii", 8, 12) === "WEBP"
+  ) {
+    return "image/webp";
+  }
+  if (buffer.length >= 6 && buffer.toString("ascii", 0, 3) === "GIF") {
+    return "image/gif";
+  }
+  if (buffer.length >= 5 && buffer.toString("ascii", 0, 5) === "%PDF-") {
+    return "application/pdf";
+  }
+  return declared || "application/octet-stream";
+}
 
 const IMAGE_EXT_BY_MIME: Record<string, string> = {
   "image/png": "png",

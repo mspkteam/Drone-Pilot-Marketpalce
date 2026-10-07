@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import {
   isUserImageKind,
+  sniffImageMime,
   validateUserImage,
   writeUserImage,
   type UserImageKind,
@@ -50,7 +51,7 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: "No file provided." }, { status: 400 });
       }
       const buffer = Buffer.from(await file.arrayBuffer());
-      const mime = file.type || "application/octet-stream";
+      const mime = sniffImageMime(buffer, file.type || "");
       const check = validateUserImage(kind, buffer, mime);
       if (!check.ok) {
         return NextResponse.json({ error: check.error }, { status: 400 });
@@ -96,14 +97,15 @@ export async function POST(request: Request) {
     } catch {
       return NextResponse.json({ error: "Invalid base64 image data." }, { status: 400 });
     }
-    const check = validateUserImage(kind, buffer, body.mimeType);
+    const mime = sniffImageMime(buffer, body.mimeType);
+    const check = validateUserImage(kind, buffer, mime);
     if (!check.ok) {
       return NextResponse.json({ error: check.error }, { status: 400 });
     }
     const url = await writeUserImage({
       kind,
       buffer,
-      mime: body.mimeType,
+      mime,
       userId,
       nameHint: body.name ?? null,
     });

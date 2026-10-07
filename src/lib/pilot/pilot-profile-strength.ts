@@ -1,8 +1,15 @@
 import type { ProfileStrengthItem } from "@/components/dashboard/shared/profile/ProfileStrengthPanel";
-import type { PilotFormState } from "@/components/pilot/PilotProfileFormFields";
+import { parsePortfolioJson } from "@/lib/pilot/portfolio";
+import { parseProfileExtrasJson } from "@/lib/pilot/profile-extras";
+import { parseServicesOffered } from "@/lib/pilot/profile";
+
+type PilotStrengthForm = {
+  bio: string;
+  servicesOffered: string[];
+};
 
 type PilotStrengthInput = {
-  form: PilotFormState;
+  form: PilotStrengthForm;
   avatarPreview: string | null;
   portfolioCount: number;
   insuranceVerified: boolean;
@@ -42,4 +49,26 @@ export function computePilotProfileStrength({
     (insuranceVerified ? 20 : 0);
 
   return { pct: Math.min(100, score), items };
+}
+
+/** Server-safe progress % for the dashboard rank card (not grade-based). */
+export function computePilotGradeProgressPct(profile: {
+  bio: string | null;
+  servicesOffered: string;
+  portfolioJson: string | null;
+  profileExtrasJson: string | null;
+  insuranceVerified?: boolean;
+}): number {
+  const extras = parseProfileExtrasJson(profile.profileExtrasJson);
+  const services = parseServicesOffered(profile.servicesOffered);
+  const portfolioCount = parsePortfolioJson(profile.portfolioJson).length;
+  return computePilotProfileStrength({
+    form: {
+      bio: profile.bio ?? "",
+      servicesOffered: services,
+    },
+    avatarPreview: extras.avatarUrl,
+    portfolioCount,
+    insuranceVerified: Boolean(profile.insuranceVerified),
+  }).pct;
 }

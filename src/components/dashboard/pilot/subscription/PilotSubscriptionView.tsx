@@ -62,18 +62,42 @@ export function PilotSubscriptionView() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [invite, setInvite] = useState<{
+    inviteCode: string;
+    invitesThisYear: number;
+    invitesForPromotion: number;
+    inviteRewardPercent: number;
+    rewardCapPercent: number;
+    effectiveMembershipDiscountPercent: number;
+    inviteeDiscountPercent: number;
+  } | null>(null);
 
   async function load() {
-    const [plansRes, subRes, instructorRes, dashboardRes] = await Promise.all([
-      fetch("/api/pilot/subscription/plans"),
-      fetch("/api/pilot/subscription"),
-      fetch("/api/pilot/subscription/instructor"),
-      fetch("/api/pilot/instructor"),
-    ]);
+    const [plansRes, subRes, instructorRes, dashboardRes, inviteRes] =
+      await Promise.all([
+        fetch("/api/pilot/subscription/plans"),
+        fetch("/api/pilot/subscription"),
+        fetch("/api/pilot/subscription/instructor"),
+        fetch("/api/pilot/instructor"),
+        fetch("/api/account/invite"),
+      ]);
     const plansData = await plansRes.json();
     const subData = await subRes.json();
     const instructorData = await instructorRes.json();
     const dashboardData = await dashboardRes.json();
+    const inviteData = await inviteRes.json();
+    if (!inviteData.error && inviteData.inviteCode) {
+      setInvite({
+        inviteCode: inviteData.inviteCode,
+        invitesThisYear: inviteData.invitesThisYear ?? 0,
+        invitesForPromotion: inviteData.invitesForPromotion ?? 10,
+        inviteRewardPercent: inviteData.inviteRewardPercent ?? 0,
+        rewardCapPercent: inviteData.rewardCapPercent ?? 50,
+        effectiveMembershipDiscountPercent:
+          inviteData.effectiveMembershipDiscountPercent ?? 0,
+        inviteeDiscountPercent: inviteData.inviteeDiscountPercent ?? 10,
+      });
+    }
 
     if (plansData.error) {
       setError(plansData.error);
@@ -308,6 +332,45 @@ export function PilotSubscriptionView() {
           <li>Membership is billed annually. Instructor is a separate annual add-on.</li>
         </ul>
       </section>
+
+      {invite ? (
+        <section
+          className="pilot-subscription-info pilot-subscription-bracket-card"
+          aria-label="Recruiting invite code"
+        >
+          <p className="pilot-subscription-current-eyebrow">Your invite code</p>
+          <h2 className="pilot-subscription-current-title font-mono tracking-wide">
+            {invite.inviteCode}
+          </h2>
+          <ul className="pilot-subscription-info-list pilot-subscription-info-list--full mt-3">
+            <li>
+              Invited members get {invite.inviteeDiscountPercent}% off membership
+              for their first year.
+            </li>
+            <li>
+              You earn {invite.inviteeDiscountPercent}% membership discount per
+              successful invite (stacks up to {invite.rewardCapPercent}% for one
+              year). Current reward: {invite.inviteRewardPercent}%.
+            </li>
+            <li>
+              {invite.invitesThisYear}/{invite.invitesForPromotion} invites this
+              year toward a grade promotion.
+            </li>
+            {invite.effectiveMembershipDiscountPercent > 0 ? (
+              <li>
+                Your effective invite membership discount:{" "}
+                {invite.effectiveMembershipDiscountPercent}%.
+              </li>
+            ) : null}
+          </ul>
+          <p className="pilot-subscription-hero-lead mt-3">
+            Share{" "}
+            <span className="font-mono">
+              /register?invite={invite.inviteCode}
+            </span>
+          </p>
+        </section>
+      ) : null}
 
       {error ? (
         <p className="pilot-subscription-banner" role="alert">

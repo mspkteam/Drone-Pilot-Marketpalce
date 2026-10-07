@@ -12,6 +12,7 @@ import { ACTIVE_MILESTONE } from "@/lib/milestones";
 export const ALWAYS_UNLOCKED_PUBLIC_PREFIXES = [
   "/login",
   "/register",
+  "/verify-email",
   "/waitlist",
   "/launch",
 ] as const;

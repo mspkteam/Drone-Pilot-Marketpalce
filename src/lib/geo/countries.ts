@@ -1,0 +1,63 @@
+/** ISO-friendly country labels for license / location dropdowns. */
+export const COUNTRY_OPTIONS = [
+  "United States",
+  "Canada",
+  "United Kingdom",
+  "Australia",
+  "New Zealand",
+  "Ireland",
+  "Mexico",
+  "Germany",
+  "France",
+  "Spain",
+  "Italy",
+  "Netherlands",
+  "Belgium",
+  "Switzerland",
+  "Austria",
+  "Sweden",
+  "Norway",
+  "Denmark",
+  "Finland",
+  "Portugal",
+  "Poland",
+  "Czech Republic",
+  "India",
+  "Japan",
+  "South Korea",
+  "Singapore",
+  "United Arab Emirates",
+  "Saudi Arabia",
+  "South Africa",
+  "Brazil",
+  "Argentina",
+  "Chile",
+  "Colombia",
+  "Philippines",
+  "Indonesia",
+  "Malaysia",
+  "Thailand",
+  "Vietnam",
+  "China",
+  "Taiwan",
+  "Hong Kong",
+  "Israel",
+  "Turkey",
+  "Greece",
+  "Romania",
+  "Hungary",
+  "Ukraine",
+  "Russia",
+  "Egypt",
+  "Nigeria",
+  "Kenya",
+  "Other",
+] as const;
+
+export const DEFAULT_COUNTRY = "United States";
+
+export type CountryOption = (typeof COUNTRY_OPTIONS)[number];
+
+export function isKnownCountry(value: string): boolean {
+  return (COUNTRY_OPTIONS as readonly string[]).includes(value);
+}

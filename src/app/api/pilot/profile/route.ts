@@ -64,13 +64,13 @@ export async function POST(request: Request) {
         bio: data.bio?.trim() || null,
         locationCity: data.locationCity?.trim() || null,
         locationRegion: data.locationRegion?.trim() || null,
-        locationCountry: data.locationCountry?.trim() || null,
+        locationCountry: data.locationCountry?.trim() || "United States",
         serviceRadiusKm: data.serviceRadiusKm ?? null,
         servicesOffered: serializeServicesOffered(data.servicesOffered ?? []),
         hourlyRateMin: data.hourlyRateMin ?? null,
         hourlyRateMax: data.hourlyRateMax ?? null,
         licenseNumber: data.licenseNumber!,
-        licenseCountry: data.licenseCountry?.trim() || null,
+        licenseCountry: data.licenseCountry?.trim() || "United States",
         ...(data.extras
           ? { profileExtrasJson: serializeProfileExtrasJson(data.extras) }
           : {}),

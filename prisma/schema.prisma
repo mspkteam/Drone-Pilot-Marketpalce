@@ -22,6 +22,18 @@ model User {
   /// Admin note when account is held for review / ToS (not shown to the user).
   moderationNote  String?
   emailVerifiedAt DateTime?
+  /// Unique recruiting invite code for this member (pilots/clients).
+  inviteCode      String?        @unique
+  /// Stacked membership discount % earned from successful invites (max 50).
+  inviteRewardPercent Int        @default(0)
+  /// When invite reward discount expires (end of following membership year window).
+  inviteRewardExpiresAt DateTime?
+  /// User who invited this account (invite code redemption).
+  invitedByUserId String?
+  invitedBy       User?          @relation("UserInvites", fields: [invitedByUserId], references: [id], onDelete: SetNull)
+  invitedUsers    User[]         @relation("UserInvites")
+  /// Invitee membership discount percent (typically 10).
+  inviteeDiscountPercent Int     @default(0)
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
   pilotProfile    PilotProfile?
@@ -38,6 +50,32 @@ model User {
   supportChatsRequested SupportChat[]     @relation("SupportChatRequester")
   supportChatsAssigned  SupportChat[]     @relation("SupportChatAssigned")
   supportMessagesSent   SupportChatMessage[]
+  emailVerificationTokens EmailVerificationToken[]
+  inviteRedemptionsAsInviter InviteRedemption[] @relation("InviteInviter")
+  inviteRedemptionAsInvitee  InviteRedemption?  @relation("InviteInvitee")
+}
+
+model EmailVerificationToken {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model InviteRedemption {
+  id           String   @id @default(cuid())
+  inviterId    String
+  inviter      User     @relation("InviteInviter", fields: [inviterId], references: [id], onDelete: Cascade)
+  inviteeId    String   @unique
+  invitee      User     @relation("InviteInvitee", fields: [inviteeId], references: [id], onDelete: Cascade)
+  inviteCode   String
+  createdAt    DateTime @default(now())
+
+  @@index([inviterId, createdAt])
 }
 
 model Notification {

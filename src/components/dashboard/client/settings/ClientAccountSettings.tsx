@@ -13,7 +13,9 @@ import {
   notificationPreferencesFromProfile,
   type ClientNotificationPreferences,
 } from "@/lib/client/settings-notifications";
+import { CountrySelect } from "@/components/ui/CountrySelect";
 import { PasswordField } from "@/components/ui/PasswordField";
+import { DEFAULT_COUNTRY } from "@/lib/geo/countries";
 import type { AccountDto } from "@/types/account";
 import type { ClientProfileDto } from "@/types/client";
 import { ClientSettingsToggle } from "./ClientSettingsToggle";
@@ -34,14 +36,16 @@ export function ClientAccountSettings() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [changingPassword, setChangingPassword] = useState(false);
+  const [inviteCode, setInviteCode] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const [accountRes, profileRes] = await Promise.all([
+      const [accountRes, profileRes, inviteRes] = await Promise.all([
         fetch("/api/account"),
         fetch("/api/client/profile"),
+        fetch("/api/account/invite"),
       ]);
       const accountData = await accountRes.json();
       if (!accountRes.ok) {
@@ -52,6 +56,11 @@ export function ClientAccountSettings() {
       }
 
       setAccount(accountData.account);
+
+      const inviteData = await inviteRes.json();
+      if (inviteRes.ok && inviteData.inviteCode) {
+        setInviteCode(inviteData.inviteCode);
+      }
 
       const profileData = await profileRes.json();
       if (profileRes.ok && profileData.profile) {
@@ -66,7 +75,7 @@ export function ClientAccountSettings() {
           billingLine1: "",
           billingCity: "",
           billingRegion: "",
-          billingCountry: "",
+          billingCountry: DEFAULT_COUNTRY,
           billingPostalCode: "",
         });
       }
@@ -206,6 +215,22 @@ export function ClientAccountSettings() {
         </p>
       ) : null}
 
+      {inviteCode ? (
+        <section className="client-settings-card">
+          <h2 className="client-settings-card-title">Your invite code</h2>
+          <p className="client-settings-card-hint">
+            Share this code so new members get 10% off membership. You earn 10%
+            stacked discount per invite (up to 50% for one year).
+          </p>
+          <p className="client-settings-label font-mono text-lg tracking-wide">
+            {inviteCode}
+          </p>
+          <p className="client-settings-card-hint mt-2">
+            Link: /register?invite={inviteCode}
+          </p>
+        </section>
+      ) : null}
+
       <form className="client-settings-form" onSubmit={(e) => void handleSave(e)}>
         <section className="client-settings-card">
           <h2 className="client-settings-card-title">Billing &amp; invoicing</h2>
@@ -253,10 +278,11 @@ export function ClientAccountSettings() {
             </label>
             <label className="client-settings-field">
               <span className="client-settings-label">Country</span>
-              <input
+              <CountrySelect
+                id="billingCountry"
                 className="client-settings-input"
-                value={profileForm.billingCountry}
-                onChange={(e) => updateForm({ billingCountry: e.target.value })}
+                value={profileForm.billingCountry || DEFAULT_COUNTRY}
+                onChange={(billingCountry) => updateForm({ billingCountry })}
               />
             </label>
             <label className="client-settings-field">

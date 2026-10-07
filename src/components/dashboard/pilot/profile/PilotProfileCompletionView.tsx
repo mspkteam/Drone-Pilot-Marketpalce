@@ -202,10 +202,9 @@ export function PilotProfileCompletionView({
     [form, extras.avatarPreview, portfolioItems.length, insuranceVerified],
   );
 
+  // Owner can always preview their own profile (even before approval/public).
   const previewHref =
-    isPublicPilotProfileEnabled() &&
-    profile?.status === "approved" &&
-    profile.isPublic
+    isPublicPilotProfileEnabled() && profile?.id
       ? `/pilots/${profile.id}`
       : null;
 
@@ -952,7 +951,12 @@ export function PilotProfileCompletionView({
 
       <div className="profile-onboarding-actions">
         {previewHref ? (
-          <Link href={previewHref} className="profile-onboarding-btn-outline">
+          <Link
+            href={previewHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="profile-onboarding-btn-outline"
+          >
             Preview Public Profile
           </Link>
         ) : (
@@ -960,7 +964,7 @@ export function PilotProfileCompletionView({
             type="button"
             className="profile-onboarding-btn-outline"
             disabled
-            title="Available after approval when profile is public"
+            title="Save your profile first to preview"
           >
             Preview Public Profile
           </button>

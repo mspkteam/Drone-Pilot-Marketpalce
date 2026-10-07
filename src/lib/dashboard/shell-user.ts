@@ -85,9 +85,9 @@ export function buildDashboardUser(
 
 export function rankLabelForTier(tierCode?: string | null): string {
   const pricingCode =
-    (tierCode && TIER_CODE_TO_PRICING_PLAN_CODE[tierCode]) || "A-3";
+    (tierCode && TIER_CODE_TO_PRICING_PLAN_CODE[tierCode]) || "A-1";
   const rank = HOME_PILOT_RANKS.find((r) => r.code === pricingCode);
-  if (!rank) return "A-3 FLIGHT OFFICER";
+  if (!rank) return "A-1 STUDENT";
   return `${rank.code} ${rank.name}`;
 }
 
@@ -99,6 +99,7 @@ export function buildPilotRankCard(options: {
   return {
     callSign: options.displayName.trim(),
     rankLabel: rankLabelForTier(options.tierCode),
-    progressPct: options.progressPct ?? 62,
+    // Progress reflects profile strength, not a hardcoded grade bar.
+    progressPct: options.progressPct ?? 0,
   };
 }

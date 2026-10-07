@@ -16,7 +16,10 @@ export async function generateMetadata({ params }: PageProps) {
   }
 
   const { id } = await params;
-  const pilot = await getPublicPilotById(id);
+  const session = await auth();
+  const pilot = await getPublicPilotById(id, {
+    viewerUserId: session?.user?.id,
+  });
   if (!pilot) return { title: "Pilot not found" };
   return {
     title: pilot.displayName,
@@ -30,13 +33,15 @@ export default async function PublicPilotProfilePage({ params }: PageProps) {
   }
 
   const { id } = await params;
-  const pilot = await getPublicPilotById(id);
+  const session = await auth();
+  const pilot = await getPublicPilotById(id, {
+    viewerUserId: session?.user?.id,
+  });
 
   if (!pilot) {
     notFound();
   }
 
-  const session = await auth();
   const isClient = session?.user?.role === "client";
   const messageHref = isClient
     ? `/dashboard/client/messages?pilot=${encodeURIComponent(id)}`

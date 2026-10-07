@@ -1,7 +1,9 @@
 "use client";
 
 import { ComplianceChecklist } from "@/components/pilot/ComplianceChecklist";
+import { CountrySelect } from "@/components/ui/CountrySelect";
 import { FormField, inputClassName } from "@/components/ui/FormField";
+import { DEFAULT_COUNTRY } from "@/lib/geo/countries";
 import { PILOT_SERVICE_OPTIONS } from "@/types/pilot";
 import { cn } from "@/lib/utils";
 
@@ -26,13 +28,13 @@ export const emptyPilotFormState: PilotFormState = {
   bio: "",
   locationCity: "",
   locationRegion: "",
-  locationCountry: "",
+  locationCountry: DEFAULT_COUNTRY,
   serviceRadiusKm: "",
   servicesOffered: [],
   hourlyRateMin: "",
   hourlyRateMax: "",
   licenseNumber: "",
-  licenseCountry: "",
+  licenseCountry: DEFAULT_COUNTRY,
   complianceAcknowledged: [],
   isPublic: false,
 };
@@ -127,12 +129,13 @@ export function PilotProfileFormFields({
             />
           </FormField>
           <FormField label="Country" htmlFor="locationCountry" required>
-            <input
+            <CountrySelect
               id="locationCountry"
               className={inputClassName}
               value={form.locationCountry}
-              onChange={(e) => onChange({ locationCountry: e.target.value })}
+              onChange={(locationCountry) => onChange({ locationCountry })}
               disabled={disabled}
+              required
             />
           </FormField>
           <FormField
@@ -233,11 +236,11 @@ export function PilotProfileFormFields({
             />
           </FormField>
           <FormField label="Issuing country" htmlFor="licenseCountry">
-            <input
+            <CountrySelect
               id="licenseCountry"
               className={inputClassName}
               value={form.licenseCountry}
-              onChange={(e) => onChange({ licenseCountry: e.target.value })}
+              onChange={(licenseCountry) => onChange({ licenseCountry })}
               disabled={disabled}
             />
           </FormField>
@@ -313,13 +316,13 @@ export function pilotDtoToFormState(
     bio: profile.bio ?? "",
     locationCity: profile.locationCity ?? "",
     locationRegion: profile.locationRegion ?? "",
-    locationCountry: profile.locationCountry ?? "",
+    locationCountry: profile.locationCountry ?? DEFAULT_COUNTRY,
     serviceRadiusKm: profile.serviceRadiusKm?.toString() ?? "",
     servicesOffered: profile.servicesOffered,
     hourlyRateMin: profile.hourlyRateMin?.toString() ?? "",
     hourlyRateMax: profile.hourlyRateMax?.toString() ?? "",
     licenseNumber: profile.licenseNumber,
-    licenseCountry: profile.licenseCountry ?? "",
+    licenseCountry: profile.licenseCountry ?? DEFAULT_COUNTRY,
     complianceAcknowledged: profile.complianceAcceptedAt
       ? ["valid_license", "insurance", "airspace_rules", "accurate_info"]
       : [],

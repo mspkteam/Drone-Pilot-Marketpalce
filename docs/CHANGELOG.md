@@ -4,6 +4,26 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.95] — 2026-10-07
+
+### Added
+
+- **Email verification:** New accounts must confirm email before login/profile (no silent auto-login). Resend + `/verify-email` flow.
+- **Per-user invite codes:** Unique `RAS-…` codes; invitees get 10% membership discount; inviters stack 10% per invite up to 50% for one year; 10 invites/year promotes one grade. Shown on membership page.
+
+### Changed
+
+- **Default grade:** New pilots show A-1 Student; rank progress uses real profile strength (not hardcoded 62%).
+- **Licenses / location:** Country fields are dropdowns defaulting to United States.
+- **Profile photos:** Avatar/logo upload limit raised to 10MB; mime sniffing for empty File.type.
+
+### Fixed
+
+- **Preview Public Profile:** Owners can preview their profile before approval/public listing.
+- **Admin grade reset:** Progress bar no longer stuck at 62% after grade changes.
+
+---
+
 ## [0.27.94] — 2026-09-25
 
 ### Changed

@@ -41,12 +41,13 @@ async function ensureUser(
 ) {
   const record = await prisma.user.upsert({
     where: { email },
-    update: { passwordHash, role, status: "active" },
+    update: { passwordHash, role, status: "active", emailVerifiedAt: new Date() },
     create: {
       email,
       passwordHash,
       role,
       status: "active",
+      emailVerifiedAt: new Date(),
     },
   });
   if ((role === "pilot" || role === "client") && !record.memberNumber) {

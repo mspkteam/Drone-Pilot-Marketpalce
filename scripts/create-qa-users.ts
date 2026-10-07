@@ -36,6 +36,7 @@ async function main() {
       passwordHash,
       role: "client",
       status: "active",
+      emailVerifiedAt: now,
     },
   });
   await assignMemberNumberToUser(clientUser.id);
@@ -67,6 +68,7 @@ async function main() {
       passwordHash,
       role: "pilot",
       status: "active",
+      emailVerifiedAt: now,
     },
   });
   await assignMemberNumberToUser(pilotUser.id);

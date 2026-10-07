@@ -1,8 +1,7 @@
 "use client";
 
-import { signIn } from "next-auth/react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { PasswordField } from "@/components/ui/PasswordField";
@@ -30,7 +29,6 @@ function initialRoleFromParams(
 }
 
 export function RegisterForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const [role, setRole] = useState<RegisterableRole>(() =>
     initialRoleFromParams(searchParams.get("role")),
@@ -38,8 +36,17 @@ export function RegisterForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [inviteCode, setInviteCode] = useState(
+    () => searchParams.get("invite")?.trim().toUpperCase() ?? "",
+  );
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [pendingVerify, setPendingVerify] = useState<{
+    email: string;
+    message: string;
+  } | null>(null);
+  const [resendBusy, setResendBusy] = useState(false);
+  const [resendMsg, setResendMsg] = useState<string | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -55,36 +62,88 @@ export function RegisterForm() {
     const registerRes = await fetch("/api/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password, role }),
+      body: JSON.stringify({
+        email,
+        password,
+        role,
+        inviteCode: inviteCode.trim() || undefined,
+      }),
     });
 
     const registerData = await registerRes.json();
+    setLoading(false);
 
     if (!registerRes.ok) {
-      setLoading(false);
       setError(registerData.error ?? "Registration failed.");
       return;
     }
 
-    const signInResult = await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
-    });
-
-    setLoading(false);
-
-    if (signInResult?.error) {
-      setError("Account created but sign-in failed. Please log in.");
+    if (registerData.requiresEmailVerification) {
+      setPendingVerify({
+        email,
+        message:
+          registerData.message ??
+          "Check your email for a confirmation link before logging in.",
+      });
       return;
     }
 
-    const dashboard =
-      role === "pilot"
-        ? "/dashboard/pilot/onboarding"
-        : "/dashboard/client/onboarding";
-    router.push(dashboard);
-    router.refresh();
+    // Non-deliverable / auto-verified (local QA) — send to login.
+    window.location.href = `/login?email=${encodeURIComponent(email)}`;
+  }
+
+  async function handleResend() {
+    if (!pendingVerify) return;
+    setResendBusy(true);
+    setResendMsg(null);
+    try {
+      const res = await fetch("/api/auth/resend-verification", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: pendingVerify.email }),
+      });
+      const data = await res.json();
+      setResendMsg(
+        res.ok
+          ? (data.message ?? "Verification email sent.")
+          : (data.error ?? "Could not resend."),
+      );
+    } catch {
+      setResendMsg("Could not resend.");
+    } finally {
+      setResendBusy(false);
+    }
+  }
+
+  if (pendingVerify) {
+    return (
+      <div className="ras-auth-card text-center">
+        <p className="ras-panel-title">Confirm email</p>
+        <h1 className="ras-panel-heading mt-2">Check your inbox</h1>
+        <p className="ras-help mt-3">{pendingVerify.message}</p>
+        <p className="mt-2 text-sm text-[var(--color-text)]">
+          Sent to <strong>{pendingVerify.email}</strong>
+        </p>
+        {resendMsg ? (
+          <p className="ras-help mt-3" role="status">
+            {resendMsg}
+          </p>
+        ) : null}
+        <div className="mt-6 flex flex-col items-center gap-3">
+          <Button
+            type="button"
+            variant="secondary"
+            disabled={resendBusy}
+            onClick={handleResend}
+          >
+            {resendBusy ? "Sending…" : "Resend confirmation email"}
+          </Button>
+          <Link href="/login" className="ras-link text-sm">
+            Go to log in
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -92,7 +151,8 @@ export function RegisterForm() {
       <p className="ras-panel-title">Account</p>
       <h1 className="ras-panel-heading mt-2">Create account</h1>
       <p className="ras-help">
-        Register as a client or licensed drone pilot.
+        Register as a client or licensed drone pilot. Confirm your email to
+        continue your profile.
       </p>
 
       <form onSubmit={handleSubmit} className="mt-8 space-y-5">
@@ -172,6 +232,28 @@ export function RegisterForm() {
           labelClassName="block text-sm font-medium text-[var(--color-text)]"
           inputClassName={inputCls}
         />
+
+        <div className="ras-field">
+          <label
+            htmlFor="reg-invite"
+            className="block text-sm font-medium text-[var(--color-text)]"
+          >
+            Invite code <span className="ras-muted font-normal">(optional)</span>
+          </label>
+          <input
+            id="reg-invite"
+            name="inviteCode"
+            type="text"
+            autoComplete="off"
+            value={inviteCode}
+            onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
+            className={inputCls}
+            placeholder="RAS-XXXXXXXX"
+          />
+          <p className="ras-help !mt-1">
+            Invited members get 10% off membership for the first year.
+          </p>
+        </div>
 
         <Button type="submit" className="w-full" disabled={loading}>
           {loading ? "Creating account…" : "Create account"}

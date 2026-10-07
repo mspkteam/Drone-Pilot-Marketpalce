@@ -8,11 +8,13 @@ import {
 import { getMilestoneShellProps } from "@/lib/milestone-shell-props";
 import { getPilotMembershipSummary } from "@/lib/membership/membership";
 import { pilotNavGroups } from "@/lib/navigation/dashboard-pilot";
+import { computePilotGradeProgressPct } from "@/lib/pilot/pilot-profile-strength";
 import {
   getPilotProfileByUserId,
   isOnboardingComplete,
 } from "@/lib/pilot/profile";
 import { parseProfileExtrasJson } from "@/lib/pilot/profile-extras";
+import { prisma } from "@/lib/db";
 
 export default async function PilotDashboardLayout({
   children,
@@ -24,7 +26,11 @@ export default async function PilotDashboardLayout({
   let user = buildDashboardUser(session?.user ?? {}, {
     roleSubtitle: "Pilot account",
   });
-  let rankCard = buildPilotRankCard({ displayName: "Pilot" });
+  let rankCard = buildPilotRankCard({
+    displayName: "Pilot",
+    tierCode: "A1_STUDENT",
+    progressPct: 0,
+  });
 
   if (session?.user?.id && session.user.role === "pilot") {
     const profile = await getPilotProfileByUserId(session.user.id);
@@ -37,15 +43,28 @@ export default async function PilotDashboardLayout({
         avatarUrl: parseProfileExtrasJson(profile.profileExtrasJson).avatarUrl,
       });
 
-      const membership =
-        profile.status === "approved"
-          ? await getPilotMembershipSummary(profile.id)
-          : null;
+      const [membership, insuranceApproved] = await Promise.all([
+        getPilotMembershipSummary(profile.id),
+        prisma.verification.findFirst({
+          where: {
+            pilotProfileId: profile.id,
+            type: "insurance",
+            status: "approved",
+          },
+          select: { id: true },
+        }),
+      ]);
 
       rankCard = buildPilotRankCard({
         displayName: profile.displayName,
-        tierCode: membership?.tier.code,
-        progressPct: 62,
+        tierCode: membership?.tier.code ?? "A1_STUDENT",
+        progressPct: computePilotGradeProgressPct({
+          bio: profile.bio,
+          servicesOffered: profile.servicesOffered,
+          portfolioJson: profile.portfolioJson,
+          profileExtrasJson: profile.profileExtrasJson,
+          insuranceVerified: Boolean(insuranceApproved),
+        }),
       });
     }
   }

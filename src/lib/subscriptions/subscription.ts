@@ -3,6 +3,7 @@ import { syncInstructorAddonWithMembership } from "@/lib/membership/instructor-a
 import { getFastForwardFeeUsd, PILOT_ANNUAL_MEMBERSHIP_FEE_USD } from "@/lib/membership/pilot-membership-catalog";
 import { applyInstructorDiscountCode } from "@/lib/instructor/discount";
 import { instructorMembershipDiscountUsd } from "@/lib/instructor/constants";
+import { getMembershipInviteDiscountPercent } from "@/lib/invites/invite-codes";
 import { toMembershipTierDto } from "@/lib/membership/membership";
 import { prisma } from "@/lib/db";
 import type {
@@ -126,6 +127,23 @@ export async function setPilotMembershipTier(
           PILOT_ANNUAL_MEMBERSHIP_FEE_USD,
         );
         appliedCode = linked.referredByInstructor.instructorDiscountCode;
+      }
+    }
+
+    const pilotUser = await prisma.pilotProfile.findUnique({
+      where: { id: pilotProfileId },
+      select: { userId: true },
+    });
+    if (pilotUser) {
+      const invitePct = await getMembershipInviteDiscountPercent(pilotUser.userId);
+      if (invitePct > 0) {
+        const inviteDiscountUsd = Math.round(
+          (PILOT_ANNUAL_MEMBERSHIP_FEE_USD * invitePct) / 100,
+        );
+        if (inviteDiscountUsd > membershipDiscountUsd) {
+          membershipDiscountUsd = inviteDiscountUsd;
+          appliedCode = appliedCode ?? `INVITE_${invitePct}`;
+        }
       }
     }
 

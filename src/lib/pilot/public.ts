@@ -95,12 +95,20 @@ export async function listPublicPilots(): Promise<PublicPilotListItemDto[]> {
 
 export async function getPublicPilotById(
   id: string,
+  options?: { viewerUserId?: string | null },
 ): Promise<PublicPilotProfileDto | null> {
-  const profile = await prisma.pilotProfile.findFirst({
-    where: { id, status: "approved", isPublic: true },
+  const profile = await prisma.pilotProfile.findUnique({
+    where: { id },
   });
 
   if (!profile) return null;
+
+  const isOwner =
+    Boolean(options?.viewerUserId) &&
+    profile.userId === options?.viewerUserId;
+  if (!isOwner && (profile.status !== "approved" || !profile.isPublic)) {
+    return null;
+  }
 
   const stats = await getReviewStatsForPilots([profile.id]);
   const stat = stats.get(profile.id) ?? { average: null, count: 0 };

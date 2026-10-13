@@ -202,7 +202,9 @@ export function AdminFleetPersonnel({
                 ? "Open a pilot profile to review, edit, approve, or assign wings and badges."
                 : clientRosterView
                   ? "Open a client profile to review and edit account details, jobs, and status."
-                  : "Pilots and clients across all regions — open a profile to manage the full account."}
+                  : "Pilots and clients across all regions — open a profile to manage the full account."}{" "}
+              Role column shows display titles (grade / instructor / client type), not login roles — rename in{" "}
+              <code>personnel-role-labels.ts</code>.
             </p>
           </div>
           <div className="admin-personnel-hero-actions">

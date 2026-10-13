@@ -6,18 +6,13 @@ import type {
   PersonnelStatusTone,
 } from "@/types/admin-personnel";
 import {
+  mapPersonnelClientRoleLabel,
+  mapPersonnelPilotRoleLabel,
+} from "@/lib/admin/personnel-role-labels";
+import {
   isManagementUserRole,
   type UserRole,
 } from "@/types/roles";
-
-const ELITE_TIER_CODES = new Set([
-  "A5_FIRST_OFFICER",
-  "A6_CAPTAIN",
-  "A7_SENIOR_CAPTAIN",
-  "A8_MASTER_CAPTAIN",
-  "A9_FLEET_CAPTAIN",
-  "A10_COMMODORE",
-]);
 
 function formatTimeAgo(date: Date): string {
   const diffMs = Date.now() - date.getTime();
@@ -80,19 +75,6 @@ function buildDisplayId(
   }
   const regionPrefix = userId.slice(0, 4).toUpperCase();
   return `RAS-${regionPrefix}`;
-}
-
-function mapPilotRoleLabel(
-  tierCode: string | null,
-  instructorEligible: boolean,
-): { label: string; filter: string } {
-  if (tierCode && ELITE_TIER_CODES.has(tierCode)) {
-    return { label: "Elite Pilot", filter: "Elite Pilot" };
-  }
-  if (instructorEligible) {
-    return { label: "Squadron Lead", filter: "Squadron Lead" };
-  }
-  return { label: "Pilot", filter: "Pilot" };
 }
 
 function mapStatus(
@@ -165,13 +147,14 @@ async function buildRowsFromDatabase(
           status: true,
           locationCountry: true,
           locationRegion: true,
+          instructorAddonActive: true,
           _count: { select: { wings: true } },
           subscriptions: {
             where: { status: "active" },
             take: 1,
             include: {
               subscriptionPlan: {
-                select: { code: true, instructorEligible: true },
+                select: { code: true, name: true },
               },
             },
           },
@@ -202,15 +185,17 @@ async function buildRowsFromDatabase(
     let roleFilter = "Client";
 
     if (pilot) {
-      const mapped = mapPilotRoleLabel(
-        tier?.code ?? null,
-        tier?.instructorEligible ?? false,
-      );
+      const mapped = mapPersonnelPilotRoleLabel({
+        tierCode: tier?.code ?? null,
+        planName: tier?.name ?? null,
+        instructorAddonActive: pilot.instructorAddonActive,
+      });
       roleLabel = mapped.label;
       roleFilter = mapped.filter;
-    } else if (isEnterprise) {
-      roleLabel = "Enterprise Client";
-      roleFilter = "Enterprise Client";
+    } else {
+      const mapped = mapPersonnelClientRoleLabel(isEnterprise);
+      roleLabel = mapped.label;
+      roleFilter = mapped.filter;
     }
 
     const name = (

@@ -500,6 +500,62 @@
   color: var(--color-text-soft);
 }
 
+.pilot-instructor-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+}
+
+.pilot-instructor-tab {
+  border: 1px solid var(--dashboard-card-border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-text-soft);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.45rem 0.9rem;
+  cursor: pointer;
+}
+
+.pilot-instructor-tab--active {
+  border-color: var(--color-gold);
+  background: rgba(216, 179, 57, 0.14);
+  color: var(--color-gold);
+}
+
+.pilot-instructor-invite-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.pilot-instructor-invite-input,
+.pilot-instructor-wing-select {
+  flex: 1 1 12rem;
+  min-height: 2.5rem;
+  border: 1px solid var(--dashboard-card-border);
+  border-radius: 0.375rem;
+  background: var(--color-panel);
+  color: var(--color-text);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+}
+
+.pilot-instructor-pending-list {
+  margin-top: 1.25rem;
+}
+
+.pilot-instructor-pending-list ul {
+  margin: 0.5rem 0 0;
+  padding-left: 1.1rem;
+  color: var(--color-text-soft);
+  font-size: 0.8125rem;
+}
+
 @media (max-width: 960px) {
   .pilot-instructor-grid {
     grid-template-columns: 1fr;

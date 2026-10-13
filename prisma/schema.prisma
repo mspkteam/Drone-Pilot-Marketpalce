@@ -125,6 +125,8 @@ model PilotProfile {
   instructorStudents     PilotProfile[]     @relation("InstructorStudents")
   instructorWingRequests InstructorWingRequest[] @relation("InstructorWingRequests")
   studentWingRequests    InstructorWingRequest[] @relation("StudentWingRequests")
+  instructorStudentInvitesSent     InstructorStudentInvite[] @relation("InstructorStudentInvitesSent")
+  instructorStudentInvitesReceived InstructorStudentInvite[] @relation("InstructorStudentInvitesReceived")
   aviatorWingRequests    AviatorWingRequest[]
   complianceAcceptedAt  DateTime?
   onboardingCompletedAt DateTime?
@@ -769,6 +771,24 @@ model InstructorWingRequest {
 
   @@index([instructorProfileId, status])
   @@index([studentProfileId])
+  @@index([createdAt])
+}
+
+/// Instructor invites an existing platform pilot; invitee must accept before link.
+model InstructorStudentInvite {
+  id                  String       @id @default(cuid())
+  instructorProfileId String
+  instructorProfile   PilotProfile @relation("InstructorStudentInvitesSent", fields: [instructorProfileId], references: [id], onDelete: Cascade)
+  inviteeProfileId    String
+  inviteeProfile      PilotProfile @relation("InstructorStudentInvitesReceived", fields: [inviteeProfileId], references: [id], onDelete: Cascade)
+  status              String       @default("pending")
+  message             String?
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
+  respondedAt         DateTime?
+
+  @@index([instructorProfileId, status])
+  @@index([inviteeProfileId, status])
   @@index([createdAt])
 }
 

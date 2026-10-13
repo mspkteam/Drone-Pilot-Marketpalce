@@ -1,4 +1,8 @@
 import { prisma } from "@/lib/db";
+import {
+  mapPersonnelClientRoleLabel,
+  mapPersonnelPilotRoleLabel,
+} from "@/lib/admin/personnel-role-labels";
 import { getEffectiveCommissionRate } from "@/lib/admin/platform-settings";
 import { DEFAULT_COMMISSION_RATE } from "@/lib/commission/constants";
 import { ensureClientProfileForUser } from "@/lib/admin/user-edit";
@@ -260,19 +264,12 @@ export async function getMemberDetailForAdmin(
     user.email;
 
   const roleLabel = pilot
-    ? tier?.code === "A5_FIRST_OFFICER" ||
-        tier?.code === "A6_CAPTAIN" ||
-        tier?.code === "A7_SENIOR_CAPTAIN" ||
-        tier?.code === "A8_MASTER_CAPTAIN" ||
-        tier?.code === "A9_FLEET_CAPTAIN" ||
-        tier?.code === "A10_COMMODORE"
-      ? "Elite Pilot"
-      : tier?.instructorEligible
-        ? "Squadron Lead"
-        : "Pilot"
-    : client?.companyName?.trim()
-      ? "Enterprise Client"
-      : "Client";
+    ? mapPersonnelPilotRoleLabel({
+        tierCode: tier?.code ?? null,
+        planName: tier?.name ?? null,
+        instructorAddonActive: pilot.instructorAddonActive,
+      }).label
+    : mapPersonnelClientRoleLabel(Boolean(client?.companyName?.trim())).label;
 
   const account: AdminUserEditDto = {
     id: user.id,

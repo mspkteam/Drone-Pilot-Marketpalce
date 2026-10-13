@@ -4,6 +4,18 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.97] — 2026-10-13
+
+### Fixed
+
+- **Personnel Directory roles:** Display titles are centralized in `personnel-role-labels.ts` (renameable). **Squadron Lead** now means active instructor add-on — not merely A-4 eligibility. Other pilots show membership grade name; Elite Pilot remains A-5+.
+
+### Added
+
+- **Instructor Students tab:** Unlocks after instructor add-on. Roster of code-linked students; invite existing members (accept/decline on Membership); award Silver/Gold Basic Wings from the roster.
+
+---
+
 ## [0.27.96] — 2026-10-07
 
 ### Fixed

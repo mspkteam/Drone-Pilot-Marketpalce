@@ -56,6 +56,7 @@ export function PilotSubscriptionView() {
     instructorId: null,
     instructorActive: false,
     myRequests: [],
+    pendingInvites: [],
   });
   const [instructorCode, setInstructorCode] = useState("");
   const [loading, setLoading] = useState(true);
@@ -569,6 +570,7 @@ export function PilotSubscriptionView() {
             instructorName={instructorStudent.instructorName}
             instructorActive={instructorStudent.instructorActive}
             myRequests={instructorStudent.myRequests}
+            pendingInvites={instructorStudent.pendingInvites}
             onLinked={(payload) => {
               setInstructorStudent((prev) => ({
                 ...prev,

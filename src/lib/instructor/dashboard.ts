@@ -9,6 +9,13 @@ import {
   listInstructorWingRequests,
   listStudentWingRequests,
 } from "@/lib/instructor/wing-requests";
+import {
+  listInstructorOutgoingInvites,
+  listInstructorStudents,
+  listPendingStudentInvites,
+  type InstructorStudentDto,
+  type InstructorStudentInviteDto,
+} from "@/lib/instructor/students";
 import type { InstructorAddonStatus } from "@/lib/membership/instructor-addon";
 import type { InstructorWingRequestDto } from "@/lib/instructor/wing-requests";
 
@@ -21,11 +28,16 @@ export type InstructorDashboardDto = {
   tierLabel: string | null;
   eligibleLabel: string;
   requests: InstructorWingRequestDto[];
+  /** Linked students (code or accepted invite) — only when add-on active. */
+  students: InstructorStudentDto[];
+  /** Outgoing invites from this instructor. */
+  outgoingInvites: InstructorStudentInviteDto[];
   student: {
     instructorName: string | null;
     instructorId: string | null;
     instructorActive: boolean;
     myRequests: InstructorWingRequestDto[];
+    pendingInvites: InstructorStudentInviteDto[];
   };
 };
 
@@ -64,12 +76,20 @@ export async function getInstructorDashboard(
       ? "LOCKED UNTIL A-4 SENIOR FLIGHT OFFICER"
       : "ELIGIBLE";
 
-  const [requests, myRequests] = await Promise.all([
-    status === "active"
-      ? listInstructorWingRequests(pilotProfileId)
-      : Promise.resolve([]),
-    listStudentWingRequests(pilotProfileId),
-  ]);
+  const [requests, myRequests, students, outgoingInvites, pendingInvites] =
+    await Promise.all([
+      status === "active"
+        ? listInstructorWingRequests(pilotProfileId)
+        : Promise.resolve([]),
+      listStudentWingRequests(pilotProfileId),
+      status === "active"
+        ? listInstructorStudents(pilotProfileId)
+        : Promise.resolve([]),
+      status === "active"
+        ? listInstructorOutgoingInvites(pilotProfileId)
+        : Promise.resolve([]),
+      listPendingStudentInvites(pilotProfileId),
+    ]);
 
   return {
     status,
@@ -81,12 +101,15 @@ export async function getInstructorDashboard(
     tierLabel: subscription?.plan.name ?? null,
     eligibleLabel,
     requests,
+    students,
+    outgoingInvites,
     student: {
       instructorName: profile?.referredByInstructor?.displayName ?? null,
       instructorId: profile?.referredByInstructor?.id ?? null,
       instructorActive:
         profile?.referredByInstructor?.instructorAddonActive ?? false,
       myRequests,
+      pendingInvites,
     },
   };
 }

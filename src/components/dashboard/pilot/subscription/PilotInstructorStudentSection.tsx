@@ -4,16 +4,20 @@ import { useState } from "react";
 import {
   INSTRUCTOR_AWARDABLE_WING_CODES,
   INSTRUCTOR_WING_LABELS,
+  instructorMembershipDiscountUsd,
 } from "@/lib/instructor/constants";
+import type { InstructorStudentInviteDto } from "@/lib/instructor/students";
 import type { InstructorWingRequestDto } from "@/lib/instructor/wing-requests";
-import { formatMembershipUsd } from "@/lib/membership/pilot-membership-catalog";
-import { PILOT_ANNUAL_MEMBERSHIP_FEE_USD } from "@/lib/membership/pilot-membership-catalog";
-import { instructorMembershipDiscountUsd } from "@/lib/instructor/constants";
+import {
+  formatMembershipUsd,
+  PILOT_ANNUAL_MEMBERSHIP_FEE_USD,
+} from "@/lib/membership/pilot-membership-catalog";
 
 type PilotInstructorStudentSectionProps = {
   instructorName: string | null;
   instructorActive: boolean;
   myRequests: InstructorWingRequestDto[];
+  pendingInvites?: InstructorStudentInviteDto[];
   onLinked: (payload: {
     instructorName: string;
     discountUsd: number;
@@ -26,6 +30,7 @@ export function PilotInstructorStudentSection({
   instructorName,
   instructorActive,
   myRequests,
+  pendingInvites = [],
   onLinked,
   onChanged,
 }: PilotInstructorStudentSectionProps) {
@@ -65,8 +70,43 @@ export function PilotInstructorStudentSection({
       setSuccess(
         `Linked to ${data.instructorName}. Basic membership is ${formatMembershipUsd(data.membershipDueUsd)} (${formatMembershipUsd(data.discountUsd)} off).`,
       );
+      onChanged?.();
     } catch {
       setError("Could not apply that code.");
+    } finally {
+      setLoading(null);
+    }
+  }
+
+  async function respondInvite(inviteId: string, action: "accept" | "decline") {
+    setError(null);
+    setSuccess(null);
+    setLoading(`${action}-${inviteId}`);
+    try {
+      const res = await fetch("/api/pilot/instructor/invites", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ inviteId, action }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error ?? "Could not update invite.");
+        return;
+      }
+      if (action === "accept") {
+        const due = PILOT_ANNUAL_MEMBERSHIP_FEE_USD - discountUsd;
+        onLinked({
+          instructorName: data.invite.instructorName,
+          discountUsd,
+          membershipDueUsd: due,
+        });
+        setSuccess(`You are now linked to ${data.invite.instructorName}.`);
+      } else {
+        setSuccess("Invite declined.");
+      }
+      onChanged?.();
+    } catch {
+      setError("Could not update invite.");
     } finally {
       setLoading(null);
     }
@@ -110,6 +150,41 @@ export function PilotInstructorStudentSection({
         basic membership only ({formatMembershipUsd(discountUsd)} off). Fast Forward
         upgrades are not discounted.
       </p>
+
+      {pendingInvites.length > 0 ? (
+        <div className="pilot-subscription-instructor-invites">
+          <p className="pilot-subscription-instructor-price-note">
+            Instructor invites awaiting your response
+          </p>
+          <ul className="pilot-subscription-instructor-benefits">
+            {pendingInvites.map((invite) => (
+              <li key={invite.id}>
+                <span>
+                  {invite.instructorName} invited you to join as their student.
+                </span>
+                <span className="pilot-instructor-row-actions" style={{ marginTop: 8 }}>
+                  <button
+                    type="button"
+                    className="pilot-subscription-plan-btn pilot-subscription-plan-btn--select"
+                    disabled={loading !== null}
+                    onClick={() => void respondInvite(invite.id, "accept")}
+                  >
+                    {loading === `accept-${invite.id}` ? "…" : "Accept"}
+                  </button>
+                  <button
+                    type="button"
+                    className="pilot-subscription-btn-outline"
+                    disabled={loading !== null}
+                    onClick={() => void respondInvite(invite.id, "decline")}
+                  >
+                    {loading === `decline-${invite.id}` ? "…" : "Decline"}
+                  </button>
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
 
       {instructorName ? (
         <p className="pilot-subscription-instructor-price-note">

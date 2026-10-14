@@ -4,6 +4,15 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.98] — 2026-10-14
+
+### Fixed
+
+- **Rank progress:** Sidebar bar now tracks days into the current membership year (new accounts stay ~0%), not profile-completion strength that jumped to 60%.
+- **Students nav:** Students is a sidebar item under Business, shown only when the instructor add-on is active (`/dashboard/pilot/students`).
+
+---
+
 ## [0.27.97] — 2026-10-13
 
 ### Fixed

@@ -444,6 +444,13 @@ export const ROUTE_MILESTONE_RULES: readonly RouteMilestoneRule[] = [
     allowedRoles: ["pilot"],
   },
   {
+    pathPrefix: "/dashboard/pilot/students",
+    milestone: 3,
+    featureKey: "pilot.students",
+    featureLabel: "Instructor Students",
+    allowedRoles: ["pilot"],
+  },
+  {
     pathPrefix: "/dashboard/pilot/subscription",
     milestone: 3,
     featureKey: "pilot.subscription",

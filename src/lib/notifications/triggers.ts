@@ -157,3 +157,19 @@ export function triggerReviewReceived(
     });
   });
 }
+
+export function triggerInstructorStudentInvite(
+  inviteeUserId: string,
+  instructorName: string,
+  inviteId: string,
+) {
+  notifyAsync(async () => {
+    await sendNotification({
+      userId: inviteeUserId,
+      type: "instructor_invite",
+      title: "Instructor invitation",
+      body: `${instructorName} invited you to join as their student. Accept or decline on Membership.`,
+      payload: { inviteId, instructorName },
+    });
+  });
+}

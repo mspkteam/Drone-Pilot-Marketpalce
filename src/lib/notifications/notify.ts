@@ -73,6 +73,7 @@ function pilotPrefAllowsEmail(
     case "verification_rejected":
     case "wing_earned":
     case "welcome":
+    case "instructor_invite":
       return prefs.membership;
     default:
       return true;

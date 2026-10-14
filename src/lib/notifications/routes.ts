@@ -135,6 +135,11 @@ export function getNotificationHref(
     case "wing_earned":
       return area === "pilot" ? "/dashboard/pilot/achievements" : null;
 
+    case "instructor_invite":
+      return area === "pilot"
+        ? "/dashboard/pilot/subscription#instructor-invites"
+        : null;
+
     case "support_chat": {
       const supportChatId = payloadId(payload, "supportChatId");
       if (area === "admin" && supportChatId) {

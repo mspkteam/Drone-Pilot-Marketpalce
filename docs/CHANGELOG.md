@@ -4,6 +4,15 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.99] — 2026-10-14
+
+### Fixed
+
+- **Instructor invites:** Sending a student invite creates an in-app notification so the student can acknowledge (accept/decline) on Membership.
+- **Instructor page:** “How students join” is shown only when the instructor add-on is active (not to locked/non-instructor pilots).
+
+---
+
 ## [0.27.98] — 2026-10-14
 
 ### Fixed

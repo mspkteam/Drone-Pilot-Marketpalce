@@ -14,6 +14,7 @@ export const NOTIFICATION_TYPES = [
   "verification_rejected",
   "wing_earned",
   "support_chat",
+  "instructor_invite",
 ] as const;
 
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];

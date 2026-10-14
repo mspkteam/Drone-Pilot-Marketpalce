@@ -1,11 +1,12 @@
 import { prisma } from "@/lib/db";
-import { parseProfileExtrasJson } from "@/lib/pilot/profile-extras";
-import { grantWingToPilot } from "@/lib/wings/wings";
 import {
   INSTRUCTOR_WING_LABELS,
   isInstructorAwardableWingCode,
   type InstructorAwardableWingCode,
 } from "@/lib/instructor/constants";
+import { triggerInstructorStudentInvite } from "@/lib/notifications/triggers";
+import { parseProfileExtrasJson } from "@/lib/pilot/profile-extras";
+import { grantWingToPilot } from "@/lib/wings/wings";
 
 export type InstructorStudentDto = {
   profileId: string;
@@ -269,11 +270,17 @@ export async function inviteExistingPilotAsStudent(
         select: {
           id: true,
           displayName: true,
-          user: { select: { email: true } },
+          user: { select: { id: true, email: true } },
         },
       },
     },
   });
+
+  triggerInstructorStudentInvite(
+    created.inviteeProfile.user.id,
+    created.instructorProfile.displayName,
+    created.id,
+  );
 
   return {
     ok: true,

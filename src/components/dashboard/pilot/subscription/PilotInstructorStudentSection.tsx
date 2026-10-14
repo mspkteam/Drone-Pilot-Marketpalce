@@ -139,6 +139,7 @@ export function PilotInstructorStudentSection({
 
   return (
     <section
+      id="instructor-invites"
       className="pilot-subscription-instructor-student pilot-subscription-bracket-card"
       aria-label="Instructor student benefits"
     >

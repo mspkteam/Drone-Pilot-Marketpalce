@@ -278,29 +278,25 @@ export function PilotInstructorDashboard() {
           ) : null}
         </div>
 
-        <section className="pilot-instructor-card" aria-label="How students join">
-          <h2 className="pilot-instructor-card-title">How students join</h2>
-          <ol className="pilot-instructor-benefits" style={{ listStyle: "decimal" }}>
-            <li style={{ display: "list-item" }}>
-              Share your instructor code — they link automatically.
-            </li>
-            <li style={{ display: "list-item" }}>
-              Or invite an existing member from Students (they must accept).
-            </li>
-            <li style={{ display: "list-item" }}>
-              Award Silver or Gold Basic Wings from the Students roster.
-            </li>
-          </ol>
-          {active ? (
+        {active ? (
+          <section className="pilot-instructor-card" aria-label="How students join">
+            <h2 className="pilot-instructor-card-title">How students join</h2>
+            <ol className="pilot-instructor-benefits" style={{ listStyle: "decimal" }}>
+              <li style={{ display: "list-item" }}>
+                Share your instructor code — they link automatically.
+              </li>
+              <li style={{ display: "list-item" }}>
+                Or invite an existing member from Students (they must accept).
+              </li>
+              <li style={{ display: "list-item" }}>
+                Award Silver or Gold Basic Wings from the Students roster.
+              </li>
+            </ol>
             <Link href="/dashboard/pilot/students" className="pilot-instructor-activate">
               Go to Students
             </Link>
-          ) : (
-            <p className="pilot-instructor-empty">
-              Activate Instructor Membership to unlock Students in the sidebar.
-            </p>
-          )}
-        </section>
+          </section>
+        ) : null}
       </div>
 
       {active ? (

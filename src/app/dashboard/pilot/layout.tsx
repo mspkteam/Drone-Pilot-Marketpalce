@@ -7,14 +7,13 @@ import {
 } from "@/lib/dashboard/shell-user";
 import { getMilestoneShellProps } from "@/lib/milestone-shell-props";
 import { getPilotMembershipSummary } from "@/lib/membership/membership";
-import { pilotNavGroups } from "@/lib/navigation/dashboard-pilot";
-import { computePilotGradeProgressPct } from "@/lib/pilot/pilot-profile-strength";
+import { buildPilotNavGroups } from "@/lib/navigation/dashboard-pilot";
+import { computeRankProgressPct } from "@/lib/pilot/rank-progress";
 import {
   getPilotProfileByUserId,
   isOnboardingComplete,
 } from "@/lib/pilot/profile";
 import { parseProfileExtrasJson } from "@/lib/pilot/profile-extras";
-import { prisma } from "@/lib/db";
 
 export default async function PilotDashboardLayout({
   children,
@@ -23,6 +22,7 @@ export default async function PilotDashboardLayout({
 }) {
   const session = await auth();
   let needsOnboarding = false;
+  let instructorActive = false;
   let user = buildDashboardUser(session?.user ?? {}, {
     roleSubtitle: "Pilot account",
   });
@@ -37,33 +37,21 @@ export default async function PilotDashboardLayout({
     needsOnboarding = !isOnboardingComplete(profile);
 
     if (profile) {
+      instructorActive = Boolean(profile.instructorAddonActive);
       user = buildDashboardUser(session.user, {
         displayName: profile.displayName,
         roleSubtitle: "Pilot account",
         avatarUrl: parseProfileExtrasJson(profile.profileExtrasJson).avatarUrl,
       });
 
-      const [membership, insuranceApproved] = await Promise.all([
-        getPilotMembershipSummary(profile.id),
-        prisma.verification.findFirst({
-          where: {
-            pilotProfileId: profile.id,
-            type: "insurance",
-            status: "approved",
-          },
-          select: { id: true },
-        }),
-      ]);
+      const membership = await getPilotMembershipSummary(profile.id);
 
       rankCard = buildPilotRankCard({
         displayName: profile.displayName,
         tierCode: membership?.tier.code ?? "A1_STUDENT",
-        progressPct: computePilotGradeProgressPct({
-          bio: profile.bio,
-          servicesOffered: profile.servicesOffered,
-          portfolioJson: profile.portfolioJson,
-          profileExtrasJson: profile.profileExtrasJson,
-          insuranceVerified: Boolean(insuranceApproved),
+        progressPct: computeRankProgressPct({
+          currentPeriodStart: membership?.currentPeriodStart ?? null,
+          currentPeriodEnd: membership?.currentPeriodEnd ?? null,
         }),
       });
     }
@@ -76,7 +64,7 @@ export default async function PilotDashboardLayout({
   return (
     <DashboardShell
       homeHref="/dashboard/pilot"
-      navGroups={pilotNavGroups}
+      navGroups={buildPilotNavGroups({ instructorActive })}
       user={user}
       rankCard={rankCard}
       {...milestone}

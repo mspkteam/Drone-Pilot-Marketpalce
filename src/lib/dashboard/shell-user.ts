@@ -99,7 +99,8 @@ export function buildPilotRankCard(options: {
   return {
     callSign: options.displayName.trim(),
     rankLabel: rankLabelForTier(options.tierCode),
-    // Progress reflects profile strength, not a hardcoded grade bar.
+    // Progress = days into current membership year (see computeRankProgressPct).
     progressPct: options.progressPct ?? 0,
+    progressLabel: "Rank progress",
   };
 }

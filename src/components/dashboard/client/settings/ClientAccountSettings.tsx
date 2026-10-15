@@ -412,7 +412,7 @@ export function ClientAccountSettings() {
               label="New password"
               autoComplete="new-password"
               required
-              minLength={8}
+              minLength={10}
               value={newPassword}
               onChange={setNewPassword}
               className="client-settings-field"
@@ -424,7 +424,7 @@ export function ClientAccountSettings() {
               label="Confirm new password"
               autoComplete="new-password"
               required
-              minLength={8}
+              minLength={10}
               value={confirmPassword}
               onChange={setConfirmPassword}
               className="client-settings-field"

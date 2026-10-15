@@ -83,7 +83,9 @@ export function RegisterForm() {
         email,
         message:
           registerData.message ??
-          "Check your email for a confirmation link before logging in.",
+          (registerData.emailSent === false
+            ? "Account created, but we could not send the confirmation email. Use Resend below."
+            : "Check your email for a confirmation link before logging in."),
       });
       return;
     }
@@ -213,13 +215,16 @@ export function RegisterForm() {
           label="Password"
           autoComplete="new-password"
           required
-          minLength={8}
+          minLength={10}
           value={password}
           onChange={setPassword}
           labelClassName="block text-sm font-medium text-[var(--color-text)]"
           inputClassName={inputCls}
         />
-        <p className="ras-help !mt-1">At least 8 characters</p>
+        <p className="ras-help !mt-1">
+          At least 10 characters, with uppercase, lowercase, a number, and a
+          special character.
+        </p>
 
         <PasswordField
           id="reg-confirm"

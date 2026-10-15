@@ -9,6 +9,7 @@ export type EmailPayload = {
   to: string;
   subject: string;
   text: string;
+  html?: string;
 };
 
 export { isDeliverableEmailAddress };
@@ -50,6 +51,9 @@ export async function sendTransactionalEmail(payload: EmailPayload): Promise<boo
         user: smtp.user,
         pass: smtp.password,
       },
+      connectionTimeout: 15_000,
+      greetingTimeout: 15_000,
+      socketTimeout: 20_000,
     });
 
     await transport.sendMail({
@@ -57,6 +61,7 @@ export async function sendTransactionalEmail(payload: EmailPayload): Promise<boo
       to: payload.to,
       subject: payload.subject,
       text: payload.text,
+      html: payload.html,
     });
 
     console.info(`[email] sent ${payload.subject} → ${payload.to}`);

@@ -18,7 +18,8 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       ok: true,
-      message: "If an unverified account exists for that email, a new link was sent.",
+      emailSent: result.emailSent,
+      message: result.message,
     });
   } catch (err) {
     console.error("[auth] resend-verification failed:", err);

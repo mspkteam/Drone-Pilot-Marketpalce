@@ -12,12 +12,14 @@ function hashToken(token: string): string {
   return createHash("sha256").update(token).digest("hex");
 }
 
-function appBaseUrl(): string {
+/** Public site origin for verification links and post-verify redirects. */
+export function appBaseUrl(request?: Request): string {
   const raw =
     process.env.NEXTAUTH_URL?.trim() ||
     process.env.AUTH_URL?.trim() ||
     process.env.VERCEL_PROJECT_PRODUCTION_URL?.trim() ||
     process.env.VERCEL_URL?.trim() ||
+    (request ? new URL(request.url).origin : "") ||
     "http://localhost:3000";
   if (raw.startsWith("http")) return raw.replace(/\/$/, "");
   return `https://${raw.replace(/\/$/, "")}`;
@@ -95,7 +97,9 @@ export async function createAndSendEmailVerification(
     data: { userId, tokenHash, expiresAt },
   });
 
-  const verifyUrl = `${appBaseUrl()}/verify-email?token=${encodeURIComponent(token)}`;
+  // Hit the API GET directly so confirmation is server-side and idempotent
+  // (avoids client double-POST showing "invalid" after a successful verify).
+  const verifyUrl = `${appBaseUrl()}/api/auth/verify-email?token=${encodeURIComponent(token)}`;
   const { text, html } = verificationEmailBodies(verifyUrl);
   const sent = await sendTransactionalEmail({
     to: email,
@@ -107,36 +111,55 @@ export async function createAndSendEmailVerification(
   return { sent, autoVerified: false, verifyUrl };
 }
 
-export async function verifyEmailToken(
-  token: string,
-): Promise<{ ok: true; email: string } | { ok: false; error: string }> {
-  const tokenHash = hashToken(token.trim());
+export type VerifyEmailResult =
+  | { ok: true; email: string; newlyVerified: boolean }
+  | { ok: false; error: string };
+
+/**
+ * Confirm email from a one-time link. Idempotent: re-opening the same link
+ * after success returns ok without erroring (welcome must only fire once).
+ */
+export async function verifyEmailToken(token: string): Promise<VerifyEmailResult> {
+  const raw = token.trim();
+  if (!raw) {
+    return { ok: false, error: "Missing verification token." };
+  }
+
+  const tokenHash = hashToken(raw);
   const row = await prisma.emailVerificationToken.findUnique({
     where: { tokenHash },
-    include: { user: { select: { id: true, email: true, emailVerifiedAt: true } } },
+    include: {
+      user: { select: { id: true, email: true, emailVerifiedAt: true } },
+    },
   });
 
   if (!row) {
     return { ok: false, error: "Invalid or expired verification link." };
   }
+
   if (row.expiresAt.getTime() < Date.now()) {
     await prisma.emailVerificationToken.delete({ where: { id: row.id } });
     return {
       ok: false,
       error:
-        "This verification link has expired. Register again or request a new link.",
+        "This verification link has expired. Request a new confirmation email from the login page.",
     };
   }
 
-  await prisma.$transaction([
-    prisma.user.update({
-      where: { id: row.userId },
-      data: { emailVerifiedAt: new Date() },
-    }),
-    prisma.emailVerificationToken.deleteMany({ where: { userId: row.userId } }),
-  ]);
+  // Already confirmed (email client prefetch, double-click, Strict Mode remount).
+  if (row.user.emailVerifiedAt) {
+    return { ok: true, email: row.user.email, newlyVerified: false };
+  }
 
-  return { ok: true, email: row.user.email };
+  await prisma.user.update({
+    where: { id: row.userId },
+    data: { emailVerifiedAt: new Date() },
+  });
+
+  // Keep the token until expiry so repeat clicks stay idempotent.
+  // Resend replaces tokens via deleteMany.
+
+  return { ok: true, email: row.user.email, newlyVerified: true };
 }
 
 export async function resendEmailVerification(

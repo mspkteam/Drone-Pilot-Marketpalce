@@ -4,6 +4,14 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.101] — 2026-10-15
+
+### Fixed
+
+- **Email confirmation order:** Verify links hit a server GET that confirms once, then redirects to a success page. Repeat clicks no longer show “Invalid or expired.” Welcome email/notification only fires on the first successful confirm (after the confirmation email), never twice.
+
+---
+
 ## [0.27.100] — 2026-10-15
 
 ### Changed

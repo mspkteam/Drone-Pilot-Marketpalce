@@ -2,22 +2,39 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 
 function VerifyEmailInner() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const token = searchParams.get("token");
-  const [status, setStatus] = useState<"loading" | "ok" | "error">("loading");
-  const [message, setMessage] = useState("Confirming your email…");
+  const confirmed = searchParams.get("confirmed");
+  const errorParam = searchParams.get("error");
+  const [status, setStatus] = useState<"loading" | "ok" | "error">(() => {
+    if (confirmed === "1") return "ok";
+    if (errorParam) return "error";
+    return "loading";
+  });
+  const [message, setMessage] = useState(() => {
+    if (confirmed === "1") {
+      return "Email confirmed. You can log in and continue your profile.";
+    }
+    if (errorParam) return errorParam;
+    return "Confirming your email…";
+  });
+  const started = useRef(false);
 
   useEffect(() => {
+    if (confirmed === "1" || errorParam) return;
     if (!token) {
       setStatus("error");
       setMessage("Missing verification token.");
       return;
     }
+    // Guard React Strict Mode / remount double-POST.
+    if (started.current) return;
+    started.current = true;
 
     let cancelled = false;
     (async () => {
@@ -47,7 +64,7 @@ function VerifyEmailInner() {
     return () => {
       cancelled = true;
     };
-  }, [token]);
+  }, [token, confirmed, errorParam]);
 
   return (
     <div className="ras-auth-card text-center">
@@ -67,9 +84,14 @@ function VerifyEmailInner() {
           </Button>
         ) : null}
         {status === "error" ? (
-          <Link href="/register" className="ras-link text-sm">
-            Back to register
-          </Link>
+          <>
+            <Link href="/login" className="ras-link text-sm">
+              Go to log in
+            </Link>
+            <Link href="/register" className="ras-link text-sm">
+              Back to register
+            </Link>
+          </>
         ) : null}
       </div>
     </div>

@@ -9,8 +9,15 @@ async function clientUserIdForJob(jobId: string) {
   return job?.clientProfile.userId ?? null;
 }
 
+/** Welcome in-app + email — only after email is confirmed (or auto-verified QA). */
 export function triggerWelcome(userId: string, role: string) {
   notifyAsync(async () => {
+    const existing = await prisma.notification.findFirst({
+      where: { userId, type: "welcome" },
+      select: { id: true },
+    });
+    if (existing) return;
+
     await sendNotification({
       userId,
       type: "welcome",

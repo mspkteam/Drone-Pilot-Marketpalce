@@ -4,6 +4,18 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.100] — 2026-10-15
+
+### Changed
+
+- **Password policy:** Register and password-change require 10+ characters with uppercase, lowercase, a number, and a special character.
+
+### Fixed
+
+- **Confirmation email:** HTML + text verification messages; clearer messaging when SMTP send fails; production register blocked if SMTP is not configured; resend reports real send failures; verify links prefer `AUTH_URL` / production host.
+
+---
+
 ## [0.27.99] — 2026-10-14
 
 ### Fixed

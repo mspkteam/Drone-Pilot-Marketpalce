@@ -1,5 +1,6 @@
 import { hash } from "bcryptjs";
 import { buildPresetPermissions } from "@/lib/auth/moderator-permissions";
+import { validatePasswordStrength } from "@/lib/auth/validation";
 import { prisma } from "@/lib/db";
 import type { AdminUserDto } from "@/types/admin";
 import {
@@ -47,10 +48,11 @@ export async function createManagementUser(
   if (!EMAIL_RE.test(email)) {
     return { ok: false, error: "Enter a valid email address.", status: 400 };
   }
-  if (password.length < 8) {
+  const strength = validatePasswordStrength(password);
+  if (!strength.ok) {
     return {
       ok: false,
-      error: "Password must be at least 8 characters.",
+      error: strength.error,
       status: 400,
     };
   }

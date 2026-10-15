@@ -2,6 +2,7 @@ import { createHash, randomBytes } from "crypto";
 import { prisma } from "@/lib/db";
 import {
   isDeliverableEmailAddress,
+  isEmailDeliveryConfigured,
   sendTransactionalEmail,
 } from "@/lib/notifications/email";
 
@@ -15,10 +16,61 @@ function appBaseUrl(): string {
   const raw =
     process.env.NEXTAUTH_URL?.trim() ||
     process.env.AUTH_URL?.trim() ||
+    process.env.VERCEL_PROJECT_PRODUCTION_URL?.trim() ||
     process.env.VERCEL_URL?.trim() ||
     "http://localhost:3000";
   if (raw.startsWith("http")) return raw.replace(/\/$/, "");
   return `https://${raw.replace(/\/$/, "")}`;
+}
+
+function verificationEmailBodies(verifyUrl: string): { text: string; html: string } {
+  const text = [
+    "Welcome to Remote Air Service.",
+    "",
+    "Confirm your email to continue creating your profile:",
+    verifyUrl,
+    "",
+    "This link expires in 48 hours. If you did not create an account, ignore this message.",
+  ].join("\n");
+
+  const safeUrl = verifyUrl
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;");
+
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#0b0b0b;font-family:Arial,Helvetica,sans-serif;color:#f5f5f5;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#0b0b0b;padding:32px 16px;">
+    <tr><td align="center">
+      <table role="presentation" width="100%" style="max-width:520px;background:#141414;border:1px solid #2a2a2a;border-radius:8px;padding:28px;">
+        <tr><td>
+          <p style="margin:0 0 8px;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:#d8b339;">Remote Air Service</p>
+          <h1 style="margin:0 0 16px;font-size:22px;line-height:1.3;color:#ffffff;">Confirm your email</h1>
+          <p style="margin:0 0 20px;font-size:15px;line-height:1.5;color:#d0d0d0;">
+            Welcome aboard. Confirm your email to continue creating your profile.
+          </p>
+          <p style="margin:0 0 24px;">
+            <a href="${safeUrl}" style="display:inline-block;background:#d8b339;color:#111111;text-decoration:none;font-weight:700;font-size:14px;padding:12px 20px;border-radius:4px;">
+              Confirm email
+            </a>
+          </p>
+          <p style="margin:0 0 8px;font-size:13px;line-height:1.5;color:#a0a0a0;">
+            Or paste this link into your browser:
+          </p>
+          <p style="margin:0 0 20px;font-size:12px;line-height:1.5;word-break:break-all;color:#d8b339;">${safeUrl}</p>
+          <p style="margin:0;font-size:12px;line-height:1.5;color:#777777;">
+            This link expires in 48 hours. If you did not create an account, you can ignore this message.
+          </p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+
+  return { text, html };
 }
 
 export async function createAndSendEmailVerification(
@@ -44,17 +96,12 @@ export async function createAndSendEmailVerification(
   });
 
   const verifyUrl = `${appBaseUrl()}/verify-email?token=${encodeURIComponent(token)}`;
+  const { text, html } = verificationEmailBodies(verifyUrl);
   const sent = await sendTransactionalEmail({
     to: email,
     subject: "Confirm your Remote Air Service email",
-    text: [
-      "Welcome to Remote Air Service.",
-      "",
-      "Confirm your email to continue creating your profile:",
-      verifyUrl,
-      "",
-      "This link expires in 48 hours. If you did not create an account, ignore this message.",
-    ].join("\n"),
+    text,
+    html,
   });
 
   return { sent, autoVerified: false, verifyUrl };
@@ -74,7 +121,11 @@ export async function verifyEmailToken(
   }
   if (row.expiresAt.getTime() < Date.now()) {
     await prisma.emailVerificationToken.delete({ where: { id: row.id } });
-    return { ok: false, error: "This verification link has expired. Register again or request a new link." };
+    return {
+      ok: false,
+      error:
+        "This verification link has expired. Register again or request a new link.",
+    };
   }
 
   await prisma.$transaction([
@@ -90,17 +141,51 @@ export async function verifyEmailToken(
 
 export async function resendEmailVerification(
   email: string,
-): Promise<{ ok: true } | { ok: false; error: string }> {
+): Promise<
+  | { ok: true; emailSent: boolean; message: string }
+  | { ok: false; error: string }
+> {
   const user = await prisma.user.findUnique({
     where: { email: email.trim().toLowerCase() },
     select: { id: true, email: true, emailVerifiedAt: true },
   });
   if (!user) {
-    return { ok: true }; // do not leak existence
+    // Do not leak existence
+    return {
+      ok: true,
+      emailSent: true,
+      message:
+        "If an unverified account exists for that email, a new link was sent.",
+    };
   }
   if (user.emailVerifiedAt) {
     return { ok: false, error: "This email is already verified. You can log in." };
   }
-  await createAndSendEmailVerification(user.id, user.email);
-  return { ok: true };
+
+  if (
+    isDeliverableEmailAddress(user.email) &&
+    process.env.NODE_ENV === "production" &&
+    !isEmailDeliveryConfigured()
+  ) {
+    return {
+      ok: false,
+      error:
+        "Email delivery is temporarily unavailable. Please try again shortly or contact support.",
+    };
+  }
+
+  const verification = await createAndSendEmailVerification(user.id, user.email);
+  if (!verification.sent && !verification.autoVerified) {
+    return {
+      ok: false,
+      error:
+        "We could not send the confirmation email. Check your address and try again in a minute.",
+    };
+  }
+
+  return {
+    ok: true,
+    emailSent: verification.sent || verification.autoVerified,
+    message: "Verification email sent. Check your inbox and spam folder.",
+  };
 }

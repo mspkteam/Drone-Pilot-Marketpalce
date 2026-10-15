@@ -489,7 +489,7 @@ export function PilotAccountSettings() {
                   label="New Password"
                   autoComplete="new-password"
                   required
-                  minLength={8}
+                  minLength={10}
                   value={newPassword}
                   onChange={setNewPassword}
                   className="pilot-settings-field"
@@ -501,7 +501,7 @@ export function PilotAccountSettings() {
                   label="Confirm New Password"
                   autoComplete="new-password"
                   required
-                  minLength={8}
+                  minLength={10}
                   value={confirmPassword}
                   onChange={setConfirmPassword}
                   className="pilot-settings-field"

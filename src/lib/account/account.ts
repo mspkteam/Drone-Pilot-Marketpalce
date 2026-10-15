@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { hashPassword, verifyPassword } from "@/lib/auth/password";
+import { validatePasswordStrength } from "@/lib/auth/validation";
 import { getUnreadCount } from "@/lib/notifications/notify";
 import type { AccountDto } from "@/types/account";
 import type { UserRole } from "@/types/roles";
@@ -43,10 +44,11 @@ export async function changeUserPassword(
   if (!current) {
     return { ok: false, error: "Current password is required.", status: 400 };
   }
-  if (next.length < 8) {
+  const strength = validatePasswordStrength(next);
+  if (!strength.ok) {
     return {
       ok: false,
-      error: "New password must be at least 8 characters.",
+      error: strength.error,
       status: 400,
     };
   }

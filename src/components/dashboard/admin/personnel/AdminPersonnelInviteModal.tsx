@@ -166,7 +166,7 @@ export function AdminPersonnelInviteModal({
               value={password}
               onChange={setPassword}
               placeholder="At least 8 characters"
-              minLength={8}
+              minLength={10}
               required
               disabled={loading}
               autoComplete="new-password"

@@ -33,6 +33,8 @@ export function AdminMemberDetailView({
   const router = useRouter();
   const searchParams = useSearchParams();
   const [editOpen, setEditOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const { account, pilotDetail, clientDetail } = member;
 
   const backHref =
@@ -43,6 +45,44 @@ export function AdminMemberDetailView({
           searchParams.get("role") === "client"
         ? "/dashboard/admin/users?role=client"
         : "/dashboard/admin/users";
+
+  const canHardDelete =
+    canEdit &&
+    (account.role === "pilot" ||
+      account.role === "client" ||
+      (isSuperAdmin &&
+        (account.role === "admin" || account.role === "moderator")));
+
+  async function handleDeleteAccount() {
+    if (!canHardDelete) return;
+    if (
+      !window.confirm(
+        `Permanently delete ${member.displayName} (${account.email})?\n\nThis removes the login and related profile data. This cannot be undone.`,
+      )
+    ) {
+      return;
+    }
+    setDeleting(true);
+    setDeleteError(null);
+    try {
+      const endpoint =
+        account.role === "admin" || account.role === "moderator"
+          ? `/api/admin/management-users/${account.id}`
+          : `/api/admin/users/${account.id}`;
+      const res = await fetch(endpoint, { method: "DELETE" });
+      const json = (await res.json()) as { error?: string };
+      if (!res.ok) {
+        setDeleteError(json.error ?? "Failed to delete account.");
+        return;
+      }
+      router.push(backHref);
+      router.refresh();
+    } catch {
+      setDeleteError("Failed to delete account.");
+    } finally {
+      setDeleting(false);
+    }
+  }
 
   const isPilotMember = Boolean(pilotDetail);
   const isClientMember = Boolean(clientDetail) && !pilotDetail;
@@ -63,16 +103,33 @@ export function AdminMemberDetailView({
         <Link href={backHref} className="admin-personnel-action">
           ← Back to directory
         </Link>
-        {canEdit ? (
-          <button
-            type="button"
-            className="admin-personnel-btn-outline"
-            onClick={() => setEditOpen(true)}
-          >
-            Account settings
-          </button>
-        ) : null}
+        <div className="admin-member-detail-nav-actions">
+          {canEdit ? (
+            <button
+              type="button"
+              className="admin-personnel-btn-outline"
+              onClick={() => setEditOpen(true)}
+            >
+              Account settings
+            </button>
+          ) : null}
+          {canHardDelete ? (
+            <button
+              type="button"
+              className="admin-personnel-action admin-personnel-action--danger"
+              disabled={deleting}
+              onClick={() => void handleDeleteAccount()}
+            >
+              {deleting ? "Deleting…" : "Delete account"}
+            </button>
+          ) : null}
+        </div>
       </div>
+      {deleteError ? (
+        <p className="admin-personnel-banner-error" role="alert">
+          {deleteError}
+        </p>
+      ) : null}
 
       <header className="admin-member-detail-hero admin-ops-bracket-card">
         <div className="admin-ops-hero-glow" aria-hidden />

@@ -4,6 +4,14 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.102] — 2026-10-21
+
+### Added
+
+- **Admin delete member:** Fleet & Personnel roster and member profile can permanently delete pilot/client accounts (`users:edit`). Confirm dialog; cannot delete own account or Super Admin. Admin/Moderator delete remains Super Admin only.
+
+---
+
 ## [0.27.101] — 2026-10-15
 
 ### Fixed

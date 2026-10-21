@@ -17,6 +17,8 @@ type AdminFleetPersonnelProps = {
   data: PersonnelDirectoryData;
   /** Super Admin only — create/delete Admin and Moderator accounts. */
   canManageManagementUsers?: boolean;
+  /** users:edit — hard-delete pilot/client accounts. */
+  canDeleteMembers?: boolean;
 };
 
 function rowsToCsv(rows: PersonnelRow[]): string {
@@ -49,6 +51,7 @@ function StatusBadge({ row }: { row: PersonnelRow }) {
 export function AdminFleetPersonnel({
   data,
   canManageManagementUsers = false,
+  canDeleteMembers = false,
 }: AdminFleetPersonnelProps) {
   const searchParams = useSearchParams();
   const { canPerform } = useModeratorPermissions();
@@ -126,11 +129,22 @@ export function AdminFleetPersonnel({
     URL.revokeObjectURL(url);
   }, [filteredRows]);
 
-  async function handleDeleteManagementUser(row: PersonnelRow) {
-    if (!canManageManagementUsers || !row.isManagementUser) return;
+  function canDeleteRow(row: PersonnelRow): boolean {
+    if (row.isManagementUser) return canManageManagementUsers;
+    if (row.role === "pilot" || row.role === "client") return canDeleteMembers;
+    return false;
+  }
+
+  async function handleDeleteUser(row: PersonnelRow) {
+    if (!canDeleteRow(row)) return;
+    const kind = row.isManagementUser
+      ? row.roleLabel
+      : row.role === "pilot"
+        ? "pilot"
+        : "client";
     if (
       !window.confirm(
-        `Delete ${row.roleLabel} account for ${row.name}? This cannot be undone.`,
+        `Permanently delete this ${kind} account (${row.name} / ${row.displayId})?\n\nThis removes the login and related profile data. This cannot be undone.`,
       )
     ) {
       return;
@@ -139,18 +153,19 @@ export function AdminFleetPersonnel({
     setActionError(null);
     setActionMessage(null);
     try {
-      const res = await fetch(`/api/admin/management-users/${row.id}`, {
-        method: "DELETE",
-      });
+      const endpoint = row.isManagementUser
+        ? `/api/admin/management-users/${row.id}`
+        : `/api/admin/users/${row.id}`;
+      const res = await fetch(endpoint, { method: "DELETE" });
       const json = (await res.json()) as { error?: string };
       if (!res.ok) {
-        setActionError(json.error ?? "Failed to delete management user.");
+        setActionError(json.error ?? "Failed to delete account.");
         return;
       }
       setRows((current) => current.filter((item) => item.id !== row.id));
-      setActionMessage(`Deleted ${row.roleLabel} account for ${row.name}.`);
+      setActionMessage(`Deleted ${kind} account for ${row.name}.`);
     } catch {
-      setActionError("Failed to delete management user.");
+      setActionError("Failed to delete account.");
     } finally {
       setDeletingId(null);
     }
@@ -363,12 +378,12 @@ export function AdminFleetPersonnel({
                       >
                         Open profile
                       </Link>
-                      {canManageManagementUsers && row.isManagementUser ? (
+                      {canDeleteRow(row) ? (
                         <button
                           type="button"
                           className="admin-personnel-action admin-personnel-action--danger"
                           disabled={deletingId === row.id}
-                          onClick={() => void handleDeleteManagementUser(row)}
+                          onClick={() => void handleDeleteUser(row)}
                         >
                           {deletingId === row.id ? "Deleting…" : "Delete"}
                         </button>
@@ -418,12 +433,12 @@ export function AdminFleetPersonnel({
                 >
                   Open profile
                 </Link>
-                {canManageManagementUsers && row.isManagementUser ? (
+                {canDeleteRow(row) ? (
                   <button
                     type="button"
                     className="admin-personnel-action admin-personnel-action--danger"
                     disabled={deletingId === row.id}
-                    onClick={() => void handleDeleteManagementUser(row)}
+                    onClick={() => void handleDeleteUser(row)}
                   >
                     {deletingId === row.id ? "Deleting…" : "Delete"}
                   </button>

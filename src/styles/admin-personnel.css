@@ -975,6 +975,13 @@
   gap: 0.75rem;
 }
 
+.admin-member-detail-nav-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .admin-member-detail-hero {
   position: relative;
   overflow: hidden;

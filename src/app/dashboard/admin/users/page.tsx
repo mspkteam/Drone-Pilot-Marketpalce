@@ -30,6 +30,7 @@ export default async function AdminUsersPage() {
       <AdminFleetPersonnel
         data={data}
         canManageManagementUsers={canManageManagementUsers}
+        canDeleteMembers={canEditUsers}
       />
     </DashboardPageLayout>
   );

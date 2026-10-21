@@ -61,3 +61,26 @@ export async function getPilotProfileByUserId(userId: string) {
 export function isOnboardingComplete(profile: PilotProfile | null): boolean {
   return !!profile?.onboardingCompletedAt;
 }
+
+/**
+ * Ensure a draft PilotProfile row exists so portfolio / verification / avatar
+ * can persist before the pilot finishes onboarding submit-for-review.
+ */
+export async function ensurePilotDraftProfile(userId: string): Promise<PilotProfile> {
+  const existing = await getPilotProfileByUserId(userId);
+  if (existing) return existing;
+
+  return prisma.pilotProfile.create({
+    data: {
+      userId,
+      displayName: "New Pilot",
+      licenseNumber: "Pending verification documents",
+      locationCountry: "United States",
+      licenseCountry: "United States",
+      servicesOffered: "[]",
+      status: "draft",
+      onboardingCompletedAt: null,
+      complianceAcceptedAt: null,
+    },
+  });
+}

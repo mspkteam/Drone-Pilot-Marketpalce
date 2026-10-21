@@ -18,7 +18,7 @@ export default async function PilotDisputesPage() {
 
   const profile = await getPilotProfileByUserId(session.user.id);
   if (!isOnboardingComplete(profile)) {
-    redirect("/dashboard/pilot/onboarding");
+    redirect("/dashboard/pilot/profile");
   }
 
   return (

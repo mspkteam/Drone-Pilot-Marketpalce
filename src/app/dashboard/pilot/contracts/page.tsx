@@ -20,7 +20,7 @@ export default async function PilotContractsPage() {
 
   const profile = await getPilotProfileByUserId(session.user.id);
   if (!isOnboardingComplete(profile)) {
-    redirect("/dashboard/pilot/onboarding");
+    redirect("/dashboard/pilot/profile");
   }
 
   const approved = profile?.status === "approved";

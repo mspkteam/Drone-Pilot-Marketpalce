@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { requirePilotSession } from "@/lib/auth/require-pilot";
-import { getPilotProfileByUserId } from "@/lib/pilot/profile";
+import {
+  ensurePilotDraftProfile,
+  getPilotProfileByUserId,
+} from "@/lib/pilot/profile";
 import {
   createPortfolioItem,
   parsePortfolioJson,
@@ -37,10 +40,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const profile = await getPilotProfileByUserId(authResult.userId);
-  if (!profile) {
-    return NextResponse.json({ error: "Pilot profile required." }, { status: 404 });
-  }
+  const profile = await ensurePilotDraftProfile(authResult.userId);
 
   let body: PilotPortfolioDraft;
   try {

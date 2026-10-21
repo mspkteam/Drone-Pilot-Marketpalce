@@ -10,6 +10,8 @@ const ALLOWED_WITHOUT_ONBOARDING = [
   "/dashboard/pilot/verifications",
   // Linked from Profile → Portfolio; bouncing back wiped unsaved profile fields.
   "/dashboard/pilot/portfolio",
+  "/dashboard/pilot/settings",
+  "/dashboard/pilot/support",
 ];
 
 type OnboardingRedirectProps = {

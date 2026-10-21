@@ -18,7 +18,7 @@ export default async function PilotStudentsPage() {
 
   const profile = await getPilotProfileByUserId(session.user.id);
   if (!isOnboardingComplete(profile)) {
-    redirect("/dashboard/pilot/onboarding");
+    redirect("/dashboard/pilot/profile");
   }
   if (!profile?.instructorAddonActive) {
     redirect("/dashboard/pilot/instructor");

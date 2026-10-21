@@ -10,7 +10,7 @@ import { getPilotMembershipSummary } from "@/lib/membership/membership";
 import { buildPilotNavGroups } from "@/lib/navigation/dashboard-pilot";
 import { computeRankProgressPct } from "@/lib/pilot/rank-progress";
 import {
-  getPilotProfileByUserId,
+  ensurePilotDraftProfile,
   isOnboardingComplete,
 } from "@/lib/pilot/profile";
 import { parseProfileExtrasJson } from "@/lib/pilot/profile-extras";
@@ -33,28 +33,30 @@ export default async function PilotDashboardLayout({
   });
 
   if (session?.user?.id && session.user.role === "pilot") {
-    const profile = await getPilotProfileByUserId(session.user.id);
+    // Draft row so Portfolio / Verification work before submit-for-review.
+    const profile = await ensurePilotDraftProfile(session.user.id);
     needsOnboarding = !isOnboardingComplete(profile);
 
-    if (profile) {
-      instructorActive = Boolean(profile.instructorAddonActive);
-      user = buildDashboardUser(session.user, {
-        displayName: profile.displayName,
-        roleSubtitle: "Pilot account",
-        avatarUrl: parseProfileExtrasJson(profile.profileExtrasJson).avatarUrl,
-      });
+    instructorActive = Boolean(profile.instructorAddonActive);
+    user = buildDashboardUser(session.user, {
+      displayName:
+        profile.displayName === "New Pilot"
+          ? (session.user.email?.split("@")[0] ?? "Pilot")
+          : profile.displayName,
+      roleSubtitle: "Pilot account",
+      avatarUrl: parseProfileExtrasJson(profile.profileExtrasJson).avatarUrl,
+    });
 
-      const membership = await getPilotMembershipSummary(profile.id);
+    const membership = await getPilotMembershipSummary(profile.id);
 
-      rankCard = buildPilotRankCard({
-        displayName: profile.displayName,
-        tierCode: membership?.tier.code ?? "A1_STUDENT",
-        progressPct: computeRankProgressPct({
-          currentPeriodStart: membership?.currentPeriodStart ?? null,
-          currentPeriodEnd: membership?.currentPeriodEnd ?? null,
-        }),
-      });
-    }
+    rankCard = buildPilotRankCard({
+      displayName: user.displayName,
+      tierCode: membership?.tier.code ?? "A1_STUDENT",
+      progressPct: computeRankProgressPct({
+        currentPeriodStart: membership?.currentPeriodStart ?? null,
+        currentPeriodEnd: membership?.currentPeriodEnd ?? null,
+      }),
+    });
   }
 
   const milestone = getMilestoneShellProps(
@@ -63,8 +65,11 @@ export default async function PilotDashboardLayout({
 
   return (
     <DashboardShell
-      homeHref="/dashboard/pilot"
-      navGroups={buildPilotNavGroups({ instructorActive })}
+      homeHref={needsOnboarding ? "/dashboard/pilot/profile" : "/dashboard/pilot"}
+      navGroups={buildPilotNavGroups({
+        instructorActive,
+        onboardingComplete: !needsOnboarding,
+      })}
       user={user}
       rankCard={rankCard}
       {...milestone}

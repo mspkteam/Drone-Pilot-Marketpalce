@@ -4,7 +4,7 @@ import { PilotProfileCompletionView } from "@/components/dashboard/pilot/profile
 import { DashboardPageLayout } from "@/components/dashboard";
 import { listCertificatesForPilot } from "@/lib/certificates/certificate";
 import {
-  getPilotProfileByUserId,
+  ensurePilotDraftProfile,
   toPilotProfileDto,
 } from "@/lib/pilot/profile";
 import { approvedProfileCredentials } from "@/lib/pilot/verification-documents-catalog";
@@ -24,8 +24,8 @@ export default async function PilotProfilePage() {
     redirect("/login");
   }
 
-  const profile = await getPilotProfileByUserId(session.user.id);
-  const profileDto = profile ? toPilotProfileDto(profile) : null;
+  const profile = await ensurePilotDraftProfile(session.user.id);
+  const profileDto = toPilotProfileDto(profile);
 
   let insuranceVerified = false;
   let approvedCredentials: Array<{ catalogId: string; title: string }> = [];

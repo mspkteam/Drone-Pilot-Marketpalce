@@ -23,7 +23,7 @@ export default async function PilotDisputeDetailPage({ params }: PageProps) {
 
   const profile = await getPilotProfileByUserId(session.user.id);
   if (!profile || !isOnboardingComplete(profile)) {
-    redirect("/dashboard/pilot/onboarding");
+    redirect("/dashboard/pilot/profile");
   }
 
   const { id } = await params;

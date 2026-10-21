@@ -4,6 +4,14 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.105] — 2026-10-21
+
+### Fixed
+
+- **Pilot profile completion (hardening):** Draft profile is created on first dashboard visit so Portfolio/Verification persist; **Save draft** vs **Submit for review**; specialty service chips no longer fail validation; rejected pilots can resubmit; incomplete pilots get a slim nav (no bounce-wipe); Certificates/Wings links hidden until submit; settings/support available during onboarding; home redirects straight to Profile.
+
+---
+
 ## [0.27.104] — 2026-10-21
 
 ### Fixed

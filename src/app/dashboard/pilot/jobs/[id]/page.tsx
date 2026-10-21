@@ -24,7 +24,7 @@ export default async function PilotJobDetailPage({ params }: PageProps) {
 
   const profile = await getPilotProfileByUserId(session.user.id);
   if (!profile || !isOnboardingComplete(profile)) {
-    redirect("/dashboard/pilot/onboarding");
+    redirect("/dashboard/pilot/profile");
   }
 
   if (profile.status !== "approved") {

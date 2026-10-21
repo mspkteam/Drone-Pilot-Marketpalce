@@ -27,7 +27,7 @@ export default async function PilotHelpArticlePage({ params }: PageProps) {
 
   const profile = await getPilotProfileByUserId(session.user.id);
   if (!profile || !isOnboardingComplete(profile)) {
-    redirect("/dashboard/pilot/onboarding");
+    redirect("/dashboard/pilot/profile");
   }
 
   const { slug } = await params;

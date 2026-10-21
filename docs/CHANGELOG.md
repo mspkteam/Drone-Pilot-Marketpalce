@@ -4,6 +4,14 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.103] — 2026-10-21
+
+### Fixed
+
+- **Admin delete member:** Hard-delete no longer fails on heavier pilot/client accounts (transaction timeout raised so related rows are removed and the `User` row is deleted from the database).
+
+---
+
 ## [0.27.102] — 2026-10-21
 
 ### Added

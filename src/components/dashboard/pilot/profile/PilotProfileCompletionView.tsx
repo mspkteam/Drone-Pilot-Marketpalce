@@ -225,12 +225,32 @@ export function PilotProfileCompletionView({
   const strength = useMemo(
     () =>
       computePilotProfileStrength({
-        form,
+        form: {
+          displayName: form.displayName,
+          bio: form.bio,
+          locationCity: form.locationCity,
+          locationCountry: form.locationCountry,
+          servicesOffered: form.servicesOffered,
+          complianceAcknowledged: form.complianceAcknowledged,
+        },
         avatarPreview: extras.avatarPreview,
         portfolioCount: portfolioItems.length,
         insuranceVerified,
+        mainDrones: extras.mainDrones,
+        payloads: extras.payloads,
+        localChipIds: extras.localChipIds,
+        complianceAccepted: Boolean(profile?.complianceAcceptedAt),
       }),
-    [form, extras.avatarPreview, portfolioItems.length, insuranceVerified],
+    [
+      form,
+      extras.avatarPreview,
+      extras.mainDrones,
+      extras.payloads,
+      extras.localChipIds,
+      portfolioItems.length,
+      insuranceVerified,
+      profile?.complianceAcceptedAt,
+    ],
   );
 
   function openPortfolioAdd() {

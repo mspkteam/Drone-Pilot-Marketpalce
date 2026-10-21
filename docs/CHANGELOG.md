@@ -4,6 +4,14 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.107] — 2026-10-21
+
+### Fixed
+
+- **Pilot profile progress %:** Profile Strength on the profile page and dashboard now share one weighted calculator (name, photo, bio, location, services, portfolio, equipment, compliance, insurance) so the percentage matches the checklist.
+
+---
+
 ## [0.27.106] — 2026-10-21
 
 ### Fixed

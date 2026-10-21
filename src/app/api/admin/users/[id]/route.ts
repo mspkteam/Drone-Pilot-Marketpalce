@@ -1,30 +1,70 @@
 import { NextResponse } from "next/server";
+import { deleteMemberUser } from "@/lib/admin/delete-member-user";
 import { requireAdminPermission } from "@/lib/auth/require-admin-permission";
-import {
-  getUserForAdminEdit,
-  updateUserByAdmin,
-} from "@/lib/admin/user-edit";
+import { prisma } from "@/lib/db";
+import { isManagementUserRole } from "@/types/roles";
+
+export const runtime = "nodejs";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
-export async function GET(_request: Request, context: RouteContext) {
-  const authResult = await requireAdminPermission("users", "edit");
-  if (!authResult.ok) {
-    return NextResponse.json(
-      { error: authResult.error },
-      { status: authResult.status },
-    );
+/**
+ * DELETE /api/admin/users/[id]
+ * Hard-delete pilot/client (users:edit) or Admin/Moderator (Super Admin only).
+ */
+export async function DELETE(_request: Request, context: RouteContext) {
+  const { id } = await context.params;
+  if (!id) {
+    return NextResponse.json({ error: "User id is required." }, { status: 400 });
   }
 
-  const { id } = await context.params;
-  const user = await getUserForAdminEdit(id);
-  if (!user) {
+  const target = await prisma.user.findUnique({
+    where: { id },
+    select: { id: true, role: true, email: true },
+  });
+  if (!target) {
     return NextResponse.json({ error: "User not found." }, { status: 404 });
   }
-  return NextResponse.json({ user });
-}
 
-export async function PATCH(request: Request, context: RouteContext) {
+  if (isManagementUserRole(target.role)) {
+    const authResult = await requireAdminPermission("users", "edit");
+    if (!authResult.ok) {
+      return NextResponse.json(
+        { error: authResult.error },
+        { status: authResult.status },
+      );
+    }
+    if (authResult.role !== "super_admin") {
+      return NextResponse.json(
+        {
+          error:
+            "Only Super Admin can delete Admin or Moderator accounts.",
+        },
+        { status: 403 },
+      );
+    }
+
+    const result = await deleteMemberUser(id, authResult.userId);
+    if (!result.ok) {
+      return NextResponse.json(
+        { error: result.error },
+        { status: result.status },
+      );
+    }
+    return NextResponse.json({
+      deletedId: result.deletedId,
+      email: result.email,
+      role: result.role,
+    });
+  }
+
+  if (target.role !== "pilot" && target.role !== "client") {
+    return NextResponse.json(
+      { error: "This account type cannot be deleted here." },
+      { status: 400 },
+    );
+  }
+
   const authResult = await requireAdminPermission("users", "edit");
   if (!authResult.ok) {
     return NextResponse.json(
@@ -33,58 +73,7 @@ export async function PATCH(request: Request, context: RouteContext) {
     );
   }
 
-  const { id } = await context.params;
-  const body = (await request.json()) as Record<string, unknown>;
-
-  const pilotPayload =
-    body.pilot && typeof body.pilot === "object"
-      ? (body.pilot as {
-          displayName?: string;
-          licenseNumber?: string;
-          licenseCountry?: string | null;
-          status?: string;
-          isPublic?: boolean;
-          bio?: string | null;
-          locationCity?: string | null;
-          locationRegion?: string | null;
-          locationCountry?: string | null;
-          serviceRadiusKm?: number | null;
-          hourlyRateMin?: number | null;
-          hourlyRateMax?: number | null;
-        })
-      : undefined;
-
-  const clientPayload =
-    body.client && typeof body.client === "object"
-      ? (body.client as {
-          contactName?: string;
-          companyName?: string | null;
-          phone?: string | null;
-          billingAddress?: string | null;
-          status?: string;
-          preferences?: {
-            roleTitle?: string;
-            preferredContact?: string;
-            typicalProjectArea?: string;
-            defaultBudgetRange?: string;
-            approvalContact?: string;
-            billingEmail?: string;
-            projectTypes?: string[];
-          };
-        })
-      : undefined;
-
-  const result = await updateUserByAdmin(id, {
-    email: typeof body.email === "string" ? body.email : undefined,
-    status: typeof body.status === "string" ? body.status : undefined,
-    moderationNote:
-      body.moderationNote === null || typeof body.moderationNote === "string"
-        ? (body.moderationNote as string | null)
-        : undefined,
-    pilot: pilotPayload,
-    client: clientPayload,
-  });
-
+  const result = await deleteMemberUser(id, authResult.userId);
   if (!result.ok) {
     return NextResponse.json(
       { error: result.error },
@@ -92,5 +81,9 @@ export async function PATCH(request: Request, context: RouteContext) {
     );
   }
 
-  return NextResponse.json({ user: result.user });
+  return NextResponse.json({
+    deletedId: result.deletedId,
+    email: result.email,
+    role: result.role,
+  });
 }

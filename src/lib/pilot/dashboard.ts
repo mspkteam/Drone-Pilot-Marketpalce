@@ -3,7 +3,7 @@ import { listOpenJobsForPilot } from "@/lib/applications/application";
 import { listCertificatesForPilot } from "@/lib/certificates/certificate";
 import { prisma } from "@/lib/db";
 import { listPaymentsForPilotUser } from "@/lib/payments/payment";
-import { parseServicesOffered } from "@/lib/pilot/profile";
+import { computePilotGradeProgressPct } from "@/lib/pilot/pilot-profile-strength";
 import { getApprovedVerificationTypes } from "@/lib/verification/verification";
 import { listPublicPilotWings } from "@/lib/wings/wings";
 
@@ -26,21 +26,6 @@ export type PilotDashboardOverview = {
   verifiedTypes: string[];
   profileCompletionPct: number;
 };
-
-function profileCompletionPercent(profile: PilotProfile): number {
-  const checks = [
-    Boolean(profile.displayName?.trim()),
-    Boolean(profile.bio?.trim()),
-    Boolean(profile.locationCity?.trim() || profile.locationCountry?.trim()),
-    parseServicesOffered(profile.servicesOffered).length > 0,
-    profile.hourlyRateMin != null || profile.hourlyRateMax != null,
-    Boolean(profile.licenseNumber?.trim()),
-    Boolean(profile.complianceAcceptedAt),
-    Boolean(profile.onboardingCompletedAt),
-  ];
-  const filled = checks.filter(Boolean).length;
-  return Math.round((filled / checks.length) * 100);
-}
 
 export async function getPilotDashboardOverview(
   pilotProfileId: string,
@@ -93,6 +78,7 @@ export async function getPilotDashboardOverview(
     : 0;
 
   const avg = reviewAgg._avg.rating;
+  const insuranceVerified = verifiedTypes.includes("insurance");
 
   return {
     availableJobs,
@@ -108,6 +94,16 @@ export async function getPilotDashboardOverview(
     wingsCount: wings.length,
     certificatesCount: certificates.length,
     verifiedTypes,
-    profileCompletionPct: profileCompletionPercent(profile),
+    profileCompletionPct: computePilotGradeProgressPct({
+      displayName: profile.displayName,
+      bio: profile.bio,
+      locationCity: profile.locationCity,
+      locationCountry: profile.locationCountry,
+      servicesOffered: profile.servicesOffered,
+      portfolioJson: profile.portfolioJson,
+      profileExtrasJson: profile.profileExtrasJson,
+      complianceAcceptedAt: profile.complianceAcceptedAt,
+      insuranceVerified,
+    }),
   };
 }

@@ -12,12 +12,8 @@ import {
   getPilotDashboardOverview,
   type PilotDashboardOverview,
 } from "@/lib/pilot/dashboard";
+import { computePilotProfileStrengthFromProfile } from "@/lib/pilot/pilot-profile-strength";
 import { getApprovedVerificationTypes } from "@/lib/verification/verification";
-import {
-  parsePortfolioJson,
-  portfolioStrengthLabel,
-  portfolioStrengthStatus,
-} from "@/lib/pilot/portfolio";
 
 export type PilotDashboardActivityTone =
   | "success"
@@ -166,28 +162,6 @@ function mapLockedJob(job: PilotLockedJobDto): PilotLockedJobRow {
     requirement: `TIER DELAY · ${job.jobVisibilityDelayHours}H`,
     unlockAt: job.visibleAt,
   };
-}
-
-function buildProfileChecklist(
-  profile: PilotProfile,
-  verifiedTypes: string[],
-  portfolioCount: number,
-): PilotProfileStrengthItem[] {
-  const photoBioDone =
-    Boolean(profile.displayName?.trim()) && Boolean(profile.bio?.trim());
-  const licenseDone = verifiedTypes.includes("license");
-  const insuranceDone = verifiedTypes.includes("insurance");
-  const portfolioStatus = portfolioStrengthStatus(portfolioCount);
-
-  return [
-    { label: "Photo & Bio", status: photoBioDone ? "done" : "missing" },
-    { label: "License Verified", status: licenseDone ? "done" : "missing" },
-    {
-      label: portfolioStrengthLabel(portfolioCount),
-      status: portfolioStatus,
-    },
-    { label: "Insurance Doc", status: insuranceDone ? "done" : "missing" },
-  ];
 }
 
 function formatRelativeTime(iso: string): string {
@@ -360,14 +334,17 @@ export async function getPilotDashboardPageData(
             completedJobs: overview.completedBookings,
             onTimeRatePct: null,
     },
-    profileStrength: {
-      pct: overview.profileCompletionPct,
-      items: buildProfileChecklist(
-        profile,
-        verifiedTypes,
-        parsePortfolioJson(profile.portfolioJson).length,
-      ),
-    },
+    profileStrength: computePilotProfileStrengthFromProfile({
+      displayName: profile.displayName,
+      bio: profile.bio,
+      locationCity: profile.locationCity,
+      locationCountry: profile.locationCountry,
+      servicesOffered: profile.servicesOffered,
+      portfolioJson: profile.portfolioJson,
+      profileExtrasJson: profile.profileExtrasJson,
+      complianceAcceptedAt: profile.complianceAcceptedAt,
+      insuranceVerified: verifiedTypes.includes("insurance"),
+    }),
     reviews: {
       averageRating: overview.averageRating,
       count: overview.reviewCount,

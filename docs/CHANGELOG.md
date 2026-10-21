@@ -4,6 +4,14 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.104] — 2026-10-21
+
+### Fixed
+
+- **Pilot Portfolio during onboarding:** Opening Portfolio from Profile no longer bounces back to Profile (which cleared unsaved fields). Portfolio is allowed before onboarding is marked complete.
+
+---
+
 ## [0.27.103] — 2026-10-21
 
 ### Fixed

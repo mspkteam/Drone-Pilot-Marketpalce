@@ -3,10 +3,13 @@
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 
+/** Routes pilots may open before onboardingCompletedAt is set. */
 const ALLOWED_WITHOUT_ONBOARDING = [
   "/dashboard/pilot/profile",
   "/dashboard/pilot/onboarding",
   "/dashboard/pilot/verifications",
+  // Linked from Profile → Portfolio; bouncing back wiped unsaved profile fields.
+  "/dashboard/pilot/portfolio",
 ];
 
 type OnboardingRedirectProps = {

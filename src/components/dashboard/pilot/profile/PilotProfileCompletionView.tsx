@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useRef, useState } from "react";
+import { PilotPortfolioAddModal } from "@/components/dashboard/pilot/portfolio/PilotPortfolioAddModal";
 import { ProfileStrengthPanel } from "@/components/dashboard/shared/profile/ProfileStrengthPanel";
 import { ComplianceChecklist } from "@/components/pilot/ComplianceChecklist";
 import {
@@ -13,6 +14,10 @@ import {
 } from "@/components/pilot/PilotProfileFormFields";
 import { validateComplianceAcknowledgments } from "@/lib/pilot/compliance";
 import { computePilotProfileStrength } from "@/lib/pilot/pilot-profile-strength";
+import {
+  type PilotPortfolioDraft,
+  type PilotPortfolioItem,
+} from "@/lib/pilot/portfolio";
 import {
   emptyPilotProfileExtras,
   type PilotProfileExtras,
@@ -26,6 +31,8 @@ import {
 import { getProfileStatusLabel } from "@/lib/pilot/status";
 import { isPublicPilotProfileEnabled } from "@/lib/public-access";
 import type { PilotProfileDto } from "@/types/pilot";
+
+const PORTFOLIO_API = "/api/pilot/portfolio" as const;
 
 type PilotProfileCompletionViewProps = {
   profile: PilotProfileDto | null;
@@ -196,12 +203,18 @@ export function PilotProfileCompletionView({
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [portfolioItems, setPortfolioItems] = useState<PilotPortfolioItem[]>(
+    () => profile?.portfolio ?? [],
+  );
+  const [portfolioModalOpen, setPortfolioModalOpen] = useState(false);
+  const [editingPortfolioItem, setEditingPortfolioItem] =
+    useState<PilotPortfolioItem | null>(null);
+  const [portfolioSaving, setPortfolioSaving] = useState(false);
 
   const canEdit = !profile || profile.status !== "suspended";
   const needsOnboarding = !profile?.onboardingCompletedAt;
   const isRejected = profile?.status === "rejected";
   const showCompliance = needsOnboarding || isRejected;
-  const portfolioItems = profile?.portfolio ?? [];
   /** Placeholder draft from ensurePilotDraftProfile — treat like empty for UX copy. */
   const isPlaceholderDraft =
     Boolean(profile) &&
@@ -219,6 +232,99 @@ export function PilotProfileCompletionView({
       }),
     [form, extras.avatarPreview, portfolioItems.length, insuranceVerified],
   );
+
+  function openPortfolioAdd() {
+    setEditingPortfolioItem(null);
+    setPortfolioModalOpen(true);
+  }
+
+  function openPortfolioEdit(item: PilotPortfolioItem) {
+    setEditingPortfolioItem(item);
+    setPortfolioModalOpen(true);
+  }
+
+  function closePortfolioModal() {
+    if (portfolioSaving) return;
+    setPortfolioModalOpen(false);
+    setEditingPortfolioItem(null);
+  }
+
+  async function handlePortfolioSave(draft: PilotPortfolioDraft) {
+    setPortfolioSaving(true);
+    setError(null);
+    const editingId = editingPortfolioItem?.id;
+    try {
+      const res = await fetch(
+        editingId ? `${PORTFOLIO_API}/${editingId}` : PORTFOLIO_API,
+        {
+          method: editingId ? "PATCH" : "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(draft),
+        },
+      );
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error ?? "Failed to save gallery item.");
+        return;
+      }
+      if (Array.isArray(data.items)) {
+        setPortfolioItems(data.items as PilotPortfolioItem[]);
+      } else if (data.item && typeof data.item === "object") {
+        const saved = data.item as PilotPortfolioItem;
+        setPortfolioItems((current) => {
+          if (editingId) {
+            return current.map((row) => (row.id === editingId ? saved : row));
+          }
+          return [saved, ...current];
+        });
+      }
+      setSuccess(
+        editingId
+          ? `"${draft.title}" was updated in your gallery.`
+          : `"${draft.title}" added to your gallery.`,
+      );
+      setPortfolioModalOpen(false);
+      setEditingPortfolioItem(null);
+    } catch {
+      setError("Failed to save gallery item.");
+    } finally {
+      setPortfolioSaving(false);
+    }
+  }
+
+  async function handlePortfolioRemove(item: PilotPortfolioItem) {
+    if (
+      !window.confirm(
+        `Remove "${item.title}" from your gallery? You stay on this page.`,
+      )
+    ) {
+      return;
+    }
+    setPortfolioSaving(true);
+    setError(null);
+    try {
+      const res = await fetch(`${PORTFOLIO_API}/${item.id}`, {
+        method: "DELETE",
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setError(
+          (data as { error?: string }).error ?? "Failed to remove gallery item.",
+        );
+        return;
+      }
+      if (Array.isArray((data as { items?: unknown }).items)) {
+        setPortfolioItems((data as { items: PilotPortfolioItem[] }).items);
+      } else {
+        setPortfolioItems((current) => current.filter((row) => row.id !== item.id));
+      }
+      setSuccess(`"${item.title}" was removed from your gallery.`);
+    } catch {
+      setError("Failed to remove gallery item.");
+    } finally {
+      setPortfolioSaving(false);
+    }
+  }
 
   // Owner can always preview their own profile (even before approval/public).
   const previewHref =
@@ -697,61 +803,86 @@ export function PilotProfileCompletionView({
           <section className="profile-onboarding-section profile-onboarding-portfolio">
             <h2 className="profile-onboarding-section-title">PORTFOLIO</h2>
             <p className="profile-onboarding-portfolio-copy">
-              Items come from your Flight Gallery. Add photos and video there to
-              show them here and on your public profile.
+              Add gallery items here without leaving this page — your profile
+              fields stay filled. They also appear on your public listing.
             </p>
             {portfolioItems.length === 0 ? (
-              <Link
-                href="/dashboard/pilot/portfolio"
+              <button
+                type="button"
                 className="profile-onboarding-portfolio-empty"
+                disabled={!canEdit || portfolioSaving}
+                onClick={openPortfolioAdd}
               >
                 <span className="profile-onboarding-portfolio-add">+</span>
                 <span className="profile-onboarding-portfolio-empty-title">
                   No gallery items yet
                 </span>
                 <span className="profile-onboarding-portfolio-empty-cta">
-                  Open Flight Gallery →
+                  Add gallery item
                 </span>
-              </Link>
+              </button>
             ) : (
               <>
                 <div className="profile-onboarding-portfolio-grid">
-                  {portfolioItems.slice(0, 3).map((item) => (
-                    <Link
+                  {portfolioItems.slice(0, 6).map((item) => (
+                    <div
                       key={item.id}
-                      href="/dashboard/pilot/portfolio"
-                      className="profile-onboarding-portfolio-slot"
+                      className="profile-onboarding-portfolio-slot-wrap"
                     >
-                      {item.thumbnailUrl ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={item.thumbnailUrl} alt={item.title} />
-                      ) : (
-                        <DroneIcon />
-                      )}
-                      <span className="profile-onboarding-portfolio-caption">
-                        {item.title}
-                      </span>
-                    </Link>
+                      <button
+                        type="button"
+                        className="profile-onboarding-portfolio-slot"
+                        disabled={!canEdit || portfolioSaving}
+                        onClick={() => openPortfolioEdit(item)}
+                        title="Edit gallery item"
+                      >
+                        {item.thumbnailUrl ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={item.thumbnailUrl} alt={item.title} />
+                        ) : (
+                          <DroneIcon />
+                        )}
+                        <span className="profile-onboarding-portfolio-caption">
+                          {item.title}
+                        </span>
+                      </button>
+                      {canEdit ? (
+                        <button
+                          type="button"
+                          className="profile-onboarding-portfolio-remove"
+                          disabled={portfolioSaving}
+                          onClick={() => void handlePortfolioRemove(item)}
+                        >
+                          Remove
+                        </button>
+                      ) : null}
+                    </div>
                   ))}
-                  <Link
-                    href="/dashboard/pilot/portfolio"
+                  <button
+                    type="button"
                     className="profile-onboarding-portfolio-slot profile-onboarding-portfolio-slot--add"
+                    disabled={!canEdit || portfolioSaving}
+                    onClick={openPortfolioAdd}
                   >
                     <span className="profile-onboarding-portfolio-add">+</span>
-                    <span className="profile-onboarding-portfolio-add-label">Add</span>
-                  </Link>
+                    <span className="profile-onboarding-portfolio-add-label">
+                      Add
+                    </span>
+                  </button>
                 </div>
                 <div className="profile-onboarding-portfolio-footer">
                   <span>
                     {portfolioItems.length} item
                     {portfolioItems.length === 1 ? "" : "s"} live
                   </span>
-                  <Link
-                    href="/dashboard/pilot/portfolio"
+                  <button
+                    type="button"
                     className="profile-onboarding-gallery-link"
+                    disabled={!canEdit || portfolioSaving}
+                    onClick={openPortfolioAdd}
                   >
-                    Open Flight Gallery →
-                  </Link>
+                    Add another item
+                  </button>
                 </div>
               </>
             )}
@@ -1085,6 +1216,14 @@ export function PilotProfileCompletionView({
           </>
         ) : null}
       </div>
+
+      <PilotPortfolioAddModal
+        open={portfolioModalOpen}
+        item={editingPortfolioItem}
+        saving={portfolioSaving}
+        onClose={closePortfolioModal}
+        onSave={(draft) => void handlePortfolioSave(draft)}
+      />
     </form>
   );
 }

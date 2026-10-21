@@ -506,6 +506,49 @@
   }
 }
 
+button.profile-onboarding-portfolio-empty,
+button.profile-onboarding-portfolio-slot,
+button.profile-onboarding-gallery-link {
+  font: inherit;
+  cursor: pointer;
+  text-align: inherit;
+}
+
+button.profile-onboarding-gallery-link {
+  appearance: none;
+  border: none;
+  background: transparent;
+  padding: 0;
+}
+
+.profile-onboarding-portfolio-slot-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.profile-onboarding-portfolio-remove {
+  appearance: none;
+  border: none;
+  background: transparent;
+  padding: 0;
+  font: inherit;
+  font-size: 0.75rem;
+  color: var(--color-danger, #c45c5c);
+  cursor: pointer;
+  text-align: left;
+}
+
+.profile-onboarding-portfolio-remove:hover:not(:disabled) {
+  text-decoration: underline;
+}
+
+.profile-onboarding-portfolio-remove:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
 .profile-onboarding-portfolio-slot {
   position: relative;
   display: flex;

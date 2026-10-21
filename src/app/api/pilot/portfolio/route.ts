@@ -64,13 +64,15 @@ export async function POST(request: Request) {
     title,
     tags: Array.isArray(body.tags) ? body.tags : [],
     thumbnailUrl: body.thumbnailUrl ?? null,
+    mediaUrl: body.mediaUrl ?? null,
     description: body.description,
   });
+  const next = [item, ...items];
 
   await prisma.pilotProfile.update({
     where: { id: profile.id },
-    data: { portfolioJson: serializePortfolioJson([item, ...items]) },
+    data: { portfolioJson: serializePortfolioJson(next) },
   });
 
-  return NextResponse.json({ item }, { status: 201 });
+  return NextResponse.json({ item, items: next }, { status: 201 });
 }

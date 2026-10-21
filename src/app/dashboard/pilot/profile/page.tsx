@@ -15,6 +15,7 @@ import {
 import { listPublicPilotWings } from "@/lib/wings/wings";
 import { pickHighestPublicWing } from "@/lib/wings/pick-highest";
 import "@/styles/profile-onboarding.css";
+import "@/styles/pilot-portfolio.css";
 
 export const metadata = { title: "Profile" };
 

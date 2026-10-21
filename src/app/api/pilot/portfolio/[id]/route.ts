@@ -54,6 +54,7 @@ export async function PATCH(request: Request, context: RouteContext) {
     title,
     tags: Array.isArray(body.tags) ? body.tags : [],
     thumbnailUrl: body.thumbnailUrl ?? null,
+    mediaUrl: body.mediaUrl ?? null,
     description: body.description,
   });
 
@@ -62,7 +63,7 @@ export async function PATCH(request: Request, context: RouteContext) {
     data: { portfolioJson: serializePortfolioJson(next) },
   });
 
-  return NextResponse.json({ item: next[index] });
+  return NextResponse.json({ item: next[index], items: next });
 }
 
 export async function DELETE(_request: Request, context: RouteContext) {
@@ -92,5 +93,5 @@ export async function DELETE(_request: Request, context: RouteContext) {
     data: { portfolioJson: serializePortfolioJson(next) },
   });
 
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ ok: true, items: next });
 }

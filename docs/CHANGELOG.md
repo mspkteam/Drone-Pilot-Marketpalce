@@ -4,6 +4,14 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.106] — 2026-10-21
+
+### Fixed
+
+- **Profile gallery:** Pilots add/edit/remove Flight Gallery items in a modal on the Profile page — no redirect to `/portfolio`, so onboarding form data is not lost.
+
+---
+
 ## [0.27.105] — 2026-10-21
 
 ### Fixed

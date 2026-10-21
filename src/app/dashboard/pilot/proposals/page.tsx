@@ -26,7 +26,7 @@ export default async function PilotProposalsPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const profile = await getPilotProfileByUserId(session.user.id);
   if (!isOnboardingComplete(profile)) {
-    redirect("/dashboard/pilot/onboarding");
+    redirect("/dashboard/pilot/profile");
   }
 
   const approved = profile?.status === "approved";

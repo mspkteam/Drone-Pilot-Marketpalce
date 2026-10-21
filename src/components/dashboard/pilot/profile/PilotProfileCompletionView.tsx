@@ -11,6 +11,7 @@ import {
   pilotFormToPayload,
   type PilotFormState,
 } from "@/components/pilot/PilotProfileFormFields";
+import { validateComplianceAcknowledgments } from "@/lib/pilot/compliance";
 import { computePilotProfileStrength } from "@/lib/pilot/pilot-profile-strength";
 import {
   emptyPilotProfileExtras,
@@ -19,6 +20,7 @@ import {
 import {
   isChipSelected,
   PILOT_PROFILE_SERVICE_CHIPS,
+  servicesOfferedForSave,
   toggleServiceChip,
 } from "@/lib/pilot/pilot-profile-service-chips";
 import { getProfileStatusLabel } from "@/lib/pilot/status";
@@ -178,9 +180,18 @@ export function PilotProfileCompletionView({
   const router = useRouter();
   const avatarInputRef = useRef<HTMLInputElement>(null);
 
-  const [form, setForm] = useState<PilotFormState>(() =>
-    profile ? pilotDtoToFormState(profile) : emptyPilotFormState,
-  );
+  const [form, setForm] = useState<PilotFormState>(() => {
+    if (!profile) return emptyPilotFormState;
+    const base = pilotDtoToFormState(profile);
+    // Draft placeholder from ensurePilotDraftProfile — start with empty name in the form.
+    if (
+      profile.displayName === "New Pilot" &&
+      !profile.onboardingCompletedAt
+    ) {
+      return { ...base, displayName: "" };
+    }
+    return base;
+  });
   const [extras, setExtras] = useState<PilotUiExtras>(() => buildExtras(profile));
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -188,8 +199,15 @@ export function PilotProfileCompletionView({
 
   const canEdit = !profile || profile.status !== "suspended";
   const needsOnboarding = !profile?.onboardingCompletedAt;
-  const showCompliance = needsOnboarding;
+  const isRejected = profile?.status === "rejected";
+  const showCompliance = needsOnboarding || isRejected;
   const portfolioItems = profile?.portfolio ?? [];
+  /** Placeholder draft from ensurePilotDraftProfile — treat like empty for UX copy. */
+  const isPlaceholderDraft =
+    Boolean(profile) &&
+    profile!.displayName === "New Pilot" &&
+    needsOnboarding &&
+    (profile!.servicesOffered?.length ?? 0) === 0;
 
   const strength = useMemo(
     () =>
@@ -276,25 +294,61 @@ export function PilotProfileCompletionView({
     });
   }
 
-  async function handleSave(e: React.FormEvent) {
-    e.preventDefault();
-    setError(null);
-    setSuccess(null);
-    setLoading(true);
-
+  function buildMergedForm(): PilotFormState {
     const loc = parseLocation(extras.locationCombined);
-    const mergedForm: PilotFormState = {
+    return {
       ...form,
       locationCity: loc.city,
       locationRegion: loc.region,
       serviceRadiusKm: miToKm(extras.serviceRadiusMi),
       hourlyRateMin: extras.hourlyRateDisplay,
       hourlyRateMax: extras.hourlyRateDisplay || form.hourlyRateMax,
+      servicesOffered: servicesOfferedForSave(
+        form.servicesOffered,
+        extras.localChipIds,
+      ),
     };
+  }
 
+  function validateForSubmit(merged: PilotFormState): string | null {
+    if (merged.displayName.trim().length < 2) {
+      return "Display name is required (at least 2 characters).";
+    }
+    if (!merged.locationCity.trim() || !merged.locationCountry.trim()) {
+      return "City and country are required for your service location.";
+    }
+    if (merged.servicesOffered.length === 0) {
+      return "Select at least one service you offer.";
+    }
+    if (!validateComplianceAcknowledgments(merged.complianceAcknowledged)) {
+      return "You must accept all compliance checklist items to continue.";
+    }
+    return null;
+  }
+
+  async function persistProfile(opts: {
+    completeOnboarding: boolean;
+  }): Promise<boolean> {
+    setError(null);
+    setSuccess(null);
+
+    const mergedForm = buildMergedForm();
+    if (opts.completeOnboarding) {
+      const clientError = validateForSubmit(mergedForm);
+      if (clientError) {
+        setError(clientError);
+        return false;
+      }
+    } else if (mergedForm.displayName.trim().length < 2) {
+      // Draft still needs a name so the row is identifiable.
+      setError("Enter a display name before saving a draft.");
+      return false;
+    }
+
+    setLoading(true);
     const extrasToSave = extrasPayload(extras);
     const payload = {
-      ...pilotFormToPayload(mergedForm, needsOnboarding),
+      ...pilotFormToPayload(mergedForm, opts.completeOnboarding),
       extras: extrasToSave,
     };
     const method = profile ? "PATCH" : "POST";
@@ -308,7 +362,7 @@ export function PilotProfileCompletionView({
 
     if (!res.ok) {
       setError(data.error ?? "Failed to save profile.");
-      return;
+      return false;
     }
 
     setForm(mergedForm);
@@ -321,11 +375,24 @@ export function PilotProfileCompletionView({
       payloadPanelOpen: extrasToSave.payloads.length === 0,
     }));
     setSuccess(
-      needsOnboarding
-        ? "Profile submitted for review."
-        : "Profile saved successfully.",
+      opts.completeOnboarding
+        ? isRejected
+          ? "Profile resubmitted for admin review."
+          : "Profile submitted for review."
+        : "Draft saved. You can leave this page without losing your work.",
     );
     router.refresh();
+    return true;
+  }
+
+  async function handleSave(e: React.FormEvent) {
+    e.preventDefault();
+    // Never force submit-for-review on plain Save — that wiped mid-flow and blocked drafts.
+    await persistProfile({ completeOnboarding: false });
+  }
+
+  async function handleSubmitForReview() {
+    await persistProfile({ completeOnboarding: true });
   }
 
   return (
@@ -756,13 +823,20 @@ export function PilotProfileCompletionView({
           <section className="profile-onboarding-section">
             <h2 className="profile-onboarding-section-title">PLATFORM CERTIFICATES</h2>
             <p className="profile-onboarding-section-note">
-              Certificates issued by Remote Air Service admins.{" "}
-              <Link
-                href="/dashboard/pilot/certificates"
-                className="profile-onboarding-inline-link"
-              >
-                Open Certificates page →
-              </Link>
+              Certificates issued by Remote Air Service admins.
+              {!needsOnboarding ? (
+                <>
+                  {" "}
+                  <Link
+                    href="/dashboard/pilot/certificates"
+                    className="profile-onboarding-inline-link"
+                  >
+                    Open Certificates page →
+                  </Link>
+                </>
+              ) : (
+                " Finish and submit your profile to unlock Certificates and Wings."
+              )}
             </p>
             {highestWing ? (
               <div className="profile-onboarding-highest-wing">
@@ -777,23 +851,30 @@ export function PilotProfileCompletionView({
                 <div>
                   <p className="profile-onboarding-label">Highest earned wing</p>
                   <p className="profile-onboarding-award-title">{highestWing.title}</p>
-                  <Link
-                    href="/dashboard/pilot/achievements"
-                    className="profile-onboarding-inline-link"
-                  >
-                    View Digital Wings →
-                  </Link>
+                  {!needsOnboarding ? (
+                    <Link
+                      href="/dashboard/pilot/achievements"
+                      className="profile-onboarding-inline-link"
+                    >
+                      View Digital Wings →
+                    </Link>
+                  ) : null}
                 </div>
               </div>
             ) : (
               <p className="profile-onboarding-muted">
-                No wings earned yet.{" "}
-                <Link
-                  href="/dashboard/pilot/verifications/request-wings"
-                  className="profile-onboarding-inline-link"
-                >
-                  Request Wings →
-                </Link>
+                No wings earned yet.
+                {!needsOnboarding ? (
+                  <>
+                    {" "}
+                    <Link
+                      href="/dashboard/pilot/verifications/request-wings"
+                      className="profile-onboarding-inline-link"
+                    >
+                      Request Wings →
+                    </Link>
+                  </>
+                ) : null}
               </p>
             )}
             {certificates.length > 0 ? (
@@ -950,7 +1031,7 @@ export function PilotProfileCompletionView({
       </div>
 
       <div className="profile-onboarding-actions">
-        {previewHref ? (
+        {previewHref && !isPlaceholderDraft ? (
           <Link
             href={previewHref}
             target="_blank"
@@ -970,9 +1051,38 @@ export function PilotProfileCompletionView({
           </button>
         )}
         {canEdit ? (
-          <button type="submit" className="profile-onboarding-btn-gold" disabled={loading}>
-            {loading ? "Saving…" : "Save Profile"}
-          </button>
+          <>
+            <button
+              type="submit"
+              className="profile-onboarding-btn-outline"
+              disabled={loading}
+            >
+              {loading ? "Saving…" : "Save draft"}
+            </button>
+            {needsOnboarding || isRejected ? (
+              <button
+                type="button"
+                className="profile-onboarding-btn-gold"
+                disabled={loading}
+                onClick={() => void handleSubmitForReview()}
+              >
+                {loading
+                  ? "Submitting…"
+                  : isRejected
+                    ? "Resubmit for review"
+                    : "Submit for review"}
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="profile-onboarding-btn-gold"
+                disabled={loading}
+                onClick={() => void persistProfile({ completeOnboarding: false })}
+              >
+                {loading ? "Saving…" : "Save Profile"}
+              </button>
+            )}
+          </>
         ) : null}
       </div>
     </form>

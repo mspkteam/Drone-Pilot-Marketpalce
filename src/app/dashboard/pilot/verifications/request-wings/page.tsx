@@ -19,7 +19,7 @@ export default async function PilotRequestWingsPage() {
 
   const profile = await getPilotProfileByUserId(session.user.id);
   if (!isOnboardingComplete(profile)) {
-    redirect("/dashboard/pilot/onboarding");
+    redirect("/dashboard/pilot/profile");
   }
 
   return (

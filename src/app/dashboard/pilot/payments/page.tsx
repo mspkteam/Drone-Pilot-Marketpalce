@@ -19,7 +19,7 @@ export default async function PilotPaymentsPage() {
 
   const profile = await getPilotProfileByUserId(session.user.id);
   if (!isOnboardingComplete(profile)) {
-    redirect("/dashboard/pilot/onboarding");
+    redirect("/dashboard/pilot/profile");
   }
 
   const commissionRatePercent = Math.round(DEFAULT_COMMISSION_RATE * 100);

@@ -4,7 +4,38 @@ import type { DashboardNavGroup } from "@/types/dashboard-nav";
 export function buildPilotNavGroups(options?: {
   /** When true, show Students under Business (active instructor add-on only). */
   instructorActive?: boolean;
+  /**
+   * When false, only show Profile / Verification / Portfolio / Settings / Support
+   * so incomplete pilots are not bounced around and lose form state.
+   */
+  onboardingComplete?: boolean;
 }): DashboardNavGroup[] {
+  const onboardingComplete = options?.onboardingComplete !== false;
+
+  if (!onboardingComplete) {
+    return [
+      {
+        label: "Pilot",
+        items: [
+          { label: "Profile", href: "/dashboard/pilot/profile", icon: "profile" },
+          {
+            label: "Verification",
+            href: "/dashboard/pilot/verifications",
+            icon: "verification",
+          },
+          { label: "Portfolio", href: "/dashboard/pilot/portfolio", icon: "portfolio" },
+        ],
+      },
+      {
+        label: "Account",
+        items: [
+          { label: "Support", href: "/dashboard/pilot/support", icon: "support" },
+          { label: "Settings", href: "/dashboard/pilot/settings", icon: "settings" },
+        ],
+      },
+    ];
+  }
+
   const businessItems: DashboardNavGroup["items"] = [
     { label: "Earnings", href: "/dashboard/pilot/payments", icon: "earnings" },
     { label: "Membership", href: "/dashboard/pilot/subscription", icon: "membership" },

@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { requirePilotSession } from "@/lib/auth/require-pilot";
-import { getPilotProfileByUserId } from "@/lib/pilot/profile";
+import {
+  ensurePilotDraftProfile,
+  getPilotProfileByUserId,
+} from "@/lib/pilot/profile";
 import {
   listVerificationsForPilot,
   parseVerificationMultipart,
@@ -37,13 +40,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const profile = await getPilotProfileByUserId(authResult.userId);
-  if (!profile) {
-    return NextResponse.json(
-      { error: "Complete pilot onboarding first." },
-      { status: 400 },
-    );
-  }
+  const profile = await ensurePilotDraftProfile(authResult.userId);
 
   try {
     const contentType = request.headers.get("content-type") ?? "";

@@ -121,7 +121,12 @@ export async function PATCH(request: Request) {
 
     const data = validated.data;
     const now = new Date();
-    const completing = !!data.completeOnboarding && !existing.onboardingCompletedAt;
+    const completingFresh =
+      !!data.completeOnboarding && !existing.onboardingCompletedAt;
+    // Rejected pilots must be able to re-enter the admin queue on submit.
+    const resubmitRejected =
+      !!data.completeOnboarding && existing.status === "rejected";
+    const completing = completingFresh || resubmitRejected;
 
     const profile = await prisma.pilotProfile.update({
       where: { userId: authResult.userId },

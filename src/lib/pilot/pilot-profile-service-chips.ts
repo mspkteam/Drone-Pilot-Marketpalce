@@ -7,11 +7,14 @@ export type PilotProfileServiceChip = {
   serviceId?: PilotServiceId;
 };
 
-/** Display chips — maps to `PILOT_SERVICE_OPTIONS` where possible. */
+/**
+ * Display chips. Prefer a real `serviceId` when one exists.
+ * Specialty chips without a unique API id stay in `localChipIds` and are
+ * folded into `other` on save via `servicesOfferedForSave`.
+ */
 export const PILOT_PROFILE_SERVICE_CHIPS: readonly PilotProfileServiceChip[] = [
   { id: "aerial_video", label: "Aerial Video", serviceId: "aerial_video" },
-  /** Local-only so it does not share `aerial_video` and dual-select with Aerial Video. */
-  { id: "photography", label: "Photography" },
+  { id: "photography", label: "Photography", serviceId: "aerial_video" },
   { id: "mapping", label: "Mapping", serviceId: "surveying" },
   { id: "agriculture", label: "Agriculture", serviceId: "agriculture" },
   { id: "real_estate", label: "Real Estate", serviceId: "real_estate" },
@@ -22,6 +25,16 @@ export const PILOT_PROFILE_SERVICE_CHIPS: readonly PilotProfileServiceChip[] = [
   { id: "emergency", label: "Emergency Response" },
   { id: "custom", label: "Custom Drone Work", serviceId: "other" },
 ] as const;
+
+/** Ensure specialty-only chip selections still satisfy API onboarding rules. */
+export function servicesOfferedForSave(
+  servicesOffered: string[],
+  localChipIds: string[],
+): string[] {
+  if (servicesOffered.length > 0) return servicesOffered;
+  if (localChipIds.length > 0) return ["other"];
+  return [];
+}
 
 export function isChipSelected(
   chip: PilotProfileServiceChip,

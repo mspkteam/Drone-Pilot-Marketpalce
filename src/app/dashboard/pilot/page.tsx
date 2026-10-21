@@ -43,7 +43,7 @@ export default async function PilotDashboardPage({ searchParams }: PageProps) {
   const onboardingComplete = isOnboardingComplete(profile);
 
   if (!onboardingComplete || !profile) {
-    redirect("/dashboard/pilot/onboarding");
+    redirect("/dashboard/pilot/profile");
   }
 
   const status = profile.status as PilotProfileStatus;

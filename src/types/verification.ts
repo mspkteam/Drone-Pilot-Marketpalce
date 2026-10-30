@@ -40,6 +40,7 @@ export type VerificationDto = {
 export type AdminVerificationDto = VerificationDto & {
   pilot: {
     id: string;
+    userId: string;
     displayName: string;
     email: string;
     licenseNumber: string;

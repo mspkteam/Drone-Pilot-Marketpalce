@@ -148,7 +148,13 @@ async function buildRowsFromDatabase(
           locationCountry: true,
           locationRegion: true,
           instructorAddonActive: true,
-          _count: { select: { wings: true } },
+          wings: {
+            select: {
+              wingDefinition: { select: { title: true, code: true } },
+            },
+            orderBy: { earnedAt: "desc" },
+            take: 6,
+          },
           subscriptions: {
             where: { status: "active" },
             take: 1,
@@ -226,7 +232,14 @@ async function buildRowsFromDatabase(
       roleLabel,
       roleFilter,
       region,
-      wingsLabel: pilot ? pilot._count.wings.toLocaleString() : "—",
+      wingsLabel: pilot
+        ? pilot.wings.length
+          ? pilot.wings
+              .map((w) => w.wingDefinition.title || w.wingDefinition.code)
+              .filter(Boolean)
+              .join(" · ")
+          : "None"
+        : "—",
       statusLabel: status.label,
       statusTone: status.tone,
       joinedAt: createdAt.toISOString(),

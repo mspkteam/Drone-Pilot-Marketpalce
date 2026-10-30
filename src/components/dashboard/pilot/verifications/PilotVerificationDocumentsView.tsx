@@ -28,6 +28,8 @@ export function PilotVerificationDocumentsView() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [uploadingCatalogId, setUploadingCatalogId] = useState<string | null>(null);
+  const [removingCatalogId, setRemovingCatalogId] = useState<string | null>(null);
+  const [cardErrors, setCardErrors] = useState<Record<string, string>>({});
   const [activeCatalogId, setActiveCatalogId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
@@ -73,7 +75,24 @@ export function PilotVerificationDocumentsView() {
     if (!card) return;
 
     if (file.size > VERIFICATION_MAX_BYTES) {
-      setError("File must be 5 MB or smaller.");
+      setCardErrors((prev) => ({
+        ...prev,
+        [activeCatalogId]: "File must be 5 MB or smaller.",
+      }));
+      setActiveCatalogId(null);
+      return;
+    }
+
+    const allowed =
+      file.type === "application/pdf" ||
+      file.type === "image/jpeg" ||
+      file.type === "image/png" ||
+      file.type === "image/webp";
+    if (!allowed) {
+      setCardErrors((prev) => ({
+        ...prev,
+        [activeCatalogId]: "Use PDF, JPG, PNG, or WEBP only.",
+      }));
       setActiveCatalogId(null);
       return;
     }
@@ -81,6 +100,11 @@ export function PilotVerificationDocumentsView() {
     setUploadingCatalogId(activeCatalogId);
     setError(null);
     setSuccess(null);
+    setCardErrors((prev) => {
+      const next = { ...prev };
+      delete next[activeCatalogId];
+      return next;
+    });
 
     const notes = `${catalogTag(activeCatalogId)} ${card.title}`;
 
@@ -97,17 +121,61 @@ export function PilotVerificationDocumentsView() {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error ?? "Upload failed.");
+        setCardErrors((prev) => ({
+          ...prev,
+          [activeCatalogId]: data.error ?? "Upload failed.",
+        }));
       } else {
         setSuccess(`${card.title} submitted for admin review.`);
         await load();
       }
     } catch {
-      setError("Upload failed.");
+      setCardErrors((prev) => ({
+        ...prev,
+        [activeCatalogId]: "Upload failed.",
+      }));
     } finally {
       setUploadingCatalogId(null);
       setActiveCatalogId(null);
       if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  }
+
+  async function handleRemove(catalogId: string) {
+    const card = cards.find((c) => c.catalogId === catalogId);
+    const verificationId = card?.verification?.id;
+    if (!verificationId) return;
+    if (!window.confirm(`Remove the uploaded file for ${card.title}?`)) return;
+
+    setRemovingCatalogId(catalogId);
+    setError(null);
+    setSuccess(null);
+    setCardErrors((prev) => {
+      const next = { ...prev };
+      delete next[catalogId];
+      return next;
+    });
+    try {
+      const res = await fetch(`/api/pilot/verifications/${verificationId}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setCardErrors((prev) => ({
+          ...prev,
+          [catalogId]: data.error ?? "Could not remove file.",
+        }));
+        return;
+      }
+      setSuccess(`${card.title} upload removed.`);
+      await load();
+    } catch {
+      setCardErrors((prev) => ({
+        ...prev,
+        [catalogId]: "Could not remove file.",
+      }));
+    } finally {
+      setRemovingCatalogId(null);
     }
   }
 
@@ -164,7 +232,10 @@ export function PilotVerificationDocumentsView() {
               key={card.catalogId}
               card={card}
               uploading={uploadingCatalogId === card.catalogId}
+              removing={removingCatalogId === card.catalogId}
+              cardError={cardErrors[card.catalogId] ?? null}
               onReplace={() => openFilePicker(card.catalogId)}
+              onRemove={() => void handleRemove(card.catalogId)}
             />
           ))}
         </div>

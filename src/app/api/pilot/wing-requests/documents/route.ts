@@ -4,8 +4,37 @@ import {
   getPilotProfileByUserId,
   isOnboardingComplete,
 } from "@/lib/pilot/profile";
-import { attachWingRequestFile } from "@/lib/wings/aviator-wing-requests";
+import {
+  attachWingRequestFile,
+  clearWingRequestDraftDocuments,
+} from "@/lib/wings/aviator-wing-requests";
 import { isWingRequestFileSlot } from "@/lib/wings/request-wings";
+
+/** DELETE clears all draft wing-request uploads (used when switching wing type). */
+export async function DELETE() {
+  const authResult = await requirePilotSession();
+  if (!authResult.ok) {
+    return NextResponse.json(
+      { error: authResult.error },
+      { status: authResult.status },
+    );
+  }
+
+  const profile = await getPilotProfileByUserId(authResult.userId);
+  if (!profile || !isOnboardingComplete(profile)) {
+    return NextResponse.json(
+      { error: "Complete pilot onboarding first." },
+      { status: 403 },
+    );
+  }
+
+  const result = await clearWingRequestDraftDocuments(profile.id);
+  if (!result.ok) {
+    return NextResponse.json({ error: result.error }, { status: result.status });
+  }
+
+  return NextResponse.json({ request: result.request });
+}
 
 export async function POST(request: Request) {
   const authResult = await requirePilotSession();

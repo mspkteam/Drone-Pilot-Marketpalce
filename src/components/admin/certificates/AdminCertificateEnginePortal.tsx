@@ -47,6 +47,7 @@ export function AdminCertificateEnginePortal({
   const [issueNotes, setIssueNotes] = useState("");
   const [issueGrade, setIssueGrade] = useState("");
   const [issueMemberNumber, setIssueMemberNumber] = useState("");
+  const [issueRecipientName, setIssueRecipientName] = useState("");
   const [issueIssuedAt, setIssueIssuedAt] = useState(() =>
     new Date().toISOString().slice(0, 10),
   );
@@ -56,7 +57,11 @@ export function AdminCertificateEnginePortal({
     null,
   );
   const [fullscreenPreview, setFullscreenPreview] = useState(false);
+  const [highlightCertificateId, setHighlightCertificateId] = useState<
+    string | null
+  >(null);
   const issuedSectionRef = useRef<HTMLElement | null>(null);
+  const issuedRowRefs = useRef<Map<string, HTMLLIElement>>(new Map());
 
   const load = useCallback(async (silent = false) => {
     if (!silent) {
@@ -111,6 +116,7 @@ export function AdminCertificateEnginePortal({
     if (!pilotId || !data?.pilots.some((pilot) => pilot.id === pilotId)) return;
     setIssuePilotId(pilotId);
     const pilot = data.pilots.find((item) => item.id === pilotId);
+    setIssueRecipientName(pilot?.displayName ?? "");
     if (pilot?.memberNumber) {
       setIssueMemberNumber(pilot.memberNumber);
     } else if (pilot?.licenseNumber && /^\d+$/.test(pilot.licenseNumber.trim())) {
@@ -236,6 +242,9 @@ export function AdminCertificateEnginePortal({
       if (issueGrade.trim()) payload.awardGrade = issueGrade.trim();
       if (issueMemberNumber.trim()) payload.memberNumber = issueMemberNumber.trim();
       if (issueIssuedAt.trim()) payload.issuedAt = issueIssuedAt;
+      if (issueRecipientName.trim()) {
+        payload.pilotDisplayName = issueRecipientName.trim();
+      }
 
       const res = await fetch("/api/admin/certificates", {
         method: "POST",
@@ -274,8 +283,19 @@ export function AdminCertificateEnginePortal({
       setIssueGrade("");
       setIssueMemberNumber("");
       setIssueIssuedAt(new Date().toISOString().slice(0, 10));
+      if (issuedCertificate?.id) {
+        setHighlightCertificateId(issuedCertificate.id);
+      }
       await load(true);
-      issuedSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      window.setTimeout(() => {
+        const row = issuedCertificate?.id
+          ? issuedRowRefs.current.get(issuedCertificate.id)
+          : null;
+        (row ?? issuedSectionRef.current)?.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      }, 160);
     } catch {
       setError("Issue failed.");
     } finally {
@@ -615,7 +635,18 @@ export function AdminCertificateEnginePortal({
           {data.certificates.length > 0 ? (
             <ul className="admin-certificates-issued-list">
               {data.certificates.map((certificate: AdminPilotCertificateDto) => (
-                <li key={certificate.id} className="admin-certificates-issued-row">
+                <li
+                  key={certificate.id}
+                  ref={(node) => {
+                    if (node) issuedRowRefs.current.set(certificate.id, node);
+                    else issuedRowRefs.current.delete(certificate.id);
+                  }}
+                  className={`admin-certificates-issued-row${
+                    highlightCertificateId === certificate.id
+                      ? " admin-certificates-issued-row--highlight"
+                      : ""
+                  }`}
+                >
                   <div className="admin-certificates-issued-row-main">
                     <p className="admin-certificates-issued-name">
                       {certificate.pilotDisplayName || "Pilot"}
@@ -682,6 +713,7 @@ export function AdminCertificateEnginePortal({
                   const nextId = event.target.value;
                   setIssuePilotId(nextId);
                   const pilot = data.pilots.find((item) => item.id === nextId);
+                  setIssueRecipientName(pilot?.displayName ?? "");
                   if (pilot?.memberNumber) {
                     setIssueMemberNumber(pilot.memberNumber);
                   } else if (
@@ -741,6 +773,19 @@ export function AdminCertificateEnginePortal({
                     </option>
                   ))}
               </select>
+            </div>
+            <div className="admin-certificates-field">
+              <label htmlFor="issue-recipient-name">Recipient name</label>
+              <input
+                id="issue-recipient-name"
+                value={issueRecipientName}
+                onChange={(event) => setIssueRecipientName(event.target.value)}
+                placeholder={selectedPilot?.displayName || "Name on certificate"}
+                required
+              />
+              <p className="admin-certificates-issued-sub">
+                Editable for the PDF — defaults to the pilot profile name.
+              </p>
             </div>
             {issueNeedsGrade ? (
               <div className="admin-certificates-field">
@@ -810,7 +855,9 @@ export function AdminCertificateEnginePortal({
           {issueTemplate && selectedPilot ? (
             <div className="admin-certificates-issue-preview" aria-label="Issue preview">
               <p className="admin-certificates-issued-sub">
-                Preview for {selectedPilot.displayName} — matches the downloaded PDF template.
+                Preview for{" "}
+                {issueRecipientName.trim() || selectedPilot.displayName} — matches
+                the downloaded PDF template.
               </p>
               <div className="admin-certificates-preview-canvas-wrap">
                 <CertificateCanvas
@@ -819,7 +866,9 @@ export function AdminCertificateEnginePortal({
                   overlayPositions={
                     issueTemplate.overlayPositions as OverlayFieldOverride[] | null
                   }
-                  memberName={selectedPilot.displayName}
+                  memberName={
+                    issueRecipientName.trim() || selectedPilot.displayName
+                  }
                   memberNumber={
                     issueMemberNumber ||
                     selectedPilot.memberNumber ||

@@ -5,7 +5,10 @@ import {
 } from "@/lib/admin/personnel-role-labels";
 import { getEffectiveCommissionRate } from "@/lib/admin/platform-settings";
 import { DEFAULT_COMMISSION_RATE } from "@/lib/commission/constants";
-import { ensureClientProfileForUser } from "@/lib/admin/user-edit";
+import {
+  ensureClientProfileForUser,
+  formatBillingAddressForAdmin,
+} from "@/lib/admin/user-edit";
 import {
   parseClientProfilePreferences,
   type ClientProfilePreferences,
@@ -302,7 +305,7 @@ export async function getMemberDetailForAdmin(
           contactName: client.contactName,
           companyName: client.companyName,
           phone: client.phone,
-          billingAddress: client.billingAddress,
+          billingAddress: formatBillingAddressForAdmin(client.billingAddress),
           status: client.status,
         }
       : null,
@@ -417,7 +420,7 @@ export async function getMemberDetailForAdmin(
           contactName: client.contactName,
           companyName: client.companyName,
           phone: client.phone,
-          billingAddress: client.billingAddress,
+          billingAddress: formatBillingAddressForAdmin(client.billingAddress),
           status: client.status,
           onboardingCompletedAt:
             client.onboardingCompletedAt?.toISOString() ?? null,

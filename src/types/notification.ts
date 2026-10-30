@@ -12,6 +12,7 @@ export const NOTIFICATION_TYPES = [
   "dispute_update",
   "verification_approved",
   "verification_rejected",
+  "wing_request",
   "wing_earned",
   "support_chat",
   "instructor_invite",

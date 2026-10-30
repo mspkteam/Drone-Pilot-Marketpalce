@@ -59,6 +59,9 @@ export function PilotSubscriptionView() {
     pendingInvites: [],
   });
   const [instructorCode, setInstructorCode] = useState("");
+  const [instructorMembershipDueUsd, setInstructorMembershipDueUsd] = useState<
+    number | null
+  >(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -480,11 +483,17 @@ export function PilotSubscriptionView() {
             <div className="pilot-subscription-annual pilot-subscription-bracket-card">
               <div className="pilot-subscription-annual-main">
                 <p className="pilot-subscription-annual-price">
-                  {formatMembershipUsd(PILOT_ANNUAL_MEMBERSHIP_FEE_USD)}{" "}
+                  {formatMembershipUsd(
+                    instructorMembershipDueUsd ?? PILOT_ANNUAL_MEMBERSHIP_FEE_USD,
+                  )}{" "}
                   <span>/ Year</span>
                 </p>
                 <p className="pilot-subscription-annual-copy">
                   Includes access to jobs, proposals, profile, and core benefits.
+                  {instructorMembershipDueUsd != null &&
+                  instructorMembershipDueUsd < PILOT_ANNUAL_MEMBERSHIP_FEE_USD
+                    ? ` Instructor discount applied (was ${formatMembershipUsd(PILOT_ANNUAL_MEMBERSHIP_FEE_USD)}).`
+                    : ""}
                 </p>
               </div>
               <ul className="pilot-subscription-annual-benefits">
@@ -501,7 +510,10 @@ export function PilotSubscriptionView() {
                 >
                   {actionLoading === a1PlanId
                     ? "Enrolling…"
-                    : `Enroll — ${formatMembershipUsd(PILOT_ANNUAL_MEMBERSHIP_FEE_USD)}/year`}
+                    : `Enroll — ${formatMembershipUsd(
+                        instructorMembershipDueUsd ??
+                          PILOT_ANNUAL_MEMBERSHIP_FEE_USD,
+                      )}/year`}
                 </button>
               ) : (
                 <p className="pilot-subscription-annual-active" role="status">
@@ -577,6 +589,10 @@ export function PilotSubscriptionView() {
                 instructorName: payload.instructorName,
                 instructorActive: true,
               }));
+              setInstructorMembershipDueUsd(payload.membershipDueUsd);
+              setSuccess(
+                `Instructor linked. Basic membership due ${formatMembershipUsd(payload.membershipDueUsd)} (${formatMembershipUsd(payload.discountUsd)} off).`,
+              );
             }}
             onChanged={() => {
               void load();

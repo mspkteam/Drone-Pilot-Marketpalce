@@ -45,7 +45,7 @@ export function toVerificationDto(v: Verification): VerificationDto {
 
 const adminInclude = {
   pilotProfile: {
-    include: { user: { select: { email: true } } },
+    include: { user: { select: { id: true, email: true } } },
   },
 } as const;
 
@@ -60,7 +60,7 @@ function toAdminDto(
       locationRegion: string | null;
       locationCountry: string | null;
       profileExtrasJson: string;
-      user: { email: string };
+      user: { id: string; email: string };
     };
   },
 ): AdminVerificationDto {
@@ -68,6 +68,7 @@ function toAdminDto(
     ...toVerificationDto(v),
     pilot: {
       id: v.pilotProfile.id,
+      userId: v.pilotProfile.user.id,
       displayName: v.pilotProfile.displayName,
       email: v.pilotProfile.user.email,
       licenseNumber: v.pilotProfile.licenseNumber,
@@ -491,6 +492,31 @@ export async function rejectVerification(
     });
   });
 
+  return { ok: true };
+}
+
+export async function clearVerificationDocument(
+  verificationId: string,
+  pilotProfileId: string,
+): Promise<
+  | { ok: true }
+  | { ok: false; error: string; status: 400 | 404 }
+> {
+  const row = await prisma.verification.findFirst({
+    where: { id: verificationId, pilotProfileId },
+  });
+  if (!row) {
+    return { ok: false, error: "Verification not found.", status: 404 };
+  }
+  if (row.status === "approved") {
+    return {
+      ok: false,
+      error: "Approved documents cannot be removed. Contact support if needed.",
+      status: 400,
+    };
+  }
+
+  await prisma.verification.delete({ where: { id: row.id } });
   return { ok: true };
 }
 

@@ -130,38 +130,76 @@ export function formatPostProjectDeadline(form: PostProjectFormState): string {
   return "Flexible";
 }
 
-export function validatePostProjectStep(
+export type PostProjectFieldErrors = Partial<
+  Record<
+    | "serviceId"
+    | "location"
+    | "deliverables"
+    | "quoteType"
+    | "priority"
+    | "coverTravelExpenses"
+    | "budgetMin"
+    | "budgetMax"
+    | "completionDate"
+    | "termsAcknowledged",
+    string
+  >
+>;
+
+export function validatePostProjectStepFields(
   step: number,
   form: PostProjectFormState,
-): string | null {
+): PostProjectFieldErrors {
+  const errors: PostProjectFieldErrors = {};
   if (step === 0 && !form.serviceId) {
-    return "Select a service type to continue.";
+    errors.serviceId = "Select a service type to continue.";
   }
   if (step === 1) {
     const primary = form.locations[0];
     if (!primary?.address.trim() && !primary?.city.trim()) {
-      return "Add a project address or city.";
+      errors.location = "Add a project address or city.";
     }
   }
   if (step === 2 && form.deliverables.length === 0) {
-    return "Select at least one deliverable.";
+    errors.deliverables = "Select at least one deliverable.";
   }
   if (step === 3) {
-    if (!form.quoteType) return "Select how you would like to receive quotes.";
-    if (!form.priority) return "Select a project priority.";
+    if (!form.quoteType) {
+      errors.quoteType = "Select how you would like to receive quotes.";
+    }
+    if (!form.priority) {
+      errors.priority = "Select a project priority.";
+    }
     if (form.coverTravelExpenses === null) {
-      return "Select whether you will cover pilot travel expenses.";
+      errors.coverTravelExpenses =
+        "Select whether you will cover pilot travel expenses.";
     }
     if (form.quoteType === "fixed_budget") {
-      if (!form.budgetMin.trim() || !form.budgetMax.trim()) {
-        return "Enter minimum and maximum budget.";
+      if (!form.budgetMin.trim()) {
+        errors.budgetMin = "Enter a minimum budget.";
+      }
+      if (!form.budgetMax.trim()) {
+        errors.budgetMax = "Enter a maximum budget.";
       }
     }
-    if (form.deadline && form.completionDate && form.completionDate < form.deadline) {
-      return "Expected completion date cannot be before the project deadline.";
+    if (
+      form.deadline &&
+      form.completionDate &&
+      form.completionDate < form.deadline
+    ) {
+      errors.completionDate =
+        "Expected completion date cannot be before the project deadline.";
     }
   }
-  return null;
+  return errors;
+}
+
+export function validatePostProjectStep(
+  step: number,
+  form: PostProjectFormState,
+): string | null {
+  const fields = validatePostProjectStepFields(step, form);
+  return Object.values(fields)[0] ?? null;
 }
 
 export function validatePostProjectSubmit(form: PostProjectFormState): string | null {

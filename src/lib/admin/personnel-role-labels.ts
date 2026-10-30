@@ -47,11 +47,16 @@ export function mapPersonnelPilotRoleLabel(input: {
     return { label: labels.squadronLead, filter: labels.squadronLead };
   }
 
+  const planName = input.planName?.trim();
+
   if (input.tierCode && PERSONNEL_ELITE_TIER_CODES.has(input.tierCode)) {
-    return { label: labels.elitePilot, filter: labels.elitePilot };
+    // Prefer the real grade title (e.g. A-6 Captain) over the Elite Pilot bucket.
+    return {
+      label: planName || labels.elitePilot,
+      filter: labels.elitePilot,
+    };
   }
 
-  const planName = input.planName?.trim();
   if (planName) {
     // Grade title is the accurate default; filter still buckets as Pilot.
     return { label: planName, filter: labels.pilot };

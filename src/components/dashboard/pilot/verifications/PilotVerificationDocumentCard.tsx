@@ -13,7 +13,10 @@ const STATUS_LABEL: Record<PilotVerificationDocumentCard["uiStatus"], string> = 
 type PilotVerificationDocumentCardViewProps = {
   card: PilotVerificationDocumentCard;
   uploading: boolean;
+  removing?: boolean;
+  cardError?: string | null;
   onReplace: () => void;
+  onRemove?: () => void;
 };
 
 function StatusIcon({ status }: { status: PilotVerificationDocumentCard["uiStatus"] }) {
@@ -79,8 +82,19 @@ function UploadIcon() {
 export function PilotVerificationDocumentCardView({
   card,
   uploading,
+  removing = false,
+  cardError = null,
   onReplace,
+  onRemove,
 }: PilotVerificationDocumentCardViewProps) {
+  const busy = uploading || removing;
+  const canRemove =
+    Boolean(onRemove) &&
+    Boolean(card.verification?.id) &&
+    card.uiStatus !== "approved" &&
+    card.uiStatus !== "missing" &&
+    card.uiStatus !== "optional";
+
   return (
     <article className="pilot-verification-doc-card">
       <div>
@@ -101,19 +115,42 @@ export function PilotVerificationDocumentCardView({
             <strong>ADMIN:</strong> {card.adminNote}
           </p>
         ) : null}
+        {cardError ? (
+          <p className="pilot-verification-doc-admin-note" role="alert">
+            {cardError}
+          </p>
+        ) : null}
       </div>
 
       <div>
-        <button
-          type="button"
-          className="pilot-verification-doc-upload-btn"
-          onClick={onReplace}
-          disabled={uploading}
-        >
-          <UploadIcon />
-          {uploading ? "Uploading…" : "Replace File"}
-        </button>
-        <p className="pilot-verification-doc-file-note">PDF · JPG · PNG · max 10MB</p>
+        <div className="pilot-verification-doc-actions">
+          <button
+            type="button"
+            className="pilot-verification-doc-upload-btn"
+            onClick={onReplace}
+            disabled={busy}
+          >
+            <UploadIcon />
+            {uploading
+              ? "Uploading…"
+              : card.uiStatus === "missing" || card.uiStatus === "optional"
+                ? "Upload File"
+                : "Replace File"}
+          </button>
+          {canRemove ? (
+            <button
+              type="button"
+              className="pilot-verification-doc-remove-btn"
+              onClick={onRemove}
+              disabled={busy}
+            >
+              {removing ? "Removing…" : "Remove"}
+            </button>
+          ) : null}
+        </div>
+        <p className="pilot-verification-doc-file-note">
+          PDF · JPG · PNG · WEBP · max 5MB
+        </p>
       </div>
     </article>
   );

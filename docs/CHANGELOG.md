@@ -4,6 +4,41 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.110] — 2026-10-30
+
+### Fixed
+
+- **Certificates:** Editable recipient name on manual issue; Generate PDF scrolls to and highlights the issued row.
+- **Personnel:** Role column prefers grade title (e.g. A-6 Captain); wings column lists wing titles instead of a count.
+- **Verification (pilot):** Remove upload for non-approved docs; per-card file errors; 5MB/type copy; switching wing type clears draft uploads.
+- **Verification (admin):** In-modal document preview with original filename; View Profile retained.
+- **Profile / membership:** Insurance section on pilot profile; instructor code field error + discounted enroll price display.
+- **Admin config:** Disabled security toggles labeled preview-only with helper copy.
+- **Post a project:** Field-level errors on Budget & Timeline; consistent button min-height.
+
+### Notes
+
+- Remaining checklist blockers need client input: Stripe, geo/phone, support automation, shop product artwork. See `docs/FINAL_TESTING_QA_CHECKLIST.md`.
+
+---
+
+## [0.27.109] — 2026-10-30
+
+### Fixed
+
+- **Admin member edit:** Restored GET/PATCH on `/api/admin/users/[id]`. Billing address shows and saves as a readable line (JSON storage preserved). Client command bar keeps Edit/Suspend only — no global Jobs/Bookings/Payments shortcuts.
+- **Notifications:** Admins get job-approval alerts when a client submits a job; wing-request submit notifies staff.
+- **Pilot jobs:** Applied listings stay open after the job leaves open bidding. `pilot_quotes` proposals are not capped by fixed budget max.
+- **Proposals:** Portfolio links start empty with Add/Remove; attach hint lists PNG/JPG/WEBP/GIF/PDF.
+- **Verification portal:** View Profile opens the admin member page (`userId` on DTO).
+- **UI polish:** Certificate overlay text no longer clips trailing letters; portfolio/avatar modals wider with preview spacing; gallery titles show up to two lines.
+
+### Notes
+
+- Checklist Partials closed where code evidence exists: `docs/FINAL_TESTING_QA_CHECKLIST.md`. Stripe / geo / support automation still blocked on client.
+
+---
+
 ## [0.27.108] — 2026-10-30
 
 ### Fixed

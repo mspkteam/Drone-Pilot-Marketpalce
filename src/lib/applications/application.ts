@@ -274,7 +274,7 @@ export async function getOpenJobForPilot(
   if (!tier) return null;
 
   const job = await prisma.job.findFirst({
-    where: { id: jobId, status: { in: ["open", "in_bidding"] } },
+    where: { id: jobId },
     include: {
       clientProfile: {
         select: { companyName: true, contactName: true, preferencesJson: true },
@@ -287,18 +287,29 @@ export async function getOpenJobForPilot(
 
   if (!job || !job.approvedAt) return null;
 
+  const hasOwnApplication = job.applications.length > 0;
+  const isOpenForMarket = job.status === "open" || job.status === "in_bidding";
+
   const { visible, locked } = await getVisibleJobsForPilot(pilotProfileId);
   const inVisible = visible.some((v) => v.job.id === jobId);
   const inLocked = locked.some((l) => l.job.id === jobId);
 
-  if (!inVisible && !inLocked) return null;
+  // Allow View listing after apply even when the job left open/in_bidding.
+  if (!hasOwnApplication && (!isOpenForMarket || (!inVisible && !inLocked))) {
+    return null;
+  }
 
   const visibleEntry = visible.find((v) => v.job.id === jobId);
   const lockedEntry = locked.find((l) => l.job.id === jobId);
-  const visibleAt = visibleEntry?.visibleAt ?? lockedEntry!.visibleAt;
+  const visibleAt =
+    visibleEntry?.visibleAt ??
+    lockedEntry?.visibleAt ??
+    job.approvedAt ??
+    job.createdAt;
 
   const applyCheck = await canPilotApplyToJobById(pilotProfileId, jobId);
-  const canApply = applyCheck.allowed && !job.applications.length;
+  const canApply =
+    isOpenForMarket && applyCheck.allowed && !job.applications.length;
 
   const dto = mapJobToOpenDto(
     job,
@@ -356,19 +367,23 @@ export async function createJobApplication(
     };
   }
 
-  if (job.budgetMax != null && input.proposedAmount > job.budgetMax + 0.001) {
-    return {
-      ok: false,
-      error: `Proposed amount cannot exceed the client budget of ${job.budgetMax}.`,
-      status: 400,
-    };
-  }
-  if (job.budgetMin != null && input.proposedAmount < job.budgetMin - 0.001) {
-    return {
-      ok: false,
-      error: `Proposed amount must be at least ${job.budgetMin}.`,
-      status: 400,
-    };
+  const postProject = parseJobPostProjectMetadata(job.postProjectJson);
+  const isPilotQuotes = postProject?.quoteType === "pilot_quotes";
+  if (!isPilotQuotes) {
+    if (job.budgetMax != null && input.proposedAmount > job.budgetMax + 0.001) {
+      return {
+        ok: false,
+        error: `Proposed amount cannot exceed the client budget of ${job.budgetMax}.`,
+        status: 400,
+      };
+    }
+    if (job.budgetMin != null && input.proposedAmount < job.budgetMin - 0.001) {
+      return {
+        ok: false,
+        error: `Proposed amount must be at least ${job.budgetMin}.`,
+        status: 400,
+      };
+    }
   }
 
   const existing = await prisma.jobApplication.findUnique({

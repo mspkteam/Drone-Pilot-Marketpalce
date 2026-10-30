@@ -1163,6 +1163,21 @@
   }
 }
 
+.pilot-instructor-student-code-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.pilot-instructor-student-field-error {
+  margin: 0;
+  font-size: 0.75rem;
+  line-height: 1.35;
+  color: #f0a8a0;
+}
+
 .pilot-instructor-student-form {
   display: flex;
   flex-wrap: wrap;

@@ -254,36 +254,6 @@ export function AdminClientMemberProfile({
               Reactivate login
             </button>
           ) : null}
-          <Link
-            href="/dashboard/admin/jobs"
-            className="admin-personnel-action"
-          >
-            Jobs queue
-          </Link>
-          <Link
-            href="/dashboard/admin/bookings"
-            className="admin-personnel-action"
-          >
-            Bookings
-          </Link>
-          <Link
-            href="/dashboard/admin/disputes"
-            className="admin-personnel-action"
-          >
-            Disputes
-          </Link>
-          <Link
-            href="/dashboard/admin/messages"
-            className="admin-personnel-action"
-          >
-            Messages
-          </Link>
-          <Link
-            href="/dashboard/admin/payments"
-            className="admin-personnel-action"
-          >
-            Payments
-          </Link>
         </div>
 
         {error ? (

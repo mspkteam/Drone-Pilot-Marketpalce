@@ -1,9 +1,11 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Check,
   CreditCard,
+  ExternalLink,
   FileText,
   MessageSquare,
   Search,
@@ -32,6 +34,12 @@ type Applicant = {
   earliestSubmitted: number;
   pendingCount: number;
   summary: "pending" | "missing" | "verified";
+};
+
+type DocPreview = {
+  href: string;
+  label: string;
+  mimeHint: "pdf" | "image" | "other";
 };
 
 const FILTERS = approvalStatusFilterTabs({
@@ -163,6 +171,7 @@ export function AdminVerificationPortal({
   const [busy, setBusy] = useState(false);
   const [reasonMode, setReasonMode] = useState<"reject" | "request" | null>(null);
   const [reason, setReason] = useState("");
+  const [docPreview, setDocPreview] = useState<DocPreview | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -465,6 +474,16 @@ export function AdminVerificationPortal({
                     </dd>
                   </div>
                 </dl>
+
+                <div className="av-actions" style={{ justifyContent: "flex-start" }}>
+                  <Link
+                    href={`/dashboard/admin/users/${selected.pilot.userId}`}
+                    className="av-btn av-btn--outline"
+                  >
+                    <ExternalLink size={14} strokeWidth={2} aria-hidden />
+                    View Profile
+                  </Link>
+                </div>
               </div>
 
               <div className="av-docs">
@@ -473,24 +492,36 @@ export function AdminVerificationPortal({
                   {selected.verifications.map((v) => {
                     const Icon = DOC_ICON[v.type];
                     const tone = docStatusTone(v.status);
+                    const label = getVerificationTypeLabel(v.type);
                     const href = v.hasUploadedDocument
                       ? `/api/admin/verifications/${v.id}/document`
                       : v.documentUrl;
+                    const mimeHint: DocPreview["mimeHint"] =
+                      v.documentMimeType?.startsWith("image/")
+                        ? "image"
+                        : v.documentMimeType === "application/pdf" ||
+                            href?.toLowerCase().includes(".pdf")
+                          ? "pdf"
+                          : "other";
                     return (
                       <div key={v.id} className={`av-doc av-doc--${tone}`}>
                         {href ? (
-                          <a
+                          <button
+                            type="button"
                             className="av-doc-view"
-                            href={href}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            aria-label={`View ${getVerificationTypeLabel(v.type)} document`}
+                            aria-label={`Preview ${label} document`}
+                            onClick={() =>
+                              setDocPreview({ href, label, mimeHint })
+                            }
                           >
                             <Search size={12} strokeWidth={2} aria-hidden />
-                          </a>
+                          </button>
                         ) : null}
                         <Icon className="av-doc-icon" size={26} strokeWidth={1.5} aria-hidden />
-                        <p className="av-doc-label">{getVerificationTypeLabel(v.type)}</p>
+                        <p className="av-doc-label">{label}</p>
+                        {v.originalFileName ? (
+                          <p className="av-doc-filename">{v.originalFileName}</p>
+                        ) : null}
                         <span className={`av-doc-status av-doc-status--${tone}`}>
                           {docStatusLabel(v.status)}
                         </span>
@@ -608,6 +639,58 @@ export function AdminVerificationPortal({
         </section>
       </div>
       )}
+
+      {docPreview ? (
+        <div
+          className="av-preview-backdrop"
+          role="dialog"
+          aria-modal="true"
+          aria-label={`${docPreview.label} preview`}
+          onClick={() => setDocPreview(null)}
+        >
+          <div
+            className="av-preview-modal"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="av-preview-head">
+              <h2 className="av-preview-title">{docPreview.label}</h2>
+              <div className="av-preview-actions">
+                <a
+                  className="av-btn av-btn--outline"
+                  href={docPreview.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Open in new tab
+                </a>
+                <button
+                  type="button"
+                  className="av-btn av-btn--ghost"
+                  onClick={() => setDocPreview(null)}
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+            <div className="av-preview-body">
+              {docPreview.mimeHint === "image" ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={docPreview.href}
+                  alt={docPreview.label}
+                  className="av-preview-image"
+                />
+              ) : (
+                <iframe
+                  title={`${docPreview.label} preview`}
+                  src={docPreview.href}
+                  className="av-preview-frame"
+                />
+              )}
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

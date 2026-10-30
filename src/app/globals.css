@@ -3263,6 +3263,14 @@ a.dashboard-card:hover {
   color: var(--color-danger-soft);
 }
 
+.client-post-project-field-error {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 0.75rem;
+  line-height: 1.35;
+  color: var(--color-danger-soft, #f0a8a0);
+}
+
 .client-post-project-step-title {
   font-size: 1.375rem;
   font-weight: 700;
@@ -3828,6 +3836,7 @@ a.dashboard-card:hover {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  min-height: 2.75rem;
   border-radius: 0.5rem;
   border: 1px solid rgba(216, 179, 57, 0.35);
   background: var(--color-gold);
@@ -3859,6 +3868,8 @@ a.dashboard-card:hover {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  min-height: 2.75rem;
+  margin-top: 0;
   border-radius: 0.5rem;
   border: 1px solid rgba(255, 255, 255, 0.1);
   background: var(--color-bg-deeper);

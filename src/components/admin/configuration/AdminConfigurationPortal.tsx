@@ -481,19 +481,32 @@ export function AdminConfigurationPortal({ canManage }: AdminConfigurationPortal
               </svg>
             </CardIcon>
           </header>
+          <p className="admin-config-security-hint">
+            Security toggles are preview-only until each control is integrated.
+            Disabled checkboxes show the planned default — they cannot be changed
+            here yet.
+          </p>
           <ul className="admin-config-security-list">
             {data?.security.map((setting) => (
               <li key={setting.id} className="admin-config-security-row">
-                <span className="admin-config-security-label">{setting.label}</span>
+                <span className="admin-config-security-label">
+                  {setting.label}
+                  {!setting.integrated ? (
+                    <span className="admin-config-security-preview-tag">
+                      {" "}
+                      · Preview only
+                    </span>
+                  ) : null}
+                </span>
                 <label className="admin-config-toggle">
                   <input
                     type="checkbox"
                     checked={setting.enabled}
                     disabled
-                    aria-label={setting.label}
+                    aria-label={`${setting.label}${setting.integrated ? "" : " (preview only — not integrated)"}`}
                     title={
                       setting.integrated
-                        ? undefined
+                        ? "Integrated control (read-only in this build)"
                         : "Not integrated — preview only"
                     }
                   />

@@ -16,7 +16,9 @@ import {
   postProjectToJobPayload,
   POST_PROJECT_STEPS,
   validatePostProjectStep,
+  validatePostProjectStepFields,
   validatePostProjectSubmit,
+  type PostProjectFieldErrors,
   type PostProjectFormState,
   type PostProjectServiceId,
 } from "@/lib/client/post-project";
@@ -26,6 +28,7 @@ export function ClientPostProjectWizard() {
   const [step, setStep] = useState(0);
   const [form, setForm] = useState<PostProjectFormState>(initialPostProjectFormState);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<PostProjectFieldErrors>({});
   const [loading, setLoading] = useState(false);
   const [termsModalOpen, setTermsModalOpen] = useState(false);
 
@@ -33,14 +36,18 @@ export function ClientPostProjectWizard() {
 
   function patchForm(patch: Partial<PostProjectFormState>) {
     setForm((current) => ({ ...current, ...patch }));
+    setFieldErrors({});
   }
 
   function goNext() {
+    const fields = validatePostProjectStepFields(step, form);
     const err = validatePostProjectStep(step, form);
     if (err) {
+      setFieldErrors(fields);
       setError(err);
       return;
     }
+    setFieldErrors({});
     setError(null);
     setStep((s) => Math.min(s + 1, POST_PROJECT_STEPS.length - 1));
   }
@@ -132,7 +139,11 @@ export function ClientPostProjectWizard() {
             <PostProjectStepRequirements form={form} onChange={patchForm} />
           ) : null}
           {step === 3 ? (
-            <PostProjectStepBudget form={form} onChange={patchForm} />
+            <PostProjectStepBudget
+              form={form}
+              fieldErrors={fieldErrors}
+              onChange={patchForm}
+            />
           ) : null}
           {step === 4 ? (
             <PostProjectStepReview form={form} onOpenTermsModal={openTermsModal} />

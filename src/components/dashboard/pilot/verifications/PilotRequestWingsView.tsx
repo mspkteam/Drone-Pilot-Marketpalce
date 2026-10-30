@@ -196,6 +196,49 @@ export function PilotRequestWingsView() {
     }
   }
 
+  async function handleWingCodeChange(nextCode: RequestableWingCode) {
+    if (nextCode === wingCode) return;
+    const hasUploads =
+      Boolean(request?.documents.iacra) ||
+      Boolean(request?.documents.testScore) ||
+      Boolean(request?.documents.certificate) ||
+      (request?.documents.logbooks.length ?? 0) > 0;
+    if (hasUploads) {
+      const ok = window.confirm(
+        "Switching wing type clears uploaded files for this draft so documents do not carry over. Continue?",
+      );
+      if (!ok) return;
+      try {
+        const res = await fetch("/api/pilot/wing-requests/documents", {
+          method: "DELETE",
+        });
+        const json = await res.json();
+        if (!res.ok) {
+          setError(json.error ?? "Could not clear previous uploads.");
+          return;
+        }
+        const next = json.request as AviatorWingRequestDto | null;
+        setPage((prev) =>
+          prev
+            ? {
+                ...prev,
+                draft: next,
+                requests: next
+                  ? [next, ...prev.requests.filter((row) => row.id !== next.id)]
+                  : prev.requests,
+              }
+            : prev,
+        );
+      } catch {
+        setError("Could not clear previous uploads.");
+        return;
+      }
+    }
+    setWingCode(nextCode);
+    setError(null);
+    setSuccess(null);
+  }
+
   async function upload(slot: WingRequestFileSlot, file: File) {
     setError(null);
     setSuccess(null);
@@ -295,7 +338,7 @@ export function PilotRequestWingsView() {
                       role="radio"
                       aria-checked={selected}
                       className={`prw-option${selected ? " is-selected" : ""}`}
-                      onClick={() => setWingCode(item.code)}
+                      onClick={() => void handleWingCodeChange(item.code)}
                     >
                       <span className="prw-option-img">
                         <img src={item.imageSrc} alt="" width={70} height={26} />

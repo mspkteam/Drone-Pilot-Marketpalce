@@ -950,6 +950,23 @@ export function PilotProfileCompletionView({
               </p>
             )}
 
+            <div className="profile-onboarding-insurance-block">
+              <h3 className="profile-onboarding-subsection-title">Insurance</h3>
+              <p className="profile-onboarding-muted">
+                {insuranceVerified
+                  ? "Liability insurance is verified on your account."
+                  : "Upload proof of liability insurance under Verification. It is reviewed by staff and counts toward profile strength."}
+              </p>
+              <Link
+                href="/dashboard/pilot/verifications"
+                className="profile-onboarding-inline-link"
+              >
+                {insuranceVerified
+                  ? "View verification documents →"
+                  : "Upload insurance document →"}
+              </Link>
+            </div>
+
             <div className="profile-onboarding-fields profile-onboarding-fields--2 profile-onboarding-fields--spaced">
               <div className="profile-onboarding-field">
                 <label className="profile-onboarding-label" htmlFor="locationCountry">

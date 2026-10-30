@@ -64,7 +64,8 @@ export function ClientBillingPayments() {
       <header className="client-billing-header">
         <h1 className="client-billing-title">Billing &amp; Payments</h1>
         <p className="client-billing-subtitle">
-          Receipts from completed projects. Card methods will appear here when Stripe is connected.
+          Receipts from completed projects. Live card methods, Stripe test mode, and
+          downloadable invoice PDFs are waiting on client confirmation.
         </p>
       </header>
 

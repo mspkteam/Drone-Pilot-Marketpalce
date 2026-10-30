@@ -6,7 +6,15 @@ import {
 } from "@/lib/marketing/captains-club-content";
 import { homeAssets } from "@/lib/marketing/home-assets";
 
-export function CaptainsClubHero() {
+type CaptainsClubHeroProps = {
+  hireHref?: string | null;
+  browseHref?: string;
+};
+
+export function CaptainsClubHero({
+  hireHref = CAPTAINS_CLUB_ROUTES.hireCaptain,
+  browseHref = CAPTAINS_CLUB_ROUTES.browseAllPilots,
+}: CaptainsClubHeroProps) {
   return (
     <section className="captains-club-hero">
       <div className="captains-club-hero-glow" aria-hidden />
@@ -21,10 +29,12 @@ export function CaptainsClubHero() {
           <p className="captains-club-hero-eyebrow">{CAPTAINS_CLUB_HERO.eyebrow}</p>
           <p className="captains-club-hero-desc">{CAPTAINS_CLUB_HERO.description}</p>
           <div className="captains-club-hero-actions">
-            <Link href={CAPTAINS_CLUB_ROUTES.hireCaptain} className="ras-btn-primary">
-              Hire a Captain
-            </Link>
-            <Link href={CAPTAINS_CLUB_ROUTES.browseAllPilots} className="ras-btn-outline">
+            {hireHref ? (
+              <Link href={hireHref} className="ras-btn-primary">
+                Hire a Captain
+              </Link>
+            ) : null}
+            <Link href={browseHref} className="ras-btn-outline">
               Browse All Pilots
             </Link>
           </div>

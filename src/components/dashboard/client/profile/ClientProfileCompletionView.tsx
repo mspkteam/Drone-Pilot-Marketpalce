@@ -165,6 +165,8 @@ export function ClientProfileCompletionView({
 
   const canEdit = !profile || profile.status !== "suspended";
   const needsOnboarding = !profile?.onboardingCompletedAt;
+  const [isEditing, setIsEditing] = useState(needsOnboarding);
+  const fieldsLocked = !canEdit || (!needsOnboarding && !isEditing);
 
   const strength = useMemo(
     () => computeClientProfileStrength(form, extras),
@@ -272,7 +274,7 @@ export function ClientProfileCompletionView({
                   type="button"
                   className="profile-onboarding-avatar-btn"
                   onClick={handleAvatarClick}
-                  disabled={!canEdit || loading}
+                  disabled={fieldsLocked || loading}
                   aria-label={extras.logoPreview ? "Adjust logo" : "Upload logo"}
                 >
                   {extras.logoPreview ? (
@@ -291,7 +293,7 @@ export function ClientProfileCompletionView({
                       type="button"
                       className="profile-onboarding-avatar-action"
                       onClick={openFilePicker}
-                      disabled={!canEdit || loading}
+                      disabled={fieldsLocked || loading}
                     >
                       Change
                     </button>
@@ -299,7 +301,7 @@ export function ClientProfileCompletionView({
                       type="button"
                       className="profile-onboarding-avatar-action profile-onboarding-avatar-action--danger"
                       onClick={handleRemoveLogo}
-                      disabled={!canEdit || loading}
+                      disabled={fieldsLocked || loading}
                     >
                       Remove
                     </button>
@@ -328,7 +330,7 @@ export function ClientProfileCompletionView({
                     className="profile-onboarding-input"
                     value={form.contactName}
                     onChange={(e) => patchForm({ contactName: e.target.value })}
-                    disabled={!canEdit || loading}
+                    disabled={fieldsLocked || loading}
                     required
                   />
                 </div>
@@ -341,7 +343,7 @@ export function ClientProfileCompletionView({
                     className="profile-onboarding-input"
                     value={form.companyName}
                     onChange={(e) => patchForm({ companyName: e.target.value })}
-                    disabled={!canEdit || loading}
+                    disabled={fieldsLocked || loading}
                   />
                 </div>
                 <div className="profile-onboarding-field">
@@ -353,7 +355,7 @@ export function ClientProfileCompletionView({
                     className="profile-onboarding-input"
                     value={extras.roleTitle}
                     onChange={(e) => patchExtras({ roleTitle: e.target.value })}
-                    disabled={!canEdit || loading}
+                    disabled={fieldsLocked || loading}
                     placeholder="Operations Manager"
                   />
                 </div>
@@ -366,7 +368,7 @@ export function ClientProfileCompletionView({
                     className="profile-onboarding-input"
                     value={extras.location}
                     onChange={(e) => patchExtras({ location: e.target.value })}
-                    disabled={!canEdit || loading}
+                    disabled={fieldsLocked || loading}
                     placeholder="Dallas, TX"
                   />
                 </div>
@@ -406,7 +408,7 @@ export function ClientProfileCompletionView({
                   className="profile-onboarding-input"
                   value={form.phone}
                   onChange={(e) => patchForm({ phone: e.target.value })}
-                  disabled={!canEdit || loading}
+                  disabled={fieldsLocked || loading}
                 />
               </div>
             </div>
@@ -418,7 +420,7 @@ export function ClientProfileCompletionView({
                     key={option}
                     type="button"
                     className={`profile-onboarding-chip${extras.preferredContact === option ? " profile-onboarding-chip--active" : ""}`}
-                    disabled={!canEdit || loading}
+                    disabled={fieldsLocked || loading}
                     onClick={() => patchExtras({ preferredContact: option })}
                   >
                     {option}
@@ -435,7 +437,7 @@ export function ClientProfileCompletionView({
                 className="profile-onboarding-input"
                 value={extras.typicalProjectArea}
                 onChange={(e) => patchExtras({ typicalProjectArea: e.target.value })}
-                disabled={!canEdit || loading}
+                disabled={fieldsLocked || loading}
                 placeholder="Texas / Southern US"
               />
             </div>
@@ -449,7 +451,7 @@ export function ClientProfileCompletionView({
                   key={chip}
                   type="button"
                   className={`profile-onboarding-chip${extras.projectTypes.includes(chip) ? " profile-onboarding-chip--active" : ""}`}
-                  disabled={!canEdit || loading}
+                  disabled={fieldsLocked || loading}
                   onClick={() => toggleProjectType(chip)}
                 >
                   {chip}
@@ -478,7 +480,7 @@ export function ClientProfileCompletionView({
                   className="profile-onboarding-input"
                   value={extras.billingEmail}
                   onChange={(e) => patchExtras({ billingEmail: e.target.value })}
-                  disabled={!canEdit || loading}
+                  disabled={fieldsLocked || loading}
                 />
               </div>
               <div className="profile-onboarding-field">
@@ -490,7 +492,7 @@ export function ClientProfileCompletionView({
                   className="profile-onboarding-input"
                   value={extras.defaultBudgetRange}
                   onChange={(e) => patchExtras({ defaultBudgetRange: e.target.value })}
-                  disabled={!canEdit || loading}
+                  disabled={fieldsLocked || loading}
                 />
               </div>
               <div className="profile-onboarding-field">
@@ -502,7 +504,7 @@ export function ClientProfileCompletionView({
                   className="profile-onboarding-input"
                   value={extras.approvalContact}
                   onChange={(e) => patchExtras({ approvalContact: e.target.value })}
-                  disabled={!canEdit || loading}
+                  disabled={fieldsLocked || loading}
                 />
               </div>
             </div>
@@ -524,10 +526,31 @@ export function ClientProfileCompletionView({
       </div>
 
       <div className="profile-onboarding-actions">
-        {canEdit ? (
-          <button type="submit" className="profile-onboarding-btn-gold" disabled={loading}>
-            {loading ? "Saving…" : "Save Profile"}
+        {canEdit && !needsOnboarding && !isEditing ? (
+          <button
+            type="button"
+            className="profile-onboarding-btn-gold"
+            onClick={() => setIsEditing(true)}
+          >
+            Edit profile
           </button>
+        ) : null}
+        {canEdit && (needsOnboarding || isEditing) ? (
+          <>
+            {!needsOnboarding ? (
+              <button
+                type="button"
+                className="profile-onboarding-btn-outline"
+                disabled={loading}
+                onClick={() => setIsEditing(false)}
+              >
+                Cancel
+              </button>
+            ) : null}
+            <button type="submit" className="profile-onboarding-btn-gold" disabled={loading}>
+              {loading ? "Saving…" : "Save Profile"}
+            </button>
+          </>
         ) : null}
       </div>
 

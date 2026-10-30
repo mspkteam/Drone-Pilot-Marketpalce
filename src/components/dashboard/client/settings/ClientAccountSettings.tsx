@@ -37,6 +37,7 @@ export function ClientAccountSettings() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [changingPassword, setChangingPassword] = useState(false);
   const [inviteCode, setInviteCode] = useState<string | null>(null);
+  const [inviteCopied, setInviteCopied] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -219,15 +220,32 @@ export function ClientAccountSettings() {
         <section className="client-settings-card">
           <h2 className="client-settings-card-title">Your invite code</h2>
           <p className="client-settings-card-hint">
-            Share this code so new members get 10% off membership. You earn 10%
-            stacked discount per invite (up to 50% for one year).
+            Share this code or link so new clients and pilots can join Remote Air
+            Service. They get 10% off membership. You earn 10% stacked discount
+            per successful invite (up to 50% for one year).
           </p>
           <p className="client-settings-label font-mono text-lg tracking-wide">
             {inviteCode}
           </p>
-          <p className="client-settings-card-hint mt-2">
-            Link: /register?invite={inviteCode}
+          <p className="client-settings-card-hint mt-2 break-all">
+            Link: {typeof window !== "undefined" ? window.location.origin : ""}
+            /register?invite={inviteCode}
           </p>
+          <button
+            type="button"
+            className="ras-btn-outline mt-3"
+            onClick={() => {
+              const origin =
+                typeof window !== "undefined" ? window.location.origin : "";
+              const link = `${origin}/register?invite=${inviteCode}`;
+              void navigator.clipboard.writeText(link).then(() => {
+                setInviteCopied(true);
+                window.setTimeout(() => setInviteCopied(false), 2000);
+              });
+            }}
+          >
+            {inviteCopied ? "Copied" : "Copy invite link"}
+          </button>
         </section>
       ) : null}
 

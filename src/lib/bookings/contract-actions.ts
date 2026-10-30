@@ -109,6 +109,12 @@ export function buildPilotContractActions(input: {
         href: deliverHref,
         tone: "gold",
       });
+      actions.push({
+        id: "deliver",
+        label: "Complete Job",
+        href: deliverHref,
+        tone: "outline",
+      });
       break;
     case "awaiting_review":
       actions.push({

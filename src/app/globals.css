@@ -3848,6 +3848,10 @@ a.dashboard-card:hover {
 }
 
 .client-post-project-btn-primary--continue {
+  margin-right: auto;
+}
+
+.client-post-project-btn-secondary--right {
   margin-left: auto;
 }
 

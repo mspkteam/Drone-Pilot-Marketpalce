@@ -157,6 +157,9 @@ export function validatePostProjectStep(
         return "Enter minimum and maximum budget.";
       }
     }
+    if (form.deadline && form.completionDate && form.completionDate < form.deadline) {
+      return "Expected completion date cannot be before the project deadline.";
+    }
   }
   return null;
 }

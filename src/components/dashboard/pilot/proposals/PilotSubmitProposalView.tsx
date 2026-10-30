@@ -728,7 +728,11 @@ export function PilotSubmitProposalView({ jobId, initial }: PilotSubmitProposalV
                     <span className="pilot-submit-file-picker-icon" aria-hidden>
                       📎
                     </span>
-                    <span>Choose file</span>
+                    <span>
+                      {form.attachments.length > 0
+                        ? `${form.attachments.length} file${form.attachments.length === 1 ? "" : "s"} attached`
+                        : "Choose file"}
+                    </span>
                     <input
                       type="file"
                       accept="image/png,image/jpeg,image/webp,image/gif,application/pdf"

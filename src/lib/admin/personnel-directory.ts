@@ -200,8 +200,8 @@ async function buildRowsFromDatabase(
 
     const name = (
       pilot?.displayName ??
-      client?.companyName ??
       client?.contactName ??
+      client?.companyName ??
       user.email.split("@")[0] ??
       "Unknown"
     ).toUpperCase();

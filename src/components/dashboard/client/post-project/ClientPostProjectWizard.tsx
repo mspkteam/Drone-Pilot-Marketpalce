@@ -174,19 +174,6 @@ export function ClientPostProjectWizard() {
               </div>
             ) : (
               <div className="client-post-project-review-actions">
-                {step > 0 ? (
-                  <button
-                    type="button"
-                    className="client-post-project-btn-secondary"
-                    disabled={loading}
-                    onClick={() => {
-                      setError(null);
-                      setStep((s) => Math.max(0, s - 1));
-                    }}
-                  >
-                    Back
-                  </button>
-                ) : null}
                 <button
                   type="button"
                   className="client-post-project-btn-primary client-post-project-btn-primary--continue"
@@ -196,6 +183,19 @@ export function ClientPostProjectWizard() {
                   Continue
                   <ArrowRightIcon />
                 </button>
+                {step > 0 ? (
+                  <button
+                    type="button"
+                    className="client-post-project-btn-secondary client-post-project-btn-secondary--right"
+                    disabled={loading}
+                    onClick={() => {
+                      setError(null);
+                      setStep((s) => Math.max(0, s - 1));
+                    }}
+                  >
+                    Back
+                  </button>
+                ) : null}
               </div>
             )}
           </footer>

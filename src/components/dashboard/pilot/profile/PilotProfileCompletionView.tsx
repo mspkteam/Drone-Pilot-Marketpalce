@@ -213,6 +213,8 @@ export function PilotProfileCompletionView({
 
   const canEdit = !profile || profile.status !== "suspended";
   const needsOnboarding = !profile?.onboardingCompletedAt;
+  const [isEditing, setIsEditing] = useState(needsOnboarding);
+  const fieldsLocked = !canEdit || (!needsOnboarding && !isEditing);
   const isRejected = profile?.status === "rejected";
   const showCompliance = needsOnboarding || isRejected;
   /** Placeholder draft from ensurePilotDraftProfile — treat like empty for UX copy. */
@@ -500,6 +502,9 @@ export function PilotProfileCompletionView({
       payloads: extrasToSave.payloads,
       payloadPanelOpen: extrasToSave.payloads.length === 0,
     }));
+    if (!opts.completeOnboarding && !needsOnboarding) {
+      setIsEditing(false);
+    }
     setSuccess(
       opts.completeOnboarding
         ? isRejected
@@ -556,7 +561,7 @@ export function PilotProfileCompletionView({
                 type="button"
                 className="profile-onboarding-avatar-btn"
                 onClick={() => avatarInputRef.current?.click()}
-                disabled={!canEdit || loading}
+                disabled={fieldsLocked || loading}
               >
                 {extras.avatarPreview ? (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -586,7 +591,7 @@ export function PilotProfileCompletionView({
                     className="profile-onboarding-input"
                     value={form.displayName}
                     onChange={(e) => patchForm({ displayName: e.target.value })}
-                    disabled={!canEdit || loading}
+                    disabled={fieldsLocked || loading}
                     required
                   />
                 </div>
@@ -600,7 +605,7 @@ export function PilotProfileCompletionView({
                     value={extras.callSign}
                     maxLength={12}
                     onChange={(e) => patchExtras({ callSign: e.target.value.slice(0, 12) })}
-                    disabled={!canEdit || loading}
+                    disabled={fieldsLocked || loading}
                     placeholder="Max 12 characters"
                   />
                 </div>
@@ -617,7 +622,7 @@ export function PilotProfileCompletionView({
                       className="profile-onboarding-input"
                       value={extras.locationCombined}
                       onChange={(e) => patchExtras({ locationCombined: e.target.value })}
-                      disabled={!canEdit || loading}
+                      disabled={fieldsLocked || loading}
                       placeholder="Seattle, WA"
                     />
                   </div>
@@ -631,8 +636,21 @@ export function PilotProfileCompletionView({
                     className="profile-onboarding-input"
                     value={extras.serviceRadiusMi}
                     onChange={(e) => patchExtras({ serviceRadiusMi: e.target.value })}
-                    disabled={!canEdit || loading}
+                    disabled={fieldsLocked || loading}
                     placeholder="120 mi"
+                  />
+                </div>
+                <div className="profile-onboarding-field">
+                  <label className="profile-onboarding-label" htmlFor="licenseNumber">
+                    LICENSE NUMBER
+                  </label>
+                  <input
+                    id="licenseNumber"
+                    className="profile-onboarding-input"
+                    value={form.licenseNumber}
+                    onChange={(e) => patchForm({ licenseNumber: e.target.value })}
+                    disabled={fieldsLocked || loading}
+                    placeholder="Part 107 / remote license #"
                   />
                 </div>
               </div>
@@ -646,7 +664,7 @@ export function PilotProfileCompletionView({
                 className="profile-onboarding-textarea"
                 value={form.bio}
                 onChange={(e) => patchForm({ bio: e.target.value })}
-                disabled={!canEdit || loading}
+                disabled={fieldsLocked || loading}
                 placeholder="FAA Part 107 remote pilot with operational experience..."
               />
             </div>
@@ -664,7 +682,7 @@ export function PilotProfileCompletionView({
                     className="profile-onboarding-input"
                     value={extras.hourlyRateDisplay}
                     onChange={(e) => patchExtras({ hourlyRateDisplay: e.target.value })}
-                    disabled={!canEdit || loading}
+                    disabled={fieldsLocked || loading}
                     placeholder="185"
                   />
                 </div>
@@ -678,7 +696,7 @@ export function PilotProfileCompletionView({
                   className="profile-onboarding-input"
                   value={extras.droneEquipment}
                   onChange={(e) => patchExtras({ droneEquipment: e.target.value })}
-                  disabled={!canEdit || loading}
+                  disabled={fieldsLocked || loading}
                   placeholder="DJI Matrice 350 RTK"
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
@@ -697,7 +715,7 @@ export function PilotProfileCompletionView({
                   className="profile-onboarding-input"
                   value={extras.languages}
                   onChange={(e) => patchExtras({ languages: e.target.value })}
-                  disabled={!canEdit || loading}
+                  disabled={fieldsLocked || loading}
                   placeholder="English, German"
                 />
               </div>
@@ -720,7 +738,7 @@ export function PilotProfileCompletionView({
                         type="button"
                         className="profile-onboarding-equip-remove"
                         aria-label={`Remove ${drone}`}
-                        disabled={!canEdit || loading}
+                        disabled={fieldsLocked || loading}
                         onClick={() =>
                           patchExtras({
                             mainDrones: extras.mainDrones.filter((d) => d !== drone),
@@ -734,7 +752,7 @@ export function PilotProfileCompletionView({
                   <button
                     type="button"
                     className="profile-onboarding-equip-add"
-                    disabled={!canEdit || loading}
+                    disabled={fieldsLocked || loading}
                     onClick={() => {
                       if (!extras.droneEquipment.trim()) {
                         document.getElementById("droneEquipment")?.focus();
@@ -758,7 +776,7 @@ export function PilotProfileCompletionView({
                         type="button"
                         className="profile-onboarding-equip-remove"
                         aria-label={`Remove ${item}`}
-                        disabled={!canEdit || loading}
+                        disabled={fieldsLocked || loading}
                         onClick={() =>
                           patchExtras({
                             payloads: extras.payloads.filter((p) => p !== item),
@@ -772,7 +790,7 @@ export function PilotProfileCompletionView({
                   <button
                     type="button"
                     className="profile-onboarding-equip-add"
-                    disabled={!canEdit || loading}
+                    disabled={fieldsLocked || loading}
                     onClick={() => {
                       patchExtras({ payloadPanelOpen: true });
                       requestAnimationFrame(() => {
@@ -802,7 +820,7 @@ export function PilotProfileCompletionView({
                     key={chip.id}
                     type="button"
                     className={`profile-onboarding-chip${selected ? " profile-onboarding-chip--active" : ""}`}
-                    disabled={!canEdit || loading}
+                    disabled={fieldsLocked || loading}
                     onClick={() => {
                       const next = toggleServiceChip(
                         chip,
@@ -942,7 +960,7 @@ export function PilotProfileCompletionView({
                   className="profile-onboarding-input"
                   value={form.locationCountry}
                   onChange={(e) => patchForm({ locationCountry: e.target.value })}
-                  disabled={!canEdit || loading}
+                  disabled={fieldsLocked || loading}
                   required
                 />
               </div>
@@ -954,7 +972,7 @@ export function PilotProfileCompletionView({
                   onChange={(complianceAcknowledged) =>
                     patchForm({ complianceAcknowledged })
                   }
-                  disabled={!canEdit || loading}
+                  disabled={fieldsLocked || loading}
                 />
               </div>
             ) : null}
@@ -964,7 +982,7 @@ export function PilotProfileCompletionView({
                   type="checkbox"
                   checked={form.isPublic}
                   onChange={(e) => patchForm({ isPublic: e.target.checked })}
-                  disabled={!canEdit || loading}
+                  disabled={fieldsLocked || loading}
                 />
                 <span>List my profile in the public pilot directory</span>
               </label>
@@ -1063,7 +1081,7 @@ export function PilotProfileCompletionView({
                 type="button"
                 className="profile-onboarding-payload-close"
                 aria-label="Close add payload panel"
-                disabled={!canEdit || loading}
+                disabled={fieldsLocked || loading}
                 onClick={() =>
                   patchExtras({ payloadPanelOpen: false, payloadDraft: "" })
                 }
@@ -1092,7 +1110,7 @@ export function PilotProfileCompletionView({
                   onChange={(e) =>
                     patchExtras({ payloadDraft: e.target.value.slice(0, PAYLOAD_MAX) })
                   }
-                  disabled={!canEdit || loading}
+                  disabled={fieldsLocked || loading}
                   placeholder="Thermal Imaging Camera"
                 />
                 <p className="profile-onboarding-payload-hint">
@@ -1139,7 +1157,7 @@ export function PilotProfileCompletionView({
                       key={example}
                       type="button"
                       className="profile-onboarding-example-chip"
-                      disabled={!canEdit || loading}
+                      disabled={fieldsLocked || loading}
                       onClick={() =>
                         patchExtras({ payloadDraft: example.slice(0, PAYLOAD_MAX) })
                       }
@@ -1155,7 +1173,7 @@ export function PilotProfileCompletionView({
               <button
                 type="button"
                 className="profile-onboarding-payload-btn profile-onboarding-payload-btn--ghost"
-                disabled={!canEdit || loading}
+                disabled={fieldsLocked || loading}
                 onClick={() =>
                   patchExtras({ payloadPanelOpen: false, payloadDraft: "" })
                 }
@@ -1201,8 +1219,27 @@ export function PilotProfileCompletionView({
             Preview Public Profile
           </button>
         )}
-        {canEdit ? (
+        {canEdit && !needsOnboarding && !isEditing ? (
+          <button
+            type="button"
+            className="profile-onboarding-btn-gold"
+            onClick={() => setIsEditing(true)}
+          >
+            Edit profile
+          </button>
+        ) : null}
+        {canEdit && (needsOnboarding || isEditing) ? (
           <>
+            {!needsOnboarding ? (
+              <button
+                type="button"
+                className="profile-onboarding-btn-outline"
+                disabled={loading}
+                onClick={() => setIsEditing(false)}
+              >
+                Cancel
+              </button>
+            ) : null}
             <button
               type="submit"
               className="profile-onboarding-btn-outline"

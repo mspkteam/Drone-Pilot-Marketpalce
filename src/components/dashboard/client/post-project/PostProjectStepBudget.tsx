@@ -100,13 +100,24 @@ export function PostProjectStepBudget({ form, onChange }: PostProjectStepBudgetP
         })}
       </div>
 
-      <label className="client-post-project-field client-post-project-field--full">
-        <span className="client-post-project-field-label">Project Deadline</span>
-        <PostProjectDateField
-          value={form.deadline}
-          onChange={(deadline) => onChange({ deadline })}
-        />
-      </label>
+      <div className="client-post-project-field-row client-post-project-field-row--spaced">
+        <label className="client-post-project-field">
+          <span className="client-post-project-field-label">Project Deadline</span>
+          <PostProjectDateField
+            value={form.deadline}
+            onChange={(deadline) => onChange({ deadline })}
+          />
+        </label>
+        <label className="client-post-project-field">
+          <span className="client-post-project-field-label">
+            Expected Project Completion Date
+          </span>
+          <PostProjectDateField
+            value={form.completionDate}
+            onChange={(completionDate) => onChange({ completionDate })}
+          />
+        </label>
+      </div>
 
       <section className="client-post-project-travel-section">
         <h3 className="client-post-project-travel-title">Pilot travel coverage</h3>

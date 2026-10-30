@@ -93,7 +93,11 @@ export async function listVerificationsForAdmin(
   filter?: VerificationStatus | "all",
 ): Promise<AdminVerificationDto[]> {
   const where =
-    filter && filter !== "all" ? { status: filter } : undefined;
+    filter === "pending"
+      ? { status: { in: ["pending", "amendments_required"] } }
+      : filter && filter !== "all"
+        ? { status: filter }
+        : undefined;
 
   const rows = await prisma.verification.findMany({
     where,
@@ -105,7 +109,9 @@ export async function listVerificationsForAdmin(
 }
 
 export async function countPendingVerifications() {
-  return prisma.verification.count({ where: { status: "pending" } });
+  return prisma.verification.count({
+    where: { status: { in: ["pending", "amendments_required"] } },
+  });
 }
 
 export async function getApprovedVerificationTypes(
@@ -199,16 +205,35 @@ export async function submitVerificationWithFile(
     where: {
       pilotProfileId,
       type: input.type,
-      status: "pending",
+      status: { in: ["pending", "amendments_required"] },
     },
   });
 
-  if (pending) {
+  if (pending?.status === "pending") {
     return {
       ok: false,
       error: `You already have a pending ${input.type} verification.`,
       status: 409,
     };
+  }
+
+  if (pending?.status === "amendments_required") {
+    const storedName = buildStoredFileName(pending.id, fileCheck.mime);
+    await writeVerificationFile(storedName, input.buffer);
+    const updated = await prisma.verification.update({
+      where: { id: pending.id },
+      data: {
+        status: "pending",
+        notes: input.notes,
+        documentFileName: storedName,
+        documentMimeType: fileCheck.mime,
+        originalFileName: input.originalFileName.slice(0, 255),
+        rejectionReason: null,
+        reviewedAt: null,
+        reviewedByUserId: null,
+      },
+    });
+    return { ok: true, verification: toVerificationDto(updated) };
   }
 
   const row = await prisma.verification.create({
@@ -377,7 +402,7 @@ export async function approveVerification(
     return { ok: false, error: "Verification not found.", status: 404 };
   }
 
-  if (row.status !== "pending") {
+  if (row.status !== "pending" && row.status !== "amendments_required") {
     return {
       ok: false,
       error: "Only pending verifications can be approved.",
@@ -463,6 +488,63 @@ export async function rejectVerification(
       title: "Verification needs updates",
       body: `Your ${row.type} verification was rejected: ${reason}`,
       payload: { verificationId, reason },
+    });
+  });
+
+  return { ok: true };
+}
+
+export async function requestVerificationAmendments(
+  verificationId: string,
+  reviewerUserId: string,
+  reason: string,
+): Promise<
+  | { ok: true }
+  | { ok: false; error: string; status: 400 | 404 }
+> {
+  const row = await prisma.verification.findUnique({
+    where: { id: verificationId },
+    include: { pilotProfile: { select: { userId: true } } },
+  });
+
+  if (!row) {
+    return { ok: false, error: "Verification not found.", status: 404 };
+  }
+
+  if (row.status !== "pending" && row.status !== "amendments_required") {
+    return {
+      ok: false,
+      error: "Only pending documents can be sent back for amendments.",
+      status: 400,
+    };
+  }
+
+  const note = reason.trim();
+  if (note.length < 5) {
+    return {
+      ok: false,
+      error: "Explain what additional information is needed (min 5 characters).",
+      status: 400,
+    };
+  }
+
+  await prisma.verification.update({
+    where: { id: verificationId },
+    data: {
+      status: "amendments_required",
+      reviewedAt: new Date(),
+      reviewedByUserId: reviewerUserId,
+      rejectionReason: note,
+    },
+  });
+
+  notifyAsync(async () => {
+    await sendNotification({
+      userId: row.pilotProfile.userId,
+      type: "verification_rejected",
+      title: "Amendments required",
+      body: `Admin requested updates on your ${row.type} document: ${note}`,
+      payload: { verificationId, reason: note, status: "amendments_required" },
     });
   });
 

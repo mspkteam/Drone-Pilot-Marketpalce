@@ -1,4 +1,5 @@
 import { formatPilotDayRateLabel } from "@/lib/client/pilot-pricing";
+import { clientPilotProfileHref } from "@/lib/pilot/hire-cta";
 import { PILOT_SERVICE_OPTIONS, type PilotServiceId } from "@/types/pilot";
 import type { PublicPilotListItemDto } from "@/types/public-pilot";
 
@@ -32,7 +33,8 @@ export type ClientFindPilot = {
 };
 
 export const CLIENT_FIND_PILOTS_ROUTES = {
-  pilotProfile: (pilotProfileId: string) => `/pilots/${pilotProfileId}` as const,
+  pilotProfile: (pilotProfileId: string) =>
+    clientPilotProfileHref(pilotProfileId),
 } as const;
 
 const SERVICE_LABELS = Object.fromEntries(

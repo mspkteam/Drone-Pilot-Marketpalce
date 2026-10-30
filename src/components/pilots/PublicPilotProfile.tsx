@@ -303,10 +303,14 @@ export function PublicPilotProfile({
   pilot,
   messageHref = "/register?role=client",
   hireHref = "/register?role=client",
+  browseHref = "/pilots",
+  showHire = true,
 }: {
   pilot: PublicPilotProfileDto;
   messageHref?: string;
   hireHref?: string;
+  browseHref?: string;
+  showHire?: boolean;
 }) {
   const location = formatPilotLocation(
     pilot.locationCity,
@@ -473,25 +477,35 @@ export function PublicPilotProfile({
                 tierName={pilot.membership.tierName}
               />
             ) : null}
+            {pilot.membership?.tierCode === "A6_CAPTAIN" ? (
+              <p className="mt-3 max-w-xs text-xs leading-5 text-[#d8b339]">
+                A-6 Captain in the Captain&apos;s Club — marketplace visibility
+                with no job delay.
+              </p>
+            ) : null}
           </aside>
 
           <div className="figma-pilot-public-actions">
-            <Link
-              href={messageHref}
-              className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-[0.875rem] border border-[rgba(216,179,57,0.35)] bg-[rgba(216,179,57,0.08)] text-gold transition-colors hover:border-gold/55 hover:bg-[rgba(216,179,57,0.14)] hover:text-gold-light"
-              aria-label={`Message ${pilot.displayName}`}
-              title="Message pilot"
-            >
-              <IconChat className="h-5 w-5" />
-            </Link>
+            {showHire ? (
+              <Link
+                href={messageHref}
+                className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-[0.875rem] border border-[rgba(216,179,57,0.35)] bg-[rgba(216,179,57,0.08)] text-gold transition-colors hover:border-gold/55 hover:bg-[rgba(216,179,57,0.14)] hover:text-gold-light"
+                aria-label={`Message ${pilot.displayName}`}
+                title="Message pilot"
+              >
+                <IconChat className="h-5 w-5" />
+              </Link>
+            ) : null}
+            {showHire ? (
+              <Button
+                href={hireHref}
+                className="h-11 min-w-44 flex-1 rounded-[0.875rem] sm:flex-none"
+              >
+                Hire via marketplace
+              </Button>
+            ) : null}
             <Button
-              href={hireHref}
-              className="h-11 min-w-44 flex-1 rounded-[0.875rem] sm:flex-none"
-            >
-              Hire via marketplace
-            </Button>
-            <Button
-              href="/pilots"
+              href={browseHref}
               variant="secondary"
               className="h-11 min-w-44 flex-1 rounded-[0.875rem] border-[rgba(216,179,57,0.45)] sm:flex-none"
             >
@@ -791,21 +805,22 @@ export function PublicPilotProfile({
         </section>
       ) : null}
 
-      {/* CTA */}
+      {showHire ? (
       <section className="figma-pilot-module-card border-[rgba(216,179,57,0.25)] px-6 py-8 text-center sm:px-10 sm:py-10">
         <h2 className="text-xl font-semibold text-ras-text sm:text-2xl">
           Ready to hire {pilot.displayName}?
         </h2>
         <p className="mx-auto mt-2 max-w-lg text-sm text-ras-muted">
-          Create a client account, post a job, and receive bids from verified
-          pilots on the marketplace.
+          {hireHref.startsWith("/register")
+            ? "Create a client account, post a job, and hire this verified pilot on the marketplace."
+            : "Post a project to hire this verified pilot through the marketplace."}
         </p>
         <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row sm:items-center">
           <Button href={hireHref} className="rounded-[0.875rem]">
             Hire via marketplace
           </Button>
           <Button
-            href="/pilots"
+            href={browseHref}
             variant="secondary"
             className="rounded-[0.875rem] border-[rgba(216,179,57,0.45)]"
           >
@@ -813,6 +828,7 @@ export function PublicPilotProfile({
           </Button>
         </div>
       </section>
+      ) : null}
     </div>
   );
 }

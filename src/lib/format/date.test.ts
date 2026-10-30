@@ -11,8 +11,8 @@ import {
 } from "./date";
 
 describe("date format helpers", () => {
-  it("formats ISO dates as US Month Day, Year", () => {
-    assert.equal(formatIsoDateForDisplay("2026-07-15"), "July 15, 2026");
+  it("formats ISO dates as dd/mm/yyyy", () => {
+    assert.equal(formatIsoDateForDisplay("2026-07-15"), "15/07/2026");
     assert.equal(formatIsoDateForDisplay("legacy text"), "legacy text");
   });
 

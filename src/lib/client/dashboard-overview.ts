@@ -1,4 +1,5 @@
 import { formatPilotDayRateLabel } from "@/lib/client/pilot-pricing";
+import { clientPilotProfileHref } from "@/lib/pilot/hire-cta";
 import type { NotificationDto } from "@/types/notification";
 import { PILOT_SERVICE_OPTIONS } from "@/types/pilot";
 import type { PublicPilotListItemDto } from "@/types/public-pilot";
@@ -168,7 +169,7 @@ export function mapPublicPilotToRecommended(
     hours: pilot.reviewCount >= 5 ? "Experienced" : "Verified operator",
     tags: tags.length > 0 ? tags : ["Drone services"],
     priceAmount,
-    profileHref: `/pilots/${pilot.id}`,
+    profileHref: clientPilotProfileHref(pilot.id),
     verified: true,
   };
 }

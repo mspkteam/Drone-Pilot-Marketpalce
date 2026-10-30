@@ -86,7 +86,7 @@ export function getNotificationHref(
         return `/dashboard/client/bookings/${bookingId}`;
       }
       if (area === "pilot" && bookingId) {
-        return `/dashboard/pilot/bookings/${bookingId}`;
+        return `/dashboard/pilot/bookings/${bookingId}#deliver`;
       }
       if (area === "client") return "/dashboard/client/bookings";
       if (area === "pilot") return "/dashboard/pilot/contracts";

@@ -43,6 +43,10 @@ describe("pilot contract actions", () => {
     assert.equal(actions[0]?.id, "resubmit");
     assert.equal(actions[0]?.label, "Submit Revisions");
     assert.equal(actions[0]?.href, "/detail#deliver");
+    assert.equal(
+      actions.some((action) => action.label === "Complete Job"),
+      true,
+    );
   });
 
   it("hides Message Client when canMessage is false", () => {

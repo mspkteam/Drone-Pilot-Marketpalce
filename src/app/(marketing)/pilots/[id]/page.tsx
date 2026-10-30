@@ -5,6 +5,12 @@ import { PublicPageContainer } from "@/components/layout/PublicPageContainer";
 import { PublicPilotProfile } from "@/components/pilots/PublicPilotProfile";
 import { isPublicPilotProfileEnabled } from "@/lib/public-access";
 import { getPublicPilotById } from "@/lib/pilot/public";
+import {
+  browsePilotsHref,
+  canHirePilot,
+  hireMarketplaceHref,
+  normalizeHireViewerRole,
+} from "@/lib/pilot/hire-cta";
 
 type PageProps = {
   params: Promise<{ id: string }>;
@@ -42,19 +48,21 @@ export default async function PublicPilotProfilePage({ params }: PageProps) {
     notFound();
   }
 
-  const isClient = session?.user?.role === "client";
-  const messageHref = isClient
-    ? `/dashboard/client/messages?pilot=${encodeURIComponent(id)}`
-    : "/register?role=client";
-  const hireHref = isClient
-    ? `/dashboard/client/jobs/new?preferredPilot=${encodeURIComponent(id)}&preferredPilotName=${encodeURIComponent(pilot.displayName)}`
-    : "/register?role=client";
+  const viewerRole = normalizeHireViewerRole(session?.user?.role);
+  const showHire = canHirePilot(viewerRole);
+  const hireHref =
+    hireMarketplaceHref(viewerRole, id, pilot.displayName) ?? "/register?role=client";
+  const browseHref = browsePilotsHref(viewerRole);
+  const messageHref =
+    viewerRole === "client"
+      ? `/dashboard/client/messages?pilot=${encodeURIComponent(id)}`
+      : "/register?role=client";
 
   return (
     <section className="figma-pilot-public-section figma-marketing-section pt-8 sm:pt-10">
       <PublicPageContainer>
         <Link
-          href="/pilots"
+          href={browseHref}
           className="mb-8 inline-flex text-sm font-medium text-[#e4c55a] transition-colors hover:text-gold"
         >
           ← Back to all Pilots
@@ -63,6 +71,8 @@ export default async function PublicPilotProfilePage({ params }: PageProps) {
           pilot={pilot}
           messageHref={messageHref}
           hireHref={hireHref}
+          browseHref={browseHref}
+          showHire={showHire}
         />
       </PublicPageContainer>
     </section>

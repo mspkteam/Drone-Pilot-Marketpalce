@@ -253,7 +253,7 @@ export function BookingDeliverySection({
         </p>
       ) : null}
 
-      {delivery?.clientFeedback ? (
+      {delivery?.clientFeedback && actor === "pilot" ? (
         <p className="ras-alert ras-alert--warn mt-3">
           Client feedback: {delivery.clientFeedback}
         </p>
@@ -356,7 +356,11 @@ export function BookingDeliverySection({
             disabled={busy || !delivery?.items.length}
             onClick={() => void handleSubmitForReview()}
           >
-            {busy ? "Submitting…" : "Submit for client review"}
+            {busy
+              ? "Submitting…"
+              : delivery?.status === "rejected"
+                ? "Complete Job"
+                : "Submit for client review"}
           </Button>
         </div>
       ) : null}

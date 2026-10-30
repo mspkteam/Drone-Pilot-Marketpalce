@@ -164,6 +164,7 @@ function mapVerificationStatus(
     case "approved":
       return "approved";
     case "pending":
+    case "amendments_required":
       return "pending";
     case "rejected":
     case "expired":

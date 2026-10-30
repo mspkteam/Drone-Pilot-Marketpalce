@@ -652,7 +652,7 @@ function SupportChatWidgetInner({
         onClick={() => void openWidget()}
         aria-label={view === "closed" ? "Talk to Support" : "Close support chat"}
         aria-expanded={view !== "closed"}
-        className="relative rounded-full bg-gold px-5 py-3 text-sm font-semibold text-white shadow-lg transition-colors hover:bg-gold-light"
+        className="ras-btn-primary relative shadow-lg"
       >
         {view === "closed" ? "Talk to Support" : "Close chat"}
         {hasUnread && view === "closed" ? (

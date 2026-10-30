@@ -81,8 +81,14 @@ export function PilotFastForwardCards({
           card.sortOrder <=
             (cards.find((entry) => entry.tierCode === currentTierCode)
               ?.sortOrder ?? 0);
+        const isA1Current =
+          card.isStartingGrade &&
+          (isCurrent ||
+            currentTierCode === "A1_STUDENT" ||
+            currentTierCode === "A-1");
         const actionDisabled =
           isCurrent ||
+          isA1Current ||
           isBelowOrEqual ||
           actionLoading !== null;
         const signupTotal = totalAtSignupUsd(card.fastForwardFeeUsd);

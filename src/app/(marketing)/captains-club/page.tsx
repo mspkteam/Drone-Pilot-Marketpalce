@@ -1,8 +1,14 @@
+import { auth } from "@/auth";
 import { CaptainsClubDirectory } from "@/components/marketing/captains-club/CaptainsClubDirectory";
 import { CaptainsClubHero } from "@/components/marketing/captains-club/CaptainsClubHero";
 import { CaptainsClubStatsBar } from "@/components/marketing/captains-club/CaptainsClubStatsBar";
 import { CaptainsClubValueProps } from "@/components/marketing/captains-club/CaptainsClubValueProps";
 import { getCaptainsClubPageData } from "@/lib/pilot/captains-club-server";
+import {
+  browsePilotsHref,
+  hireCaptainHref,
+  normalizeHireViewerRole,
+} from "@/lib/pilot/hire-cta";
 import "@/styles/captains-club.css";
 
 export const metadata = {
@@ -17,6 +23,8 @@ export default async function CaptainsClubPage({
   searchParams: Promise<{ region?: string }>;
 }) {
   const params = await searchParams;
+  const session = await auth();
+  const viewerRole = normalizeHireViewerRole(session?.user?.role);
   const { captains, stats, regions, specialties } = await getCaptainsClubPageData();
   const initialRegion = params.region
     ? decodeURIComponent(params.region)
@@ -24,7 +32,10 @@ export default async function CaptainsClubPage({
 
   return (
     <main className="captains-club-page">
-      <CaptainsClubHero />
+      <CaptainsClubHero
+        hireHref={hireCaptainHref(viewerRole)}
+        browseHref={browsePilotsHref(viewerRole)}
+      />
       <CaptainsClubStatsBar stats={stats} />
       <CaptainsClubDirectory
         captains={captains}

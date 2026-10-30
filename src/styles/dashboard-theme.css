@@ -511,3 +511,35 @@
 .dashboard-app .text-sky-400 {
   color: var(--color-gold-soft) !important;
 }
+
+.onboarding-gate {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  justify-content: center;
+  padding: 1rem 0 1.25rem;
+}
+
+.onboarding-gate-card {
+  width: min(40rem, 100%);
+  border: 1px solid var(--color-border-gold);
+  border-radius: var(--radius);
+  background: var(--color-card-warm);
+  padding: 1.25rem 1.5rem;
+  text-align: center;
+}
+
+.onboarding-gate-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-text-heading);
+}
+
+.onboarding-gate-text {
+  margin: 0 0 1rem;
+  color: var(--color-text-muted);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}

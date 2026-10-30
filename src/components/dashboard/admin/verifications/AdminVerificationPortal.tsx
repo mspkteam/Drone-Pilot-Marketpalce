@@ -82,10 +82,15 @@ function docStatusTone(status: VerificationStatus): "verified" | "pending" | "da
   return "pending";
 }
 
+function isQueuePending(status: VerificationStatus): boolean {
+  return status === "pending" || status === "amendments_required";
+}
+
 function docStatusLabel(status: VerificationStatus): string {
   if (status === "approved") return "Verified";
   if (status === "rejected") return "Rejected";
   if (status === "expired") return "Expired";
+  if (status === "amendments_required") return "Amendments Required";
   return "Pending";
 }
 
@@ -114,7 +119,7 @@ function buildApplicants(rows: AdminVerificationDto[]): Applicant[] {
     applicant.verifications.sort(
       (a, b) => new Date(a.submittedAt).getTime() - new Date(b.submittedAt).getTime(),
     );
-    const pending = applicant.verifications.filter((v) => v.status === "pending");
+    const pending = applicant.verifications.filter((v) => isQueuePending(v.status));
     const rejected = applicant.verifications.filter(
       (v) => v.status === "rejected" || v.status === "expired",
     );
@@ -215,7 +220,7 @@ export function AdminVerificationPortal({
   }, []);
 
   async function approveApplicant(applicant: Applicant) {
-    const pending = applicant.verifications.filter((v) => v.status === "pending");
+    const pending = applicant.verifications.filter((v) => isQueuePending(v.status));
     if (pending.length === 0) return;
     setBusy(true);
     setError(null);
@@ -243,13 +248,15 @@ export function AdminVerificationPortal({
       setError("Enter at least 5 characters explaining what's needed.");
       return;
     }
-    const pending = applicant.verifications.filter((v) => v.status === "pending");
+    const pending = applicant.verifications.filter((v) => isQueuePending(v.status));
     if (pending.length === 0) return;
     setBusy(true);
     setError(null);
+    const endpoint =
+      reasonMode === "request" ? "amendments" : "reject";
     try {
       for (const v of pending) {
-        const res = await fetch(`/api/admin/verifications/${v.id}/reject`, {
+        const res = await fetch(`/api/admin/verifications/${v.id}/${endpoint}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ reason: reason.trim() }),

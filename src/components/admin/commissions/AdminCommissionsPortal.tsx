@@ -283,7 +283,7 @@ export function AdminCommissionsPortal() {
                 </button>
               </div>
               <Link
-                href="/dashboard/admin/configuration"
+                href="/dashboard/admin/settings"
                 className="admin-commissions-rate-link"
               >
                 Full configuration →

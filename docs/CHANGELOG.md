@@ -4,6 +4,23 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.108] — 2026-10-30
+
+### Fixed
+
+- **Hire hierarchy:** Guests go to client register; logged-in clients hire via post-project / Find a Pilot; logged-in pilots cannot hire another pilot. Browse more pilots opens the client dashboard directory. Hire a Captain follows the same rules.
+- **Onboarding:** Client and pilot dashboards stay visible with a complete-profile gate instead of a silent bounce. Profiles default to view mode with Edit. Service chips no longer dual-select. License number is on the pilot profile. A-1 Fast Forward stays disabled; A-6 Captain profiles show Captain’s Club copy.
+- **Post a project:** Expected completion date on Budget & Timeline, date-conflict validation, Back control on the right, completion date removed from Requirements.
+- **Revisions:** Pilot notifications open the delivery section; Complete Job appears after a revision request; clients no longer see their own revision note as a prompt.
+- **Verification:** Request more info sets Amendments Required and keeps the applicant in the queue (does not reject). Staff can cast squadron votes for QA dispute scenarios.
+- **Admin:** Personnel list prefers person name over company; Full configuration links to Settings; unused New briefing control removed.
+
+### Notes
+
+- Stripe test billing, invoice PDF download, country/phone rule, and automated support chat remain **blocked on client answers**. Checklist: `docs/FINAL_TESTING_QA_CHECKLIST.md`.
+
+---
+
 ## [0.27.107] — 2026-10-21
 
 ### Fixed

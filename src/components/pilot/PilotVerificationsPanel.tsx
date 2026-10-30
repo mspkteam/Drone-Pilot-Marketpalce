@@ -248,7 +248,9 @@ export function PilotVerificationsPanel() {
                 ) : null}
                 {v.rejectionReason ? (
                   <p className="mt-2 text-sm text-destructive">
-                    Rejected: {v.rejectionReason}
+                    {v.status === "amendments_required"
+                      ? `Amendments required: ${v.rejectionReason}`
+                      : `Rejected: ${v.rejectionReason}`}
                   </p>
                 ) : null}
                 <p className="mt-1 text-xs text-muted-foreground">

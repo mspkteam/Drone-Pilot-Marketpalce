@@ -65,10 +65,10 @@ export default async function PilotDashboardLayout({
 
   return (
     <DashboardShell
-      homeHref={needsOnboarding ? "/dashboard/pilot/profile" : "/dashboard/pilot"}
+      homeHref="/dashboard/pilot"
       navGroups={buildPilotNavGroups({
         instructorActive,
-        onboardingComplete: !needsOnboarding,
+        onboardingComplete: true,
       })}
       user={user}
       rankCard={rankCard}

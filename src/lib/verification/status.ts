@@ -13,6 +13,7 @@ export function getVerificationTypeLabel(type: VerificationType): string {
 export function getVerificationStatusLabel(status: VerificationStatus): string {
   const labels: Record<VerificationStatus, string> = {
     pending: "Pending review",
+    amendments_required: "Amendments required",
     approved: "Approved",
     rejected: "Rejected",
     expired: "Expired",
@@ -25,6 +26,7 @@ export function getVerificationStatusTone(
 ): "neutral" | "warning" | "success" | "error" {
   switch (status) {
     case "pending":
+    case "amendments_required":
       return "warning";
     case "approved":
       return "success";

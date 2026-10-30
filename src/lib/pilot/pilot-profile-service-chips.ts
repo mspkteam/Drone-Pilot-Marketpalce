@@ -14,7 +14,7 @@ export type PilotProfileServiceChip = {
  */
 export const PILOT_PROFILE_SERVICE_CHIPS: readonly PilotProfileServiceChip[] = [
   { id: "aerial_video", label: "Aerial Video", serviceId: "aerial_video" },
-  { id: "photography", label: "Photography", serviceId: "aerial_video" },
+  { id: "photography", label: "Photography" },
   { id: "mapping", label: "Mapping", serviceId: "surveying" },
   { id: "agriculture", label: "Agriculture", serviceId: "agriculture" },
   { id: "real_estate", label: "Real Estate", serviceId: "real_estate" },

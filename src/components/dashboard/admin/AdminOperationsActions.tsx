@@ -18,7 +18,7 @@ function rowsToCsv(rows: AdminOperationsExportRow[]): string {
 }
 
 export function AdminOperationsActions({ exportRows }: AdminOperationsActionsProps) {
-  const { canPerform, role } = useModeratorPermissions();
+  const { canPerform } = useModeratorPermissions();
   const canExport = canPerform("reports", "export");
 
   const handleExport = useCallback(() => {
@@ -32,31 +32,19 @@ export function AdminOperationsActions({ exportRows }: AdminOperationsActionsPro
     URL.revokeObjectURL(url);
   }, [exportRows]);
 
-  if (!canExport && role !== "super_admin") {
+  if (!canExport) {
     return null;
   }
 
   return (
     <div className="admin-ops-hero-actions">
-      {canExport ? (
-        <button
-          type="button"
-          className="admin-ops-btn-primary"
-          onClick={handleExport}
-        >
-          Export
-        </button>
-      ) : null}
-      {role === "super_admin" ? (
-        <button
-          type="button"
-          className="admin-ops-btn-outline"
-          disabled
-          title="Briefing announcements are planned for a later release."
-        >
-          New briefing
-        </button>
-      ) : null}
+      <button
+        type="button"
+        className="admin-ops-btn-primary"
+        onClick={handleExport}
+      >
+        Export
+      </button>
     </div>
   );
 }

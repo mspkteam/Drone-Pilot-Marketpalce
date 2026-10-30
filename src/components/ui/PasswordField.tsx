@@ -59,7 +59,7 @@ export function PasswordField({
         />
         <button
           type="button"
-          className="absolute inset-y-0 right-0 flex items-center px-3 text-muted-foreground hover:text-foreground"
+          className="absolute inset-y-0 right-0 z-10 flex items-center px-3 text-gold hover:text-gold-light disabled:opacity-50"
           aria-label={visible ? "Hide password" : "Show password"}
           aria-pressed={visible}
           disabled={disabled}

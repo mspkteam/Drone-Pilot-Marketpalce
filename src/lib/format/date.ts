@@ -91,14 +91,11 @@ export function formatDisplayDateTime(
   return date.toLocaleString("en-US", US_DATETIME);
 }
 
-/** ISO calendar date → US long form (replaces former DD/MM/YYYY). */
+/** ISO calendar date → dd/mm/yyyy (post-project and date pickers). */
 export function formatIsoDateForDisplay(value: string): string {
   const parsed = parseIsoDate(value);
   if (!parsed) return value.trim();
-  return formatDisplayDate(
-    new Date(parsed.year, parsed.month - 1, parsed.day),
-    value.trim(),
-  );
+  return `${String(parsed.day).padStart(2, "0")}/${String(parsed.month).padStart(2, "0")}/${parsed.year}`;
 }
 
 export function todayIsoDate(): string {

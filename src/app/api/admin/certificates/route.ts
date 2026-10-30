@@ -53,6 +53,10 @@ export async function POST(request: Request) {
       memberNumber:
         typeof body.memberNumber === "string" ? body.memberNumber : null,
       issuedAt: typeof body.issuedAt === "string" ? body.issuedAt : null,
+      pilotDisplayName:
+        typeof body.pilotDisplayName === "string"
+          ? body.pilotDisplayName
+          : null,
     },
   );
 

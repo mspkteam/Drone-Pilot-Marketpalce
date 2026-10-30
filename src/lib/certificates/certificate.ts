@@ -522,6 +522,8 @@ export type IssueCertificateOptions = {
   awardGrade?: string | null;
   memberNumber?: string | null;
   issuedAt?: string | Date | null;
+  /** Optional override for the name printed on the certificate. */
+  pilotDisplayName?: string | null;
 };
 
 export async function issueCertificateToPilot(
@@ -617,10 +619,16 @@ export async function issueCertificateToPilot(
     };
   }
 
+  const displayName =
+    typeof options.pilotDisplayName === "string" &&
+    options.pilotDisplayName.trim()
+      ? options.pilotDisplayName.trim()
+      : pilot.displayName;
+
   let pdfBuffer: Buffer | null = null;
   try {
     const body = applyTemplate(template.bodyTemplate, {
-      pilotName: pilot.displayName,
+      pilotName: displayName,
       licenseNumber: memberNumber,
       certificateNumber,
       issueDate: issuedAt.toLocaleDateString("en-US"),
@@ -631,7 +639,7 @@ export async function issueCertificateToPilot(
     pdfBuffer = await renderCertificatePdf({
       title: template.title,
       body,
-      pilotDisplayName: pilot.displayName,
+      pilotDisplayName: displayName,
       certificateNumber,
       issuedAt,
       backgroundImageUrl: template.backgroundImageUrl,
@@ -658,7 +666,7 @@ export async function issueCertificateToPilot(
       certificateNumber,
       pilotProfileId,
       templateId,
-      pilotDisplayName: pilot.displayName,
+      pilotDisplayName: displayName,
       licenseNumber: memberNumber,
       awardGrade: grade,
       issuedAt,

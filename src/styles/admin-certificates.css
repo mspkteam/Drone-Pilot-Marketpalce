@@ -758,9 +758,10 @@
 
 .cert-png-overlay-text {
   display: block;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
+  overflow: visible;
+  max-width: none;
+  white-space: nowrap;
+  padding-right: 0.15rem;
 }
 
 .cert-png-overlay-remove {
@@ -1661,6 +1662,13 @@
   border-left: 3px solid rgba(216, 179, 57, 0.55);
   border-radius: 0.45rem;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent),
+    var(--color-panel, #171512);
+}
+
+.admin-certificates-issued-row--highlight {
+  border-color: rgba(216, 179, 57, 0.55);
+  box-shadow: 0 0 0 1px rgba(216, 179, 57, 0.35);
+  background: linear-gradient(180deg, rgba(216, 179, 57, 0.1), transparent),
     var(--color-panel, #171512);
 }
 

@@ -194,15 +194,33 @@ export function PilotInstructorStudentSection({
         </p>
       ) : (
         <form onSubmit={(e) => void applyCode(e)} className="pilot-instructor-student-form">
-          <input
-            type="text"
-            value={code}
-            onChange={(e) => setCode(e.target.value)}
-            placeholder="INSTRUCTOR-JD20"
-            aria-label="Instructor discount code"
-            className="pilot-instructor-student-input"
-            autoCapitalize="characters"
-          />
+          <div className="pilot-instructor-student-code-field">
+            <input
+              type="text"
+              value={code}
+              onChange={(e) => {
+                setCode(e.target.value);
+                if (error) setError(null);
+              }}
+              placeholder="INSTRUCTOR-JD20"
+              aria-label="Instructor discount code"
+              aria-invalid={Boolean(error)}
+              className="pilot-instructor-student-input"
+              autoCapitalize="characters"
+            />
+            {error ? (
+              <p className="pilot-instructor-student-field-error" role="alert">
+                {error}
+              </p>
+            ) : (
+              <p className="pilot-subscription-instructor-price-note">
+                Apply a student code for{" "}
+                {formatMembershipUsd(discountUsd)} off basic membership (
+                {formatMembershipUsd(PILOT_ANNUAL_MEMBERSHIP_FEE_USD - discountUsd)}{" "}
+                due).
+              </p>
+            )}
+          </div>
           <button
             type="submit"
             className="pilot-subscription-btn-outline"
@@ -253,7 +271,7 @@ export function PilotInstructorStudentSection({
         </ul>
       ) : null}
 
-      {error ? (
+      {error && instructorName ? (
         <p className="pilot-subscription-banner pilot-subscription-banner--error" role="alert">
           {error}
         </p>

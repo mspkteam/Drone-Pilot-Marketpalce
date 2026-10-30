@@ -9,6 +9,7 @@ export type PersonnelRow = {
   roleFilter: string;
   region: string;
   /** Earned wings count for pilots; "—" for non-pilot roles. */
+  /** Wing titles joined with ·, or "None" / "—" */
   wingsLabel: string;
   statusLabel: string;
   statusTone: PersonnelStatusTone;

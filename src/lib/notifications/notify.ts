@@ -71,6 +71,7 @@ function pilotPrefAllowsEmail(
       return prefs.contracts;
     case "verification_approved":
     case "verification_rejected":
+    case "wing_request":
     case "wing_earned":
     case "welcome":
     case "instructor_invite":

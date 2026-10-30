@@ -4,12 +4,47 @@ import {
   serializeClientProfilePreferences,
   type ClientPreferredContact,
 } from "@/lib/client/preferences";
+import {
+  parseBillingAddress,
+  serializeBillingAddress,
+} from "@/lib/client/profile";
 import type { AdminUserEditDto } from "@/types/admin-user-edit";
 import { USER_ACCOUNT_STATUSES } from "@/types/admin-user-edit";
 import { displayMemberNumber } from "@/lib/members/member-number";
 import type { UserRole } from "@/types/roles";
 import { PILOT_PROFILE_STATUSES } from "@/types/pilot";
 import { CLIENT_PROFILE_STATUSES } from "@/types/client";
+
+/** Admin forms show a single-line address; DB stores JSON. */
+export function formatBillingAddressForAdmin(
+  raw: string | null | undefined,
+): string | null {
+  if (!raw?.trim()) return null;
+  const parsed = parseBillingAddress(raw);
+  if (!parsed) return raw.trim();
+  const line = [
+    parsed.line1,
+    parsed.city,
+    parsed.region,
+    parsed.postalCode,
+    parsed.country,
+  ]
+    .map((part) => part?.trim())
+    .filter(Boolean)
+    .join(", ");
+  return line || raw.trim();
+}
+
+function billingAddressInputToStorage(
+  input: string | null | undefined,
+): string | null {
+  if (input == null) return null;
+  const trimmed = input.trim();
+  if (!trimmed) return null;
+  const asJson = parseBillingAddress(trimmed);
+  if (asJson) return serializeBillingAddress(asJson);
+  return serializeBillingAddress({ line1: trimmed });
+}
 
 export type { AdminUserEditDto } from "@/types/admin-user-edit";
 export { USER_ACCOUNT_STATUSES } from "@/types/admin-user-edit";
@@ -118,7 +153,9 @@ export async function getUserForAdminEdit(
           contactName: user.clientProfile.contactName,
           companyName: user.clientProfile.companyName,
           phone: user.clientProfile.phone,
-          billingAddress: user.clientProfile.billingAddress,
+          billingAddress: formatBillingAddressForAdmin(
+            user.clientProfile.billingAddress,
+          ),
           status: user.clientProfile.status,
         }
       : null,
@@ -340,7 +377,11 @@ export async function updateUserByAdmin(
             ? { phone: input.client.phone?.trim() || null }
             : {}),
           ...(input.client.billingAddress !== undefined
-            ? { billingAddress: input.client.billingAddress?.trim() || null }
+            ? {
+                billingAddress: billingAddressInputToStorage(
+                  input.client.billingAddress,
+                ),
+              }
             : {}),
           ...(input.client.status !== undefined
             ? { status: input.client.status }

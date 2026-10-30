@@ -37,6 +37,50 @@ export function triggerJobSubmitted(clientUserId: string, jobTitle: string, jobI
       body: `"${jobTitle}" is pending admin review.`,
       payload: { jobId },
     });
+
+    const admins = await prisma.user.findMany({
+      where: {
+        role: { in: ["super_admin", "admin", "moderator"] },
+        status: "active",
+      },
+      select: { id: true },
+    });
+    for (const admin of admins) {
+      await sendNotification({
+        userId: admin.id,
+        type: "job_submitted",
+        title: "Job needs approval",
+        body: `"${jobTitle}" was submitted and is waiting in Job Approval.`,
+        payload: { jobId },
+        sendEmail: false,
+      });
+    }
+  });
+}
+
+export function triggerWingRequestSubmitted(
+  pilotDisplayName: string,
+  wingCode: string,
+  wingRequestId: string,
+) {
+  notifyAsync(async () => {
+    const admins = await prisma.user.findMany({
+      where: {
+        role: { in: ["super_admin", "admin", "moderator"] },
+        status: "active",
+      },
+      select: { id: true },
+    });
+    for (const admin of admins) {
+      await sendNotification({
+        userId: admin.id,
+        type: "wing_request",
+        title: "Wing request pending",
+        body: `${pilotDisplayName} requested ${wingCode} wings for review.`,
+        payload: { wingRequestId },
+        sendEmail: false,
+      });
+    }
   });
 }
 

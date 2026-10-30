@@ -132,6 +132,11 @@ export function getNotificationHref(
       }
       return area === "pilot" ? "/dashboard/pilot/verifications" : null;
 
+    case "wing_request":
+      if (area === "admin") return "/dashboard/admin/verifications";
+      if (area === "pilot") return "/dashboard/pilot/verifications/request-wings";
+      return null;
+
     case "wing_earned":
       return area === "pilot" ? "/dashboard/pilot/achievements" : null;
 

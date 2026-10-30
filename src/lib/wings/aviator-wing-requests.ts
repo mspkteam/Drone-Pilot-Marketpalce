@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { prisma } from "@/lib/db";
 import { notifyAsync, sendNotification } from "@/lib/notifications/notify";
+import { triggerWingRequestSubmitted } from "@/lib/notifications/triggers";
 import {
   writePrivateAsset,
   readPrivateAsset,
@@ -230,6 +231,18 @@ export async function savePilotWingRequest(
         },
       });
 
+  if (input.action === "submit") {
+    const pilot = await prisma.pilotProfile.findUnique({
+      where: { id: pilotProfileId },
+      select: { displayName: true },
+    });
+    triggerWingRequestSubmitted(
+      pilot?.displayName ?? "A pilot",
+      input.wingCode,
+      row.id,
+    );
+  }
+
   return { ok: true, request: toDto(row) };
 }
 
@@ -240,6 +253,31 @@ function storedName(
   fileId: string,
 ) {
   return `${requestId}-${slot}-${fileId}.${WING_REQUEST_MIME_TO_EXT[mime]}`;
+}
+
+/** Clear draft uploads when the pilot switches wing type (prevents slot bleed). */
+export async function clearWingRequestDraftDocuments(
+  pilotProfileId: string,
+): Promise<
+  | { ok: true; request: AviatorWingRequestDto | null }
+  | { ok: false; error: string; status: 404 }
+> {
+  const draft = await prisma.aviatorWingRequest.findFirst({
+    where: { pilotProfileId, status: "draft" },
+    orderBy: { updatedAt: "desc" },
+  });
+  if (!draft) {
+    return { ok: true, request: null };
+  }
+
+  const updated = await prisma.aviatorWingRequest.update({
+    where: { id: draft.id },
+    data: {
+      documentsJson: serializeWingRequestDocuments(emptyWingRequestDocuments()),
+    },
+  });
+
+  return { ok: true, request: toDto(updated) };
 }
 
 export async function attachWingRequestFile(

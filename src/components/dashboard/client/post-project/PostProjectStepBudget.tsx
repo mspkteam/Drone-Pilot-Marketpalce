@@ -1,6 +1,7 @@
 import {
   POST_PROJECT_PRIORITIES,
   POST_PROJECT_QUOTE_TYPES,
+  type PostProjectFieldErrors,
   type PostProjectFormState,
   type PostProjectPriority,
   type PostProjectQuoteType,
@@ -11,6 +12,7 @@ import { cn } from "@/lib/utils";
 
 type PostProjectStepBudgetProps = {
   form: PostProjectFormState;
+  fieldErrors?: PostProjectFieldErrors;
   onChange: (patch: Partial<PostProjectFormState>) => void;
 };
 
@@ -21,7 +23,11 @@ function updateTravelExpenses(
   return { ...current, ...patch };
 }
 
-export function PostProjectStepBudget({ form, onChange }: PostProjectStepBudgetProps) {
+export function PostProjectStepBudget({
+  form,
+  fieldErrors = {},
+  onChange,
+}: PostProjectStepBudgetProps) {
   const showTravelAmounts = form.coverTravelExpenses === true;
 
   return (
@@ -53,6 +59,11 @@ export function PostProjectStepBudget({ form, onChange }: PostProjectStepBudgetP
           );
         })}
       </div>
+      {fieldErrors.quoteType ? (
+        <p className="client-post-project-field-error" role="alert">
+          {fieldErrors.quoteType}
+        </p>
+      ) : null}
 
       <div className="client-post-project-field-row client-post-project-field-row--spaced">
         <label className="client-post-project-field">
@@ -64,7 +75,13 @@ export function PostProjectStepBudget({ form, onChange }: PostProjectStepBudgetP
             placeholder="2000"
             value={form.budgetMin}
             onChange={(e) => onChange({ budgetMin: e.target.value })}
+            aria-invalid={Boolean(fieldErrors.budgetMin)}
           />
+          {fieldErrors.budgetMin ? (
+            <span className="client-post-project-field-error" role="alert">
+              {fieldErrors.budgetMin}
+            </span>
+          ) : null}
         </label>
         <label className="client-post-project-field">
           <span className="client-post-project-field-label">Maximum Budget (USD)</span>
@@ -75,7 +92,13 @@ export function PostProjectStepBudget({ form, onChange }: PostProjectStepBudgetP
             placeholder="4000"
             value={form.budgetMax}
             onChange={(e) => onChange({ budgetMax: e.target.value })}
+            aria-invalid={Boolean(fieldErrors.budgetMax)}
           />
+          {fieldErrors.budgetMax ? (
+            <span className="client-post-project-field-error" role="alert">
+              {fieldErrors.budgetMax}
+            </span>
+          ) : null}
         </label>
       </div>
 
@@ -99,6 +122,11 @@ export function PostProjectStepBudget({ form, onChange }: PostProjectStepBudgetP
           );
         })}
       </div>
+      {fieldErrors.priority ? (
+        <p className="client-post-project-field-error" role="alert">
+          {fieldErrors.priority}
+        </p>
+      ) : null}
 
       <div className="client-post-project-field-row client-post-project-field-row--spaced">
         <label className="client-post-project-field">
@@ -116,6 +144,11 @@ export function PostProjectStepBudget({ form, onChange }: PostProjectStepBudgetP
             value={form.completionDate}
             onChange={(completionDate) => onChange({ completionDate })}
           />
+          {fieldErrors.completionDate ? (
+            <span className="client-post-project-field-error" role="alert">
+              {fieldErrors.completionDate}
+            </span>
+          ) : null}
         </label>
       </div>
 
@@ -153,6 +186,11 @@ export function PostProjectStepBudget({ form, onChange }: PostProjectStepBudgetP
             );
           })}
         </div>
+        {fieldErrors.coverTravelExpenses ? (
+          <p className="client-post-project-field-error" role="alert">
+            {fieldErrors.coverTravelExpenses}
+          </p>
+        ) : null}
 
         {showTravelAmounts ? (
           <div className="client-post-project-travel-grid">

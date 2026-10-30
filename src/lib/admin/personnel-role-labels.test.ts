@@ -30,7 +30,15 @@ describe("personnel display role labels", () => {
       planName: "A-6 Captain",
       instructorAddonActive: false,
     });
-    assert.equal(elite.label, PERSONNEL_DISPLAY_ROLE_LABELS.elitePilot);
+    assert.equal(elite.label, "A-6 Captain");
+    assert.equal(elite.filter, PERSONNEL_DISPLAY_ROLE_LABELS.elitePilot);
+
+    const eliteFallback = mapPersonnelPilotRoleLabel({
+      tierCode: "A6_CAPTAIN",
+      planName: null,
+      instructorAddonActive: false,
+    });
+    assert.equal(eliteFallback.label, PERSONNEL_DISPLAY_ROLE_LABELS.elitePilot);
 
     assert.equal(
       mapPersonnelClientRoleLabel(true).label,
@@ -42,3 +50,4 @@ describe("personnel display role labels", () => {
     );
   });
 });
+

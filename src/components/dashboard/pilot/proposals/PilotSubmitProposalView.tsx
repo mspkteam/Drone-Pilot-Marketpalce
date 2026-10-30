@@ -95,7 +95,7 @@ function emptyForm(): FormState {
     accuracyConfirmed: false,
     experience: "",
     deliverables: [],
-    portfolioLinks: [""],
+    portfolioLinks: [],
     attachments: [],
     termsAcknowledged: false,
   };
@@ -691,21 +691,19 @@ export function PilotSubmitProposalView({ jobId, initial }: PilotSubmitProposalV
                             patchForm({ portfolioLinks: next });
                           }}
                         />
-                        {form.portfolioLinks.length > 1 ? (
-                          <button
-                            type="button"
-                            className="pilot-submit-btn-secondary"
-                            onClick={() =>
-                              patchForm({
-                                portfolioLinks: form.portfolioLinks.filter(
-                                  (_, i) => i !== index,
-                                ),
-                              })
-                            }
-                          >
-                            Remove
-                          </button>
-                        ) : null}
+                        <button
+                          type="button"
+                          className="pilot-submit-btn-secondary"
+                          onClick={() =>
+                            patchForm({
+                              portfolioLinks: form.portfolioLinks.filter(
+                                (_, i) => i !== index,
+                              ),
+                            })
+                          }
+                        >
+                          Remove
+                        </button>
                       </div>
                     </label>
                   ))}
@@ -723,7 +721,7 @@ export function PilotSubmitProposalView({ jobId, initial }: PilotSubmitProposalV
                 </div>
 
                 <div className="pilot-submit-field" style={{ marginTop: "1rem" }}>
-                  <span>Attach files (images or PDF)</span>
+                  <span>Attach files (PNG, JPG, WEBP, GIF, or PDF)</span>
                   <label className="pilot-submit-file-picker">
                     <span className="pilot-submit-file-picker-icon" aria-hidden>
                       📎

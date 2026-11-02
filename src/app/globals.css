@@ -3890,12 +3890,63 @@ a.dashboard-card:hover {
   gap: 0.75rem;
 }
 
+.client-post-project-review-actions-primary {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
 @media (min-width: 640px) {
   .client-post-project-review-actions {
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
   }
+
+  .client-post-project-review-actions-primary {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+.client-post-project-file-picker {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  width: 100%;
+  max-width: 28rem;
+  padding: 0.625rem 0.875rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 0.5rem;
+  background: var(--color-bg-deeper);
+  color: var(--color-text);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.client-post-project-file-picker:hover {
+  border-color: rgba(216, 179, 57, 0.35);
+}
+
+.client-post-project-file-picker-icon {
+  flex-shrink: 0;
+}
+
+.client-post-project-file-picker-input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.client-post-project-file-list {
+  margin: 0.5rem 0 0;
+  padding-left: 1.125rem;
+  font-size: 0.8125rem;
+  color: var(--color-text-soft);
 }
 
 @media (min-width: 640px) {

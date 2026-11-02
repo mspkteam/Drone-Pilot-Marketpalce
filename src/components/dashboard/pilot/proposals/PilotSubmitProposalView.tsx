@@ -728,8 +728,12 @@ export function PilotSubmitProposalView({ jobId, initial }: PilotSubmitProposalV
                     </span>
                     <span>
                       {form.attachments.length > 0
-                        ? `${form.attachments.length} file${form.attachments.length === 1 ? "" : "s"} attached`
-                        : "Choose file"}
+                        ? `${form.attachments[0]?.name ?? "File"}${
+                            form.attachments.length > 1
+                              ? ` +${form.attachments.length - 1} more`
+                              : ""
+                          } — add another`
+                        : "Upload file"}
                     </span>
                     <input
                       type="file"

@@ -1,16 +1,22 @@
 import { LocationPinIcon, PlusIcon } from "@/components/dashboard/client/post-project/PostProjectIcons";
 import {
   emptyPostProjectLocation,
+  type PostProjectFieldErrors,
   type PostProjectFormState,
   type PostProjectLocation,
 } from "@/lib/client/post-project";
 
 type PostProjectStepLocationProps = {
   form: PostProjectFormState;
+  fieldErrors?: PostProjectFieldErrors;
   onChange: (locations: PostProjectLocation[]) => void;
 };
 
-export function PostProjectStepLocation({ form, onChange }: PostProjectStepLocationProps) {
+export function PostProjectStepLocation({
+  form,
+  fieldErrors = {},
+  onChange,
+}: PostProjectStepLocationProps) {
   function updateLocation(index: number, patch: Partial<PostProjectLocation>) {
     onChange(
       form.locations.map((loc, i) => (i === index ? { ...loc, ...patch } : loc)),
@@ -88,6 +94,12 @@ export function PostProjectStepLocation({ form, onChange }: PostProjectStepLocat
           </article>
         ))}
       </div>
+
+      {fieldErrors.location ? (
+        <p className="client-post-project-field-error" role="alert">
+          {fieldErrors.location}
+        </p>
+      ) : null}
 
       <button
         type="button"

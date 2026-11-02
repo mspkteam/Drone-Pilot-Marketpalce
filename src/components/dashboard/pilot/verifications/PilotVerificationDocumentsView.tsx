@@ -4,9 +4,13 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { PilotVerificationDocumentCardView } from "./PilotVerificationDocumentCard";
 import { PilotVerificationTabs } from "./PilotVerificationTabs";
 import {
+  LICENSE_PATH_STORAGE_KEY,
   catalogTag,
   computeVerificationProgress,
+  isCatalogVisibleForPath,
+  isLicensePath,
   mapVerificationsToDocumentCards,
+  type PilotLicensePath,
   type PilotVerificationDocumentCard,
 } from "@/lib/pilot/verification-documents-catalog";
 import { VERIFICATION_MAX_BYTES } from "@/lib/verification/constants";
@@ -21,6 +25,12 @@ function DocumentStackIcon() {
   );
 }
 
+function readStoredLicensePath(): PilotLicensePath {
+  if (typeof window === "undefined") return "faa";
+  const raw = window.localStorage.getItem(LICENSE_PATH_STORAGE_KEY);
+  return isLicensePath(raw) ? raw : "faa";
+}
+
 export function PilotVerificationDocumentsView() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [verifications, setVerifications] = useState<VerificationDto[]>([]);
@@ -31,6 +41,11 @@ export function PilotVerificationDocumentsView() {
   const [removingCatalogId, setRemovingCatalogId] = useState<string | null>(null);
   const [cardErrors, setCardErrors] = useState<Record<string, string>>({});
   const [activeCatalogId, setActiveCatalogId] = useState<string | null>(null);
+  const [licensePath, setLicensePath] = useState<PilotLicensePath>("faa");
+
+  useEffect(() => {
+    setLicensePath(readStoredLicensePath());
+  }, []);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -61,7 +76,20 @@ export function PilotVerificationDocumentsView() {
     [verifications],
   );
 
-  const progress = useMemo(() => computeVerificationProgress(cards), [cards]);
+  const visibleCards = useMemo(
+    () => cards.filter((card) => isCatalogVisibleForPath(card, licensePath)),
+    [cards, licensePath],
+  );
+
+  const progress = useMemo(
+    () => computeVerificationProgress(cards, licensePath),
+    [cards, licensePath],
+  );
+
+  function selectLicensePath(path: PilotLicensePath) {
+    setLicensePath(path);
+    window.localStorage.setItem(LICENSE_PATH_STORAGE_KEY, path);
+  }
 
   function openFilePicker(catalogId: string) {
     setActiveCatalogId(catalogId);
@@ -195,7 +223,9 @@ export function PilotVerificationDocumentsView() {
           <div>
             <p className="pilot-verification-notice-main">{progress.pendingActionLabel}</p>
             <p className="pilot-verification-notice-sub">
-              Complete your verification to unlock A-4+ missions and remove proposal limits.
+              Required for A-4+: Government ID (front and back), one pilot
+              certificate (FAA Part 107 or EASA), and aircraft registration.
+              Insurance and other docs stay optional.
             </p>
           </div>
         </div>
@@ -203,6 +233,53 @@ export function PilotVerificationDocumentsView() {
           {progress.completePct}% COMPLETE
         </span>
       </div>
+
+      <section
+        className="pilot-verification-path pilot-verification-bracket-card"
+        aria-label="Pilot certificate authority"
+      >
+        <p className="pilot-verification-path-label">
+          Pilot certificate path
+        </p>
+        <p className="pilot-verification-path-hint">
+          Most pilots hold FAA or EASA — not both. Choose one path to show the
+          matching certificate uploads.
+        </p>
+        <div className="pilot-verification-path-toggle" role="group">
+          <button
+            type="button"
+            className={`pilot-verification-path-btn${
+              licensePath === "faa" ? " is-active" : ""
+            }`}
+            aria-pressed={licensePath === "faa"}
+            onClick={() => selectLicensePath("faa")}
+          >
+            <span className="pilot-verification-path-btn-title">FAA</span>
+            <span className="pilot-verification-path-btn-sub">
+              Part 107 remote pilot certificate
+            </span>
+          </button>
+          <button
+            type="button"
+            className={`pilot-verification-path-btn${
+              licensePath === "easa" ? " is-active" : ""
+            }`}
+            aria-pressed={licensePath === "easa"}
+            onClick={() => selectLicensePath("easa")}
+          >
+            <span className="pilot-verification-path-btn-title">EASA</span>
+            <span className="pilot-verification-path-btn-sub">
+              Any one EASA class credential
+            </span>
+          </button>
+        </div>
+        {licensePath === "easa" ? (
+          <p className="pilot-verification-path-hint">
+            Upload at least one EASA credential below. Additional EASA classes
+            are optional extras.
+          </p>
+        ) : null}
+      </section>
 
       {error ? (
         <p className="pilot-verification-banner pilot-verification-banner--error" role="alert">
@@ -227,7 +304,7 @@ export function PilotVerificationDocumentsView() {
         <p className="pilot-verification-loading">Loading documents…</p>
       ) : (
         <div className="pilot-verification-grid">
-          {cards.map((card) => (
+          {visibleCards.map((card) => (
             <PilotVerificationDocumentCardView
               key={card.catalogId}
               card={card}

@@ -11,6 +11,8 @@ const ALLOWED_WITHOUT_ONBOARDING = [
   "/dashboard/pilot/support",
 ] as const;
 
+const EXACT_ALLOWED = ["/dashboard/pilot"] as const;
+
 type OnboardingRedirectProps = {
   needsOnboarding: boolean;
 };
@@ -21,6 +23,7 @@ export function OnboardingRedirect({ needsOnboarding }: OnboardingRedirectProps)
       needsOnboarding={needsOnboarding}
       profileHref="/dashboard/pilot/profile"
       allowedPrefixes={ALLOWED_WITHOUT_ONBOARDING}
+      exactAllowedPaths={EXACT_ALLOWED}
       roleLabel="pilot"
     />
   );

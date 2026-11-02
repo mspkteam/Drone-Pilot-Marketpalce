@@ -41,13 +41,27 @@ export default async function PilotDashboardPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const profile = await getPilotProfileByUserId(session.user.id);
   const onboardingComplete = isOnboardingComplete(profile);
+  const justCompleted = params.onboarding === "complete";
 
   if (!onboardingComplete || !profile) {
-    redirect("/dashboard/pilot/profile");
+    return (
+      <DashboardPageLayout className="pilot-dashboard-shell">
+        <DashboardStatusBanner>
+          Complete your pilot profile to unlock jobs, proposals, and the rest of
+          your dashboard. Your navigation stays visible while you finish setup.
+        </DashboardStatusBanner>
+        <p className="pilot-dashboard-onboarding-hint">
+          Open{" "}
+          <a href="/dashboard/pilot/profile" className="pilot-dashboard-onboarding-link">
+            Profile
+          </a>{" "}
+          to continue. This message stays until your profile is submitted.
+        </p>
+      </DashboardPageLayout>
+    );
   }
 
   const status = profile.status as PilotProfileStatus;
-  const justCompleted = params.onboarding === "complete";
   const approved = status === "approved";
 
   const pageData = await getPilotDashboardPageData(

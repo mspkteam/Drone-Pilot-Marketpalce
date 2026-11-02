@@ -7,6 +7,8 @@ type OnboardingGateProps = {
   needsOnboarding: boolean;
   profileHref: string;
   allowedPrefixes: readonly string[];
+  /** Paths matched by exact equality only (e.g. dashboard home). */
+  exactAllowedPaths?: readonly string[];
   roleLabel: string;
 };
 
@@ -14,14 +16,17 @@ export function OnboardingGate({
   needsOnboarding,
   profileHref,
   allowedPrefixes,
+  exactAllowedPaths = [],
   roleLabel,
 }: OnboardingGateProps) {
   const pathname = usePathname();
   if (!needsOnboarding) return null;
 
-  const allowed = allowedPrefixes.some(
-    (p) => pathname === p || pathname.startsWith(`${p}/`),
-  );
+  const allowed =
+    exactAllowedPaths.some((p) => pathname === p) ||
+    allowedPrefixes.some(
+      (p) => pathname === p || pathname.startsWith(`${p}/`),
+    );
   if (allowed) return null;
 
   return (

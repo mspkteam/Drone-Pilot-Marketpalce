@@ -2,6 +2,20 @@
  * Layout/structure from Figma; colors from site :root tokens (globals.css).
  */
 
+.pilot-dashboard-onboarding-hint {
+  margin: 0.75rem 0 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--color-text-soft, #a69f91);
+}
+
+.pilot-dashboard-onboarding-link {
+  font-weight: 600;
+  color: var(--color-gold, #ddb049);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 .pilot-dashboard-shell.dashboard-page {
   display: flex;
   flex-direction: column;

@@ -207,7 +207,7 @@ export async function approvePilotProfile(pilotProfileId: string) {
 
   await prisma.pilotProfile.update({
     where: { id: pilotProfileId },
-    data: { status: "approved" },
+    data: { status: "approved", isPublic: true },
   });
 
   notifyAsync(async () => {

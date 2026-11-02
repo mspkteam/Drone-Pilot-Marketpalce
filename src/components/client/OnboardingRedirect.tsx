@@ -8,6 +8,8 @@ const ALLOWED_WITHOUT_ONBOARDING = [
   "/dashboard/client/settings",
 ] as const;
 
+const EXACT_ALLOWED = ["/dashboard/client"] as const;
+
 type OnboardingRedirectProps = {
   needsOnboarding: boolean;
 };
@@ -18,6 +20,7 @@ export function OnboardingRedirect({ needsOnboarding }: OnboardingRedirectProps)
       needsOnboarding={needsOnboarding}
       profileHref="/dashboard/client/profile"
       allowedPrefixes={ALLOWED_WITHOUT_ONBOARDING}
+      exactAllowedPaths={EXACT_ALLOWED}
       roleLabel="client"
     />
   );

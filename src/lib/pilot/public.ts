@@ -80,9 +80,14 @@ function toListItem(
   };
 }
 
-export async function listPublicPilots(): Promise<PublicPilotListItemDto[]> {
+export async function listPublicPilots(options?: {
+  /** Client Find a Pilot lists approved pilots even if isPublic is still false. */
+  includeUnlistedApproved?: boolean;
+}): Promise<PublicPilotListItemDto[]> {
   const pilots = await prisma.pilotProfile.findMany({
-    where: { status: "approved", isPublic: true },
+    where: options?.includeUnlistedApproved
+      ? { status: "approved" }
+      : { status: "approved", isPublic: true },
     orderBy: { displayName: "asc" },
   });
 
@@ -95,7 +100,11 @@ export async function listPublicPilots(): Promise<PublicPilotListItemDto[]> {
 
 export async function getPublicPilotById(
   id: string,
-  options?: { viewerUserId?: string | null },
+  options?: {
+    viewerUserId?: string | null;
+    /** Authenticated clients may view approved pilots even before isPublic is set. */
+    viewerRole?: string | null;
+  },
 ): Promise<PublicPilotProfileDto | null> {
   const profile = await prisma.pilotProfile.findUnique({
     where: { id },
@@ -106,7 +115,12 @@ export async function getPublicPilotById(
   const isOwner =
     Boolean(options?.viewerUserId) &&
     profile.userId === options?.viewerUserId;
-  if (!isOwner && (profile.status !== "approved" || !profile.isPublic)) {
+  const isClientViewer = options?.viewerRole === "client";
+  const isApproved = profile.status === "approved";
+  const publiclyListed = isApproved && profile.isPublic;
+  const clientCanViewApproved = isClientViewer && isApproved;
+
+  if (!isOwner && !publiclyListed && !clientCanViewApproved) {
     return null;
   }
 

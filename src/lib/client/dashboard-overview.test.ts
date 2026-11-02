@@ -56,6 +56,6 @@ describe("client dashboard overview", () => {
     assert.equal(mapped.initials, "JL");
     assert.equal(mapped.location, "Denver, CO");
     assert.equal(mapped.priceAmount, "$960/day");
-    assert.equal(mapped.profileHref, "/pilots/pilot-1");
+    assert.equal(mapped.profileHref, "/dashboard/client/find-pilots/pilot-1");
   });
 });

@@ -166,21 +166,21 @@ export function ClientPostProjectWizard() {
                   disabled={loading}
                   onClick={() => {
                     setError(null);
-                    setStep((s) => Math.max(0, s - 1));
-                  }}
-                >
-                  Back
-                </button>
-                <button
-                  type="button"
-                  className="client-post-project-btn-secondary"
-                  disabled={loading}
-                  onClick={() => {
-                    setError(null);
                     setStep(2);
                   }}
                 >
                   Edit notes
+                </button>
+                <button
+                  type="button"
+                  className="client-post-project-btn-secondary client-post-project-btn-secondary--right"
+                  disabled={loading}
+                  onClick={() => {
+                    setError(null);
+                    setStep((s) => Math.max(0, s - 1));
+                  }}
+                >
+                  Back
                 </button>
               </div>
             ) : (

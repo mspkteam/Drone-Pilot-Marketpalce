@@ -4,6 +4,23 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.111] — 2026-11-02
+
+### Fixed
+
+- **Onboarding message:** Incomplete client/pilot home no longer hard-redirects away; persistent complete-profile banner stays on dashboard home.
+- **Find / View pilot:** Admin pilot approve sets `isPublic`; clients can view approved pilots in Find a Pilot even if the public flag lagged; quote “View profile” uses dashboard path.
+- **Hire CTAs:** `PublicPilotProfile` defaults `showHire` off (callers must opt in); Hire a Captain already null for pilots.
+- **Admin client:** Activate profile action + note that jobs are approved in Job Approval.
+- **Proposals:** Blocked submit shows the real reason instead of a silent redirect.
+- **Post a project:** Budget fields only for fixed_budget; review Back aligned right.
+
+### Notes
+
+- Addresses Morosoft sticky comments on Final Testing QA Checklist v3 (reopened “Done” rows). Stripe/geo/SMTP/shop assets remain client-blocked.
+
+---
+
 ## [0.27.110] — 2026-10-30
 
 ### Fixed

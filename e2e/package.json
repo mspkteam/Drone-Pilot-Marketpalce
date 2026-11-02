@@ -1,0 +1,20 @@
+{
+  "name": "drone-pilot-marketplace-e2e",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Isolated Playwright E2E suite for Remote Air Service",
+  "scripts": {
+    "test": "playwright test",
+    "test:chromium": "playwright test --project=chromium",
+    "test:headed": "HEADED=1 playwright test --project=chromium --headed",
+    "explore": "tsx exploration/explore.ts",
+    "report": "playwright show-report playwright-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.52.0",
+    "@types/node": "^20.0.0",
+    "dotenv": "^16.6.1",
+    "tsx": "^4.20.3",
+    "typescript": "^5.0.0"
+  }
+}

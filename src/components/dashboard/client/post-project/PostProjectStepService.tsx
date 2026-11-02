@@ -1,6 +1,7 @@
 import { ServiceIcon } from "@/components/dashboard/client/post-project/PostProjectIcons";
 import {
   POST_PROJECT_SERVICES,
+  type PostProjectFieldErrors,
   type PostProjectFormState,
   type PostProjectServiceId,
 } from "@/lib/client/post-project";
@@ -8,10 +9,15 @@ import { cn } from "@/lib/utils";
 
 type PostProjectStepServiceProps = {
   form: PostProjectFormState;
+  fieldErrors?: PostProjectFieldErrors;
   onSelect: (serviceId: PostProjectServiceId) => void;
 };
 
-export function PostProjectStepService({ form, onSelect }: PostProjectStepServiceProps) {
+export function PostProjectStepService({
+  form,
+  fieldErrors = {},
+  onSelect,
+}: PostProjectStepServiceProps) {
   return (
     <div className="client-post-project-step">
       <h2 className="client-post-project-step-title">What do you need help with?</h2>
@@ -42,6 +48,11 @@ export function PostProjectStepService({ form, onSelect }: PostProjectStepServic
           );
         })}
       </div>
+      {fieldErrors.serviceId ? (
+        <p className="client-post-project-field-error" role="alert">
+          {fieldErrors.serviceId}
+        </p>
+      ) : null}
     </div>
   );
 }

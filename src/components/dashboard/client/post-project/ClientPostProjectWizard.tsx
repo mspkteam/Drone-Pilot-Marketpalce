@@ -124,6 +124,7 @@ export function ClientPostProjectWizard() {
           {step === 0 ? (
             <PostProjectStepService
               form={form}
+              fieldErrors={fieldErrors}
               onSelect={(serviceId: PostProjectServiceId) =>
                 patchForm({ serviceId })
               }
@@ -132,11 +133,16 @@ export function ClientPostProjectWizard() {
           {step === 1 ? (
             <PostProjectStepLocation
               form={form}
+              fieldErrors={fieldErrors}
               onChange={(locations) => patchForm({ locations })}
             />
           ) : null}
           {step === 2 ? (
-            <PostProjectStepRequirements form={form} onChange={patchForm} />
+            <PostProjectStepRequirements
+              form={form}
+              fieldErrors={fieldErrors}
+              onChange={patchForm}
+            />
           ) : null}
           {step === 3 ? (
             <PostProjectStepBudget
@@ -152,25 +158,27 @@ export function ClientPostProjectWizard() {
           <footer className="client-post-project-card-footer">
             {isReview ? (
               <div className="client-post-project-review-actions">
-                <button
-                  type="button"
-                  className="client-post-project-btn-primary"
-                  disabled={loading}
-                  onClick={openTermsModal}
-                >
-                  Submit Project
-                </button>
-                <button
-                  type="button"
-                  className="client-post-project-btn-secondary"
-                  disabled={loading}
-                  onClick={() => {
-                    setError(null);
-                    setStep(2);
-                  }}
-                >
-                  Edit notes
-                </button>
+                <div className="client-post-project-review-actions-primary">
+                  <button
+                    type="button"
+                    className="client-post-project-btn-primary"
+                    disabled={loading}
+                    onClick={openTermsModal}
+                  >
+                    Submit Project
+                  </button>
+                  <button
+                    type="button"
+                    className="client-post-project-btn-secondary"
+                    disabled={loading}
+                    onClick={() => {
+                      setError(null);
+                      setStep(2);
+                    }}
+                  >
+                    Edit notes
+                  </button>
+                </div>
                 <button
                   type="button"
                   className="client-post-project-btn-secondary client-post-project-btn-secondary--right"

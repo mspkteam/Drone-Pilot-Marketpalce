@@ -797,19 +797,19 @@
   height: 2.25rem;
   flex-shrink: 0;
   margin: -0.25rem -0.25rem 0 0;
-  border: 1px solid var(--dashboard-card-border);
+  border: 1px solid rgba(216, 179, 57, 0.35);
   border-radius: var(--radius);
   background: transparent;
   font-size: 1.25rem;
   line-height: 1;
-  color: var(--color-text-soft);
+  color: var(--color-gold);
   cursor: pointer;
   transition: border-color 0.15s, color 0.15s, background 0.15s;
 }
 
 .admin-job-approval-modal-close:hover:not(:disabled) {
   border-color: var(--color-border-gold);
-  color: var(--color-gold);
+  color: var(--color-gold-soft);
   background: rgba(216, 179, 57, 0.08);
 }
 

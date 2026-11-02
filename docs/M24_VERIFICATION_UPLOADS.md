@@ -44,7 +44,7 @@ Profile LICENSE & COMPLIANCE is read-only. Approved uploads from this catalog ap
 - Insurance Certificate (optional)
 - Business Registration (optional)
 
-Government ID and additional certifications stay on the Verification tab only.
+Government ID is two catalog slots (front + back). Pilots choose an FAA or EASA certificate path; A-4+ progress counts ID, one pilot certificate, and aircraft registration only. Additional certifications stay optional on the Verification tab.
 
 ## Smoke test
 

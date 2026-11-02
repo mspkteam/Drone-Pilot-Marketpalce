@@ -1,17 +1,20 @@
 import {
   POST_PROJECT_DELIVERABLES,
   type PostProjectDeliverable,
+  type PostProjectFieldErrors,
   type PostProjectFormState,
 } from "@/lib/client/post-project";
 import { cn } from "@/lib/utils";
 
 type PostProjectStepRequirementsProps = {
   form: PostProjectFormState;
+  fieldErrors?: PostProjectFieldErrors;
   onChange: (patch: Partial<PostProjectFormState>) => void;
 };
 
 export function PostProjectStepRequirements({
   form,
+  fieldErrors = {},
   onChange,
 }: PostProjectStepRequirementsProps) {
   function toggleDeliverable(item: PostProjectDeliverable) {
@@ -87,25 +90,45 @@ export function PostProjectStepRequirements({
           );
         })}
       </div>
+      {fieldErrors.deliverables ? (
+        <p className="client-post-project-field-error" role="alert">
+          {fieldErrors.deliverables}
+        </p>
+      ) : null}
 
       <div className="client-post-project-field-row client-post-project-field-row--spaced">
-        <label className="client-post-project-field">
+        <div className="client-post-project-field">
           <span className="client-post-project-field-label">
             Reference files (optional)
           </span>
-          <input
-            type="file"
-            multiple
-            className="client-post-project-input client-post-project-input--file"
-            onChange={handleFileChange}
-          />
+          <label className="client-post-project-file-picker">
+            <span className="client-post-project-file-picker-icon" aria-hidden>
+              📎
+            </span>
+            <span>
+              {form.referenceFileNames.length > 0
+                ? `${form.referenceFileNames.length} file${form.referenceFileNames.length === 1 ? "" : "s"} attached — add more`
+                : "Upload reference files"}
+            </span>
+            <input
+              type="file"
+              multiple
+              accept="image/png,image/jpeg,image/webp,image/gif,application/pdf"
+              className="client-post-project-file-picker-input"
+              onChange={handleFileChange}
+            />
+          </label>
           <span className="client-post-project-input-hint">
-            Upload site plans, mood boards...
-            {form.referenceFileNames.length > 0
-              ? ` · ${form.referenceFileNames.length} file(s) uploaded`
-              : ""}
+            PNG, JPG, WEBP, GIF, or PDF — site plans, mood boards…
           </span>
-        </label>
+          {form.referenceFileNames.length > 0 ? (
+            <ul className="client-post-project-file-list">
+              {form.referenceFileNames.map((name) => (
+                <li key={name}>{name}</li>
+              ))}
+            </ul>
+          ) : null}
+        </div>
       </div>
 
       <label className="client-post-project-field client-post-project-field--full">

@@ -4,11 +4,39 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.113] — 2026-11-02
+
+### Fixed
+
+- **Morosoft sticky reopens:** Incomplete client/pilot home keeps overview + persistent complete-profile banner; post-project under-field errors on all steps; custom reference file picker; review footer Back stays right; job-approval close gold; public `/pilots/[id]` passes `viewerRole` for client access to approved pilots; proposal attach shows filename instead of bare “Choose file”.
+- Checklist reconciled against `Final_Testing_QA_Checklist_v3 (1).pdf` stickies + verification screenshot QA.
+
+### Notes
+
+- Still blocked on client: Stripe/billing/invoice, geo/phone, SMTP realtime, support automation, shop product artwork, notification timezone.
+
+---
+
+## [0.27.112] — 2026-11-02
+
+### Fixed
+
+- **Verification — Government ID:** Separate front and back upload slots; pending identity no longer blocks the other side (catalog-scoped conflict / replace).
+- **Verification — FAA vs EASA:** Path toggle shows FAA Part 107 or EASA class cards (not both); A-4+ requires only ID front+back, one pilot certificate (FAA or EASA), and aircraft registration. Insurance and extras stay optional.
+
+### Notes
+
+- Addresses client QA on identity multi-image upload and dual-authority certificates.
+
+
+---
+
 ## [0.27.111] — 2026-11-02
 
 ### Fixed
 
 - **Onboarding message:** Incomplete client/pilot home no longer hard-redirects away; persistent complete-profile banner stays on dashboard home.
+
 - **Find / View pilot:** Admin pilot approve sets `isPublic`; clients can view approved pilots in Find a Pilot even if the public flag lagged; quote “View profile” uses dashboard path.
 - **Hire CTAs:** `PublicPilotProfile` defaults `showHire` off (callers must opt in); Hire a Captain already null for pilots.
 - **Admin client:** Activate profile action + note that jobs are approved in Job Approval.

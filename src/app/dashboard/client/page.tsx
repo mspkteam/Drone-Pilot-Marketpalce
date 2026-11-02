@@ -28,40 +28,32 @@ export default async function ClientDashboardPage({ searchParams }: PageProps) {
   const onboardingComplete = Boolean(profile && isOnboardingComplete(profile));
   const justCompleted = params.onboarding === "complete";
 
-  if (!profile || !onboardingComplete) {
-    return (
-      <DashboardPageLayout className="client-dashboard-shell">
-        <DashboardStatusBanner>
-          Complete your client profile to unlock posting projects, Find a Pilot,
-          messages, and the rest of your dashboard. Your navigation stays visible
-          while you finish setup.
-        </DashboardStatusBanner>
-        <p className="text-sm text-[var(--color-text-soft)]">
-          Open{" "}
-          <a
-            href="/dashboard/client/profile"
-            className="font-semibold text-[var(--color-gold)] underline-offset-2 hover:underline"
-          >
-            Profile
-          </a>{" "}
-          to continue. This message stays until your profile is complete.
-        </p>
-      </DashboardPageLayout>
-    );
-  }
-
-  const overview = await getClientDashboardOverviewData(profile.id, session.user.id);
+  const overview = profile
+    ? await getClientDashboardOverviewData(profile.id, session.user.id)
+    : null;
 
   return (
     <DashboardPageLayout className="client-dashboard-shell">
-      {justCompleted ? (
+      {!onboardingComplete ? (
+        <DashboardStatusBanner>
+          Complete your client profile to unlock posting projects, Find a Pilot,
+          messages, and the rest of your dashboard. Open{" "}
+          <a
+            href="/dashboard/client/profile"
+            className="font-semibold underline-offset-2 hover:underline"
+          >
+            Profile
+          </a>{" "}
+          to continue — this message stays until setup is finished.
+        </DashboardStatusBanner>
+      ) : justCompleted ? (
         <DashboardStatusBanner>
           Your client profile is set up. Post your first project and receive
           quotes from verified pilots.
         </DashboardStatusBanner>
       ) : null}
 
-      <ClientDashboardOverview {...overview} />
+      {overview ? <ClientDashboardOverview {...overview} /> : null}
     </DashboardPageLayout>
   );
 }

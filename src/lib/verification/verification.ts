@@ -9,6 +9,7 @@ import {
   validateVerificationFileBuffer,
   writeVerificationFile,
 } from "@/lib/verification/storage";
+import { catalogIdFromNotes } from "@/lib/pilot/verification-documents-catalog";
 import type {
   AdminVerificationDto,
   VerificationDto,
@@ -20,6 +21,59 @@ import {
   VERIFICATION_TYPES,
 } from "@/types/verification";
 import { isAdminRole, type UserRole } from "@/types/roles";
+
+/** Normalize legacy catalog ids so front/back slots stay distinct. */
+function normalizeCatalogSlot(catalogId: string | null): string | null {
+  if (!catalogId) return null;
+  if (catalogId === "government_id") return "government_id_front";
+  if (catalogId === "faa_license") return "faa_part_107";
+  if (catalogId === "drone_registration") return "faa_aircraft_registration";
+  return catalogId;
+}
+
+/**
+ * Open (pending / amendments) rows conflict only when they share the same
+ * catalog slot. Untagged legacy rows still conflict type-wide.
+ */
+async function findConflictingOpenVerification(
+  pilotProfileId: string,
+  type: VerificationType,
+  notes: string | null,
+): Promise<Verification | null> {
+  const incomingCatalog = normalizeCatalogSlot(catalogIdFromNotes(notes));
+  const openRows = await prisma.verification.findMany({
+    where: {
+      pilotProfileId,
+      type,
+      status: { in: ["pending", "amendments_required"] },
+    },
+    orderBy: { updatedAt: "desc" },
+  });
+
+  if (openRows.length === 0) return null;
+
+  if (!incomingCatalog) {
+    return openRows[0] ?? null;
+  }
+
+  const sameSlot = openRows.find((row) => {
+    const existingCatalog = normalizeCatalogSlot(
+      catalogIdFromNotes(row.notes),
+    );
+    if (existingCatalog) return existingCatalog === incomingCatalog;
+    // Legacy untagged identity → treat as government_id_front.
+    if (type === "identity" && incomingCatalog === "government_id_front") {
+      return true;
+    }
+    // Legacy untagged license → treat as faa_part_107.
+    if (type === "license" && incomingCatalog === "faa_part_107") {
+      return true;
+    }
+    return false;
+  });
+
+  return sameSlot ?? null;
+}
 
 export function toVerificationDto(v: Verification): VerificationDto {
   return {
@@ -202,27 +256,20 @@ export async function submitVerificationWithFile(
     return { ok: false, error: "Notes are too long.", status: 400 };
   }
 
-  const pending = await prisma.verification.findFirst({
-    where: {
-      pilotProfileId,
-      type: input.type,
-      status: { in: ["pending", "amendments_required"] },
-    },
-  });
+  const conflicting = await findConflictingOpenVerification(
+    pilotProfileId,
+    input.type,
+    input.notes,
+  );
 
-  if (pending?.status === "pending") {
-    return {
-      ok: false,
-      error: `You already have a pending ${input.type} verification.`,
-      status: 409,
-    };
-  }
-
-  if (pending?.status === "amendments_required") {
-    const storedName = buildStoredFileName(pending.id, fileCheck.mime);
+  // Same catalog slot (e.g. Government ID front) may be replaced while pending
+  // or when amendments are required. Different slots of the same type (front vs
+  // back) are allowed in parallel.
+  if (conflicting) {
+    const storedName = buildStoredFileName(conflicting.id, fileCheck.mime);
     await writeVerificationFile(storedName, input.buffer);
     const updated = await prisma.verification.update({
-      where: { id: pending.id },
+      where: { id: conflicting.id },
       data: {
         status: "pending",
         notes: input.notes,
@@ -283,20 +330,28 @@ async function submitVerificationRecord(
     };
   }
 
-  const existingPending = await prisma.verification.findFirst({
-    where: {
-      pilotProfileId,
-      type: data.type,
-      status: "pending",
-    },
-  });
+  const conflicting = await findConflictingOpenVerification(
+    pilotProfileId,
+    data.type,
+    data.notes,
+  );
 
-  if (existingPending) {
-    return {
-      ok: false,
-      error: `You already have a pending ${data.type} verification.`,
-      status: 409,
-    };
+  if (conflicting) {
+    const updated = await prisma.verification.update({
+      where: { id: conflicting.id },
+      data: {
+        status: "pending",
+        documentUrl: data.documentUrl,
+        documentFileName: data.documentFileName,
+        documentMimeType: data.documentMimeType,
+        originalFileName: data.originalFileName,
+        notes: data.notes,
+        rejectionReason: null,
+        reviewedAt: null,
+        reviewedByUserId: null,
+      },
+    });
+    return { ok: true, verification: toVerificationDto(updated) };
   }
 
   const row = await prisma.verification.create({

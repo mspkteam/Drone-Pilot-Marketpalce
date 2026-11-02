@@ -7,6 +7,11 @@ import { chromium } from "playwright";
 const BASE = process.env.SMOKE_BASE_URL ?? "http://localhost:3000";
 const EMAIL = process.env.SMOKE_ADMIN_EMAIL ?? "admin@dronepilot.local";
 const PASSWORD = process.env.SMOKE_ADMIN_PASSWORD ?? "Demo123!";
+const HEADED =
+  process.env.HEADED === "1" ||
+  process.env.HEADED === "true" ||
+  process.env.PLAYWRIGHT_HEADED === "1";
+const SLOW_MO_MS = Number(process.env.SMOKE_SLOW_MO_MS ?? (HEADED ? "250" : "0"));
 
 const ADMIN_TABS = [
   "/dashboard/admin",
@@ -46,8 +51,13 @@ type Result = {
 };
 
 async function main() {
-  const browser = await chromium.launch({ headless: true });
+  const browser = await chromium.launch({
+    headless: !HEADED,
+    slowMo: Number.isFinite(SLOW_MO_MS) ? SLOW_MO_MS : 0,
+    args: HEADED ? [] : undefined,
+  });
   const page = await browser.newPage();
+  console.log(`Mode: ${HEADED ? "headed" : "headless"} @ ${BASE}`);
   const consoleErrors: string[] = [];
   page.on("pageerror", (err) => {
     consoleErrors.push(err.message);

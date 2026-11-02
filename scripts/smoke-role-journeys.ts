@@ -6,6 +6,13 @@ import { chromium, type Page } from "playwright";
 
 const BASE = process.env.SMOKE_BASE_URL ?? "http://localhost:3000";
 const PASSWORD = process.env.SMOKE_PASSWORD ?? "Demo123!";
+const HEADED =
+  process.env.HEADED === "1" ||
+  process.env.HEADED === "true" ||
+  process.env.PLAYWRIGHT_HEADED === "1";
+const SLOW_MO_MS = Number(process.env.SMOKE_SLOW_MO_MS ?? (HEADED ? "250" : "0"));
+/** When set, run a wrong-password login first so headed viewers can see a failure. */
+const DEMO_FAILURE = process.env.SMOKE_DEMO_FAILURE === "1";
 
 type RoleSmoke = {
   name: string;
@@ -123,11 +130,46 @@ async function login(page: Page, email: string, homePath: RegExp): Promise<void>
   ]);
 }
 
+async function demoFailedLogin(page: Page): Promise<string | null> {
+  await page.goto(`${BASE}/login`, { waitUntil: "networkidle", timeout: 60000 });
+  await page.fill('input[name="email"]', "client@dronepilot.local");
+  await page.fill('input[name="password"]', "WrongPassword!1");
+  await page.click('button[type="submit"]');
+  await page.waitForTimeout(1500);
+  const stillOnLogin = page.url().includes("/login");
+  const body = await page.locator("body").innerText();
+  const showsError =
+    /invalid|incorrect|failed|wrong|credentials|error/i.test(body) || stillOnLogin;
+  if (!showsError) {
+    return "Expected login failure UI, but no error/login stay detected";
+  }
+  // Intentionally fail the suite when DEMO_FAILURE=1 so headed mode shows a red result.
+  return `Demo negative login shown (stayed on login=${stillOnLogin})`;
+}
+
 async function main() {
-  const browser = await chromium.launch({ headless: true });
+  const browser = await chromium.launch({
+    headless: !HEADED,
+    slowMo: Number.isFinite(SLOW_MO_MS) ? SLOW_MO_MS : 0,
+  });
   const results: { name: string; ok: boolean; detail: string }[] = [];
+  console.log(`Mode: ${HEADED ? "headed" : "headless"} @ ${BASE}`);
 
   try {
+    if (DEMO_FAILURE) {
+      console.log("\n== Demo failure: wrong password login ==");
+      const demoPage = await browser.newPage();
+      const detail = await demoFailedLogin(demoPage);
+      console.log(`FAIL  demo:wrong-password — ${detail}`);
+      results.push({
+        name: "demo:wrong-password",
+        ok: false,
+        detail: detail ?? "demo failure",
+      });
+      await demoPage.waitForTimeout(2000);
+      await demoPage.close();
+    }
+
     const guest = await browser.newPage();
     console.log(`\n== Public pages @ ${BASE} ==`);
     for (const path of PUBLIC_PAGES) {

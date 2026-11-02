@@ -1,7 +1,8 @@
+import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { PilotSubmitProposalView } from "@/components/dashboard/pilot/proposals/PilotSubmitProposalView";
-import { DashboardPageLayout } from "@/components/dashboard";
+import { DashboardPageLayout, DashboardStatusBanner } from "@/components/dashboard";
 import { getOpenJobForPilot } from "@/lib/applications/application";
 import {
   getPilotProfileByUserId,
@@ -26,11 +27,22 @@ export default async function PilotSubmitProposalPage({ params }: PageProps) {
     redirect("/dashboard/pilot/profile");
   }
 
+  const { id } = await params;
+
   if (profile.status !== "approved") {
-    redirect("/dashboard/pilot/jobs");
+    return (
+      <DashboardPageLayout className="pilot-submit-shell">
+        <DashboardStatusBanner variant="muted">
+          Your pilot profile must be approved by an admin before you can submit
+          proposals. Current status: <strong>{profile.status}</strong>.
+        </DashboardStatusBanner>
+        <p>
+          <Link href={`/dashboard/pilot/jobs/${id}`}>← Back to job</Link>
+        </p>
+      </DashboardPageLayout>
+    );
   }
 
-  const { id } = await params;
   const result = await getOpenJobForPilot(id, profile.id);
   if (!result) {
     notFound();
@@ -41,7 +53,17 @@ export default async function PilotSubmitProposalPage({ params }: PageProps) {
   }
 
   if (!result.canApply) {
-    redirect(`/dashboard/pilot/jobs/${id}`);
+    return (
+      <DashboardPageLayout className="pilot-submit-shell">
+        <DashboardStatusBanner variant="muted">
+          {result.applyBlockedMessage ??
+            "You cannot submit a proposal for this job right now."}
+        </DashboardStatusBanner>
+        <p>
+          <Link href={`/dashboard/pilot/jobs/${id}`}>← Back to job</Link>
+        </p>
+      </DashboardPageLayout>
+    );
   }
 
   return (

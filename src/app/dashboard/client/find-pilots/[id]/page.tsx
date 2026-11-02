@@ -18,6 +18,7 @@ export async function generateMetadata({ params }: PageProps) {
   const session = await auth();
   const pilot = await getPublicPilotById(id, {
     viewerUserId: session?.user?.id,
+    viewerRole: session?.user?.role,
   });
   if (!pilot) return { title: "Pilot not found" };
   return { title: pilot.displayName };
@@ -32,6 +33,7 @@ export default async function ClientFindPilotProfilePage({ params }: PageProps) 
   const { id } = await params;
   const pilot = await getPublicPilotById(id, {
     viewerUserId: session.user.id,
+    viewerRole: "client",
   });
   if (!pilot) {
     notFound();

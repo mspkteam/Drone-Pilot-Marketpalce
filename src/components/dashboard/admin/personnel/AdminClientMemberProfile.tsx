@@ -155,6 +155,35 @@ export function AdminClientMemberProfile({
     }
   }
 
+  async function activateClientProfile() {
+    setAccountActing(true);
+    setError(null);
+    setMessage(null);
+    try {
+      const res = await fetch(`/api/admin/users/${userId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          client: {
+            status: "active",
+          },
+        }),
+      });
+      const json = (await res.json()) as { error?: string };
+      if (!res.ok) {
+        setError(json.error ?? "Could not activate client profile.");
+        return;
+      }
+      setStatus("active");
+      setMessage("Client profile activated.");
+      router.refresh();
+    } catch {
+      setError("Could not activate client profile.");
+    } finally {
+      setAccountActing(false);
+    }
+  }
+
   async function setLoginStatus(nextStatus: "active" | "suspended") {
     setAccountActing(true);
     setError(null);
@@ -221,6 +250,12 @@ export function AdminClientMemberProfile({
           </div>
         </div>
 
+        <p className="admin-member-empty" style={{ marginBottom: "0.75rem" }}>
+          Client profiles activate on onboarding completion. Use Activate below
+          if status is still draft / pending review. Job posts are approved
+          separately in Job Approval.
+        </p>
+
         <div className="admin-pilot-profile-actions-row">
           {canEdit && !editing ? (
             <button
@@ -232,6 +267,16 @@ export function AdminClientMemberProfile({
               }}
             >
               Edit client profile
+            </button>
+          ) : null}
+          {canEdit && client.status !== "active" ? (
+            <button
+              type="button"
+              className="admin-personnel-edit-save"
+              disabled={accountActing}
+              onClick={() => void activateClientProfile()}
+            >
+              {accountActing ? "Activating…" : "Activate profile"}
             </button>
           ) : null}
           {canEdit && accountStatus !== "suspended" ? (

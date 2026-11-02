@@ -25,7 +25,7 @@ async function getCompletedBookingCounts(pilotProfileIds: string[]) {
 }
 
 export async function listClientFindPilots(): Promise<ClientFindPilot[]> {
-  const pilots = await listPublicPilots();
+  const pilots = await listPublicPilots({ includeUnlistedApproved: true });
   if (pilots.length === 0) return [];
 
   const completedCounts = await getCompletedBookingCounts(pilots.map((p) => p.id));

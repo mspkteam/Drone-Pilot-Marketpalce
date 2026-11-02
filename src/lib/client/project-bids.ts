@@ -80,7 +80,8 @@ export const CLIENT_PROJECT_BIDS_ROUTES = {
       ? (`/dashboard/client/quotes?jobId=${jobId}` as const)
       : ("/dashboard/client/quotes" as const),
   messages: "/dashboard/client/messages",
-  pilotProfile: (pilotProfileId: string) => `/pilots/${pilotProfileId}` as const,
+  pilotProfile: (pilotProfileId: string) =>
+    `/dashboard/client/find-pilots/${pilotProfileId}` as const,
 } as const;
 
 const TAB_STATUS_MAP: Record<

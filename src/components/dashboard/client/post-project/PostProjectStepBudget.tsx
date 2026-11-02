@@ -65,42 +65,44 @@ export function PostProjectStepBudget({
         </p>
       ) : null}
 
-      <div className="client-post-project-field-row client-post-project-field-row--spaced">
-        <label className="client-post-project-field">
-          <span className="client-post-project-field-label">Minimum Budget (USD)</span>
-          <input
-            type="number"
-            min={0}
-            className="client-post-project-input"
-            placeholder="2000"
-            value={form.budgetMin}
-            onChange={(e) => onChange({ budgetMin: e.target.value })}
-            aria-invalid={Boolean(fieldErrors.budgetMin)}
-          />
-          {fieldErrors.budgetMin ? (
-            <span className="client-post-project-field-error" role="alert">
-              {fieldErrors.budgetMin}
-            </span>
-          ) : null}
-        </label>
-        <label className="client-post-project-field">
-          <span className="client-post-project-field-label">Maximum Budget (USD)</span>
-          <input
-            type="number"
-            min={0}
-            className="client-post-project-input"
-            placeholder="4000"
-            value={form.budgetMax}
-            onChange={(e) => onChange({ budgetMax: e.target.value })}
-            aria-invalid={Boolean(fieldErrors.budgetMax)}
-          />
-          {fieldErrors.budgetMax ? (
-            <span className="client-post-project-field-error" role="alert">
-              {fieldErrors.budgetMax}
-            </span>
-          ) : null}
-        </label>
-      </div>
+      {form.quoteType === "fixed_budget" ? (
+        <div className="client-post-project-field-row client-post-project-field-row--spaced">
+          <label className="client-post-project-field">
+            <span className="client-post-project-field-label">Minimum Budget (USD)</span>
+            <input
+              type="number"
+              min={0}
+              className="client-post-project-input"
+              placeholder="2000"
+              value={form.budgetMin}
+              onChange={(e) => onChange({ budgetMin: e.target.value })}
+              aria-invalid={Boolean(fieldErrors.budgetMin)}
+            />
+            {fieldErrors.budgetMin ? (
+              <span className="client-post-project-field-error" role="alert">
+                {fieldErrors.budgetMin}
+              </span>
+            ) : null}
+          </label>
+          <label className="client-post-project-field">
+            <span className="client-post-project-field-label">Maximum Budget (USD)</span>
+            <input
+              type="number"
+              min={0}
+              className="client-post-project-input"
+              placeholder="4000"
+              value={form.budgetMax}
+              onChange={(e) => onChange({ budgetMax: e.target.value })}
+              aria-invalid={Boolean(fieldErrors.budgetMax)}
+            />
+            {fieldErrors.budgetMax ? (
+              <span className="client-post-project-field-error" role="alert">
+                {fieldErrors.budgetMax}
+              </span>
+            ) : null}
+          </label>
+        </div>
+      ) : null}
 
       <p className="client-post-project-section-label">Project Priority</p>
       <div className="client-post-project-choice-grid client-post-project-choice-grid--3">

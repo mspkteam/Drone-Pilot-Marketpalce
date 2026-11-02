@@ -304,7 +304,7 @@ export function PublicPilotProfile({
   messageHref = "/register?role=client",
   hireHref = "/register?role=client",
   browseHref = "/pilots",
-  showHire = true,
+  showHire = false,
 }: {
   pilot: PublicPilotProfileDto;
   messageHref?: string;

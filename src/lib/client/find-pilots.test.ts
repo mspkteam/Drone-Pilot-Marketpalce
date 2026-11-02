@@ -36,7 +36,7 @@ function samplePilot(overrides: Partial<ClientFindPilot> = {}): ClientFindPilot 
     priceLabel: "from $1,200/day",
     serviceIds: ["aerial_video", "real_estate"],
     verified: true,
-    profileHref: "/pilots/pilot-1",
+    profileHref: "/dashboard/client/find-pilots/pilot-1",
     ...overrides,
   };
 }
@@ -47,7 +47,7 @@ describe("client find pilots", () => {
     assert.equal(mapped.initials, "AR");
     assert.equal(mapped.location, "Austin, TX");
     assert.equal(mapped.projects, "5 projects");
-    assert.equal(mapped.profileHref, "/pilots/pilot-1");
+    assert.equal(mapped.profileHref, "/dashboard/client/find-pilots/pilot-1");
   });
 
   it("filters by service chip", () => {

@@ -11,25 +11,25 @@ Marks: **Done** · **Partial** · **Blocked on client**
 | Item | Status |
 |------|--------|
 | Password eye icon should not disappear on hover | Done |
-| New login: dashboard visible with complete-profile message | Done |
+| New login: dashboard visible with complete-profile message | Done (v0.27.111 — persistent home banner, no bounce) |
 | Date format dd/mm/yyyy on date pickers | Done |
 | BILLING (payment method) | Blocked on client (Stripe) |
 | Talk to Support button radius / font color | Done |
 | Profile fields not editable by default; Edit option | Done |
 | Country / region / phone worldwide vs US | Blocked on client |
 | File upload icon + stop showing bare “Choose file” after upload | Done (proposal attach) |
-| Post a project: hide step-bleed fields | Done |
+| Post a project: hide step-bleed fields | Done (budget only when fixed_budget) |
 | Step 4 Expected Project Completion Date + date conflict | Done |
 | Terms checkbox / popup checked state | Done (shared `termsAcknowledged` state) |
-| Move Back button to the right | Done |
-| Find a Pilot profile visible in dashboard | Done |
+| Move Back button to the right | Done (including review step) |
+| Find a Pilot profile visible in dashboard | Done (approved pilots listed for clients) |
 | Hire a Captain redirect | Done (guest → register; client → find pilots; hidden for pilots) |
 | Close icon color | Done (job-approval modal gold) |
-| Hire via marketplace purpose / redirect | Done (guest register; client post-project for that pilot) |
+| Hire via marketplace purpose / redirect | Done (guest register; client post-project; hire default off) |
 | Browse a pilot → Find a Pilot dashboard | Done |
 | Field-level error / success under fields | Done (budget step field errors; banner retained) |
 | Button alignment | Done (post-project footer min-height + spacing) |
-| View profile 404 | Done (dashboard `/find-pilots/[id]`) |
+| View profile 404 | Done (dashboard path + client can view approved) |
 | Button sizes consistent | Done (shared 2.75rem min-height on post-project buttons) |
 | Revision: no prompt after submit; pilot receives request | Done |
 | Invoice PDF downloadable | Blocked on client (Stripe) |
@@ -78,7 +78,7 @@ Marks: **Done** · **Partial** · **Blocked on client**
 | Item | Status |
 |------|--------|
 | Show client/pilot name, not organization | Done |
-| Edit Client Profile should not expose every feature | Done (edit/suspend only in command bar) |
+| Edit Client Profile should not expose every feature | Done (edit/suspend + Activate profile; jobs via Job Approval) |
 | Billing address fetch / Save error | Done (JSON ↔ display helpers + GET/PATCH) |
 | Job approval notification in bar | Done (admins notified on job submit) |
 | Letter M cropped | Done (cert overlay text no longer ellipsis-clips) |

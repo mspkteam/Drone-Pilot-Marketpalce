@@ -1,30 +1,49 @@
 /**
  * Smoke key role dashboards against a deployed or local base URL.
- * Usage: SMOKE_BASE_URL=https://... npx tsx scripts/smoke-role-journeys.ts
+ *
+ * By default registers NEW client + pilot accounts (no seeded demo users),
+ * then logs in with those credentials. Staff roles cannot self-register;
+ * include them only with USE_SEED_STAFF=1.
+ *
+ * Usage:
+ *   SMOKE_BASE_URL=https://... npx tsx scripts/smoke-role-journeys.ts
+ *   HEADED=1 SMOKE_BASE_URL=https://... npx tsx scripts/smoke-role-journeys.ts
  */
 import { chromium, type Page } from "playwright";
 
 const BASE = process.env.SMOKE_BASE_URL ?? "http://localhost:3000";
-const PASSWORD = process.env.SMOKE_PASSWORD ?? "Demo123!";
 const HEADED =
   process.env.HEADED === "1" ||
   process.env.HEADED === "true" ||
   process.env.PLAYWRIGHT_HEADED === "1";
 const SLOW_MO_MS = Number(process.env.SMOKE_SLOW_MO_MS ?? (HEADED ? "250" : "0"));
-/** When set, run a wrong-password login first so headed viewers can see a failure. */
 const DEMO_FAILURE = process.env.SMOKE_DEMO_FAILURE === "1";
+const USE_SEED_STAFF = process.env.USE_SEED_STAFF === "1";
+
+type RegisterableRole = "client" | "pilot";
 
 type RoleSmoke = {
   name: string;
-  email: string;
+  registerAs?: RegisterableRole;
+  email?: string;
+  password?: string;
   homePath: RegExp;
   pages: string[];
 };
 
-const ROLES: RoleSmoke[] = [
+function uniqueEmail(role: string): string {
+  const stamp = `${Date.now()}-${Math.floor(Math.random() * 1e6)}`;
+  return `qa.${role}.${stamp}@example.test`;
+}
+
+function uniquePassword(): string {
+  return `QaTemp!${Date.now().toString().slice(-6)}A1`;
+}
+
+const SELF_SERVE_ROLES: RoleSmoke[] = [
   {
     name: "client",
-    email: process.env.SMOKE_CLIENT_EMAIL ?? "client@dronepilot.local",
+    registerAs: "client",
     homePath: /\/dashboard\/client/,
     pages: [
       "/dashboard/client",
@@ -41,8 +60,8 @@ const ROLES: RoleSmoke[] = [
     ],
   },
   {
-    name: "pilot-a6",
-    email: process.env.SMOKE_PILOT_EMAIL ?? "pilot@dronepilot.local",
+    name: "pilot",
+    registerAs: "pilot",
     homePath: /\/dashboard\/pilot/,
     pages: [
       "/dashboard/pilot",
@@ -58,20 +77,13 @@ const ROLES: RoleSmoke[] = [
       "/dashboard/pilot/support",
     ],
   },
-  {
-    name: "pilot-a1",
-    email: process.env.SMOKE_PILOT_A1_EMAIL ?? "pilot-a1@dronepilot.local",
-    homePath: /\/dashboard\/pilot/,
-    pages: [
-      "/dashboard/pilot",
-      "/dashboard/pilot/jobs",
-      "/dashboard/pilot/locked-jobs",
-      "/dashboard/pilot/subscription",
-    ],
-  },
+];
+
+const STAFF_ROLES: RoleSmoke[] = [
   {
     name: "moderator",
     email: process.env.SMOKE_MODERATOR_EMAIL ?? "moderator@dronepilot.local",
+    password: process.env.SMOKE_PASSWORD ?? "Demo123!",
     homePath: /\/dashboard\/admin/,
     pages: [
       "/dashboard/admin",
@@ -120,31 +132,39 @@ async function assertHealthy(page: Page, path: string): Promise<string | null> {
   return null;
 }
 
-async function login(page: Page, email: string, homePath: RegExp): Promise<void> {
+async function registerNewUser(
+  page: Page,
+  email: string,
+  password: string,
+  role: RegisterableRole,
+): Promise<void> {
+  await page.goto(`${BASE}/register`, { waitUntil: "networkidle", timeout: 60000 });
+  await page
+    .getByRole("button", { name: role === "pilot" ? /Pilot/i : /Client/i })
+    .first()
+    .click();
+  await page.locator("#reg-email").fill(email);
+  await page.locator("#reg-password").fill(password);
+  await page.locator("#reg-confirm").fill(password);
+  await Promise.all([
+    page.waitForURL(/\/login/, { timeout: 60000 }),
+    page.getByRole("button", { name: /Create account/i }).click(),
+  ]);
+}
+
+async function login(
+  page: Page,
+  email: string,
+  password: string,
+  homePath: RegExp,
+): Promise<void> {
   await page.goto(`${BASE}/login`, { waitUntil: "networkidle", timeout: 60000 });
   await page.fill('input[name="email"]', email);
-  await page.fill('input[name="password"]', PASSWORD);
+  await page.fill('input[name="password"]', password);
   await Promise.all([
     page.waitForURL(homePath, { timeout: 60000 }),
     page.click('button[type="submit"]'),
   ]);
-}
-
-async function demoFailedLogin(page: Page): Promise<string | null> {
-  await page.goto(`${BASE}/login`, { waitUntil: "networkidle", timeout: 60000 });
-  await page.fill('input[name="email"]', "client@dronepilot.local");
-  await page.fill('input[name="password"]', "WrongPassword!1");
-  await page.click('button[type="submit"]');
-  await page.waitForTimeout(1500);
-  const stillOnLogin = page.url().includes("/login");
-  const body = await page.locator("body").innerText();
-  const showsError =
-    /invalid|incorrect|failed|wrong|credentials|error/i.test(body) || stillOnLogin;
-  if (!showsError) {
-    return "Expected login failure UI, but no error/login stay detected";
-  }
-  // Intentionally fail the suite when DEMO_FAILURE=1 so headed mode shows a red result.
-  return `Demo negative login shown (stayed on login=${stillOnLogin})`;
 }
 
 async function main() {
@@ -153,23 +173,16 @@ async function main() {
     slowMo: Number.isFinite(SLOW_MO_MS) ? SLOW_MO_MS : 0,
   });
   const results: { name: string; ok: boolean; detail: string }[] = [];
+  const created: { role: string; email: string; password: string }[] = [];
   console.log(`Mode: ${HEADED ? "headed" : "headless"} @ ${BASE}`);
+  console.log(
+    "Auth mode: register NEW client/pilot users (seeded marketplace users skipped)",
+  );
+  if (!USE_SEED_STAFF) {
+    console.log("Staff roles skipped (set USE_SEED_STAFF=1 to include moderator).");
+  }
 
   try {
-    if (DEMO_FAILURE) {
-      console.log("\n== Demo failure: wrong password login ==");
-      const demoPage = await browser.newPage();
-      const detail = await demoFailedLogin(demoPage);
-      console.log(`FAIL  demo:wrong-password — ${detail}`);
-      results.push({
-        name: "demo:wrong-password",
-        ok: false,
-        detail: detail ?? "demo failure",
-      });
-      await demoPage.waitForTimeout(2000);
-      await demoPage.close();
-    }
-
     const guest = await browser.newPage();
     console.log(`\n== Public pages @ ${BASE} ==`);
     for (const path of PUBLIC_PAGES) {
@@ -184,17 +197,66 @@ async function main() {
     }
     await guest.close();
 
-    for (const role of ROLES) {
-      console.log(`\n== Role ${role.name} (${role.email}) ==`);
+    const roles: RoleSmoke[] = [
+      ...SELF_SERVE_ROLES,
+      ...(USE_SEED_STAFF ? STAFF_ROLES : []),
+    ];
+
+    for (const role of roles) {
       const page = await browser.newPage();
       try {
-        await login(page, role.email, role.homePath);
-        console.log(`Logged in → ${page.url()}`);
+        let email = role.email;
+        let password = role.password ?? uniquePassword();
+
+        if (role.registerAs) {
+          email = uniqueEmail(role.registerAs);
+          password = uniquePassword();
+          console.log(`\n== Role ${role.name}: register ${email} ==`);
+          await registerNewUser(page, email, password, role.registerAs);
+          console.log(`OK    registered → ${page.url()}`);
+          results.push({
+            name: `${role.name}:register`,
+            ok: true,
+            detail: email,
+          });
+          created.push({ role: role.name, email, password });
+
+          if (DEMO_FAILURE) {
+            await page.goto(`${BASE}/login`, {
+              waitUntil: "networkidle",
+              timeout: 60000,
+            });
+            await page.fill('input[name="email"]', email);
+            await page.fill('input[name="password"]', "WrongPassword!1");
+            await page.click('button[type="submit"]');
+            await page.waitForTimeout(1500);
+            const rejected = page.url().includes("/login");
+            console.log(
+              rejected
+                ? `FAIL  ${role.name}:wrong-password — rejected (expected demo)`
+                : `FAIL  ${role.name}:wrong-password — unexpected success`,
+            );
+            results.push({
+              name: `${role.name}:wrong-password`,
+              ok: false,
+              detail: rejected
+                ? "wrong password rejected (demo assertion)"
+                : "unexpected success",
+            });
+          }
+        } else {
+          console.log(`\n== Role ${role.name} (${email}) [seed staff] ==`);
+        }
+
+        if (!email) throw new Error("Missing email for role");
+        await login(page, email, password, role.homePath);
+        console.log(`OK    login → ${page.url()}`);
         results.push({
           name: `${role.name}:login`,
           ok: true,
           detail: page.url(),
         });
+
         for (const path of role.pages) {
           const err = await assertHealthy(page, path);
           if (err) {
@@ -207,8 +269,8 @@ async function main() {
         }
       } catch (error) {
         const detail = error instanceof Error ? error.message : String(error);
-        console.log(`FAIL  login/session — ${detail}`);
-        results.push({ name: `${role.name}:login`, ok: false, detail });
+        console.log(`FAIL  ${role.name} — ${detail}`);
+        results.push({ name: `${role.name}:flow`, ok: false, detail });
       } finally {
         await page.close();
       }
@@ -219,6 +281,10 @@ async function main() {
 
   const passed = results.filter((r) => r.ok).length;
   const failed = results.filter((r) => !r.ok);
+  console.log("\n—— Created accounts ——");
+  for (const c of created) {
+    console.log(` - ${c.role}: ${c.email} / ${c.password}`);
+  }
   console.log("\n—— Summary ——");
   console.log(`Passed: ${passed}/${results.length}`);
   if (failed.length) {

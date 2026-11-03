@@ -4,6 +4,18 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.115] — 2026-11-03
+
+### Fixed
+
+- **Admin profile approvals restored:** `/dashboard/admin/pilots` and `/dashboard/admin/clients` are approval queues again (no longer redirect-only). Sidebar links + Users roster shortcuts. Client member action labeled **Approve profile**.
+
+### Notes
+
+- Existing approve/reject APIs were unchanged; this restores the UI entry points that had been redirected into Users-only.
+
+---
+
 ## [0.27.114] — 2026-11-03
 
 ### Fixed

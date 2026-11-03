@@ -223,6 +223,18 @@ export function AdminFleetPersonnel({
             </p>
           </div>
           <div className="admin-personnel-hero-actions">
+            <Link
+              href="/dashboard/admin/pilots"
+              className="admin-personnel-btn-outline"
+            >
+              Pilot Approvals
+            </Link>
+            <Link
+              href="/dashboard/admin/clients"
+              className="admin-personnel-btn-outline"
+            >
+              Client Approvals
+            </Link>
             {canExport ? (
               <button
                 type="button"

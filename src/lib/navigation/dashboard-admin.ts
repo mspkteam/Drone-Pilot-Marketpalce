@@ -12,6 +12,16 @@ export const adminNavGroups: readonly DashboardNavGroup[] = [
       { label: "Dashboard", href: "/dashboard/admin", icon: "dashboard" },
       { label: "Users", href: "/dashboard/admin/users", icon: "users" },
       {
+        label: "Pilot Approvals",
+        href: "/dashboard/admin/pilots",
+        icon: "users",
+      },
+      {
+        label: "Client Approvals",
+        href: "/dashboard/admin/clients",
+        icon: "users",
+      },
+      {
         label: "Remote Aviator Verification",
         href: "/dashboard/admin/verifications",
         icon: "verification",

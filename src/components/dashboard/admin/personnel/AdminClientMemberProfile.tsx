@@ -171,14 +171,14 @@ export function AdminClientMemberProfile({
       });
       const json = (await res.json()) as { error?: string };
       if (!res.ok) {
-        setError(json.error ?? "Could not activate client profile.");
+        setError(json.error ?? "Could not approve client profile.");
         return;
       }
       setStatus("active");
-      setMessage("Client profile activated.");
+      setMessage("Client profile approved.");
       router.refresh();
     } catch {
-      setError("Could not activate client profile.");
+      setError("Could not approve client profile.");
     } finally {
       setAccountActing(false);
     }
@@ -251,9 +251,13 @@ export function AdminClientMemberProfile({
         </div>
 
         <p className="admin-member-empty" style={{ marginBottom: "0.75rem" }}>
-          Client profiles activate on onboarding completion. Use Activate below
-          if status is still draft / pending review. Job posts are approved
-          separately in Job Approval.
+          Completed client onboarding usually sets status to active. If a client
+          is still draft or pending review, use Approve profile below. Job posts
+          are approved separately in Job Approval. Queue:{" "}
+          <Link href="/dashboard/admin/clients" className="admin-member-chip admin-member-chip--link">
+            Client Approvals
+          </Link>
+          .
         </p>
 
         <div className="admin-pilot-profile-actions-row">
@@ -276,7 +280,7 @@ export function AdminClientMemberProfile({
               disabled={accountActing}
               onClick={() => void activateClientProfile()}
             >
-              {accountActing ? "Activating…" : "Activate profile"}
+              {accountActing ? "Approving…" : "Approve profile"}
             </button>
           ) : null}
           {canEdit && accountStatus !== "suspended" ? (

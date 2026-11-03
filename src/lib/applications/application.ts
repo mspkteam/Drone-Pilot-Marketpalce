@@ -190,6 +190,7 @@ function mapPostProjectSummary(
   if (!parsed) return null;
   return {
     deliverables: [...parsed.deliverables],
+    quoteType: parsed.quoteType ?? null,
     quoteTypeLabel: postProjectQuoteTypeLabel(parsed.quoteType),
     priorityLabel: postProjectPriorityLabel(parsed.priority),
     completionDate: parsed.completionDate,
@@ -308,14 +309,31 @@ export async function getOpenJobForPilot(
     job.createdAt;
 
   const applyCheck = await canPilotApplyToJobById(pilotProfileId, jobId);
+  // Drafts must remain editable/submittable; only non-draft apps block re-apply.
+  const hasSubmittedApplication = job.applications.some(
+    (app) => app.status !== "draft",
+  );
   const canApply =
-    isOpenForMarket && applyCheck.allowed && !job.applications.length;
+    isOpenForMarket && applyCheck.allowed && !hasSubmittedApplication;
+
+  let applyBlockedMessage: string | null = null;
+  if (!canApply) {
+    if (!applyCheck.allowed) {
+      applyBlockedMessage = applyCheck.reason ?? A1_APPLY_MESSAGE;
+    } else if (hasSubmittedApplication) {
+      applyBlockedMessage = "You already submitted a proposal for this job.";
+    } else if (!isOpenForMarket) {
+      applyBlockedMessage = "This job is no longer open for proposals.";
+    } else {
+      applyBlockedMessage = A1_APPLY_MESSAGE;
+    }
+  }
 
   const dto = mapJobToOpenDto(
     job,
     visibleAt,
     canApply,
-    canApply ? null : (applyCheck.reason ?? A1_APPLY_MESSAGE),
+    applyBlockedMessage,
   );
 
   return {
@@ -324,7 +342,7 @@ export async function getOpenJobForPilot(
       ? toApplicationDto(job.applications[0])
       : null,
     canApply,
-    applyBlockedMessage: canApply ? null : (applyCheck.reason ?? A1_APPLY_MESSAGE),
+    applyBlockedMessage,
     membership: {
       tierName: tier.name,
       jobVisibilityDelayHours: tier.jobVisibilityDelayHours,

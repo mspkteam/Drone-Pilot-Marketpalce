@@ -79,6 +79,26 @@ function UploadIcon() {
   );
 }
 
+function FileGlyph({ mimeType }: { mimeType: string | null }) {
+  const isImage = Boolean(mimeType?.startsWith("image/"));
+  return (
+    <span className="pilot-verification-attached-glyph" aria-hidden>
+      {isImage ? (
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.35">
+          <rect x="2" y="2.5" width="12" height="11" rx="1.5" />
+          <circle cx="5.5" cy="6" r="1.1" />
+          <path d="M2.5 11.5l3.2-3.2 2.1 2.1 2.4-2.8 3.3 3.9" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      ) : (
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.35">
+          <path d="M4 2.5h5.5L12.5 5.5V13.5a.5.5 0 0 1-.5.5H4.5a.5.5 0 0 1-.5-.5V2.5z" />
+          <path d="M9.5 2.5V5.5H12.5" />
+        </svg>
+      )}
+    </span>
+  );
+}
+
 export function PilotVerificationDocumentCardView({
   card,
   uploading,
@@ -88,15 +108,33 @@ export function PilotVerificationDocumentCardView({
   onRemove,
 }: PilotVerificationDocumentCardViewProps) {
   const busy = uploading || removing;
+  const verification = card.verification;
+  const hasAttachment =
+    Boolean(verification?.hasUploadedDocument) ||
+    Boolean(verification?.documentUrl) ||
+    Boolean(verification?.originalFileName) ||
+    Boolean(verification?.documentFileName);
+  const fileLabel =
+    verification?.originalFileName?.trim() ||
+    verification?.documentFileName?.trim() ||
+    (verification?.documentUrl ? "Linked document" : null);
   const canRemove =
     Boolean(onRemove) &&
-    Boolean(card.verification?.id) &&
+    Boolean(verification?.id) &&
+    hasAttachment &&
     card.uiStatus !== "approved" &&
     card.uiStatus !== "missing" &&
     card.uiStatus !== "optional";
+  const documentHref = verification?.id
+    ? `/api/pilot/verifications/${verification.id}/document`
+    : null;
 
   return (
-    <article className="pilot-verification-doc-card">
+    <article
+      className={`pilot-verification-doc-card${
+        hasAttachment ? " pilot-verification-doc-card--attached" : ""
+      }`}
+    >
       <div>
         <div className="pilot-verification-doc-top">
           <StatusIcon status={card.uiStatus} />
@@ -109,6 +147,27 @@ export function PilotVerificationDocumentCardView({
 
         <h3 className="pilot-verification-doc-title">{card.title}</h3>
         <p className="pilot-verification-doc-desc">{card.description}</p>
+
+        {hasAttachment && fileLabel ? (
+          <div className="pilot-verification-attached" role="status">
+            <FileGlyph mimeType={verification?.documentMimeType ?? null} />
+            <div className="pilot-verification-attached-copy">
+              <p className="pilot-verification-attached-label">File attached</p>
+              {documentHref ? (
+                <a
+                  href={documentHref}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="pilot-verification-attached-name"
+                >
+                  {fileLabel}
+                </a>
+              ) : (
+                <p className="pilot-verification-attached-name">{fileLabel}</p>
+              )}
+            </div>
+          </div>
+        ) : null}
 
         {card.uiStatus === "rejected" && card.adminNote ? (
           <p className="pilot-verification-doc-admin-note" role="alert">
@@ -133,9 +192,9 @@ export function PilotVerificationDocumentCardView({
             <UploadIcon />
             {uploading
               ? "Uploading…"
-              : card.uiStatus === "missing" || card.uiStatus === "optional"
-                ? "Upload File"
-                : "Replace File"}
+              : hasAttachment
+                ? "Replace File"
+                : "Upload File"}
           </button>
           {canRemove ? (
             <button

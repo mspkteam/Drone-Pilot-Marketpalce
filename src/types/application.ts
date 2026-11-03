@@ -57,6 +57,7 @@ export type PilotOpenJobDto = {
   clientAvatarUrl: string | null;
   postProject: {
     deliverables: string[];
+    quoteType: "fixed_budget" | "pilot_quotes" | null;
     quoteTypeLabel: string;
     priorityLabel: string;
     completionDate: string | null;

@@ -4,6 +4,19 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.114] — 2026-11-03
+
+### Fixed
+
+- **Proposal submit:** Draft applications no longer block the proposal form (`canApply` ignores drafts); job detail links drafts to Continue draft; `pilot_quotes` skips client budget min/max; terms confirm re-validates before POST.
+- **Verification uploads:** Cards show a clear “File attached” panel with filename (and open link) plus a full-width Remove control.
+
+### Notes
+
+- Client checklist items 1–11 remain complete except Stripe (#4) and geo/phone (#7), which stay blocked on client.
+
+---
+
 ## [0.27.113] — 2026-11-02
 
 ### Fixed

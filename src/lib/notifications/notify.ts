@@ -48,6 +48,8 @@ export type NotifyInput = {
   body: string;
   payload?: Record<string, unknown>;
   sendEmail?: boolean;
+  /** Skip user preference gates (use for profile approval / critical account mail). */
+  forceEmail?: boolean;
 };
 
 function pilotPrefAllowsEmail(
@@ -150,7 +152,9 @@ export async function sendNotification(input: NotifyInput) {
   });
 
   if (input.sendEmail !== false) {
-    const allow = await shouldSendEmail(input.userId, input.type);
+    const allow =
+      input.forceEmail === true ||
+      (await shouldSendEmail(input.userId, input.type));
     if (allow) {
       await emailUser(input.userId, input.title, input.body);
     }
@@ -159,11 +163,31 @@ export async function sendNotification(input: NotifyInput) {
   return toNotificationDto(notification);
 }
 
-/** Fire-and-forget — never throws to API callers. */
+/**
+ * Background notify helper. Prefer `await sendNotification` for approval /
+ * transactional mail so serverless runtimes do not freeze before SMTP finishes.
+ * Uses Next.js `after()` when available so other fire-and-forget paths still run.
+ */
 export function notifyAsync(fn: () => Promise<void>) {
-  void fn().catch((err) => {
-    console.error("[notify]", err);
-  });
+  const run = () =>
+    fn().catch((err) => {
+      console.error("[notify]", err);
+    });
+
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const nextServer = require("next/server") as {
+      after?: (task: () => void | Promise<void>) => void;
+    };
+    if (typeof nextServer.after === "function") {
+      nextServer.after(run);
+      return;
+    }
+  } catch {
+    /* non-Next or older runtime */
+  }
+
+  void run();
 }
 
 export async function listNotificationsForUser(

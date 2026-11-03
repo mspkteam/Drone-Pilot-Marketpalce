@@ -4,6 +4,18 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.116] — 2026-11-03
+
+### Fixed
+
+- **Approval emails:** Pilot approve/reject now **awaits** notification + SMTP (no fire-and-forget drop on serverless). Client admin Approve also sends email. Critical approval mail uses `forceEmail` so preference toggles cannot silently block it. `notifyAsync` uses Next.js `after()` when available.
+
+### Notes
+
+- Still requires SMTP env (`SMTP_HOST` / `SMTP_URL`, etc.) on production. Seed `*.local` addresses remain non-deliverable by design.
+
+---
+
 ## [0.27.115] — 2026-11-03
 
 ### Fixed

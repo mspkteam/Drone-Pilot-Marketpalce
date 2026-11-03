@@ -435,7 +435,20 @@ export function AdminPilotMemberProfile({
               >
                 Reject
               </button>
+              <a
+                href="/dashboard/admin/pilots"
+                className="admin-personnel-action"
+              >
+                Open approval queue
+              </a>
             </>
+          ) : null}
+          {pilot.status === "draft" && canEdit ? (
+            <p className="admin-member-empty">
+              Profile is still draft (onboarding incomplete). Approve becomes
+              available after the pilot submits for review. Queue:{" "}
+              <a href="/dashboard/admin/pilots">Pilot Approvals</a>
+            </p>
           ) : null}
           {canEdit && !editing ? (
             <button

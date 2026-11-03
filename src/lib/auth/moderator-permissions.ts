@@ -232,6 +232,8 @@ const NAV_HREF_MODULE: Record<string, PermissionModuleKey> = {
   "/dashboard/admin": "dashboard",
   "/dashboard/admin/reports": "reports",
   "/dashboard/admin/users": "users",
+  "/dashboard/admin/pilots": "users",
+  "/dashboard/admin/clients": "users",
   "/dashboard/admin/verifications": "verifications",
   "/dashboard/admin/regions": "configuration",
   "/dashboard/admin/squadron-voting": "disputes",

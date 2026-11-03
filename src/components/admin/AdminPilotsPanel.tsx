@@ -143,6 +143,12 @@ export function AdminPilotsPanel() {
                     Public profile
                   </Link>
                 ) : null}
+                <Link
+                  href={`/dashboard/admin/users/${p.userId}?from=pilots`}
+                  className="text-sm text-gold-dark hover:text-gold"
+                >
+                  View profile
+                </Link>
                 {p.status === "pending_review" ? (
                   <>
                     <Button

@@ -328,7 +328,9 @@ export function PilotSubmitProposalView({ jobId, initial }: PilotSubmitProposalV
       return "Enter a valid proposed amount.";
     }
     const amount = Number(form.proposedAmount);
+    const isPilotQuotes = job.postProject?.quoteType === "pilot_quotes";
     if (
+      !isPilotQuotes &&
       job.budgetMax != null &&
       Number.isFinite(job.budgetMax) &&
       amount > job.budgetMax + 0.001
@@ -336,6 +338,7 @@ export function PilotSubmitProposalView({ jobId, initial }: PilotSubmitProposalV
       return `Proposed amount cannot exceed the client budget of $${job.budgetMax.toLocaleString()}.`;
     }
     if (
+      !isPilotQuotes &&
       job.budgetMin != null &&
       Number.isFinite(job.budgetMin) &&
       amount < job.budgetMin - 0.001
@@ -451,10 +454,13 @@ export function PilotSubmitProposalView({ jobId, initial }: PilotSubmitProposalV
   const remainingDeliverables = PROPOSAL_DELIVERABLE_OPTIONS.filter(
     (item) => !form.deliverables.includes(item),
   );
+  const isPilotQuotes = job.postProject?.quoteType === "pilot_quotes";
   const amountHelper =
-    job.budgetMin != null && job.budgetMax != null
+    !isPilotQuotes && job.budgetMin != null && job.budgetMax != null
       ? `Enter amount between $${job.budgetMin.toLocaleString()} - $${job.budgetMax.toLocaleString()}`
-      : "Enter your proposed amount for this mission.";
+      : isPilotQuotes
+        ? "Pilot quotes — enter your proposed amount for this mission."
+        : "Enter your proposed amount for this mission.";
 
   return (
     <div className="pilot-submit-page">
@@ -931,11 +937,21 @@ export function PilotSubmitProposalView({ jobId, initial }: PilotSubmitProposalV
         acknowledged={form.termsAcknowledged}
         loading={submitting}
         onAcknowledgedChange={(acknowledged) =>
-          setForm((current) => ({ ...current, termsAcknowledged: acknowledged }))
+          setForm((current) => ({
+            ...current,
+            termsAcknowledged: acknowledged,
+            accuracyConfirmed: acknowledged,
+          }))
         }
         onCancel={() => setTermsOpen(false)}
         onSubmit={() => {
           if (!form.termsAcknowledged) return;
+          const nextError = validateBeforeModal();
+          if (nextError) {
+            setError(nextError);
+            setTermsOpen(false);
+            return;
+          }
           void submitProposal();
         }}
       />

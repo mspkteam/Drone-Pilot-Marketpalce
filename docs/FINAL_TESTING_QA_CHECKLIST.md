@@ -5,7 +5,17 @@ Annotated PDF: `Final_Testing_QA_Checklist_v3 (1).pdf` (Morosoft sticky comments
 
 Marks: **Done** · **Partial** · **Blocked on client**
 
-**Totals (v0.27.113):** Done 65 · Partial 0 · Blocked on client 8 · New verification QA covered below
+**Totals (v0.27.114):** Done 65 · Partial 0 · Blocked on client 8 · New verification QA covered below
+
+### First 11 Client checklist rows (pages/items 1–11)
+
+| # | Item | Status |
+|---|------|--------|
+| 1–3, 5–6, 8–11 | Password eye, onboarding banner, dates, support button, profile edit, file picker, step-bleed, completion date, terms | **Done** |
+| 4 | BILLING (payment method) | **Blocked on client (Stripe)** |
+| 7 | Country / region / phone worldwide vs US | **Blocked on client** |
+
+Proposal submit blocker from Morosoft sticky extras: fixed in v0.27.114 (drafts no longer lock the form).
 
 ---
 

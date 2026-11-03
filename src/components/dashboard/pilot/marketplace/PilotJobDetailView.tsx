@@ -122,10 +122,16 @@ export function PilotJobDetailView({ detail }: PilotJobDetailViewProps) {
                 </div>
               ) : null}
               <Link
-                href={`/dashboard/pilot/proposals/${application.id}`}
+                href={
+                  application.status === "draft"
+                    ? `/dashboard/pilot/jobs/${job.id}/proposal`
+                    : `/dashboard/pilot/proposals/${application.id}`
+                }
                 className="pilot-job-detail-cta pilot-job-detail-cta--outline"
               >
-                View proposal details →
+                {application.status === "draft"
+                  ? "Continue draft →"
+                  : "View proposal details →"}
               </Link>
             </>
           ) : canApply ? (

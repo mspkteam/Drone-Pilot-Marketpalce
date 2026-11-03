@@ -210,14 +210,14 @@ export async function approvePilotProfile(pilotProfileId: string) {
     data: { status: "approved", isPublic: true },
   });
 
-  notifyAsync(async () => {
-    await sendNotification({
-      userId: profile.userId,
-      type: "welcome",
-      title: "Pilot profile approved",
-      body: `Your pilot profile (${profile.displayName}) is approved. You can browse jobs and submit bids.`,
-      payload: { pilotProfileId },
-    });
+  // Await email so serverless hosts do not freeze before SMTP completes.
+  await sendNotification({
+    userId: profile.userId,
+    type: "welcome",
+    title: "Pilot profile approved",
+    body: `Your pilot profile (${profile.displayName}) is approved. You can browse jobs and submit bids.`,
+    payload: { pilotProfileId },
+    forceEmail: true,
   });
 
   await evaluatePilotAwards(pilotProfileId);
@@ -248,14 +248,13 @@ export async function rejectPilotProfile(pilotProfileId: string) {
     data: { status: "rejected", isPublic: false },
   });
 
-  notifyAsync(async () => {
-    await sendNotification({
-      userId: profile.userId,
-      type: "welcome",
-      title: "Pilot profile needs updates",
-      body: `Your profile (${profile.displayName}) was not approved. Update your details and resubmit onboarding.`,
-      payload: { pilotProfileId },
-    });
+  await sendNotification({
+    userId: profile.userId,
+    type: "welcome",
+    title: "Pilot profile needs updates",
+    body: `Your profile (${profile.displayName}) was not approved. Update your details and resubmit onboarding.`,
+    payload: { pilotProfileId },
+    forceEmail: true,
   });
 
   return { ok: true as const };

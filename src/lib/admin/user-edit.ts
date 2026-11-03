@@ -8,6 +8,7 @@ import {
   parseBillingAddress,
   serializeBillingAddress,
 } from "@/lib/client/profile";
+import { sendNotification } from "@/lib/notifications/notify";
 import type { AdminUserEditDto } from "@/types/admin-user-edit";
 import { USER_ACCOUNT_STATUSES } from "@/types/admin-user-edit";
 import { displayMemberNumber } from "@/lib/members/member-number";
@@ -394,9 +395,33 @@ export async function updateUserByAdmin(
     }
   });
 
+  const previousClientStatus = existing.clientProfile?.status ?? null;
+  const nextClientStatus = input.client?.status;
+  const clientWasApproved =
+    Boolean(existing.clientProfile) &&
+    nextClientStatus === "active" &&
+    previousClientStatus != null &&
+    previousClientStatus !== "active";
+
   const updated = await getUserForAdminEdit(userId);
   if (!updated) {
     return { ok: false, error: "User not found after update.", status: 404 };
   }
+
+  if (clientWasApproved) {
+    const contactName =
+      updated.client?.contactName?.trim() ||
+      existing.clientProfile?.contactName ||
+      "Client";
+    await sendNotification({
+      userId,
+      type: "welcome",
+      title: "Client profile approved",
+      body: `Your client profile (${contactName}) is approved. You can post projects and hire pilots.`,
+      payload: { clientProfileId: existing.clientProfile?.id },
+      forceEmail: true,
+    });
+  }
+
   return { ok: true, user: updated };
 }

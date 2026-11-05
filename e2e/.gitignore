@@ -1,0 +1,12 @@
+.env
+!.env.example
+node_modules/
+test-results/
+playwright-report/
+blob-report/
+artifacts/screenshots/**
+artifacts/exploration/**
+!artifacts/screenshots/.gitkeep
+!artifacts/exploration/.gitkeep
+auth-storage/
+*.log

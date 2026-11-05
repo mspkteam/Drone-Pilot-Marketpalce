@@ -4,6 +4,20 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.117] — 2026-11-05
+
+### Changed
+
+- **Global geo (US default):** Pilot profile onboarding and client post-project location use `CountrySelect` with default **United States**.
+- **Support hours / no auto-replies:** Removed automatic system confirmation message on new support chats. Widget + contact page post M–F 9 AM–5 PM CST hours, closed U.S. holidays, 48h weekday / 72h weekend-holiday reply SLA; live staff support only.
+- **Pilot profile wings ~200%:** Highest-wing and wing badge display sizes doubled on public profile and pilot profile onboarding preview (`WingBadge` `lg` + CSS).
+
+### Notes
+
+- Stripe / bank payout wiring still blocked pending a 30‑minute client call (payment details not updated yet).
+
+---
+
 ## [0.27.116] — 2026-11-03
 
 ### Fixed

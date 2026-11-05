@@ -16,6 +16,7 @@ import { TypingIndicator } from "@/components/support/TypingIndicator";
 import { inputClassName } from "@/components/ui/FormField";
 import {
   SUPPORT_CLOSED_USER_MESSAGE,
+  SUPPORT_HOURS_NOTICE,
   SUPPORT_INACTIVITY_CLOSE_MS,
   SUPPORT_RESOLVED_USER_MESSAGE,
 } from "@/lib/support/constants";
@@ -515,8 +516,11 @@ function SupportChatWidgetInner({
               className="flex min-h-0 flex-1 flex-col overflow-y-auto p-4"
             >
               <p className="text-sm leading-relaxed text-muted-foreground">
-                Need help? Send us a message and our support team will get back
-                to you.
+                Need help? Send a message — a support teammate will reply in
+                real time during posted hours (no automated replies).
+              </p>
+              <p className="mt-3 rounded-md border border-border bg-surface/80 px-3 py-2 text-xs leading-relaxed text-muted-foreground">
+                {SUPPORT_HOURS_NOTICE}
               </p>
               <label className="mt-4 block text-xs font-medium text-foreground">
                 Full name *
@@ -574,6 +578,9 @@ function SupportChatWidgetInner({
             </form>
           ) : (
             <div className="flex min-h-0 flex-1 flex-col">
+              <p className="shrink-0 border-b border-border bg-surface/80 px-4 py-2 text-[0.7rem] leading-relaxed text-muted-foreground">
+                {SUPPORT_HOURS_NOTICE}
+              </p>
               <div className="min-h-0 flex-1 space-y-3 overflow-y-auto p-4">
                 {thread?.messages.map((m) => (
                   <SupportMessageBubble

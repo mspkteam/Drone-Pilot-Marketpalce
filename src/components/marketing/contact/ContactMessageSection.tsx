@@ -17,7 +17,9 @@ export function ContactMessageSection() {
                 Send a Message
               </h2>
               <p className="mt-4 text-sm leading-relaxed text-ras-soft sm:text-base">
-                We respond within 1–2 business days.
+                Support hours: Mon–Fri 9 AM–5 PM CST (closed U.S. holidays).
+                Allow up to 48 hours on weekdays, or 72 hours for weekend/holiday
+                requests. Live support — no automated replies.
               </p>
             </div>
             <ContactForm />

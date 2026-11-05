@@ -408,7 +408,7 @@ export function PublicPilotProfile({
                       iconLabel={w.iconLabel}
                       imageUrl={w.imageUrl}
                       category={w.category}
-                      size="sm"
+                      size="lg"
                     />
                   ))}
                   {pilot.approvedCredentials.map((c) => (
@@ -433,7 +433,7 @@ export function PublicPilotProfile({
                   <img
                     src={pilot.highestWing.imageUrl}
                     alt=""
-                    className="h-8 w-24 object-contain object-left"
+                    className="h-16 w-48 object-contain object-left"
                   />
                 ) : (
                   <WingBadge
@@ -441,7 +441,7 @@ export function PublicPilotProfile({
                     iconLabel={pilot.highestWing.iconLabel}
                     imageUrl={pilot.highestWing.imageUrl}
                     category={pilot.highestWing.category}
-                    size="sm"
+                    size="lg"
                   />
                 )}
                 <p className="mt-2 text-[0.5625rem] font-semibold uppercase tracking-[0.12em] text-[#d8b339]">

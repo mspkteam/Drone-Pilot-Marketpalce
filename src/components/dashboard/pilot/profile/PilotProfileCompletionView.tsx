@@ -12,6 +12,7 @@ import {
   pilotFormToPayload,
   type PilotFormState,
 } from "@/components/pilot/PilotProfileFormFields";
+import { CountrySelect } from "@/components/ui/CountrySelect";
 import { validateComplianceAcknowledgments } from "@/lib/pilot/compliance";
 import { computePilotProfileStrength } from "@/lib/pilot/pilot-profile-strength";
 import {
@@ -972,11 +973,11 @@ export function PilotProfileCompletionView({
                 <label className="profile-onboarding-label" htmlFor="locationCountry">
                   COUNTRY
                 </label>
-                <input
+                <CountrySelect
                   id="locationCountry"
                   className="profile-onboarding-input"
                   value={form.locationCountry}
-                  onChange={(e) => patchForm({ locationCountry: e.target.value })}
+                  onChange={(locationCountry) => patchForm({ locationCountry })}
                   disabled={fieldsLocked || loading}
                   required
                 />

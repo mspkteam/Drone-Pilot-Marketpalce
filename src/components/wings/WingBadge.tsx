@@ -8,7 +8,7 @@ type WingBadgeProps = {
   iconLabel?: string | null;
   imageUrl?: string | null;
   category?: WingCategory;
-  size?: "sm" | "md";
+  size?: "sm" | "md" | "lg";
   className?: string;
 };
 
@@ -33,7 +33,11 @@ export function WingBadge({
       title={`${title} · ${getWingCategoryLabel(category)}`}
       className={cn(
         "inline-flex items-center gap-1.5 rounded-full border font-medium",
-        size === "sm" ? "px-2.5 py-0.5 text-xs" : "px-3 py-1 text-sm",
+        size === "sm"
+          ? "px-2.5 py-0.5 text-xs"
+          : size === "md"
+            ? "px-3 py-1 text-sm"
+            : "gap-2 px-4 py-1.5 text-base",
         categoryTone[category],
         className,
       )}
@@ -45,20 +49,22 @@ export function WingBadge({
           alt=""
           className={cn(
             "shrink-0 object-contain",
-            size === "sm" ? "size-5" : "size-6",
+            size === "sm" ? "size-5" : size === "md" ? "size-6" : "size-10",
           )}
         />
       ) : (
         <span
           className={cn(
             "inline-flex shrink-0 items-center justify-center rounded-full bg-background/60 text-current",
-            size === "sm" ? "size-5" : "size-6",
+            size === "sm" ? "size-5" : size === "md" ? "size-6" : "size-10",
           )}
           aria-hidden
         >
           <BadgeWingIcon
             type={iconType}
-            className={size === "sm" ? "size-3.5" : "size-4"}
+            className={
+              size === "sm" ? "size-3.5" : size === "md" ? "size-4" : "size-6"
+            }
           />
         </span>
       )}

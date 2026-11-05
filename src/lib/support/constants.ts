@@ -19,8 +19,15 @@ export const SUPPORT_MAX_BYTES = 5 * 1024 * 1024;
 /** Max files selectable per message / new chat. */
 export const SUPPORT_MAX_ATTACHMENTS = 5;
 
-export const SUPPORT_CONFIRMATION_MESSAGE =
-  "Thanks for reaching out. Our support team will catch up with you within 10–15 minutes. You can keep this chat open and continue the conversation here.";
+/**
+ * Posted support hours / SLA (client policy).
+ * Live chat is staffed — no automated chat replies.
+ */
+export const SUPPORT_HOURS_NOTICE =
+  "Support hours: Monday–Friday, 9:00 AM–5:00 PM Central Time (CST). Closed Saturdays, Sundays, and all U.S. federal holidays. Live support — no automated replies. Please allow up to 48 hours for a reply on weekdays, and up to 72 hours for requests submitted on weekends or holidays.";
+
+/** @deprecated Auto confirmation disabled — hours notice is shown in the UI instead. */
+export const SUPPORT_CONFIRMATION_MESSAGE = SUPPORT_HOURS_NOTICE;
 
 export const SUPPORT_RESOLVED_USER_MESSAGE =
   "Your issue has been marked as resolved. You can still send a follow-up below if you need anything else.";

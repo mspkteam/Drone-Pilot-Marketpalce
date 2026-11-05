@@ -8,7 +8,6 @@ import {
   writeSupportFile,
 } from "@/lib/support/storage";
 import {
-  SUPPORT_CONFIRMATION_MESSAGE,
   SUPPORT_INACTIVITY_CLOSE_MESSAGE,
   SUPPORT_MAX_ATTACHMENTS,
 } from "@/lib/support/constants";
@@ -247,15 +246,7 @@ export async function createSupportChat(input: {
         await persistAttachmentOnMessage(extraMessage.id, extra, tx);
       }
 
-      await tx.supportChatMessage.create({
-        data: {
-          supportChatId: created.id,
-          senderRole: "system",
-          senderName: "Support",
-          message: SUPPORT_CONFIRMATION_MESSAGE,
-          isSystem: true,
-        },
-      });
+      // No automated chat replies — staff respond live during posted hours.
 
       return created;
     });

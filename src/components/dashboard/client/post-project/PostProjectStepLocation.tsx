@@ -1,4 +1,5 @@
 import { LocationPinIcon, PlusIcon } from "@/components/dashboard/client/post-project/PostProjectIcons";
+import { CountrySelect } from "@/components/ui/CountrySelect";
 import {
   emptyPostProjectLocation,
   type PostProjectFieldErrors,
@@ -71,12 +72,11 @@ export function PostProjectStepLocation({
                 </label>
                 <label className="client-post-project-field">
                   <span className="client-post-project-field-label">Country</span>
-                  <input
-                    type="text"
+                  <CountrySelect
+                    id={`post-project-country-${index}`}
                     className="client-post-project-input"
-                    placeholder="United States"
                     value={location.country}
-                    onChange={(e) => updateLocation(index, { country: e.target.value })}
+                    onChange={(country) => updateLocation(index, { country })}
                   />
                 </label>
                 <label className="client-post-project-field">

@@ -94,8 +94,10 @@ export function ContactForm() {
         role="status"
       >
         <p className="text-sm leading-relaxed text-gold">
-          Thanks for reaching out. We&apos;ll respond to {email} within 1–2
-          business days.
+          Thanks for reaching out. We&apos;ll reply to {email} during support
+          hours (Mon–Fri 9 AM–5 PM CST). Please allow up to 48 hours on
+          weekdays, or up to 72 hours for messages sent on weekends or U.S.
+          holidays.
         </p>
       </div>
     );

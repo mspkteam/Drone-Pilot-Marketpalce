@@ -5,15 +5,14 @@ Annotated PDF: `Final_Testing_QA_Checklist_v3 (1).pdf` (Morosoft sticky comments
 
 Marks: **Done** · **Partial** · **Blocked on client**
 
-**Totals (v0.27.114):** Done 65 · Partial 0 · Blocked on client 8 · New verification QA covered below
+**Totals (v0.27.117):** Done 67 · Partial 0 · Blocked on client 6 · New verification QA covered below
 
 ### First 11 Client checklist rows (pages/items 1–11)
 
 | # | Item | Status |
 |---|------|--------|
-| 1–3, 5–6, 8–11 | Password eye, onboarding banner, dates, support button, profile edit, file picker, step-bleed, completion date, terms | **Done** |
-| 4 | BILLING (payment method) | **Blocked on client (Stripe)** |
-| 7 | Country / region / phone worldwide vs US | **Blocked on client** |
+| 1–3, 5–6, 7–11 | Password eye, onboarding banner, dates, support button, profile edit, country default US (global select), file picker, step-bleed, completion date, terms | **Done** |
+| 4 | BILLING (payment method) | **Blocked on client (Stripe)** — schedule 30‑min payments call |
 
 Proposal submit blocker from Morosoft sticky extras: fixed in v0.27.114 (drafts no longer lock the form).
 
@@ -29,7 +28,7 @@ Proposal submit blocker from Morosoft sticky extras: fixed in v0.27.114 (drafts 
 | 4 | BILLING (payment method) | Blocked on client (Stripe) | |
 | 5 | Talk to Support button radius / font color | Done | |
 | 6 | Profile fields not editable by default; Edit option | Done | |
-| 7 | Country / region / phone worldwide vs US | Blocked on client | |
+| 7 | Country / region / phone worldwide vs US | Done | Global CountrySelect; defaults to United States (pilot profile + post-project). Phone formatting still open if needed. |
 | 8 | File upload icon + stop showing bare “Choose file” after upload | Done | Morosoft sticky reconsider — custom picker + filename list on proposal attach and post-project references (v0.27.113) |
 | 9 | Post a project: hide step-bleed fields | Done | Budget min/max only when `fixed_budget`; travel amounts only when covering travel |
 | 10 | Step 4 Expected Project Completion Date + date conflict | Done | Label + server/client date order check |
@@ -90,7 +89,7 @@ Proposal submit blocker from Morosoft sticky extras: fixed in v0.27.114 (drafts 
 | 27 | Admin wing notification | Done | |
 | 28 | Product pictures vs name | Blocked on client | Need product-specific shop assets |
 | 29 | Payment + SMTP realtime | Blocked on client | |
-| 30 | Support chat automated | Blocked on client | |
+| 30 | Support chat automated | Done | No auto chat replies. Posted hours M–F 9–5 CST + 48h/72h SLA in widget + contact page (v0.27.117) |
 | 31 | Rank progress ≠ profile progress | Done (0.27.98) | |
 | 32 | License number on pilot dashboard profile | Done | |
 | 33 | Verification amendments vs Rejected / comments on every card | Done | |
@@ -127,4 +126,4 @@ Proposal submit blocker from Morosoft sticky extras: fixed in v0.27.114 (drafts 
 
 ---
 
-When client answers Stripe / geo-phone / support automation / shop artwork, re-open Wave 5 and re-mark those rows.
+When client answers Stripe bank details / shop artwork / remaining phone formatting, re-open Wave 5 and re-mark those rows.

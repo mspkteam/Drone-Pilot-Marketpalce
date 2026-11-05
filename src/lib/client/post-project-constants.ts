@@ -1,3 +1,4 @@
+import { DEFAULT_COUNTRY } from "@/lib/geo/countries";
 import type { JobCategoryId } from "@/types/job";
 
 export const POST_PROJECT_SERVICES = [
@@ -108,7 +109,7 @@ export const emptyPostProjectTravelExpenses = (): PostProjectTravelExpenses => (
 export const emptyPostProjectLocation = (): PostProjectLocation => ({
   address: "",
   city: "",
-  country: "",
+  country: DEFAULT_COUNTRY,
   state: "",
 });
 

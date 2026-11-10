@@ -1,5 +1,7 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { MembershipRankBadge } from "@/components/membership/MembershipRankBadge";
+import { PublicPilotProfilePdfButton } from "@/components/pilots/PublicPilotProfilePdfButton";
 import { StarRating } from "@/components/reviews/StarRating";
 import { SubscriptionStatusBadge } from "@/components/subscriptions/SubscriptionStatusBadge";
 import { Button } from "@/components/ui/Button";
@@ -291,11 +293,39 @@ function ServiceChip({ label }: { label: string }) {
   );
 }
 
-function CredentialChip({ label }: { label: string }) {
+function CredentialChip({
+  label,
+  size = "md",
+}: {
+  label: string;
+  size?: "md" | "lg";
+}) {
   return (
-    <span className="inline-flex items-center rounded-full border border-[rgba(216,179,57,0.35)] bg-[rgba(216,179,57,0.12)] px-2.5 py-0.5 text-xs font-medium leading-none text-gold-light">
+    <span
+      className={cn(
+        "inline-flex items-center rounded-full border border-[rgba(216,179,57,0.35)] bg-[rgba(216,179,57,0.12)] font-medium leading-snug text-gold-light",
+        size === "lg" ? "px-4 py-2 text-sm" : "px-2.5 py-0.5 text-xs leading-none",
+      )}
+    >
       {label}
     </span>
+  );
+}
+
+function BadgeSection({
+  title,
+  children,
+}: {
+  title: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="space-y-3">
+      <p className="text-[0.65rem] font-semibold uppercase tracking-[0.16em] text-[#a3a3a3]">
+        {title}
+      </p>
+      <div className="flex flex-wrap items-center gap-3">{children}</div>
+    </div>
   );
 }
 
@@ -330,6 +360,13 @@ export function PublicPilotProfile({
 
   return (
     <div className="figma-pilot-public">
+      <div className="mb-4 flex justify-end">
+        <PublicPilotProfilePdfButton
+          pilotId={pilot.id}
+          displayName={pilot.displayName}
+        />
+      </div>
+
       {/* Hero — Figma 1604:2258 */}
       <article className="figma-pilot-public-hero relative overflow-hidden">
         <div
@@ -396,31 +433,46 @@ export function PublicPilotProfile({
             ) : null}
 
             {hasBadges ? (
-              <div className="mt-8">
-                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-ras-dim-alt">
+              <div className="mt-8 space-y-5">
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-ras-dim-alt">
                   Digital wings &amp; verifications
                 </p>
-                <div className="flex flex-wrap items-center gap-2">
-                  {pilot.wings.map((w) => (
-                    <WingBadge
-                      key={w.code}
-                      title={w.title}
-                      iconLabel={w.iconLabel}
-                      imageUrl={w.imageUrl}
-                      category={w.category}
-                      size="lg"
-                    />
-                  ))}
-                  {pilot.approvedCredentials.map((c) => (
-                    <CredentialChip key={c.catalogId} label={c.title} />
-                  ))}
-                  {pilot.certificates.map((cert) => (
-                    <CredentialChip
-                      key={cert.id}
-                      label={cert.templateName}
-                    />
-                  ))}
-                </div>
+                {pilot.wings.length > 0 ? (
+                  <BadgeSection title="Wings">
+                    {pilot.wings.map((w) => (
+                      <WingBadge
+                        key={w.code}
+                        title={w.title}
+                        iconLabel={w.iconLabel}
+                        imageUrl={w.imageUrl}
+                        category={w.category}
+                        size="xl"
+                      />
+                    ))}
+                  </BadgeSection>
+                ) : null}
+                {pilot.approvedCredentials.length > 0 ? (
+                  <BadgeSection title="Verifications">
+                    {pilot.approvedCredentials.map((c) => (
+                      <CredentialChip
+                        key={c.catalogId}
+                        label={c.title}
+                        size="lg"
+                      />
+                    ))}
+                  </BadgeSection>
+                ) : null}
+                {pilot.certificates.length > 0 ? (
+                  <BadgeSection title="Certificates">
+                    {pilot.certificates.map((cert) => (
+                      <CredentialChip
+                        key={cert.id}
+                        label={cert.templateName}
+                        size="lg"
+                      />
+                    ))}
+                  </BadgeSection>
+                ) : null}
               </div>
             ) : null}
           </div>
@@ -433,7 +485,7 @@ export function PublicPilotProfile({
                   <img
                     src={pilot.highestWing.imageUrl}
                     alt=""
-                    className="h-16 w-48 object-contain object-left"
+                    className="h-32 w-96 max-w-full object-contain object-left"
                   />
                 ) : (
                   <WingBadge
@@ -441,7 +493,7 @@ export function PublicPilotProfile({
                     iconLabel={pilot.highestWing.iconLabel}
                     imageUrl={pilot.highestWing.imageUrl}
                     category={pilot.highestWing.category}
-                    size="lg"
+                    size="xl"
                   />
                 )}
                 <p className="mt-2 text-[0.5625rem] font-semibold uppercase tracking-[0.12em] text-[#d8b339]">

@@ -8,9 +8,36 @@ type WingBadgeProps = {
   iconLabel?: string | null;
   imageUrl?: string | null;
   category?: WingCategory;
-  size?: "sm" | "md" | "lg";
+  size?: "sm" | "md" | "lg" | "xl";
   className?: string;
 };
+
+const sizeClasses = {
+  sm: {
+    shell: "gap-1.5 px-2.5 py-0.5 text-xs",
+    image: "size-5",
+    iconWrap: "size-5",
+    icon: "size-3.5",
+  },
+  md: {
+    shell: "gap-1.5 px-3 py-1 text-sm",
+    image: "size-6",
+    iconWrap: "size-6",
+    icon: "size-4",
+  },
+  lg: {
+    shell: "gap-2 px-4 py-1.5 text-base",
+    image: "size-10",
+    iconWrap: "size-10",
+    icon: "size-6",
+  },
+  xl: {
+    shell: "gap-3 px-5 py-2.5 text-xl leading-snug",
+    image: "size-20",
+    iconWrap: "size-20",
+    icon: "size-12",
+  },
+} as const;
 
 const categoryTone: Record<WingCategory, string> = {
   milestone: "border-gold/40 bg-gold/15 text-gold-light",
@@ -27,17 +54,14 @@ export function WingBadge({
   className,
 }: WingBadgeProps) {
   const iconType = resolveBadgeIconType(iconLabel);
+  const sizes = sizeClasses[size];
 
   return (
     <span
       title={`${title} · ${getWingCategoryLabel(category)}`}
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full border font-medium",
-        size === "sm"
-          ? "px-2.5 py-0.5 text-xs"
-          : size === "md"
-            ? "px-3 py-1 text-sm"
-            : "gap-2 px-4 py-1.5 text-base",
+        "inline-flex max-w-full items-center rounded-full border font-medium",
+        sizes.shell,
         categoryTone[category],
         className,
       )}
@@ -47,28 +71,20 @@ export function WingBadge({
         <img
           src={imageUrl}
           alt=""
-          className={cn(
-            "shrink-0 object-contain",
-            size === "sm" ? "size-5" : size === "md" ? "size-6" : "size-10",
-          )}
+          className={cn("shrink-0 object-contain", sizes.image)}
         />
       ) : (
         <span
           className={cn(
             "inline-flex shrink-0 items-center justify-center rounded-full bg-background/60 text-current",
-            size === "sm" ? "size-5" : size === "md" ? "size-6" : "size-10",
+            sizes.iconWrap,
           )}
           aria-hidden
         >
-          <BadgeWingIcon
-            type={iconType}
-            className={
-              size === "sm" ? "size-3.5" : size === "md" ? "size-4" : "size-6"
-            }
-          />
+          <BadgeWingIcon type={iconType} className={sizes.icon} />
         </span>
       )}
-      <span>{title}</span>
+      <span className="min-w-0 break-words">{title}</span>
     </span>
   );
 }

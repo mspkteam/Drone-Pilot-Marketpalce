@@ -4,6 +4,18 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.118] — 2026-11-10
+
+### Added
+
+- **Public profile PDF:** Download PDF button at the top of public pilot profiles (`GET /api/pilots/[id]/pdf`) exports the same profile content (identity, services, wings, verifications, certificates, equipment, reviews).
+
+### Changed
+
+- **Public profile wings layout:** Wing badges use a larger `xl` size (~2× prior), highest-wing art doubled again, and wings / verifications / certificates are separated into clearer labeled rows with improved spacing.
+
+---
+
 ## [0.27.117] — 2026-11-05
 
 ### Changed

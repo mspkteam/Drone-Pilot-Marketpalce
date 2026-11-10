@@ -90,7 +90,16 @@ function sanitizeClientPreferencesPatch(
       : [];
   }
   if (Object.prototype.hasOwnProperty.call(input, "logoPath")) {
-    patch.logoPath = input.logoPath ?? null;
+    const logo = input.logoPath ?? null;
+    // Never persist raw data:/blob: previews — only hosted upload URLs.
+    if (
+      typeof logo === "string" &&
+      (logo.startsWith("data:") || logo.startsWith("blob:"))
+    ) {
+      patch.logoPath = null;
+    } else {
+      patch.logoPath = logo;
+    }
   }
   if (Object.prototype.hasOwnProperty.call(input, "notifications")) {
     patch.notifications = input.notifications;

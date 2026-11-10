@@ -4,6 +4,14 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.124] — 2026-11-10
+
+### Fixed
+
+- **Client profile Save:** POST create-or-updates when an admin draft profile already exists (no more generic create failure). Ignores raw `data:`/`blob:` logo previews. Save keeps local profile state so the next click uses PATCH.
+
+---
+
 ## [0.27.123] — 2026-11-10
 
 ### Added

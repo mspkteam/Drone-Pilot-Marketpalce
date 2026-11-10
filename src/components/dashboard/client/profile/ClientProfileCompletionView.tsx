@@ -90,6 +90,9 @@ export function ClientProfileCompletionView({
   const logoInputRef = useRef<HTMLInputElement>(null);
   const objectUrlRef = useRef<string | null>(null);
 
+  const [savedProfile, setSavedProfile] = useState<ClientProfileDto | null>(
+    profile,
+  );
   const [form, setForm] = useState<ClientFormState>(() =>
     profile ? clientDtoToFormState(profile) : emptyClientFormState,
   );
@@ -163,8 +166,8 @@ export function ClientProfileCompletionView({
     if (logoInputRef.current) logoInputRef.current.value = "";
   }
 
-  const canEdit = !profile || profile.status !== "suspended";
-  const needsOnboarding = !profile?.onboardingCompletedAt;
+  const canEdit = !savedProfile || savedProfile.status !== "suspended";
+  const needsOnboarding = !savedProfile?.onboardingCompletedAt;
   const [isEditing, setIsEditing] = useState(needsOnboarding);
   const fieldsLocked = !canEdit || (!needsOnboarding && !isEditing);
 
@@ -219,13 +222,16 @@ export function ClientProfileCompletionView({
         logoPath: extras.logoPreview,
       },
     };
-    const method = profile ? "PATCH" : "POST";
+    const method = savedProfile ? "PATCH" : "POST";
     const res = await fetch("/api/client/profile", {
       method,
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
-    const data = await res.json();
+    const data = (await res.json()) as {
+      error?: string;
+      profile?: ClientProfileDto;
+    };
     setLoading(false);
 
     if (!res.ok) {
@@ -233,7 +239,13 @@ export function ClientProfileCompletionView({
       return;
     }
 
-    setForm(mergedForm);
+    if (data.profile) {
+      setSavedProfile(data.profile);
+      setForm(clientDtoToFormState(data.profile));
+      setExtras(buildClientExtras(data.profile, accountEmail));
+    } else {
+      setForm(mergedForm);
+    }
     setSuccess(
       needsOnboarding
         ? "Client profile saved. You can post projects after setup is complete."
@@ -244,11 +256,11 @@ export function ClientProfileCompletionView({
 
   return (
     <form className="profile-onboarding-page" onSubmit={(e) => void handleSave(e)}>
-      {profile ? (
+      {savedProfile ? (
         <p className="text-sm text-ras-muted">
           Status:{" "}
           <span className="font-semibold text-gold">
-            {getClientProfileStatusLabel(profile.status)}
+            {getClientProfileStatusLabel(savedProfile.status)}
           </span>
         </p>
       ) : null}

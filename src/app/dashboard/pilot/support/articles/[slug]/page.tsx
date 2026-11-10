@@ -3,10 +3,7 @@ import { auth } from "@/auth";
 import { PilotHelpArticleView } from "@/components/dashboard/pilot/support/PilotHelpArticleView";
 import { DashboardPageLayout } from "@/components/dashboard";
 import { getHelpArticleBySlug } from "@/lib/help/help-articles";
-import {
-  getPilotProfileByUserId,
-  isOnboardingComplete,
-} from "@/lib/pilot/profile";
+import { getPilotProfileByUserId } from "@/lib/pilot/profile";
 import "@/styles/pilot-support.css";
 
 type PageProps = {
@@ -26,7 +23,7 @@ export default async function PilotHelpArticlePage({ params }: PageProps) {
   }
 
   const profile = await getPilotProfileByUserId(session.user.id);
-  if (!profile || !isOnboardingComplete(profile)) {
+  if (!profile) {
     redirect("/dashboard/pilot/profile");
   }
 

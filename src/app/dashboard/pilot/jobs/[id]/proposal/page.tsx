@@ -4,10 +4,7 @@ import { auth } from "@/auth";
 import { PilotSubmitProposalView } from "@/components/dashboard/pilot/proposals/PilotSubmitProposalView";
 import { DashboardPageLayout, DashboardStatusBanner } from "@/components/dashboard";
 import { getOpenJobForPilot } from "@/lib/applications/application";
-import {
-  getPilotProfileByUserId,
-  isOnboardingComplete,
-} from "@/lib/pilot/profile";
+import { getPilotProfileByUserId } from "@/lib/pilot/profile";
 import "@/styles/pilot-submit-proposal.css";
 
 export const metadata = { title: "Submit Proposal" };
@@ -23,7 +20,7 @@ export default async function PilotSubmitProposalPage({ params }: PageProps) {
   }
 
   const profile = await getPilotProfileByUserId(session.user.id);
-  if (!profile || !isOnboardingComplete(profile)) {
+  if (!profile) {
     redirect("/dashboard/pilot/profile");
   }
 

@@ -3,10 +3,7 @@ import { auth } from "@/auth";
 import { PilotProposalDetailView } from "@/components/dashboard/pilot/proposals/PilotProposalDetailView";
 import { DashboardPageLayout } from "@/components/dashboard";
 import { getApplicationForPilot } from "@/lib/applications/application";
-import {
-  getPilotProfileByUserId,
-  isOnboardingComplete,
-} from "@/lib/pilot/profile";
+import { getPilotProfileByUserId } from "@/lib/pilot/profile";
 import "@/styles/pilot-proposals.css";
 
 export const metadata = { title: "Proposal details" };
@@ -22,7 +19,7 @@ export default async function PilotProposalDetailPage({ params }: PageProps) {
   }
 
   const profile = await getPilotProfileByUserId(session.user.id);
-  if (!profile || !isOnboardingComplete(profile)) {
+  if (!profile) {
     redirect("/dashboard/pilot/profile");
   }
 

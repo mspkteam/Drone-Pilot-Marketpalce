@@ -44,3 +44,7 @@ export function hireCaptainHref(role: HireViewerRole): string | null {
 export function clientPilotProfileHref(pilotProfileId: string): string {
   return `/dashboard/client/find-pilots/${pilotProfileId}`;
 }
+
+export function publicPilotProfileHref(pilotProfileId: string): string {
+  return `/pilots/${pilotProfileId}`;
+}

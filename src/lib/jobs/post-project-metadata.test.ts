@@ -41,6 +41,34 @@ describe("job post-project metadata", () => {
     assert.equal(parseJobPostProjectMetadata(JSON.stringify({ serviceId: "nope" })), null);
   });
 
+  it("strips travel amounts when coverTravelExpenses is false", () => {
+    const parsed = parseJobPostProjectMetadata(
+      JSON.stringify({
+        serviceId: "roof_inspection",
+        quoteType: "pilot_quotes",
+        priority: "standard",
+        locations: [],
+        deliverables: ["Photos"],
+        referenceFileNames: [],
+        travel: {
+          coverTravelExpenses: false,
+          airTravel: 500,
+          lodging: 300,
+          incidentals: 150,
+          groundTransport: 100,
+        },
+      }),
+    );
+
+    assert.deepEqual(parsed?.travel, {
+      coverTravelExpenses: false,
+      airTravel: null,
+      lodging: null,
+      incidentals: null,
+      groundTransport: null,
+    });
+  });
+
   it("migrates legacy location stateCountry into country", () => {
     const parsed = parseJobPostProjectMetadata(
       JSON.stringify({

@@ -3,10 +3,7 @@ import { auth } from "@/auth";
 import { ClientDisputeDetail } from "@/components/dashboard/client/disputes/ClientDisputeDetail";
 import { DashboardPageLayout } from "@/components/dashboard";
 import { getDisputeForPilot } from "@/lib/disputes/dispute";
-import {
-  getPilotProfileByUserId,
-  isOnboardingComplete,
-} from "@/lib/pilot/profile";
+import { getPilotProfileByUserId } from "@/lib/pilot/profile";
 import "@/styles/client-disputes.css";
 
 export const metadata = { title: "Dispute details" };
@@ -22,7 +19,7 @@ export default async function PilotDisputeDetailPage({ params }: PageProps) {
   }
 
   const profile = await getPilotProfileByUserId(session.user.id);
-  if (!profile || !isOnboardingComplete(profile)) {
+  if (!profile) {
     redirect("/dashboard/pilot/profile");
   }
 

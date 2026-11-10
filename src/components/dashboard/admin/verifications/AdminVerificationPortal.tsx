@@ -14,7 +14,10 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { useModeratorPermissions } from "@/contexts/ModeratorPermissionsContext";
-import { getVerificationTypeLabel } from "@/lib/verification/status";
+import {
+  getVerificationDocumentLabel,
+  getVerificationTypeLabel,
+} from "@/lib/verification/status";
 import { approvalStatusFilterTabs } from "@/lib/ui/status-filter-tabs";
 import { AdminWingRequestsPanel } from "./AdminWingRequestsPanel";
 import type {
@@ -366,7 +369,7 @@ export function AdminVerificationPortal({
             <ul className="av-queue-list">
               {applicants.map((applicant) => {
                 const active = applicant.pilot.id === selectedId;
-                const primaryType = applicant.verifications[0]?.type ?? "other";
+                const primary = applicant.verifications[0];
                 return (
                   <li key={applicant.pilot.id}>
                     <button
@@ -389,7 +392,12 @@ export function AdminVerificationPortal({
                       <span className="av-card-foot">
                         <span className="av-card-foot-left">
                           <span className="av-card-license">
-                            {getVerificationTypeLabel(primaryType)}
+                            {primary
+                              ? getVerificationDocumentLabel({
+                                  type: primary.type,
+                                  notes: primary.notes,
+                                })
+                              : getVerificationTypeLabel("other")}
                           </span>
                           <span className="av-card-submitted">
                             Submitted {relativeTime(new Date(applicant.earliestSubmitted).toISOString())}
@@ -492,7 +500,10 @@ export function AdminVerificationPortal({
                   {selected.verifications.map((v) => {
                     const Icon = DOC_ICON[v.type];
                     const tone = docStatusTone(v.status);
-                    const label = getVerificationTypeLabel(v.type);
+                    const label = getVerificationDocumentLabel({
+                      type: v.type,
+                      notes: v.notes,
+                    });
                     const href = v.hasUploadedDocument
                       ? `/api/admin/verifications/${v.id}/document`
                       : v.documentUrl;

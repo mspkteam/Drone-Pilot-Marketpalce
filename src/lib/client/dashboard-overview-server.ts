@@ -210,3 +210,60 @@ export async function getClientDashboardOverviewData(
     recommendedPilots,
   };
 }
+
+/** Empty overview for brand-new clients before a ClientProfile row exists. */
+export async function getEmptyClientDashboardOverviewData(
+  userId: string,
+  fallbackName?: string | null,
+): Promise<ClientDashboardOverviewData> {
+  const [notifications, publicPilots] = await Promise.all([
+    listNotificationsForUser(userId, { limit: 5, role: "client" }),
+    listPublicPilots(),
+  ]);
+
+  const stats: ClientDashboardStat[] = [
+    {
+      label: "Active Projects",
+      value: "0",
+      helper: "Complete your profile to post",
+    },
+    {
+      label: "Quotes Received",
+      value: "0",
+      helper: "No new quotes yet",
+    },
+    {
+      label: "Projects Completed",
+      value: "0",
+      helper: "Lifetime",
+    },
+    {
+      label: "Pending Actions",
+      value: "0",
+      helper: "Finish profile setup",
+    },
+  ];
+
+  const recentActivity: ClientActivityItem[] = notifications.map(
+    mapNotificationToActivity,
+  );
+
+  const recommendedPilots = publicPilots
+    .sort((a, b) => (b.averageRating ?? 0) - (a.averageRating ?? 0))
+    .slice(0, 3)
+    .map(mapPublicPilotToRecommended);
+
+  const emailLocal = fallbackName?.includes("@")
+    ? fallbackName.split("@")[0]
+    : fallbackName;
+
+  return {
+    clientName: clientFirstDisplayName({
+      fallback: emailLocal || "Client",
+    }),
+    stats,
+    recentProjects: [],
+    recentActivity,
+    recommendedPilots,
+  };
+}

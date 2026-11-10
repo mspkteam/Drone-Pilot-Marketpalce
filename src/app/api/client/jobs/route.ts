@@ -63,11 +63,30 @@ export async function POST(request: Request) {
           { status: 400 },
         );
       }
-      postProjectJson = serialized;
+      if (
+        parsed.deadline &&
+        parsed.completionDate &&
+        parsed.completionDate < parsed.deadline
+      ) {
+        return NextResponse.json(
+          {
+            error:
+              "Expected completion date cannot be before the project deadline.",
+          },
+          { status: 400 },
+        );
+      }
+      // Persist normalized metadata (cleared travel amounts when not covered).
+      postProjectJson = serializeJobPostProjectMetadata(parsed);
     }
     const scheduledDate = data.scheduledDate
       ? new Date(data.scheduledDate)
       : null;
+
+    const fixedBudget = postProjectJson
+      ? parseJobPostProjectMetadata(postProjectJson)?.quoteType ===
+        "fixed_budget"
+      : true;
 
     const job = await prisma.job.create({
       data: {
@@ -83,8 +102,8 @@ export async function POST(request: Request) {
           scheduledDate && !Number.isNaN(scheduledDate.getTime())
             ? scheduledDate
             : null,
-        budgetMin: data.budgetMin,
-        budgetMax: data.budgetMax,
+        budgetMin: fixedBudget ? data.budgetMin : null,
+        budgetMax: fixedBudget ? data.budgetMax : null,
         currency: data.currency ?? "USD",
         requirements: data.requirements,
         postProjectJson,

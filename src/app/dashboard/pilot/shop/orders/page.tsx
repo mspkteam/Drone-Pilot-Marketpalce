@@ -2,10 +2,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { PilotUniformOrdersList } from "@/components/shop/PilotUniformOrdersList";
 import { DashboardPageLayout } from "@/components/dashboard";
-import {
-  getPilotProfileByUserId,
-  isOnboardingComplete,
-} from "@/lib/pilot/profile";
+import { getPilotProfileByUserId } from "@/lib/pilot/profile";
 import "@/styles/pilot-shop.css";
 
 export const metadata = { title: "Uniform orders" };
@@ -17,7 +14,7 @@ export default async function PilotShopOrdersPage() {
   }
 
   const profile = await getPilotProfileByUserId(session.user.id);
-  if (!profile || !isOnboardingComplete(profile)) {
+  if (!profile) {
     redirect("/dashboard/pilot/profile");
   }
 

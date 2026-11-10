@@ -2,10 +2,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { PilotRequestWingsView } from "@/components/dashboard/pilot/verifications/PilotRequestWingsView";
 import { DashboardPageLayout } from "@/components/dashboard";
-import {
-  getPilotProfileByUserId,
-  isOnboardingComplete,
-} from "@/lib/pilot/profile";
+import { getPilotProfileByUserId } from "@/lib/pilot/profile";
 import "@/styles/pilot-verifications.css";
 import "@/styles/pilot-request-wings.css";
 
@@ -18,9 +15,7 @@ export default async function PilotRequestWingsPage() {
   }
 
   const profile = await getPilotProfileByUserId(session.user.id);
-  if (!isOnboardingComplete(profile)) {
-    redirect("/dashboard/pilot/profile");
-  }
+
 
   return (
     <DashboardPageLayout className="pilot-request-wings-shell">

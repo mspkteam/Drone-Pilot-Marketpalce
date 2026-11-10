@@ -3,10 +3,7 @@ import { auth } from "@/auth";
 import { PilotPaymentsView } from "@/components/dashboard/pilot/payments/PilotPaymentsView";
 import { DashboardPageLayout } from "@/components/dashboard";
 import { DEFAULT_COMMISSION_RATE } from "@/lib/commission/constants";
-import {
-  getPilotProfileByUserId,
-  isOnboardingComplete,
-} from "@/lib/pilot/profile";
+import { getPilotProfileByUserId } from "@/lib/pilot/profile";
 import "@/styles/pilot-payments.css";
 
 export const metadata = { title: "Payments" };
@@ -18,9 +15,7 @@ export default async function PilotPaymentsPage() {
   }
 
   const profile = await getPilotProfileByUserId(session.user.id);
-  if (!isOnboardingComplete(profile)) {
-    redirect("/dashboard/pilot/profile");
-  }
+
 
   const commissionRatePercent = Math.round(DEFAULT_COMMISSION_RATE * 100);
 

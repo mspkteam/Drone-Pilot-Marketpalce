@@ -113,12 +113,18 @@ export function buildPostProjectTravelSummary(
 }
 
 export function formatPostProjectBudget(form: PostProjectFormState): string {
-  const min = form.budgetMin.trim();
-  const max = form.budgetMax.trim();
-  if (min && max) {
-    const minNum = Number(min).toLocaleString();
-    const maxNum = Number(max).toLocaleString();
-    return `$${minNum} - $${maxNum}`;
+  if (form.quoteType === "fixed_budget") {
+    const min = form.budgetMin.trim();
+    const max = form.budgetMax.trim();
+    if (min && max) {
+      const minNum = Number(min).toLocaleString();
+      const maxNum = Number(max).toLocaleString();
+      return `$${minNum} - $${maxNum}`;
+    }
+    if (min || max) {
+      const sole = Number(min || max).toLocaleString();
+      return `$${sole}`;
+    }
   }
   if (form.quoteType === "pilot_quotes") return "Pilot proposals";
   return "—";
@@ -255,8 +261,14 @@ export function postProjectToJobPayload(form: PostProjectFormState) {
     locationRegion: primary.state.trim() || null,
     locationCountry: primary.country.trim() || null,
     scheduledDate: form.deadline.trim() || form.completionDate.trim() || null,
-    budgetMin: form.budgetMin.trim() ? Number(form.budgetMin) : null,
-    budgetMax: form.budgetMax.trim() ? Number(form.budgetMax) : null,
+    budgetMin:
+      form.quoteType === "fixed_budget" && form.budgetMin.trim()
+        ? Number(form.budgetMin)
+        : null,
+    budgetMax:
+      form.quoteType === "fixed_budget" && form.budgetMax.trim()
+        ? Number(form.budgetMax)
+        : null,
     requirements: requirementsParts.join("\n") || null,
     currency: "USD",
     postProject,

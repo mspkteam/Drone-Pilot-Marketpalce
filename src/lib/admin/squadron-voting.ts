@@ -347,8 +347,10 @@ export async function castSquadronVote(
           booking: {
             include: {
               job: { select: { title: true } },
-              clientProfile: { select: { companyName: true, contactName: true } },
-              pilotProfile: { select: { displayName: true } },
+              clientProfile: {
+                select: { companyName: true, contactName: true, userId: true },
+              },
+              pilotProfile: { select: { displayName: true, userId: true } },
             },
           },
         },
@@ -360,6 +362,20 @@ export async function castSquadronVote(
   }
   if (ballot.status !== "open") {
     return { ok: false, error: "Ballot is closed.", status: 409 };
+  }
+
+  const partyUserIds = new Set(
+    [
+      ballot.dispute.booking.clientProfile.userId,
+      ballot.dispute.booking.pilotProfile.userId,
+    ].filter(Boolean),
+  );
+  if (partyUserIds.has(userId)) {
+    return {
+      ok: false,
+      error: "Parties to the dispute cannot cast a squadron vote.",
+      status: 403,
+    };
   }
 
   const voterUser = await prisma.user.findUnique({

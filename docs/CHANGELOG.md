@@ -4,6 +4,18 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.123] — 2026-11-10
+
+### Added
+
+- **Pilot Squadron Voting:** A-4+ pilots get `/dashboard/pilot/squadron-voting` to review open ballots, view evidence, and cast peer votes (client vs pilot). Dispute parties cannot vote on their own case. QA seed: `npx tsx scripts/seed-squadron-ballot-scenario.ts`.
+
+### Notes
+
+- Checklist refreshed to v0.27.123. Six rows still blocked on Stripe/shop/timezone.
+
+---
+
 ## [0.27.122] — 2026-11-10
 
 ### Fixed

@@ -4,6 +4,8 @@ import type { DashboardNavGroup } from "@/types/dashboard-nav";
 export function buildPilotNavGroups(options?: {
   /** When true, show Students under Business (active instructor add-on only). */
   instructorActive?: boolean;
+  /** When true, show Squadron Voting under Operations (active grade A-4+). */
+  squadronVotingEligible?: boolean;
   /**
    * When false, only show Profile / Verification / Portfolio / Settings / Support
    * so incomplete pilots are not bounced around and lose form state.
@@ -69,6 +71,15 @@ export function buildPilotNavGroups(options?: {
         { label: "My Proposals", href: "/dashboard/pilot/proposals", icon: "proposals" },
         { label: "Active Contracts", href: "/dashboard/pilot/contracts", icon: "contracts" },
         { label: "Disputes", href: "/dashboard/pilot/disputes", icon: "disputes" },
+        ...(options?.squadronVotingEligible
+          ? ([
+              {
+                label: "Squadron Voting",
+                href: "/dashboard/pilot/squadron-voting",
+                icon: "disputes" as const,
+              },
+            ] as const)
+          : []),
         { label: "Messages", href: "/dashboard/pilot/messages", icon: "messages" },
       ],
     },

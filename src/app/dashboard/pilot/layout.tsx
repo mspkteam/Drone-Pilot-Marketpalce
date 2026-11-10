@@ -14,6 +14,7 @@ import {
   isOnboardingComplete,
 } from "@/lib/pilot/profile";
 import { parseProfileExtrasJson } from "@/lib/pilot/profile-extras";
+import { membershipTierRank } from "@/lib/wings/conditions";
 
 export default async function PilotDashboardLayout({
   children,
@@ -23,6 +24,7 @@ export default async function PilotDashboardLayout({
   const session = await auth();
   let needsOnboarding = false;
   let instructorActive = false;
+  let squadronVotingEligible = false;
   let user = buildDashboardUser(session?.user ?? {}, {
     roleSubtitle: "Pilot account",
   });
@@ -48,6 +50,8 @@ export default async function PilotDashboardLayout({
     });
 
     const membership = await getPilotMembershipSummary(profile.id);
+    squadronVotingEligible =
+      membershipTierRank(membership?.tier.code) >= 4;
 
     rankCard = buildPilotRankCard({
       displayName: user.displayName,
@@ -68,6 +72,7 @@ export default async function PilotDashboardLayout({
       homeHref="/dashboard/pilot"
       navGroups={buildPilotNavGroups({
         instructorActive,
+        squadronVotingEligible,
         onboardingComplete: true,
       })}
       user={user}

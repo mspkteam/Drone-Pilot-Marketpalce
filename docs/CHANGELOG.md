@@ -4,6 +4,14 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.125] — 2026-11-10
+
+### Added
+
+- **Test instant account delete:** While testing, enable `ALLOW_TEST_INSTANT_DELETE=true` (or set `TEST_INSTANT_DELETE_TOKEN`) and reload a pilot/client dashboard URL with **both** `?instantDelete=1&deleteUser=exact@email.com`. Only that signed-in email is hard-deleted; mismatch aborts.
+
+---
+
 ## [0.27.124] — 2026-11-10
 
 ### Fixed

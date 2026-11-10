@@ -5,11 +5,11 @@ Annotated PDF: `Final_Testing_QA_Checklist_v3 (1).pdf` (Morosoft sticky comments
 
 Marks: **Done** · **Partial** · **Blocked on client**
 
-**Totals (v0.27.122 re-verify):** Done 70 · Partial 1 · Blocked on client 6
+**Totals (v0.27.123 re-verify):** Done 71 · Partial 0 · Blocked on client 6
 
 ### Re-verification restart (Nov 2026)
 
-Code pass across Client / Pilot / Admin paths. Shipped fixes through v0.27.122 for:
+Code pass across Client / Pilot / Admin paths. Shipped fixes through v0.27.123 for:
 
 - Pilot #33 — amendments status + admin comments on cards
 - Client #9 — no budget/travel step-bleed in payload/review (+ normalized persist)
@@ -20,12 +20,12 @@ Code pass across Client / Pilot / Admin paths. Shipped fixes through v0.27.122 f
 - Client #14 / #16 — marketing Hire CTAs hidden for pilots
 - Client #20 — public Find Pilots uses `/pilots/[id]`
 - Pilot #4 — incomplete-pilot deep links stay visible under OnboardingGate
+- Pilot #21 — pilot squadron voting + seeded ballot scenario script
 
 Still open / deferred:
 
 | Item | Status | Notes |
 |------|--------|-------|
-| Pilot 21 | Partial | Squadron voting is admin-only; no seeded pilot ballot scenarios |
 | Client 4, 23 · Pilot 25, 28, 29 · Admin 15 | Blocked on client | Stripe / shop assets / timezone |
 
 ### First 11 Client checklist rows (pages/items 1–11)
@@ -101,7 +101,7 @@ Proposal submit blocker from Morosoft sticky extras: fixed in v0.27.114 (drafts 
 | 18 | Mention file format | Done | Core verification/proposal/portfolio covered |
 | 19 | Add Link duplication | Done | |
 | 20 | Revision View notification + Complete Job after revision | Done | |
-| 21 | Dispute voting real scenarios | Partial | Admin squadron voting exists; no seeded pilot ballots |
+| 21 | Dispute voting real scenarios | Done | Pilot A-4+ squadron voting UI + evidence + seed script (v0.27.123) |
 | 22 | Verification file-type / remove / field errors / wing bleed / drafts | Done | |
 | 23 | CSV vs earnings format | Done | |
 | 24 | View profile / Need info buttons | Done | |

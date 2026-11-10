@@ -1,6 +1,6 @@
 {
   "name": "drone-pilot-marketplace",
-  "version": "0.27.122",
+  "version": "0.27.123",
   "private": true,
   "scripts": {
     "dev": "next dev",

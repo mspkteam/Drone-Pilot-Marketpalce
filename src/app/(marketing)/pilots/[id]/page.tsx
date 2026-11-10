@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { auth } from "@/auth";
 import { PublicPageContainer } from "@/components/layout/PublicPageContainer";
@@ -63,17 +62,13 @@ export default async function PublicPilotProfilePage({ params }: PageProps) {
   return (
     <section className="figma-pilot-public-section figma-marketing-section pt-8 sm:pt-10">
       <PublicPageContainer>
-        <Link
-          href={browseHref}
-          className="mb-8 inline-flex text-sm font-medium text-[#e4c55a] transition-colors hover:text-gold"
-        >
-          ← Back to all Pilots
-        </Link>
         <PublicPilotProfile
           pilot={pilot}
           messageHref={messageHref}
           hireHref={hireHref}
           browseHref={browseHref}
+          backHref={browseHref}
+          backLabel="← Back to all Pilots"
           showHire={showHire}
         />
       </PublicPageContainer>

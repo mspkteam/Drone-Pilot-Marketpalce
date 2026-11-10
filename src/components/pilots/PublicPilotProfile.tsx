@@ -293,20 +293,9 @@ function ServiceChip({ label }: { label: string }) {
   );
 }
 
-function CredentialChip({
-  label,
-  size = "md",
-}: {
-  label: string;
-  size?: "md" | "lg";
-}) {
+function CredentialChip({ label }: { label: string; size?: "md" | "lg" }) {
   return (
-    <span
-      className={cn(
-        "inline-flex items-center rounded-full border border-[rgba(216,179,57,0.35)] bg-[rgba(216,179,57,0.12)] font-medium leading-snug text-gold-light",
-        size === "lg" ? "px-4 py-2 text-sm" : "px-2.5 py-0.5 text-xs leading-none",
-      )}
-    >
+    <span className="inline-flex max-w-full items-center rounded-full border border-[rgba(216,179,57,0.35)] bg-[rgba(216,179,57,0.12)] px-3 py-1 text-xs font-medium leading-snug text-gold-light">
       {label}
     </span>
   );
@@ -315,16 +304,42 @@ function CredentialChip({
 function BadgeSection({
   title,
   children,
+  bodyClassName,
 }: {
   title: string;
   children: ReactNode;
+  bodyClassName?: string;
 }) {
   return (
-    <div className="space-y-3">
-      <p className="text-[0.65rem] font-semibold uppercase tracking-[0.16em] text-[#a3a3a3]">
-        {title}
-      </p>
-      <div className="flex flex-wrap items-center gap-3">{children}</div>
+    <section className="figma-pilot-creds-section">
+      <p className="figma-pilot-creds-heading">{title}</p>
+      <div className={bodyClassName ?? "figma-pilot-chips-wrap"}>{children}</div>
+    </section>
+  );
+}
+
+function PublicWingCard({
+  title,
+  imageUrl,
+}: {
+  title: string;
+  imageUrl?: string | null;
+  iconLabel?: string | null;
+  category: import("@/types/wing").WingCategory;
+}) {
+  return (
+    <div className="figma-pilot-wing-card" title={title}>
+      <div className="figma-pilot-wing-card-art-wrap">
+        {imageUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={imageUrl} alt="" className="figma-pilot-wing-card-art" />
+        ) : (
+          <span className="figma-pilot-wing-card-placeholder" aria-hidden>
+            ✦
+          </span>
+        )}
+      </div>
+      <p className="figma-pilot-wing-card-title">{title}</p>
     </div>
   );
 }
@@ -334,12 +349,16 @@ export function PublicPilotProfile({
   messageHref = "/register?role=client",
   hireHref = "/register?role=client",
   browseHref = "/pilots",
+  backHref,
+  backLabel = "← Back to all Pilots",
   showHire = false,
 }: {
   pilot: PublicPilotProfileDto;
   messageHref?: string;
   hireHref?: string;
   browseHref?: string;
+  backHref?: string;
+  backLabel?: string;
   showHire?: boolean;
 }) {
   const location = formatPilotLocation(
@@ -358,13 +377,21 @@ export function PublicPilotProfile({
   const galleryReviews = pilot.recentReviews.slice(latestReview ? 1 : 0);
   const initials = initialsFromName(pilot.displayName);
 
+  const toolbarBackHref = backHref ?? browseHref;
+
   return (
-    <div className="figma-pilot-public">
-      <div className="mb-4 flex justify-end">
-        <PublicPilotProfilePdfButton
-          pilotId={pilot.id}
-          displayName={pilot.displayName}
-        />
+    <div className="figma-pilot-public" data-public-pilot-profile>
+      <div
+        className="mb-4 flex flex-wrap items-center justify-between gap-3"
+        data-pdf-exclude
+      >
+        <Link
+          href={toolbarBackHref}
+          className="inline-flex text-sm font-medium text-[#e4c55a] transition-colors hover:text-gold"
+        >
+          {backLabel}
+        </Link>
+        <PublicPilotProfilePdfButton displayName={pilot.displayName} />
       </div>
 
       {/* Hero — Figma 1604:2258 */}
@@ -383,19 +410,22 @@ export function PublicPilotProfile({
         />
 
         <div className="figma-pilot-public-hero-grid relative">
-          <div className="figma-pilot-public-photo shrink-0">
-            {pilot.avatarUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={pilot.avatarUrl}
-                alt=""
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <div className="flex h-full w-full items-center justify-center bg-[rgba(216,179,57,0.08)] text-4xl font-bold tracking-wide text-gold">
-                {initials}
-              </div>
-            )}
+          <div className="figma-pilot-hero-left">
+            <div className="figma-pilot-public-photo shrink-0">
+              {pilot.avatarUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={pilot.avatarUrl}
+                  alt=""
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center bg-[rgba(216,179,57,0.08)] text-4xl font-bold tracking-wide text-gold">
+                  {initials}
+                </div>
+              )}
+            </div>
+
           </div>
 
           <div className="flex min-w-0 flex-col">
@@ -431,61 +461,17 @@ export function PublicPilotProfile({
                 Languages: {pilot.languages.join(" · ")}
               </p>
             ) : null}
-
-            {hasBadges ? (
-              <div className="mt-8 space-y-5">
-                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-ras-dim-alt">
-                  Digital wings &amp; verifications
-                </p>
-                {pilot.wings.length > 0 ? (
-                  <BadgeSection title="Wings">
-                    {pilot.wings.map((w) => (
-                      <WingBadge
-                        key={w.code}
-                        title={w.title}
-                        iconLabel={w.iconLabel}
-                        imageUrl={w.imageUrl}
-                        category={w.category}
-                        size="xl"
-                      />
-                    ))}
-                  </BadgeSection>
-                ) : null}
-                {pilot.approvedCredentials.length > 0 ? (
-                  <BadgeSection title="Verifications">
-                    {pilot.approvedCredentials.map((c) => (
-                      <CredentialChip
-                        key={c.catalogId}
-                        label={c.title}
-                        size="lg"
-                      />
-                    ))}
-                  </BadgeSection>
-                ) : null}
-                {pilot.certificates.length > 0 ? (
-                  <BadgeSection title="Certificates">
-                    {pilot.certificates.map((cert) => (
-                      <CredentialChip
-                        key={cert.id}
-                        label={cert.templateName}
-                        size="lg"
-                      />
-                    ))}
-                  </BadgeSection>
-                ) : null}
-              </div>
-            ) : null}
           </div>
 
           <aside className="figma-pilot-hero-aside">
             {pilot.highestWing ? (
-              <div className="flex flex-col items-start text-left">
+              <div className="figma-pilot-highest-wing">
                 {pilot.highestWing.imageUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={pilot.highestWing.imageUrl}
                     alt=""
-                    className="h-32 w-96 max-w-full object-contain object-left"
+                    className="figma-pilot-highest-wing-art"
                   />
                 ) : (
                   <WingBadge
@@ -496,10 +482,10 @@ export function PublicPilotProfile({
                     size="xl"
                   />
                 )}
-                <p className="mt-2 text-[0.5625rem] font-semibold uppercase tracking-[0.12em] text-[#d8b339]">
+                <p className="mt-3 text-[0.625rem] font-semibold uppercase tracking-[0.14em] text-[#d8b339]">
                   Highest wing
                 </p>
-                <p className="mt-1 text-xs font-semibold leading-snug text-ras-text">
+                <p className="mt-1 text-sm font-semibold leading-snug text-ras-text">
                   {pilot.highestWing.title}
                 </p>
               </div>
@@ -537,7 +523,50 @@ export function PublicPilotProfile({
             ) : null}
           </aside>
 
-          <div className="figma-pilot-public-actions">
+          {hasBadges ? (
+            <div className="figma-pilot-creds-panel">
+              {pilot.wings.length > 0 ? (
+                <BadgeSection
+                  title="Wings"
+                  bodyClassName="figma-pilot-wings-grid"
+                >
+                  {pilot.wings.map((w) => (
+                    <PublicWingCard
+                      key={w.code}
+                      title={w.title}
+                      imageUrl={w.imageUrl}
+                      iconLabel={w.iconLabel}
+                      category={w.category}
+                    />
+                  ))}
+                </BadgeSection>
+              ) : null}
+              {pilot.approvedCredentials.length > 0 ? (
+                <BadgeSection title="Verifications">
+                  {pilot.approvedCredentials.map((c) => (
+                    <CredentialChip
+                      key={c.catalogId}
+                      label={c.title}
+                      size="lg"
+                    />
+                  ))}
+                </BadgeSection>
+              ) : null}
+              {pilot.certificates.length > 0 ? (
+                <BadgeSection title="Certificates">
+                  {pilot.certificates.map((cert) => (
+                    <CredentialChip
+                      key={cert.id}
+                      label={cert.templateName}
+                      size="lg"
+                    />
+                  ))}
+                </BadgeSection>
+              ) : null}
+            </div>
+          ) : null}
+
+          <div className="figma-pilot-public-actions" data-pdf-exclude>
             {showHire ? (
               <Link
                 href={messageHref}
@@ -858,7 +887,10 @@ export function PublicPilotProfile({
       ) : null}
 
       {showHire ? (
-      <section className="figma-pilot-module-card border-[rgba(216,179,57,0.25)] px-6 py-8 text-center sm:px-10 sm:py-10">
+      <section
+        className="figma-pilot-module-card border-[rgba(216,179,57,0.25)] px-6 py-8 text-center sm:px-10 sm:py-10"
+        data-pdf-exclude
+      >
         <h2 className="text-xl font-semibold text-ras-text sm:text-2xl">
           Ready to hire {pilot.displayName}?
         </h2>

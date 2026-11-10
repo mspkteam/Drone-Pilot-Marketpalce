@@ -7,13 +7,17 @@ export type DeleteMemberUserResult =
 
 /**
  * Permanently delete a member account (pilot, client, admin, or moderator)
- * and related marketplace data. Cannot delete self or Super Admin accounts.
+ * and related marketplace data. Cannot delete self or Super Admin accounts
+ * unless `allowSelf` is set (testing instant-delete for pilot/client only).
  */
 export async function deleteMemberUser(
   targetUserId: string,
   actorUserId: string,
+  options?: { allowSelf?: boolean },
 ): Promise<DeleteMemberUserResult> {
-  if (targetUserId === actorUserId) {
+  const allowSelf = options?.allowSelf === true;
+
+  if (targetUserId === actorUserId && !allowSelf) {
     return {
       ok: false,
       error: "You cannot delete your own account.",
@@ -33,6 +37,14 @@ export async function deleteMemberUser(
     return {
       ok: false,
       error: "Super Admin accounts cannot be deleted here.",
+      status: 403,
+    };
+  }
+
+  if (allowSelf && target.role !== "pilot" && target.role !== "client") {
+    return {
+      ok: false,
+      error: "Only pilot or client test accounts can self-delete.",
       status: 403,
     };
   }

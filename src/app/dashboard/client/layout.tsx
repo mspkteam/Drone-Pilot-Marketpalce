@@ -1,4 +1,6 @@
+import { Suspense } from "react";
 import { auth } from "@/auth";
+import { TestInstantDeleteWatcher } from "@/components/account/TestInstantDeleteWatcher";
 import { DashboardShell } from "@/components/layout/DashboardShell";
 import { OnboardingRedirect } from "@/components/client/OnboardingRedirect";
 import {
@@ -35,6 +37,9 @@ export default async function ClientDashboardLayout({
       user={user}
       {...milestone}
     >
+      <Suspense fallback={null}>
+        <TestInstantDeleteWatcher />
+      </Suspense>
       <OnboardingRedirect needsOnboarding={needsOnboarding} />
       {children}
     </DashboardShell>

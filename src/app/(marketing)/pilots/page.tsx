@@ -16,7 +16,10 @@ export default async function FindPilotsPage({
   searchParams: Promise<{ region?: string }>;
 }) {
   const params = await searchParams;
-  const pilots = await listClientFindPilots();
+  const pilots = await listClientFindPilots({
+    includeUnlistedApproved: false,
+    profileHrefMode: "public",
+  });
   const initialRegion = params.region ? decodeURIComponent(params.region) : null;
 
   return (

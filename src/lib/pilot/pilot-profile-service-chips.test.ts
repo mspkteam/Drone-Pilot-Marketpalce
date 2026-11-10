@@ -32,4 +32,12 @@ describe("service category chip selection", () => {
     assert.equal(isChipSelected(aerial, afterPhoto.servicesOffered, afterPhoto.localChipIds), true);
     assert.equal(isChipSelected(photo, afterPhoto.servicesOffered, afterPhoto.localChipIds), true);
   });
+
+  it("does not light Custom when other was only folded from specialty chips", () => {
+    const custom = PILOT_PROFILE_SERVICE_CHIPS.find((c) => c.id === "custom")!;
+    const thermal = PILOT_PROFILE_SERVICE_CHIPS.find((c) => c.id === "thermal")!;
+    assert.equal(isChipSelected(custom, ["other"], ["thermal"]), false);
+    assert.equal(isChipSelected(thermal, ["other"], ["thermal"]), true);
+    assert.equal(isChipSelected(custom, ["other"], ["custom"]), true);
+  });
 });

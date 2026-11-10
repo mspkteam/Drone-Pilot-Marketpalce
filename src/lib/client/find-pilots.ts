@@ -1,5 +1,5 @@
 import { formatPilotDayRateLabel } from "@/lib/client/pilot-pricing";
-import { clientPilotProfileHref } from "@/lib/pilot/hire-cta";
+import { clientPilotProfileHref, publicPilotProfileHref } from "@/lib/pilot/hire-cta";
 import { PILOT_SERVICE_OPTIONS, type PilotServiceId } from "@/types/pilot";
 import type { PublicPilotListItemDto } from "@/types/public-pilot";
 
@@ -48,9 +48,12 @@ function initialsFromName(name: string): string {
   return `${parts[0][0] ?? ""}${parts[1][0] ?? ""}`.toUpperCase();
 }
 
+export type FindPilotProfileHrefMode = "client" | "public";
+
 export function mapPublicPilotToFindPilot(
   pilot: PublicPilotListItemDto,
   completedBookings = 0,
+  options?: { profileHrefMode?: FindPilotProfileHrefMode },
 ): ClientFindPilot {
   const location =
     [pilot.locationCity, pilot.locationRegion].filter(Boolean).join(", ") ||
@@ -59,6 +62,8 @@ export function mapPublicPilotToFindPilot(
   const tags = pilot.servicesOffered
     .slice(0, 3)
     .map((service) => SERVICE_LABELS[service] ?? service);
+
+  const profileHrefMode = options?.profileHrefMode ?? "client";
 
   return {
     id: pilot.id,
@@ -83,7 +88,10 @@ export function mapPublicPilotToFindPilot(
     priceLabel: formatPilotDayRateLabel(pilot.hourlyRateMin, pilot.hourlyRateMax),
     serviceIds: pilot.servicesOffered,
     verified: true,
-    profileHref: CLIENT_FIND_PILOTS_ROUTES.pilotProfile(pilot.id),
+    profileHref:
+      profileHrefMode === "public"
+        ? publicPilotProfileHref(pilot.id)
+        : CLIENT_FIND_PILOTS_ROUTES.pilotProfile(pilot.id),
   };
 }
 

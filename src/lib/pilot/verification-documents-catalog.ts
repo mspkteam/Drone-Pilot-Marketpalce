@@ -3,6 +3,7 @@ import type { VerificationDto, VerificationType } from "@/types/verification";
 export type PilotDocumentUiStatus =
   | "approved"
   | "pending"
+  | "amendments_required"
   | "rejected"
   | "missing"
   | "optional";
@@ -225,8 +226,9 @@ function mapVerificationStatus(
     case "approved":
       return "approved";
     case "pending":
-    case "amendments_required":
       return "pending";
+    case "amendments_required":
+      return "amendments_required";
     case "rejected":
     case "expired":
       return "rejected";
@@ -278,7 +280,11 @@ function isUnitSatisfied(status: PilotDocumentUiStatus): boolean {
 }
 
 function isUnitPendingAction(status: PilotDocumentUiStatus): boolean {
-  return status === "missing" || status === "rejected";
+  return (
+    status === "missing" ||
+    status === "rejected" ||
+    status === "amendments_required"
+  );
 }
 
 function easaGroupStatus(
@@ -289,6 +295,9 @@ function easaGroupStatus(
   );
   if (easa.some((c) => c.uiStatus === "approved")) return "approved";
   if (easa.some((c) => c.uiStatus === "pending")) return "pending";
+  if (easa.some((c) => c.uiStatus === "amendments_required")) {
+    return "amendments_required";
+  }
   if (easa.some((c) => c.uiStatus === "rejected")) return "rejected";
   return "missing";
 }

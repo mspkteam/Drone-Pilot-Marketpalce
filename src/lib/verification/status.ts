@@ -1,3 +1,5 @@
+import { catalogIdFromNotes } from "@/lib/pilot/verification-documents-catalog";
+import { PILOT_VERIFICATION_DOCUMENTS } from "@/lib/pilot/verification-documents-catalog";
 import type { VerificationStatus, VerificationType } from "@/types/verification";
 
 export function getVerificationTypeLabel(type: VerificationType): string {
@@ -8,6 +10,21 @@ export function getVerificationTypeLabel(type: VerificationType): string {
     other: "Other certification",
   };
   return labels[type];
+}
+
+/** Prefer catalog slot title (e.g. Government ID — Front) when notes tag is present. */
+export function getVerificationDocumentLabel(input: {
+  type: VerificationType;
+  notes?: string | null;
+}): string {
+  const catalogId = catalogIdFromNotes(input.notes);
+  if (catalogId) {
+    const match = PILOT_VERIFICATION_DOCUMENTS.find(
+      (doc) => doc.catalogId === catalogId,
+    );
+    if (match) return match.title;
+  }
+  return getVerificationTypeLabel(input.type);
 }
 
 export function getVerificationStatusLabel(status: VerificationStatus): string {

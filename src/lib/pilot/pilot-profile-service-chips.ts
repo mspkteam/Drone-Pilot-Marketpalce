@@ -26,7 +26,12 @@ export const PILOT_PROFILE_SERVICE_CHIPS: readonly PilotProfileServiceChip[] = [
   { id: "custom", label: "Custom Drone Work", serviceId: "other" },
 ] as const;
 
-/** Ensure specialty-only chip selections still satisfy API onboarding rules. */
+/**
+ * Ensure specialty-only chip selections still satisfy API onboarding rules.
+ * Specialty locals fold into `other` for persistence, but the Custom chip only
+ * lights when the pilot explicitly selected it (id `custom` in localChipIds)
+ * or chose `other` without specialty-only locals.
+ */
 export function servicesOfferedForSave(
   servicesOffered: string[],
   localChipIds: string[],
@@ -41,6 +46,15 @@ export function isChipSelected(
   servicesOffered: string[],
   localChipIds: string[],
 ): boolean {
+  if (chip.id === "custom" || chip.serviceId === "other") {
+    if (localChipIds.includes("custom")) return true;
+    // Avoid lighting Custom when `other` was only a persistence fold for specialties.
+    const specialtyOnly = localChipIds.some((id) => id !== "custom");
+    if (specialtyOnly && servicesOffered.includes("other")) {
+      return localChipIds.includes("custom");
+    }
+    return servicesOffered.includes("other");
+  }
   if (chip.serviceId) {
     return servicesOffered.includes(chip.serviceId);
   }

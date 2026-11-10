@@ -39,7 +39,7 @@ function formatBudget(job: AdminJobDto): string {
 }
 
 function formatPostedBy(job: AdminJobDto): string {
-  return (job.client.companyName ?? job.client.contactName).toUpperCase();
+  return (job.client.contactName ?? job.client.companyName).toUpperCase();
 }
 
 function formatLocation(job: AdminJobDto): string {

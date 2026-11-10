@@ -2,10 +2,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { PilotLockedJobsView } from "@/components/dashboard/pilot/locked-jobs/PilotLockedJobsView";
 import { DashboardPageLayout, DashboardStatusBanner } from "@/components/dashboard";
-import {
-  getPilotProfileByUserId,
-  isOnboardingComplete,
-} from "@/lib/pilot/profile";
+import { getPilotProfileByUserId } from "@/lib/pilot/profile";
 import { getProfileStatusLabel } from "@/lib/pilot/status";
 import type { PilotProfileStatus } from "@/types/pilot";
 import "@/styles/pilot-locked-jobs.css";
@@ -19,9 +16,7 @@ export default async function PilotLockedJobsPage() {
   }
 
   const profile = await getPilotProfileByUserId(session.user.id);
-  if (!isOnboardingComplete(profile)) {
-    redirect("/dashboard/pilot/profile");
-  }
+
 
   const approved = profile?.status === "approved";
 

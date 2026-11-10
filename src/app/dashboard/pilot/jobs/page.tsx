@@ -2,10 +2,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { PilotMissionMarketplace } from "@/components/dashboard/pilot/marketplace/PilotMissionMarketplace";
 import { DashboardPageLayout, DashboardStatusBanner } from "@/components/dashboard";
-import {
-  getPilotProfileByUserId,
-  isOnboardingComplete,
-} from "@/lib/pilot/profile";
+import { getPilotProfileByUserId } from "@/lib/pilot/profile";
 import { getProfileStatusLabel } from "@/lib/pilot/status";
 import type { PilotProfileStatus } from "@/types/pilot";
 import "@/styles/pilot-marketplace.css";
@@ -19,9 +16,7 @@ export default async function PilotJobsPage() {
   }
 
   const profile = await getPilotProfileByUserId(session.user.id);
-  if (!isOnboardingComplete(profile)) {
-    redirect("/dashboard/pilot/profile");
-  }
+
 
   const approved = profile?.status === "approved";
 

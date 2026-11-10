@@ -2,10 +2,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { ClientDisputesList } from "@/components/dashboard/client/disputes/ClientDisputesList";
 import { DashboardPageLayout } from "@/components/dashboard";
-import {
-  getPilotProfileByUserId,
-  isOnboardingComplete,
-} from "@/lib/pilot/profile";
+import { getPilotProfileByUserId } from "@/lib/pilot/profile";
 import "@/styles/client-disputes.css";
 
 export const metadata = { title: "Disputes" };
@@ -17,9 +14,7 @@ export default async function PilotDisputesPage() {
   }
 
   const profile = await getPilotProfileByUserId(session.user.id);
-  if (!isOnboardingComplete(profile)) {
-    redirect("/dashboard/pilot/profile");
-  }
+
 
   return (
     <DashboardPageLayout className="client-disputes-shell">

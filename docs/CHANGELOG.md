@@ -4,6 +4,34 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.122] — 2026-11-10
+
+### Fixed
+
+- **Marketing hire CTAs:** Hire buttons hidden for signed-in pilots (dual-path + About CTAs).
+- **Public Find Pilots:** Marketing directory links to `/pilots/[id]` (not client dashboard routes) and lists only public pilots.
+- **Post-project persist:** Job create stores normalized `postProjectJson` (travel amounts cleared when not covered) and nulls budget fields unless quote type is fixed budget.
+- **Client first login:** Empty overview (stats + recommended pilots) renders before a ClientProfile row exists.
+- **Pilot first login:** Incomplete-pilot deep links no longer hard-redirect to Profile; OnboardingGate overlay keeps screens visible.
+
+### Notes
+
+- Checklist refreshed to v0.27.122. Remaining Partial: Pilot #21 squadron voting scenarios. Six rows still blocked on Stripe/shop/timezone.
+
+---
+
+## [0.27.121] — 2026-11-10
+
+### Fixed
+
+- **QA re-verify (Final Testing restart):** Pilot verification cards show **AMENDMENTS REQUIRED** (not pending) and surface admin comments. Post-project no longer bleeds fixed-budget/travel amounts into payload/review; server rejects completion before deadline. Specialty service chips no longer auto-light Custom. Admin job queue prefers contact name; verification labels use catalog slot titles.
+
+### Notes
+
+- Superseded open Partials closed in 0.27.122 (client empty overview; incomplete-pilot redirects).
+
+---
+
 ## [0.27.120] — 2026-11-10
 
 ### Changed

@@ -2,10 +2,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { PilotInstructorDashboard } from "@/components/dashboard/pilot/instructor/PilotInstructorDashboard";
 import { DashboardPageLayout } from "@/components/dashboard";
-import {
-  getPilotProfileByUserId,
-  isOnboardingComplete,
-} from "@/lib/pilot/profile";
+import { getPilotProfileByUserId } from "@/lib/pilot/profile";
 import "@/styles/pilot-instructor.css";
 
 export const metadata = { title: "Instructor Membership" };
@@ -17,9 +14,7 @@ export default async function PilotInstructorPage() {
   }
 
   const profile = await getPilotProfileByUserId(session.user.id);
-  if (!isOnboardingComplete(profile)) {
-    redirect("/dashboard/pilot/profile");
-  }
+
 
   return (
     <DashboardPageLayout className="pilot-instructor-shell">

@@ -3,10 +3,7 @@ import { auth } from "@/auth";
 import { PilotUniformOrderDetail } from "@/components/shop/PilotUniformOrderDetail";
 import { DashboardPageLayout } from "@/components/dashboard";
 import { getOrderForUser } from "@/lib/shop/shop";
-import {
-  getPilotProfileByUserId,
-  isOnboardingComplete,
-} from "@/lib/pilot/profile";
+import { getPilotProfileByUserId } from "@/lib/pilot/profile";
 import "@/styles/pilot-shop.css";
 
 type PageProps = { params: Promise<{ id: string }> };
@@ -18,7 +15,7 @@ export default async function PilotShopOrderDetailPage({ params }: PageProps) {
   }
 
   const profile = await getPilotProfileByUserId(session.user.id);
-  if (!profile || !isOnboardingComplete(profile)) {
+  if (!profile) {
     redirect("/dashboard/pilot/profile");
   }
 

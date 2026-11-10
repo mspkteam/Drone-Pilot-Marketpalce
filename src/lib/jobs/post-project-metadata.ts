@@ -73,8 +73,18 @@ function normalizeTravel(value: unknown): JobPostProjectTravelMetadata | null {
   if (!value || typeof value !== "object") return null;
   const record = value as Record<string, unknown>;
   if (typeof record.coverTravelExpenses !== "boolean") return null;
+  // Strip amounts when travel is not covered (no step-bleed on persist/parse).
+  if (record.coverTravelExpenses !== true) {
+    return {
+      coverTravelExpenses: false,
+      airTravel: null,
+      lodging: null,
+      incidentals: null,
+      groundTransport: null,
+    };
+  }
   return {
-    coverTravelExpenses: record.coverTravelExpenses,
+    coverTravelExpenses: true,
     airTravel: parseTravelAmount(record.airTravel),
     lodging: parseTravelAmount(record.lodging),
     incidentals: parseTravelAmount(record.incidentals),
@@ -87,9 +97,20 @@ function extractTravelMetadata(
 ): JobPostProjectTravelMetadata | null {
   if (form.coverTravelExpenses === null) return null;
 
+  // Only persist amounts when the client is covering travel (no step-bleed).
+  if (form.coverTravelExpenses !== true) {
+    return {
+      coverTravelExpenses: false,
+      airTravel: null,
+      lodging: null,
+      incidentals: null,
+      groundTransport: null,
+    };
+  }
+
   const expenses = form.travelExpenses;
   return {
-    coverTravelExpenses: form.coverTravelExpenses,
+    coverTravelExpenses: true,
     airTravel: parseTravelAmount(expenses.airTravel),
     lodging: parseTravelAmount(expenses.lodging),
     incidentals: parseTravelAmount(expenses.incidentals),

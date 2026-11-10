@@ -313,6 +313,10 @@ a.pilot-verification-attached-name:hover {
   color: var(--color-gold);
 }
 
+.pilot-verification-doc-icon--amendments_required {
+  color: #f59e0b;
+}
+
 .pilot-verification-doc-icon--rejected {
   color: var(--color-danger);
 }
@@ -342,6 +346,12 @@ a.pilot-verification-attached-name:hover {
   border-color: rgba(216, 179, 57, 0.45);
   background: rgba(216, 179, 57, 0.1);
   color: var(--color-gold);
+}
+
+.pilot-verification-doc-badge--amendments_required {
+  border-color: rgba(245, 158, 11, 0.5);
+  background: rgba(245, 158, 11, 0.12);
+  color: #f59e0b;
 }
 
 .pilot-verification-doc-badge--rejected {

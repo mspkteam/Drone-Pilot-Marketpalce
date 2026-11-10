@@ -9,7 +9,10 @@ import {
   getClientProfileByUserId,
   isOnboardingComplete,
 } from "@/lib/client/profile";
-import { getClientDashboardOverviewData } from "@/lib/client/dashboard-overview-server";
+import {
+  getClientDashboardOverviewData,
+  getEmptyClientDashboardOverviewData,
+} from "@/lib/client/dashboard-overview-server";
 
 export const metadata = { title: "Client Dashboard" };
 
@@ -30,7 +33,10 @@ export default async function ClientDashboardPage({ searchParams }: PageProps) {
 
   const overview = profile
     ? await getClientDashboardOverviewData(profile.id, session.user.id)
-    : null;
+    : await getEmptyClientDashboardOverviewData(
+        session.user.id,
+        session.user.email,
+      );
 
   return (
     <DashboardPageLayout className="client-dashboard-shell">
@@ -53,7 +59,7 @@ export default async function ClientDashboardPage({ searchParams }: PageProps) {
         </DashboardStatusBanner>
       ) : null}
 
-      {overview ? <ClientDashboardOverview {...overview} /> : null}
+      <ClientDashboardOverview {...overview} />
     </DashboardPageLayout>
   );
 }

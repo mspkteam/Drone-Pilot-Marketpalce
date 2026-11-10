@@ -2,10 +2,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { PilotCertificatesView } from "@/components/dashboard/pilot/certificates/PilotCertificatesView";
 import { DashboardPageLayout } from "@/components/dashboard";
-import {
-  getPilotProfileByUserId,
-  isOnboardingComplete,
-} from "@/lib/pilot/profile";
+import { getPilotProfileByUserId } from "@/lib/pilot/profile";
 import "@/styles/pilot-certificates.css";
 
 export const metadata = { title: "Certificates" };
@@ -17,7 +14,7 @@ export default async function PilotCertificatesPage() {
   }
 
   const profile = await getPilotProfileByUserId(session.user.id);
-  if (!profile || !isOnboardingComplete(profile)) {
+  if (!profile) {
     redirect("/dashboard/pilot/profile");
   }
 

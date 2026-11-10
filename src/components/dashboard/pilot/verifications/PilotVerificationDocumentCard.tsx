@@ -5,6 +5,7 @@ import type { PilotVerificationDocumentCard } from "@/lib/pilot/verification-doc
 const STATUS_LABEL: Record<PilotVerificationDocumentCard["uiStatus"], string> = {
   approved: "APPROVED",
   pending: "PENDING REVIEW",
+  amendments_required: "AMENDMENTS REQUIRED",
   rejected: "REJECTED",
   missing: "MISSING",
   optional: "OPTIONAL",
@@ -37,6 +38,15 @@ function StatusIcon({ status }: { status: PilotVerificationDocumentCard["uiStatu
           <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5">
             <circle cx="9" cy="9" r="7" />
             <path d="M9 5.5V9l2.5 1.5" strokeLinecap="round" />
+          </svg>
+        </span>
+      );
+    case "amendments_required":
+      return (
+        <span className={className} aria-hidden>
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <circle cx="9" cy="9" r="7" />
+            <path d="M9 5.5v5M9 12.5h.01" strokeLinecap="round" />
           </svg>
         </span>
       );
@@ -169,7 +179,9 @@ export function PilotVerificationDocumentCardView({
           </div>
         ) : null}
 
-        {card.uiStatus === "rejected" && card.adminNote ? (
+        {(card.uiStatus === "rejected" ||
+          card.uiStatus === "amendments_required") &&
+        card.adminNote ? (
           <p className="pilot-verification-doc-admin-note" role="alert">
             <strong>ADMIN:</strong> {card.adminNote}
           </p>

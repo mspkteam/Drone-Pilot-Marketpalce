@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { DashboardPageLayout } from "@/components/dashboard";
@@ -47,17 +46,13 @@ export default async function ClientFindPilotProfilePage({ params }: PageProps) 
   return (
     <DashboardPageLayout className="client-find-pilots-shell">
       <section className="figma-pilot-public-section pt-2">
-        <Link
-          href={browseHref}
-          className="mb-6 inline-flex text-sm font-medium text-[#e4c55a] transition-colors hover:text-gold"
-        >
-          ← Back to Find a Pilot
-        </Link>
         <PublicPilotProfile
           pilot={pilot}
           messageHref={`/dashboard/client/messages?pilot=${encodeURIComponent(id)}`}
           hireHref={hireHref}
           browseHref={browseHref}
+          backHref={browseHref}
+          backLabel="← Back to Find a Pilot"
           showHire
         />
       </section>

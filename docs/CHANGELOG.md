@@ -4,6 +4,25 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.120] — 2026-11-10
+
+### Changed
+
+- **Public profile credentials:** Clearer section dividers + gold underlines; equal wing cards; verification/certificate chips hug content (no stretched width), Services-sized type.
+- **Public profile PDF:** Off-screen light-theme capture (no live-page color flash). Excludes hire/chat/action controls. Multi-page A4 packs content top-to-bottom (no centered page gaps).
+- **Hydration:** `suppressHydrationWarning` on `<html>` for browser-extension attribute noise (e.g. `bbai-tooltip-injected`).
+
+---
+
+## [0.27.119] — 2026-11-10
+
+### Fixed
+
+- **Public profile PDF:** Rebuilt as a clean **single-page** Letter export (Helvetica, two-column card layout, truncated sections). No second page; readable sans instead of ornate certificate fonts.
+- **Public profile wings layout:** Full-width credentials panel under the hero. Wings render as cards (art on top, title below). Verifications / certificates chips widened. Highest-wing aside art remains enlarged.
+
+---
+
 ## [0.27.118] — 2026-11-10
 
 ### Added

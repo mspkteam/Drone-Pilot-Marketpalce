@@ -15,6 +15,11 @@ const nextConfig: NextConfig = {
     "/api/admin/certificates": ["./node_modules/pdfkit/js/data/**/*"],
     "/api/admin/certificates/[id]/download": ["./node_modules/pdfkit/js/data/**/*"],
     "/api/pilot/certificates/[id]/download": ["./node_modules/pdfkit/js/data/**/*"],
+    "/api/pilots/[id]/pdf": [
+      "./node_modules/pdfkit/js/data/**/*",
+      "./src/assets/fonts/**/*",
+      "./public/fonts/**/*",
+    ],
   },
   /** Allow LAN IP in dev so client navigation / HMR work off localhost. */
   allowedDevOrigins: ["192.168.137.1", "127.0.0.1"],

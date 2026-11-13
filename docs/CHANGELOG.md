@@ -4,6 +4,19 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.126] — 2026-11-13
+
+### Added
+
+- **Final QA automation:** `npm run qa:final` runs Playwright + focused unit checks for Done checklist rows (`scripts/final-qa/`). Supports `FINAL_QA_BASE_URL` for local or Production.
+
+### Fixed
+
+- **Login form:** `method="post"` so a pre-hydration submit cannot put credentials in the query string.
+- **Admin configuration alias:** `/dashboard/admin/configuration` redirects to `/dashboard/admin/settings` (fixes Preview Pricing / Full configuration 404).
+
+---
+
 ## [0.27.125] — 2026-11-10
 
 ### Added

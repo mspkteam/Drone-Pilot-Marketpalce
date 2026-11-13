@@ -11,6 +11,7 @@ type ReviewFilter = "below5" | "all" | "hidden" | "published";
 
 export function AdminReviewsModerationPanel() {
   const [resetRequests, setResetRequests] = useState<ReviewResetRequestDto[]>([]);
+  const [resetHistory, setResetHistory] = useState<ReviewResetRequestDto[]>([]);
   const [reviews, setReviews] = useState<AdminReviewListItem[]>([]);
   const [filter, setFilter] = useState<ReviewFilter>("below5");
   const [loading, setLoading] = useState(true);
@@ -27,15 +28,24 @@ export function AdminReviewsModerationPanel() {
       if (nextFilter === "hidden") params.set("status", "hidden");
       if (nextFilter === "published") params.set("status", "published");
 
-      const res = await fetch(`/api/admin/reviews?${params.toString()}`);
-      const data = await res.json();
-      if (!res.ok) {
+      const [pendingRes, historyRes] = await Promise.all([
+        fetch(`/api/admin/reviews?${params.toString()}`),
+        fetch("/api/admin/reviews?resetStatus=all"),
+      ]);
+      const data = await pendingRes.json();
+      const historyData = await historyRes.json();
+      if (!pendingRes.ok) {
         setError(data.error ?? "Failed to load reviews.");
         setResetRequests([]);
+        setResetHistory([]);
         setReviews([]);
       } else {
         setResetRequests(data.resetRequests ?? []);
         setReviews(data.reviews ?? []);
+        const all = (historyData.resetRequests ?? []) as ReviewResetRequestDto[];
+        setResetHistory(
+          all.filter((r) => r.status === "approved" || r.status === "rejected"),
+        );
       }
     } catch {
       setError("Failed to load reviews.");
@@ -159,6 +169,9 @@ export function AdminReviewsModerationPanel() {
                   <p className="admin-reviews-meta">
                     {req.nonFiveStarCount} review(s) below 5★ ·{" "}
                     {formatDisplayDateShort(req.createdAt)}
+                    {req.reviewIds.length > 0
+                      ? ` · IDs: ${req.reviewIds.slice(0, 3).join(", ")}${req.reviewIds.length > 3 ? "…" : ""}`
+                      : ""}
                   </p>
                   {req.note ? (
                     <p className="admin-reviews-note">{req.note}</p>
@@ -181,6 +194,48 @@ export function AdminReviewsModerationPanel() {
                   >
                     Reject
                   </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      <section className="admin-reviews-panel">
+        <h2 className="admin-reviews-panel-title">Reset audit history</h2>
+        <p className="admin-reviews-lead" style={{ marginTop: 0 }}>
+          Approvals hide below-5★ reviews only. 5★ reviews are never changed by
+          reset. One approved reset per pilot (lifetime).
+        </p>
+        {resetHistory.length === 0 ? (
+          <p className="admin-reviews-empty">No resolved reset requests yet.</p>
+        ) : (
+          <ul className="admin-reviews-list">
+            {resetHistory.map((req) => (
+              <li key={req.id} className="admin-reviews-card">
+                <div className="admin-reviews-card-body">
+                  <p className="admin-reviews-card-title">
+                    {req.pilotDisplayName}{" "}
+                    <span className="admin-reviews-badge">{req.status}</span>
+                  </p>
+                  <p className="admin-reviews-meta">
+                    {req.nonFiveStarCount} review ID(s) ·{" "}
+                    {req.resolvedByEmail
+                      ? `by ${req.resolvedByEmail}`
+                      : "resolver unknown"}{" "}
+                    ·{" "}
+                    {req.resolvedAt
+                      ? formatDisplayDateShort(req.resolvedAt)
+                      : "—"}
+                  </p>
+                  {req.reviewIds.length > 0 ? (
+                    <p className="admin-reviews-note">
+                      Review IDs: {req.reviewIds.join(", ")}
+                    </p>
+                  ) : null}
+                  {req.resolutionNote ? (
+                    <p className="admin-reviews-note">{req.resolutionNote}</p>
+                  ) : null}
                 </div>
               </li>
             ))}

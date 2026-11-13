@@ -5,11 +5,13 @@ Annotated PDF: `Final_Testing_QA_Checklist_v3 (1).pdf` (Morosoft sticky comments
 
 Marks: **Done** · **Partial** · **Blocked on client**
 
-**Totals (v0.27.123 re-verify):** Done 71 · Partial 0 · Blocked on client 6
+**Totals (v0.27.126 re-verify, 13 Nov 2026):** Done 71 · Partial 0 · Blocked on client 6
+
+**Point-by-point audit:** `docs/FINAL_TESTING_POINT_BY_POINT_REVERIFY.md` (source HTML + code + Production `qa:final` 37 pass / 0 fail / 6 skip).
 
 ### Re-verification restart (Nov 2026)
 
-Code pass across Client / Pilot / Admin paths. Shipped fixes through v0.27.123 for:
+Code pass across Client / Pilot / Admin paths. Shipped fixes through v0.27.126 for:
 
 - Pilot #33 — amendments status + admin comments on cards
 - Client #9 — no budget/travel step-bleed in payload/review (+ normalized persist)

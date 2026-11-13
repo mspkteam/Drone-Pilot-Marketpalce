@@ -21,7 +21,11 @@ describe("personnel display role labels", () => {
       planName: "A-4 Senior Flight Officer",
       instructorAddonActive: true,
     });
-    assert.equal(instructor.label, PERSONNEL_DISPLAY_ROLE_LABELS.squadronLead);
+    assert.equal(
+      instructor.label,
+      `${PERSONNEL_DISPLAY_ROLE_LABELS.squadronLead} · A-4 Senior Flight Officer`,
+    );
+    assert.equal(instructor.filter, PERSONNEL_DISPLAY_ROLE_LABELS.squadronLead);
   });
 
   it("maps elite grades and enterprise clients", () => {

@@ -2,8 +2,7 @@ import { NextResponse } from "next/server";
 import { requirePilotSession } from "@/lib/auth/require-pilot";
 import { getPilotProfileByUserId } from "@/lib/pilot/profile";
 import {
-  getOpenReviewResetRequest,
-  listNonFiveStarReviewsForPilot,
+  getPilotReviewResetStatus,
   requestReviewReset,
 } from "@/lib/reviews/review-reset";
 
@@ -21,22 +20,8 @@ export async function GET() {
     return NextResponse.json({ error: "Pilot profile not found." }, { status: 404 });
   }
 
-  const [pending, nonFiveStar] = await Promise.all([
-    getOpenReviewResetRequest(profile.id),
-    listNonFiveStarReviewsForPilot(profile.id),
-  ]);
-
-  return NextResponse.json({
-    pendingRequest: pending
-      ? {
-          id: pending.id,
-          status: pending.status,
-          createdAt: pending.createdAt.toISOString(),
-          note: pending.note,
-        }
-      : null,
-    nonFiveStarCount: nonFiveStar.length,
-  });
+  const status = await getPilotReviewResetStatus(profile.id);
+  return NextResponse.json(status);
 }
 
 export async function POST(request: Request) {

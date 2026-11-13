@@ -164,6 +164,41 @@ export function AdminModeratorPermissionsPortal({
     }
   }
 
+  async function handleChangeStaffRole(mod: ModeratorPermissionListItem) {
+    if (!canManage) return;
+    const nextRole = mod.role === "admin" ? "moderator" : "admin";
+    if (
+      !window.confirm(
+        `Change ${mod.name} from ${roleBadgeLabel(mod.role)} to ${roleBadgeLabel(nextRole)}?`,
+      )
+    ) {
+      return;
+    }
+    setDeletingId(mod.id);
+    setError(null);
+    setNotice(null);
+    try {
+      const res = await fetch(`/api/admin/management-users/${mod.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ role: nextRole }),
+      });
+      const json = (await res.json()) as { error?: string };
+      if (!res.ok) {
+        setError(json.error ?? "Failed to update staff role.");
+        return;
+      }
+      setNotice(
+        `Updated ${mod.name} to ${roleBadgeLabel(nextRole)}. See docs/ROLES_RANKS_STATUSES.md for role meanings.`,
+      );
+      await load(mod.id);
+    } catch {
+      setError("Failed to update staff role.");
+    } finally {
+      setDeletingId(null);
+    }
+  }
+
   function handlePresetChange(preset: PermissionPreset) {
     if (!draft) return;
     const permissions =
@@ -398,16 +433,28 @@ export function AdminModeratorPermissionsPortal({
                   </p>
                 </div>
                 {canManage ? (
-                  <button
-                    type="button"
-                    className="admin-perms-btn-danger"
-                    disabled={deletingId === selectedStaff.id}
-                    onClick={() => void handleDeleteStaff(selectedStaff)}
-                  >
-                    {deletingId === selectedStaff.id
-                      ? "Deleting…"
-                      : "Delete account"}
-                  </button>
+                  <div className="admin-perms-detail-actions">
+                    <button
+                      type="button"
+                      className="admin-perms-btn-outline"
+                      disabled={deletingId === selectedStaff.id}
+                      onClick={() => void handleChangeStaffRole(selectedStaff)}
+                    >
+                      {selectedStaff.role === "admin"
+                        ? "Make Moderator"
+                        : "Make Admin"}
+                    </button>
+                    <button
+                      type="button"
+                      className="admin-perms-btn-danger"
+                      disabled={deletingId === selectedStaff.id}
+                      onClick={() => void handleDeleteStaff(selectedStaff)}
+                    >
+                      {deletingId === selectedStaff.id
+                        ? "Deleting…"
+                        : "Delete account"}
+                    </button>
+                  </div>
                 ) : null}
               </div>
 

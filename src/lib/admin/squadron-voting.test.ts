@@ -45,4 +45,17 @@ describe("squadron voting helpers", () => {
     assert.match(text, /Harbor Co/);
     assert.match(text, /14–9/);
   });
+
+  it("marks closed ballots without urgency", () => {
+    const time = formatBallotTimeLeft(new Date(), "closed");
+    assert.equal(time.label, "CLOSED");
+    assert.equal(time.urgent, false);
+  });
+
+  it("marks fully expired open ballots", () => {
+    const openedAt = new Date(Date.now() - SQUADRON_BALLOT_WINDOW_MS - 1000);
+    const time = formatBallotTimeLeft(openedAt, "open");
+    assert.equal(time.label, "EXPIRED");
+    assert.equal(time.urgent, true);
+  });
 });

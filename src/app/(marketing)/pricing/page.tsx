@@ -4,6 +4,7 @@ import { PricingFaq } from "@/components/marketing/pricing/PricingFaq";
 import { PricingHero } from "@/components/marketing/pricing/PricingHero";
 import { PricingMembershipIntro } from "@/components/marketing/pricing/PricingMembershipIntro";
 import { PricingPlanCards } from "@/components/marketing/pricing/PricingPlanCards";
+import { getLiveMarketingGradePlans } from "@/lib/marketing/pricing-plans-live";
 import { getPricingPilotContext } from "@/lib/marketing/pricing-pilot-context";
 
 export const metadata = {
@@ -13,7 +14,10 @@ export const metadata = {
 };
 
 export default async function PricingPage() {
-  const { currentPlanCode, isPilot } = await getPricingPilotContext();
+  const [{ currentPlanCode, isPilot }, plans] = await Promise.all([
+    getPricingPilotContext(),
+    getLiveMarketingGradePlans(),
+  ]);
 
   return (
     <>
@@ -22,6 +26,7 @@ export default async function PricingPage() {
       <PricingPlanCards
         currentPlanCode={currentPlanCode}
         isPilot={isPilot}
+        plans={plans}
       />
       <PricingComparison />
       <PricingFaq />

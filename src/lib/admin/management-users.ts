@@ -96,6 +96,70 @@ export async function createManagementUser(
   return { ok: true, user: toAdminUserDto(user) };
 }
 
+export type UpdateManagementUserRoleResult =
+  | { ok: true; user: AdminUserDto }
+  | { ok: false; error: string; status: 400 | 403 | 404 };
+
+/** Super Admin: switch staff between moderator and admin (not super_admin). */
+export async function updateManagementUserRole(
+  targetUserId: string,
+  actorUserId: string,
+  nextRole: ManagementUserRole,
+): Promise<UpdateManagementUserRoleResult> {
+  if (targetUserId === actorUserId) {
+    return {
+      ok: false,
+      error: "You cannot change your own staff role here.",
+      status: 403,
+    };
+  }
+  if (!isManagementUserRole(nextRole)) {
+    return {
+      ok: false,
+      error: "Role must be Admin or Moderator.",
+      status: 400,
+    };
+  }
+
+  const target = await prisma.user.findUnique({ where: { id: targetUserId } });
+  if (!target) {
+    return { ok: false, error: "User not found.", status: 404 };
+  }
+  if (!isManagementUserRole(target.role)) {
+    return {
+      ok: false,
+      error: "Only Admin or Moderator accounts can be reassigned here.",
+      status: 400,
+    };
+  }
+  if (target.role === nextRole) {
+    return { ok: true, user: toAdminUserDto(target) };
+  }
+
+  const updated = await prisma.user.update({
+    where: { id: targetUserId },
+    data: { role: nextRole },
+  });
+
+  if (nextRole === "moderator") {
+    const existing = await prisma.moderatorPermissionRecord.findUnique({
+      where: { userId: targetUserId },
+    });
+    if (!existing) {
+      const preset = "full";
+      await prisma.moderatorPermissionRecord.create({
+        data: {
+          userId: targetUserId,
+          preset,
+          permissionsJson: JSON.stringify(buildPresetPermissions(preset)),
+        },
+      });
+    }
+  }
+
+  return { ok: true, user: toAdminUserDto(updated) };
+}
+
 export type DeleteManagementUserResult =
   | { ok: true; deletedId: string }
   | { ok: false; error: string; status: 400 | 409 | 404 | 403 };

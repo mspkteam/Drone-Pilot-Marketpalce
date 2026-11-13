@@ -115,9 +115,10 @@ export function PilotReviewsView() {
 }
 
 function ReviewResetButton() {
-  const [pending, setPending] = useState(false);
   const [nonFiveStarCount, setNonFiveStarCount] = useState(0);
   const [hasPending, setHasPending] = useState(false);
+  const [used, setUsed] = useState(false);
+  const [feeNote, setFeeNote] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
@@ -129,6 +130,8 @@ function ReviewResetButton() {
         if (!res.ok || cancelled) return;
         setNonFiveStarCount(data.nonFiveStarCount ?? 0);
         setHasPending(Boolean(data.pendingRequest));
+        setUsed(Boolean(data.used));
+        setFeeNote(typeof data.feeNote === "string" ? data.feeNote : null);
       })
       .catch(() => {
         /* ignore */
@@ -139,13 +142,13 @@ function ReviewResetButton() {
   }, []);
 
   async function submit() {
-    if (busy || hasPending) return;
+    if (busy || hasPending || used) return;
     if (nonFiveStarCount === 0) {
       setMessage("You have no published reviews below 5 stars.");
       return;
     }
     const confirmed = window.confirm(
-      `Request removal of ${nonFiveStarCount} review(s) that are not 5 stars? A moderator will review and approve.`,
+      `Request a one-time removal of ${nonFiveStarCount} review(s) below 5 stars? 5-star reviews stay. A moderator must approve. You can only use this once.`,
     );
     if (!confirmed) return;
 
@@ -164,7 +167,6 @@ function ReviewResetButton() {
         setMessage(data.error ?? "Could not submit reset request.");
       } else {
         setHasPending(true);
-        setPending(true);
         setMessage("Reset request submitted. Moderators will review it shortly.");
       }
     } catch {
@@ -174,17 +176,24 @@ function ReviewResetButton() {
     }
   }
 
+  const label = used
+    ? "Reset already used"
+    : hasPending
+      ? "Reset requested"
+      : "Request review reset";
+
   return (
     <div className="pilot-reviews-reset-wrap">
       <button
         type="button"
         className="pilot-reviews-btn-outline"
-        disabled={busy || hasPending}
+        disabled={busy || hasPending || used}
         onClick={() => void submit()}
-        title="Request that reviews below 5 stars be removed"
+        title="One-time request to hide reviews below 5 stars (admin approved)"
       >
-        {hasPending || pending ? "Reset requested" : "Request review reset"}
+        {label}
       </button>
+      {feeNote ? <p className="pilot-reviews-reset-msg">{feeNote}</p> : null}
       {message ? <p className="pilot-reviews-reset-msg">{message}</p> : null}
     </div>
   );

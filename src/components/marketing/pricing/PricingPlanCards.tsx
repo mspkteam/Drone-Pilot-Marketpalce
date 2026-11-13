@@ -4,6 +4,7 @@ import { PricingFeatureIcon } from "@/components/marketing/pricing/PricingFeatur
 import {
   MARKETING_GRADE_PLANS,
   totalAtSignupUsd,
+  type MarketingGradePlan,
 } from "@/lib/marketing/pricing-content";
 import {
   formatMembershipUsd,
@@ -11,7 +12,6 @@ import {
 } from "@/lib/membership/pilot-membership-catalog";
 import {
   getPricingPlanButtonHref,
-  RECOMMENDED_PRICING_PLAN_CODE,
   type PricingPilotContext,
 } from "@/lib/marketing/pricing-pilot-context";
 import { homeAssets } from "@/lib/marketing/home-assets";
@@ -36,11 +36,14 @@ function PlanBadge({ type }: { type: "current" | "recommended" }) {
 type PricingPlanCardsProps = Pick<
   PricingPilotContext,
   "currentPlanCode" | "isPilot"
->;
+> & {
+  plans?: MarketingGradePlan[];
+};
 
 export function PricingPlanCards({
   currentPlanCode,
   isPilot,
+  plans = MARKETING_GRADE_PLANS,
 }: PricingPlanCardsProps) {
   const upgradeHref = getPricingPlanButtonHref(isPilot);
 
@@ -65,12 +68,9 @@ export function PricingPlanCards({
         </div>
 
         <ul className="mt-12 grid items-stretch gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {MARKETING_GRADE_PLANS.map((plan) => {
+          {plans.map((plan) => {
             const isCurrent = currentPlanCode === plan.code;
-            const isRecommended =
-              !isCurrent &&
-              plan.code === RECOMMENDED_PRICING_PLAN_CODE &&
-              currentPlanCode !== RECOMMENDED_PRICING_PLAN_CODE;
+            const isRecommended = !isCurrent && plan.isRecommended;
             const signupTotal = totalAtSignupUsd(plan.fastForwardFeeUsd);
 
             return (

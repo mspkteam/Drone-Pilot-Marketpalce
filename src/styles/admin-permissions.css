@@ -315,6 +315,13 @@
   margin-bottom: 1.25rem;
 }
 
+.admin-perms-detail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .admin-perms-detail-title {
   margin: 0;
   font-size: 1.25rem;

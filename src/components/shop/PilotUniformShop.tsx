@@ -138,6 +138,23 @@ export function PilotUniformShop() {
     });
   }
 
+  function incrementQty(variantId: string) {
+    setCart((prev) =>
+      prev.map((line) =>
+        line.variantId === variantId
+          ? { ...line, quantity: line.quantity + 1 }
+          : line,
+      ),
+    );
+  }
+
+  function removeFromCart(variantId: string) {
+    setCart((prev) => prev.filter((line) => line.variantId !== variantId));
+  }
+
+  const shippingEstimate = cartDetails.length > 0 ? UNIFORM_SHIPPING_FLAT_RATE : 0;
+  const orderTotalEstimate = subtotal + shippingEstimate;
+
   async function placeOrder(e: React.FormEvent) {
     e.preventDefault();
     setSubmitting(true);
@@ -225,14 +242,40 @@ export function PilotUniformShop() {
                   <ul className="pilot-shop-cart-items">
                     {cartDetails.map((line) => (
                       <li key={line.variantId} className="pilot-shop-cart-item">
-                        <button
-                          type="button"
-                          className="pilot-shop-cart-item-name"
-                          onClick={() => decrementQty(line.variantId)}
-                        >
-                          {line.variant.productName}
-                          {line.quantity > 1 ? ` ×${line.quantity}` : ""}
-                        </button>
+                        <div className="pilot-shop-cart-item-main">
+                          <span className="pilot-shop-cart-item-name">
+                            {line.variant.productName}
+                            {line.variant.label ? ` · ${line.variant.label}` : ""}
+                          </span>
+                          <div className="pilot-shop-cart-qty">
+                            <button
+                              type="button"
+                              className="pilot-shop-cart-qty-btn"
+                              aria-label="Decrease quantity"
+                              onClick={() => decrementQty(line.variantId)}
+                            >
+                              −
+                            </button>
+                            <span className="pilot-shop-cart-qty-value">
+                              {line.quantity}
+                            </span>
+                            <button
+                              type="button"
+                              className="pilot-shop-cart-qty-btn"
+                              aria-label="Increase quantity"
+                              onClick={() => incrementQty(line.variantId)}
+                            >
+                              +
+                            </button>
+                            <button
+                              type="button"
+                              className="pilot-shop-cart-remove"
+                              onClick={() => removeFromCart(line.variantId)}
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        </div>
                         <span className="pilot-shop-cart-item-price">
                           {formatShopPrice(line.variant.price * line.quantity)}
                         </span>
@@ -244,6 +287,18 @@ export function PilotUniformShop() {
                     <span className="pilot-shop-cart-subtotal-label">SUBTOTAL</span>
                     <span className="pilot-shop-cart-subtotal-value">
                       {formatShopPrice(subtotal)}
+                    </span>
+                  </div>
+                  <div className="pilot-shop-cart-subtotal">
+                    <span className="pilot-shop-cart-subtotal-label">SHIPPING</span>
+                    <span className="pilot-shop-cart-subtotal-value">
+                      {formatShopPrice(shippingEstimate)}
+                    </span>
+                  </div>
+                  <div className="pilot-shop-cart-subtotal pilot-shop-cart-subtotal--total">
+                    <span className="pilot-shop-cart-subtotal-label">EST. TOTAL</span>
+                    <span className="pilot-shop-cart-subtotal-value">
+                      {formatShopPrice(orderTotalEstimate)}
                     </span>
                   </div>
 

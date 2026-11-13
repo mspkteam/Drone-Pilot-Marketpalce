@@ -136,6 +136,8 @@ model PilotProfile {
   commissionOverrideEffective String?
   commissionOverrideUpdatedAt DateTime?
   commissionOverrideSetById   String?
+  /** Set when an admin-approved one-time review reset is used (lifetime). */
+  reviewResetUsedAt     DateTime?
   createdAt             DateTime            @default(now())
   updatedAt             DateTime            @updatedAt
   applications          JobApplication[]

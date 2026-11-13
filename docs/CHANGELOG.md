@@ -4,6 +4,26 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.127] — 2026-11-13
+
+### Added
+
+- **Review reset (lifetime once):** `PilotProfile.reviewResetUsedAt`; approved reset blocks further requests; admin audit history (resolver email + review IDs); pilot fee note TBD (no Stripe).
+- **Roles glossary:** `docs/ROLES_RANKS_STATUSES.md`; Super Admin can PATCH staff between Moderator/Admin; Squadron Lead display includes grade title when present.
+- **Live pricing sync:** `/pricing` merges admin `SubscriptionPlan` Fast Forward fees / recommended / feature bullets.
+- **Client feedback status:** `docs/CLIENT_FEEDBACK_DEV_TASKS_STATUS.md` updated for non-pay / non-region scope.
+
+### Fixed
+
+- **Squadron voting:** cannot change or re-cast a ballot vote after submitting.
+- **Uniform shop cart:** qty +/−, remove line, shipping + est. total before checkout (demo pay unchanged).
+
+### Tests
+
+- Squadron ballot time-left edge cases; commission 15% calc unit tests.
+
+---
+
 ## [0.27.126] — 2026-11-13
 
 ### Added

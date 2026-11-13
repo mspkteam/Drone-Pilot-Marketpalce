@@ -410,13 +410,24 @@ export async function castSquadronVote(
     }
   }
 
-  const votes = parseVotes(ballot.votesJson).filter((entry) => entry.userId !== userId);
-  votes.push({
-    userId,
-    vote,
-    comment,
-    votedAt: new Date().toISOString(),
-  });
+  const existingVotes = parseVotes(ballot.votesJson);
+  if (existingVotes.some((entry) => entry.userId === userId)) {
+    return {
+      ok: false,
+      error: "You have already voted on this ballot.",
+      status: 409,
+    };
+  }
+
+  const votes = [
+    ...existingVotes,
+    {
+      userId,
+      vote,
+      comment,
+      votedAt: new Date().toISOString(),
+    },
+  ];
 
   const record = await prisma.squadronBallot.update({
     where: { id: ballotId },

@@ -4141,9 +4141,44 @@ a.dashboard-card:hover {
 
 .client-post-project-file-list {
   margin: 0.5rem 0 0;
-  padding-left: 1.125rem;
+  padding: 0;
+  list-style: none;
   font-size: 0.8125rem;
   color: var(--color-text-soft);
+}
+
+.client-post-project-file-list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.375rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.client-post-project-file-list-item:last-child {
+  border-bottom: none;
+}
+
+.client-post-project-file-list-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.client-post-project-file-remove {
+  flex-shrink: 0;
+  border: none;
+  background: transparent;
+  padding: 0.125rem 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-gold, #d8b339);
+  cursor: pointer;
+}
+
+.client-post-project-file-remove:hover {
+  text-decoration: underline;
 }
 
 @media (min-width: 640px) {

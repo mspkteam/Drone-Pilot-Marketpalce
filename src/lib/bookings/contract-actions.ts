@@ -16,6 +16,7 @@ export type ContractActionId =
   | "deliver"
   | "resubmit"
   | "view_delivery"
+  | "complete_job"
   | "view_contract"
   | "message"
   | "request_revision"
@@ -109,12 +110,6 @@ export function buildPilotContractActions(input: {
         href: deliverHref,
         tone: "gold",
       });
-      actions.push({
-        id: "deliver",
-        label: "Complete Job",
-        href: deliverHref,
-        tone: "outline",
-      });
       break;
     case "awaiting_review":
       actions.push({
@@ -122,6 +117,14 @@ export function buildPilotContractActions(input: {
         label: "View Submission",
         href: deliverHref,
         tone: "outline",
+      });
+      // After revisions are addressed and resubmitted, surface Complete Job
+      // as a status shortcut (client approval still finalizes the contract).
+      actions.push({
+        id: "complete_job",
+        label: "Complete Job",
+        href: detailHref,
+        tone: "gold",
       });
       break;
     case "completed":

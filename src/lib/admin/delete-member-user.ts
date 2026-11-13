@@ -1,14 +1,21 @@
+import { deactivateUserAccount } from "@/lib/account/deactivation";
 import { prisma } from "@/lib/db";
 import { isManagementUserRole } from "@/types/roles";
 
 export type DeleteMemberUserResult =
-  | { ok: true; deletedId: string; email: string; role: string }
+  | {
+      ok: true;
+      deletedId: string;
+      email: string;
+      role: string;
+      mode: "soft" | "hard";
+    }
   | { ok: false; error: string; status: 400 | 403 | 404 };
 
 /**
- * Permanently delete a member account (pilot, client, admin, or moderator)
- * and related marketplace data. Cannot delete self or Super Admin accounts
- * unless `allowSelf` is set (testing instant-delete for pilot/client only).
+ * Pilot/client: soft-deactivate (30-day reactivation window, then cron purge).
+ * Admin/moderator: hard-delete related rows. Cannot delete self or Super Admin
+ * unless `allowSelf` is set (testing instant hard-delete for pilot/client only).
  */
 export async function deleteMemberUser(
   targetUserId: string,
@@ -27,7 +34,7 @@ export async function deleteMemberUser(
 
   const target = await prisma.user.findUnique({
     where: { id: targetUserId },
-    select: { id: true, email: true, role: true },
+    select: { id: true, email: true, role: true, status: true },
   });
   if (!target) {
     return { ok: false, error: "User not found.", status: 404 };
@@ -46,6 +53,29 @@ export async function deleteMemberUser(
       ok: false,
       error: "Only pilot or client test accounts can self-delete.",
       status: 403,
+    };
+  }
+
+  // QA: admin “delete” for members starts a 30-day grace period (unless self-test hard delete).
+  if (
+    !allowSelf &&
+    (target.role === "pilot" || target.role === "client")
+  ) {
+    if (target.status === "deactivated") {
+      return {
+        ok: false,
+        error:
+          "Account is already in the 30-day grace period. Reactivate from login or wait for automatic permanent deletion.",
+        status: 400,
+      };
+    }
+    await deactivateUserAccount(targetUserId);
+    return {
+      ok: true,
+      deletedId: target.id,
+      email: target.email,
+      role: target.role,
+      mode: "soft",
     };
   }
 
@@ -175,6 +205,7 @@ export async function deleteMemberUser(
     deletedId: target.id,
     email: target.email,
     role: target.role,
+    mode: "hard",
   };
 }
 

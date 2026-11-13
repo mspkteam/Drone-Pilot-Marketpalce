@@ -2,6 +2,7 @@ import type { BookingDelivery } from "@/generated/prisma/client";
 import { updateBookingStatus } from "@/lib/bookings/booking";
 import {
   buildStoredDeliveryFileName,
+  deleteDeliveryFile,
   validateDeliveryFileBuffer,
   writeDeliveryFile,
 } from "@/lib/deliveries/storage";
@@ -205,6 +206,52 @@ export async function addDeliveryFile(
       storedFileName,
     },
   ];
+
+  const updated = await prisma.bookingDelivery.update({
+    where: { id: record.id },
+    data: { filesJson: serializeItems(nextItems), status: "draft" },
+  });
+
+  return { ok: true, delivery: toDeliveryDto(updated) };
+}
+
+export async function removeDeliveryItem(
+  bookingId: string,
+  pilotProfileId: string,
+  itemId: string,
+): Promise<
+  | { ok: true; delivery: BookingDeliveryDto }
+  | { ok: false; error: string; status: 400 | 403 | 404 }
+> {
+  const booking = await getBookingForPilot(bookingId, pilotProfileId);
+  if (!booking) {
+    return { ok: false, error: "Booking not found.", status: 404 };
+  }
+
+  const record = await getOrCreateDeliveryRecord(bookingId);
+  const status = record.status as DeliveryStatus;
+  if (!canPilotEditDelivery(booking.status, status)) {
+    return {
+      ok: false,
+      error: "Deliverables can only be removed while drafting or revising.",
+      status: 403,
+    };
+  }
+
+  const items = parseItems(record.filesJson);
+  const target = items.find((item) => item.id === itemId);
+  if (!target) {
+    return { ok: false, error: "Deliverable not found.", status: 404 };
+  }
+
+  const nextItems = items.filter((item) => item.id !== itemId);
+  if (target.kind === "file" && target.storedFileName) {
+    try {
+      await deleteDeliveryFile(target.storedFileName);
+    } catch {
+      /* file may already be gone */
+    }
+  }
 
   const updated = await prisma.bookingDelivery.update({
     where: { id: record.id },

@@ -548,6 +548,37 @@
   text-align: center;
 }
 
+.av-doc--targeted {
+  border-color: rgba(216, 179, 57, 0.55);
+  box-shadow: 0 0 0 1px rgba(216, 179, 57, 0.25);
+}
+
+.av-doc-select {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  cursor: pointer;
+}
+
+.av-doc-select input {
+  width: 1rem;
+  height: 1rem;
+  accent-color: #ddb049;
+  cursor: pointer;
+}
+
+.av-help {
+  margin: 0.75rem 0 0;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: #999077;
+}
+
 .av-doc--pending {
   background: #181613;
   border-color: #ddb049;

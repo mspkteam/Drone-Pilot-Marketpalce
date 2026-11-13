@@ -1,4 +1,4 @@
-﻿import type { Verification } from "@/generated/prisma/client";
+import type { Verification } from "@/generated/prisma/client";
 import { prisma } from "@/lib/db";
 import { notifyAsync, sendNotification } from "@/lib/notifications/notify";
 import { evaluatePilotAwards } from "@/lib/certificates/awards";

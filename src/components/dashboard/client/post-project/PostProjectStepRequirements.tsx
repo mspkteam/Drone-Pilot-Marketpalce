@@ -55,6 +55,15 @@ export function PostProjectStepRequirements({
     });
   }
 
+  function removeReferenceFile(index: number) {
+    const names = form.referenceFileNames.filter((_, i) => i !== index);
+    const urls = (form.referenceFileUrls ?? []).filter((_, i) => i !== index);
+    onChange({
+      referenceFileNames: names,
+      referenceFileUrls: urls,
+    });
+  }
+
   return (
     <div className="client-post-project-step">
       <h2 className="client-post-project-step-title">Tell us about your project</h2>
@@ -123,8 +132,18 @@ export function PostProjectStepRequirements({
           </span>
           {form.referenceFileNames.length > 0 ? (
             <ul className="client-post-project-file-list">
-              {form.referenceFileNames.map((name) => (
-                <li key={name}>{name}</li>
+              {form.referenceFileNames.map((name, index) => (
+                <li key={`${name}-${index}`} className="client-post-project-file-list-item">
+                  <span className="client-post-project-file-list-name">{name}</span>
+                  <button
+                    type="button"
+                    className="client-post-project-file-remove"
+                    onClick={() => removeReferenceFile(index)}
+                    aria-label={`Remove ${name}`}
+                  >
+                    Remove
+                  </button>
+                </li>
               ))}
             </ul>
           ) : null}

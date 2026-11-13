@@ -45,6 +45,28 @@ describe("pilot contract actions", () => {
     assert.equal(actions[0]?.href, "/detail#deliver");
     assert.equal(
       actions.some((action) => action.label === "Complete Job"),
+      false,
+    );
+  });
+
+  it("shows Complete Job after revisions are resubmitted", () => {
+    const phase = resolvePilotContractPhase("in_progress", "submitted");
+    assert.equal(phase, "awaiting_review");
+
+    const actions = buildPilotContractActions({
+      phase,
+      detailHref: "/detail",
+      messageHref: "/messages",
+      deliverHref: "/detail#deliver",
+      disputeHref: "/detail#dispute",
+    });
+
+    assert.equal(
+      actions.some((action) => action.label === "Complete Job"),
+      true,
+    );
+    assert.equal(
+      actions.some((action) => action.label === "View Submission"),
       true,
     );
   });

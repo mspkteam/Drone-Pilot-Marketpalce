@@ -97,7 +97,9 @@ export function NotificationBell({
     }
     if (n.href) {
       setOpen(false);
+      // Soft-nav alone can leave RSC booking/delivery data stale until a hard refresh.
       router.push(n.href);
+      router.refresh();
     }
   }
 

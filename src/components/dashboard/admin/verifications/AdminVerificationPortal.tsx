@@ -174,6 +174,7 @@ export function AdminVerificationPortal({
   const [busy, setBusy] = useState(false);
   const [reasonMode, setReasonMode] = useState<"reject" | "request" | null>(null);
   const [reason, setReason] = useState("");
+  const [targetDocIds, setTargetDocIds] = useState<string[]>([]);
   const [docPreview, setDocPreview] = useState<DocPreview | null>(null);
 
   const load = useCallback(async () => {
@@ -228,8 +229,15 @@ export function AdminVerificationPortal({
     setSelectedId(id);
     setReasonMode(null);
     setReason("");
+    setTargetDocIds([]);
     setError(null);
   }, []);
+
+  function toggleTargetDoc(id: string) {
+    setTargetDocIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+    );
+  }
 
   async function approveApplicant(applicant: Applicant) {
     const pending = applicant.verifications.filter((v) => isQueuePending(v.status));
@@ -261,13 +269,26 @@ export function AdminVerificationPortal({
       return;
     }
     const pending = applicant.verifications.filter((v) => isQueuePending(v.status));
-    if (pending.length === 0) return;
+    const targets =
+      reasonMode === "request"
+        ? pending.filter((v) => targetDocIds.includes(v.id))
+        : targetDocIds.length > 0
+          ? pending.filter((v) => targetDocIds.includes(v.id))
+          : pending;
+    if (targets.length === 0) {
+      setError(
+        reasonMode === "request"
+          ? "Select at least one document that needs amendments."
+          : "Select at least one document to reject, or leave all selected.",
+      );
+      return;
+    }
     setBusy(true);
     setError(null);
     const endpoint =
       reasonMode === "request" ? "amendments" : "reject";
     try {
-      for (const v of pending) {
+      for (const v of targets) {
         const res = await fetch(`/api/admin/verifications/${v.id}/${endpoint}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -281,6 +302,7 @@ export function AdminVerificationPortal({
       }
       setReasonMode(null);
       setReason("");
+      setTargetDocIds([]);
       await load();
     } catch {
       setError("Action failed.");
@@ -514,8 +536,25 @@ export function AdminVerificationPortal({
                             href?.toLowerCase().includes(".pdf")
                           ? "pdf"
                           : "other";
+                    const selectable =
+                      Boolean(reasonMode) && isQueuePending(v.status);
+                    const checked = targetDocIds.includes(v.id);
                     return (
-                      <div key={v.id} className={`av-doc av-doc--${tone}`}>
+                      <div
+                        key={v.id}
+                        className={`av-doc av-doc--${tone}${selectable && checked ? " av-doc--targeted" : ""}`}
+                      >
+                        {selectable ? (
+                          <label className="av-doc-select">
+                            <input
+                              type="checkbox"
+                              checked={checked}
+                              onChange={() => toggleTargetDoc(v.id)}
+                              disabled={busy}
+                            />
+                            <span className="sr-only">Select {label}</span>
+                          </label>
+                        ) : null}
                         {href ? (
                           <button
                             type="button"
@@ -543,6 +582,13 @@ export function AdminVerificationPortal({
                     <p className="av-empty">No documents submitted.</p>
                   ) : null}
                 </div>
+                {reasonMode ? (
+                  <p className="av-help">
+                    {reasonMode === "request"
+                      ? "Select only the document(s) that need amendments. Other pending files stay unchanged."
+                      : "Optionally select specific documents to reject. Leave none selected to reject all pending."}
+                  </p>
+                ) : null}
 
                 {error && selected ? (
                   <p className="av-error" role="alert">
@@ -585,6 +631,7 @@ export function AdminVerificationPortal({
                         onClick={() => {
                           setReasonMode(null);
                           setReason("");
+                          setTargetDocIds([]);
                         }}
                       >
                         Cancel
@@ -603,6 +650,7 @@ export function AdminVerificationPortal({
                         onClick={() => {
                           setReasonMode("reject");
                           setReason("");
+                          setTargetDocIds([]);
                           setError(null);
                         }}
                       >
@@ -618,6 +666,7 @@ export function AdminVerificationPortal({
                         onClick={() => {
                           setReasonMode("request");
                           setReason("");
+                          setTargetDocIds([]);
                           setError(null);
                         }}
                       >

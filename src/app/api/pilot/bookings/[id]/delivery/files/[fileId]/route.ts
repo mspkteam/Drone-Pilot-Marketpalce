@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { requirePilotSession } from "@/lib/auth/require-pilot";
-import { getDeliveryFileForAccess } from "@/lib/deliveries/delivery";
+import {
+  getDeliveryFileForAccess,
+  removeDeliveryItem,
+} from "@/lib/deliveries/delivery";
 import { getPilotProfileByUserId } from "@/lib/pilot/profile";
 
 type RouteContext = { params: Promise<{ id: string; fileId: string }> };
@@ -34,4 +37,27 @@ export async function GET(_request: Request, context: RouteContext) {
       "Content-Disposition": `attachment; filename="${result.downloadName.replace(/"/g, "")}"`,
     },
   });
+}
+
+export async function DELETE(_request: Request, context: RouteContext) {
+  const authResult = await requirePilotSession();
+  if (!authResult.ok) {
+    return NextResponse.json(
+      { error: authResult.error },
+      { status: authResult.status },
+    );
+  }
+
+  const profile = await getPilotProfileByUserId(authResult.userId);
+  if (!profile) {
+    return NextResponse.json({ error: "Pilot profile not found." }, { status: 404 });
+  }
+
+  const { id: bookingId, fileId } = await context.params;
+  const result = await removeDeliveryItem(bookingId, profile.id, fileId);
+  if (!result.ok) {
+    return NextResponse.json({ error: result.error }, { status: result.status });
+  }
+
+  return NextResponse.json({ delivery: result.delivery });
 }

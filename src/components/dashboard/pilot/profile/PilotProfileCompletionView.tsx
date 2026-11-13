@@ -225,36 +225,36 @@ export function PilotProfileCompletionView({
     needsOnboarding &&
     (profile!.servicesOffered?.length ?? 0) === 0;
 
-  const strength = useMemo(
-    () =>
-      computePilotProfileStrength({
-        form: {
-          displayName: form.displayName,
-          bio: form.bio,
-          locationCity: form.locationCity,
-          locationCountry: form.locationCountry,
-          servicesOffered: form.servicesOffered,
-          complianceAcknowledged: form.complianceAcknowledged,
-        },
-        avatarPreview: extras.avatarPreview,
-        portfolioCount: portfolioItems.length,
-        insuranceVerified,
-        mainDrones: extras.mainDrones,
-        payloads: extras.payloads,
-        localChipIds: extras.localChipIds,
-        complianceAccepted: Boolean(profile?.complianceAcceptedAt),
-      }),
-    [
-      form,
-      extras.avatarPreview,
-      extras.mainDrones,
-      extras.payloads,
-      extras.localChipIds,
-      portfolioItems.length,
+  const strength = useMemo(() => {
+    const loc = parseLocation(extras.locationCombined);
+    return computePilotProfileStrength({
+      form: {
+        displayName: form.displayName,
+        bio: form.bio,
+        locationCity: loc.city || form.locationCity,
+        locationCountry: form.locationCountry,
+        servicesOffered: form.servicesOffered,
+        complianceAcknowledged: form.complianceAcknowledged,
+      },
+      avatarPreview: extras.avatarPreview,
+      portfolioCount: portfolioItems.length,
       insuranceVerified,
-      profile?.complianceAcceptedAt,
-    ],
-  );
+      mainDrones: extras.mainDrones,
+      payloads: extras.payloads,
+      localChipIds: extras.localChipIds,
+      complianceAccepted: Boolean(profile?.complianceAcceptedAt),
+    });
+  }, [
+    form,
+    extras.locationCombined,
+    extras.avatarPreview,
+    extras.mainDrones,
+    extras.payloads,
+    extras.localChipIds,
+    portfolioItems.length,
+    insuranceVerified,
+    profile?.complianceAcceptedAt,
+  ]);
 
   function openPortfolioAdd() {
     setEditingPortfolioItem(null);
@@ -612,7 +612,7 @@ export function PilotProfileCompletionView({
                 </div>
                 <div className="profile-onboarding-field">
                   <label className="profile-onboarding-label" htmlFor="location">
-                    LOCATION
+                    LOCATION (CITY, REGION)
                   </label>
                   <div className="profile-onboarding-input-wrap">
                     <span className="profile-onboarding-input-icon">
@@ -627,6 +627,19 @@ export function PilotProfileCompletionView({
                       placeholder="Seattle, WA"
                     />
                   </div>
+                </div>
+                <div className="profile-onboarding-field">
+                  <label className="profile-onboarding-label" htmlFor="locationCountry">
+                    COUNTRY
+                  </label>
+                  <CountrySelect
+                    id="locationCountry"
+                    className="profile-onboarding-input"
+                    value={form.locationCountry}
+                    onChange={(locationCountry) => patchForm({ locationCountry })}
+                    disabled={fieldsLocked || loading}
+                    required
+                  />
                 </div>
                 <div className="profile-onboarding-field">
                   <label className="profile-onboarding-label" htmlFor="serviceRadius">
@@ -968,21 +981,6 @@ export function PilotProfileCompletionView({
               </Link>
             </div>
 
-            <div className="profile-onboarding-fields profile-onboarding-fields--2 profile-onboarding-fields--spaced">
-              <div className="profile-onboarding-field">
-                <label className="profile-onboarding-label" htmlFor="locationCountry">
-                  COUNTRY
-                </label>
-                <CountrySelect
-                  id="locationCountry"
-                  className="profile-onboarding-input"
-                  value={form.locationCountry}
-                  onChange={(locationCountry) => patchForm({ locationCountry })}
-                  disabled={fieldsLocked || loading}
-                  required
-                />
-              </div>
-            </div>
             {showCompliance ? (
               <div className="profile-onboarding-compliance">
                 <ComplianceChecklist

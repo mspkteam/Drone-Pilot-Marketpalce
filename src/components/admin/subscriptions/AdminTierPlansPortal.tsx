@@ -131,7 +131,7 @@ export function AdminTierPlansPortal() {
               target="_blank"
               rel="noopener noreferrer"
             >
-              Preview Pilot View
+              Preview Pricing
             </Link>
           </div>
         </div>

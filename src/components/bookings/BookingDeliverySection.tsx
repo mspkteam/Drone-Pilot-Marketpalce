@@ -45,14 +45,39 @@ export function BookingDeliverySection({
   const [feedback, setFeedback] = useState("");
 
   useEffect(() => {
-    fetch(`${apiBase}/${bookingId}/delivery`)
-      .then((res) => res.json())
-      .then((data) => {
+    let cancelled = false;
+
+    async function loadDelivery() {
+      try {
+        const res = await fetch(`${apiBase}/${bookingId}/delivery`, {
+          cache: "no-store",
+        });
+        const data = await res.json();
+        if (cancelled) return;
         setDelivery(data.delivery ?? null);
         if (data.delivery?.notes) setNotes(data.delivery.notes);
-      })
-      .catch(() => setError("Failed to load deliverables."))
-      .finally(() => setLoading(false));
+        setError(null);
+      } catch {
+        if (!cancelled) setError("Failed to load deliverables.");
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    setLoading(true);
+    void loadDelivery();
+
+    function onVisible() {
+      if (document.visibilityState === "visible") void loadDelivery();
+    }
+    document.addEventListener("visibilitychange", onVisible);
+    window.addEventListener("focus", onVisible);
+
+    return () => {
+      cancelled = true;
+      document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener("focus", onVisible);
+    };
   }, [apiBase, bookingId]);
 
   const canPilotEdit =
@@ -187,6 +212,29 @@ export function BookingDeliverySection({
     }
   }
 
+  async function handleRemoveItem(itemId: string) {
+    if (actor !== "pilot") return;
+    setError(null);
+    setBusy(true);
+    try {
+      const res = await fetch(
+        `/api/pilot/bookings/${bookingId}/delivery/files/${itemId}`,
+        { method: "DELETE" },
+      );
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error ?? "Failed to remove deliverable.");
+        return;
+      }
+      setDelivery(data.delivery);
+      router.refresh();
+    } catch {
+      setError("Failed to remove deliverable.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function handleSubmitForReview() {
     setError(null);
     setBusy(true);
@@ -264,23 +312,35 @@ export function BookingDeliverySection({
           {delivery.items.map((item) => (
             <li key={item.id} className="ras-list-row">
               <span>{item.label}</span>
-              {item.kind === "link" && item.url ? (
-                <a
-                  href={item.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="ras-link"
-                >
-                  Open link →
-                </a>
-              ) : item.storedFileName ? (
-                <a
-                  href={`${apiBase}/${bookingId}/delivery/files/${item.id}`}
-                  className="ras-link"
-                >
-                  Download →
-                </a>
-              ) : null}
+              <span className="inline-flex flex-wrap items-center gap-3">
+                {item.kind === "link" && item.url ? (
+                  <a
+                    href={item.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="ras-link"
+                  >
+                    Open link →
+                  </a>
+                ) : item.storedFileName ? (
+                  <a
+                    href={`${apiBase}/${bookingId}/delivery/files/${item.id}`}
+                    className="ras-link"
+                  >
+                    Download →
+                  </a>
+                ) : null}
+                {canPilotEdit ? (
+                  <button
+                    type="button"
+                    className="ras-link"
+                    disabled={busy}
+                    onClick={() => void handleRemoveItem(item.id)}
+                  >
+                    Remove
+                  </button>
+                ) : null}
+              </span>
             </li>
           ))}
         </ul>
@@ -353,14 +413,13 @@ export function BookingDeliverySection({
 
           <Button
             type="button"
+            size="lg"
+            variant="primary"
+            className="w-full sm:w-auto min-w-[14rem] font-semibold tracking-wide"
             disabled={busy || !delivery?.items.length}
             onClick={() => void handleSubmitForReview()}
           >
-            {busy
-              ? "Submitting…"
-              : delivery?.status === "rejected"
-                ? "Complete Job"
-                : "Submit for client review"}
+            {busy ? "Submitting…" : "Submit for Client Review"}
           </Button>
         </div>
       ) : null}

@@ -35,6 +35,7 @@ export function AdminMemberDetailView({
   const [editOpen, setEditOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [deleteNotice, setDeleteNotice] = useState<string | null>(null);
   const { account, pilotDetail, clientDetail } = member;
 
   const backHref =
@@ -55,24 +56,39 @@ export function AdminMemberDetailView({
 
   async function handleDeleteAccount() {
     if (!canHardDelete) return;
+    const isMember =
+      account.role === "pilot" || account.role === "client";
     if (
       !window.confirm(
-        `Permanently delete ${member.displayName} (${account.email})?\n\nThis removes the login and related profile data. This cannot be undone.`,
+        isMember
+          ? `Deactivate ${member.displayName} (${account.email})?\n\nThey enter a 30-day grace period and can reactivate by signing in. If not reactivated, the account is permanently deleted automatically.`
+          : `Permanently delete ${member.displayName} (${account.email})?\n\nThis removes the login and related profile data. This cannot be undone.`,
       )
     ) {
       return;
     }
     setDeleting(true);
     setDeleteError(null);
+    setDeleteNotice(null);
     try {
       const endpoint =
         account.role === "admin" || account.role === "moderator"
           ? `/api/admin/management-users/${account.id}`
           : `/api/admin/users/${account.id}`;
       const res = await fetch(endpoint, { method: "DELETE" });
-      const json = (await res.json()) as { error?: string };
+      const json = (await res.json()) as {
+        error?: string;
+        mode?: "soft" | "hard";
+      };
       if (!res.ok) {
         setDeleteError(json.error ?? "Failed to delete account.");
+        return;
+      }
+      if (json.mode === "soft") {
+        setDeleteNotice(
+          "Account deactivated. Member can reactivate by signing in within 30 days; otherwise it is permanently deleted.",
+        );
+        router.refresh();
         return;
       }
       router.push(backHref);
@@ -120,7 +136,11 @@ export function AdminMemberDetailView({
               disabled={deleting}
               onClick={() => void handleDeleteAccount()}
             >
-              {deleting ? "Deleting…" : "Delete account"}
+              {deleting
+                ? "Working…"
+                : account.role === "pilot" || account.role === "client"
+                  ? "Deactivate (30-day grace)"
+                  : "Delete account"}
             </button>
           ) : null}
         </div>
@@ -128,6 +148,11 @@ export function AdminMemberDetailView({
       {deleteError ? (
         <p className="admin-personnel-banner-error" role="alert">
           {deleteError}
+        </p>
+      ) : null}
+      {deleteNotice ? (
+        <p className="admin-personnel-banner-success" role="status">
+          {deleteNotice}
         </p>
       ) : null}
 

@@ -119,6 +119,7 @@ export async function DELETE(_request: Request, context: RouteContext) {
       deletedId: result.deletedId,
       email: result.email,
       role: result.role,
+      mode: result.mode,
     });
   }
 
@@ -149,5 +150,6 @@ export async function DELETE(_request: Request, context: RouteContext) {
     deletedId: result.deletedId,
     email: result.email,
     role: result.role,
+    mode: result.mode,
   });
 }

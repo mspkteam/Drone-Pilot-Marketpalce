@@ -5,6 +5,7 @@ import {
   type DeliveryMimeType,
 } from "@/lib/deliveries/constants";
 import {
+  deletePrivateAsset,
   readPrivateAsset,
   writePrivateAsset,
 } from "@/lib/storage/private-asset";
@@ -57,4 +58,8 @@ export async function writeDeliveryFile(
 
 export async function readDeliveryFile(fileName: string): Promise<Buffer> {
   return readPrivateAsset(FOLDER, fileName);
+}
+
+export async function deleteDeliveryFile(fileName: string): Promise<void> {
+  await deletePrivateAsset(FOLDER, fileName);
 }

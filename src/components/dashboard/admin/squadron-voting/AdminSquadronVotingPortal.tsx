@@ -299,7 +299,7 @@ function VoteCard({
           <button
             type="button"
             className={`admin-squadron-side${ballot.viewerVote === "approve" ? " admin-squadron-side--picked" : ""}`}
-            disabled={!open || !canVote || busy}
+            disabled={!open || !canVote || busy || Boolean(ballot.viewerVote)}
             onClick={() => onVote(ballot.id, "approve")}
           >
             <span className="admin-squadron-side-row">
@@ -321,7 +321,7 @@ function VoteCard({
           <button
             type="button"
             className={`admin-squadron-side${ballot.viewerVote === "reject" ? " admin-squadron-side--picked" : ""}`}
-            disabled={!open || !canVote || busy}
+            disabled={!open || !canVote || busy || Boolean(ballot.viewerVote)}
             onClick={() => onVote(ballot.id, "reject")}
           >
             <span className="admin-squadron-side-row">

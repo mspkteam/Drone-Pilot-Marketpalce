@@ -91,22 +91,37 @@ export function buildPostProjectTravelSummary(
   if (form.coverTravelExpenses === null) return [];
 
   const covered = form.coverTravelExpenses;
+  // When travel is not covered, do not show lodging/transport amount cards
+  // (those inputs were never collected — QA step-bleed).
+  if (!covered) {
+    return [
+      { label: "TRAVEL REQUIRED", value: "No" },
+      {
+        label: "TRAVEL EXPENSES",
+        value: "Not covered by client",
+        wide: true,
+      },
+    ];
+  }
+
   const lodgingAmount = formatTravelExpenseAmount(form.travelExpenses.lodging);
-  const transportAmount = formatTravelExpenseAmount(form.travelExpenses.groundTransport);
+  const transportAmount = formatTravelExpenseAmount(
+    form.travelExpenses.groundTransport,
+  );
 
   return [
-    { label: "TRAVEL REQUIRED", value: covered ? "Yes" : "No" },
+    { label: "TRAVEL REQUIRED", value: "Yes" },
     {
       label: "LODGING",
-      value: covered ? lodgingAmount ?? "Not Included" : "Not Included",
+      value: lodgingAmount ?? "Not Included",
     },
     {
       label: "TRANSPORTATION",
-      value: covered ? transportAmount ?? "Client to Provide" : "Pilot responsibility",
+      value: transportAmount ?? "Client to Provide",
     },
     {
       label: "TRAVEL EXPENSES",
-      value: covered ? "Covered by Client" : "Not covered by client",
+      value: "Covered by Client",
       wide: true,
     },
   ];

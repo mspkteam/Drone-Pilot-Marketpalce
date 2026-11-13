@@ -25,6 +25,7 @@ export function PilotSquadronVotingPortal({
   const [metrics, setMetrics] = useState<SquadronVotingMetrics>(EMPTY_METRICS);
   const [eligible, setEligible] = useState(true);
   const [gradeLabel, setGradeLabel] = useState("A-4+");
+  const [partyDisputeIds, setPartyDisputeIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [pendingId, setPendingId] = useState<string | null>(null);
@@ -42,6 +43,7 @@ export function PilotSquadronVotingPortal({
         metrics?: SquadronVotingMetrics;
         eligible?: boolean;
         gradeLabel?: string;
+        partyDisputeIds?: string[];
         error?: string;
       };
       if (!res.ok) {
@@ -52,6 +54,7 @@ export function PilotSquadronVotingPortal({
       setMetrics(json.metrics ?? EMPTY_METRICS);
       setEligible(json.eligible !== false);
       setGradeLabel(json.gradeLabel ?? "A-4+");
+      setPartyDisputeIds(json.partyDisputeIds ?? []);
     } catch {
       setError("Failed to load squadron votes.");
     } finally {
@@ -257,7 +260,11 @@ export function PilotSquadronVotingPortal({
                 ballot={ballot}
                 accent={index === 0}
                 busy={pendingId === ballot.id}
-                canVote={eligible}
+                canVote={
+                  eligible &&
+                  !ballot.viewerVote &&
+                  !partyDisputeIds.includes(ballot.disputeId)
+                }
                 onVote={castVote}
                 onEvidence={() => void openEvidence(ballot.id)}
               />

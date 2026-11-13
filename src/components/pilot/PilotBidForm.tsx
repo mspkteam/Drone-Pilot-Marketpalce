@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { PostProjectDateField } from "@/components/dashboard/client/post-project/PostProjectDateField";
 import { FormField, inputClassName } from "@/components/ui/FormField";
 import { Button } from "@/components/ui/Button";
 import type { PilotOpenJobDto } from "@/types/application";
@@ -93,15 +94,12 @@ export function PilotBidForm({ jobId, currency }: PilotBidFormProps) {
       <FormField
         label="Estimated delivery date"
         htmlFor="estimatedDeliveryDate"
-        hint="Optional"
+        hint="Optional — shown as dd/mm/yyyy"
       >
-        <input
+        <PostProjectDateField
           id="estimatedDeliveryDate"
-          name="estimatedDeliveryDate"
-          type="date"
           value={estimatedDeliveryDate}
-          onChange={(e) => setEstimatedDeliveryDate(e.target.value)}
-          className={inputClassName}
+          onChange={setEstimatedDeliveryDate}
         />
       </FormField>
 

@@ -286,6 +286,12 @@ export function AdminCommissionsPortal() {
                 href="/dashboard/admin/settings"
                 className="admin-commissions-rate-link"
               >
+                Preview Pricing →
+              </Link>
+              <Link
+                href="/dashboard/admin/configuration"
+                className="admin-commissions-rate-link"
+              >
                 Full configuration →
               </Link>
               {rateNotice ? (

@@ -30,6 +30,8 @@ export type PilotSquadronVotingDashboard = SquadronVotingDashboard & {
   eligible: boolean;
   gradeLabel: string;
   isPartyOnOpenBallot: boolean;
+  /** Dispute ids where this pilot is a party (cannot vote). */
+  partyDisputeIds: string[];
 };
 
 export async function getPilotSquadronGrade(userId: string): Promise<{
@@ -88,6 +90,7 @@ export async function getPilotSquadronVotingDashboard(
     eligible: grade.eligible,
     gradeLabel: grade.gradeLabel,
     isPartyOnOpenBallot,
+    partyDisputeIds: [...partyDisputeIds],
   };
 }
 

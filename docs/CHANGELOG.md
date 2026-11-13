@@ -4,6 +4,38 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.129] — 2026-11-13
+
+### Fixed (audit follow-up from Client / Pilot / Admin strict passes)
+
+- **Post-project review:** when travel is No, hide Lodging/Transportation cards (step-bleed).
+- **Find Pilots:** gold search clear (X) control.
+- **Request More Info:** admin must select specific document(s); no longer stamps every pending card.
+- **Complete Job:** shown after resubmit (`awaiting_review`), not while revisions are still open.
+- **Squadron vote UI:** buttons disable after vote; party dispute ids block voting in UI.
+- **Delivery remove:** pilot can Remove draft/revision deliverables (DELETE API).
+- **Subscriptions:** “Preview Pricing” label (was Preview Pilot View).
+
+---
+
+## [0.27.128] — 2026-11-13
+
+### Fixed (Final Testing strict re-audit)
+
+- **Post-project reference files:** per-file Remove control (QA HTML delete-upload gap).
+- **Admin commissions:** “Preview Pricing →” + “Full configuration →” (alias to settings).
+- **Pilot profile strength:** live Location uses city/region from the location field; Country moved next to Location.
+- **Notifications:** click navigates with `router.refresh()`; delivery panel refetches on focus/visibility (revision stale UI).
+- **Submit for Client Review:** always that label, larger primary CTA (no mislabeled “Complete Job” on resubmit).
+- **Pilot bid date:** `PostProjectDateField` dd/mm/yyyy (native `type=date` removed).
+- **30-day grace:** admin pilot/client “delete” soft-deactivates; daily cron `/api/cron/purge-deactivated` + login-time purge after window.
+
+### Docs
+
+- Honest Final Testing status: `docs/FINAL_TESTING_STRICT_AUDIT_NOV13.md`.
+
+---
+
 ## [0.27.127] — 2026-11-13
 
 ### Added

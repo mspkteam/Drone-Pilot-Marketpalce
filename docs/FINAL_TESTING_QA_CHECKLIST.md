@@ -5,9 +5,11 @@ Annotated PDF: `Final_Testing_QA_Checklist_v3 (1).pdf` (Morosoft sticky comments
 
 Marks: **Done** · **Partial** · **Blocked on client**
 
-**Totals (v0.27.126 re-verify, 13 Nov 2026):** Done 71 · Partial 0 · Blocked on client 6
+**Totals (v0.27.128 strict audit, 13 Nov 2026):** Done majority in code · Blocked on client 6 · see honest strict doc for gaps that were over-claimed earlier.
 
-**Point-by-point audit:** `docs/FINAL_TESTING_POINT_BY_POINT_REVERIFY.md` (source HTML + code + Production `qa:final` 37 pass / 0 fail / 6 skip).
+**QA retest checklist (use this):** `docs/FINAL_TESTING_QA_RETEST_CHECKLIST.md`  
+**Strict audit:** `docs/FINAL_TESTING_STRICT_AUDIT_NOV13.md`  
+**Earlier point-by-point:** `docs/FINAL_TESTING_POINT_BY_POINT_REVERIFY.md` (do not treat as sole proof — QA disputed over-claim).
 
 ### Re-verification restart (Nov 2026)
 

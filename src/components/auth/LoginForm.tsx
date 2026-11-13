@@ -102,7 +102,7 @@ export function LoginForm() {
         Access your pilot, client, or admin dashboard.
       </p>
 
-      <form onSubmit={handleSubmit} className="mt-8 space-y-4">
+      <form method="post" onSubmit={handleSubmit} className="mt-8 space-y-4">
         {error ? (
           <p className="ras-alert ras-alert--danger" role="alert">
             {error}

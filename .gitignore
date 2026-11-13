@@ -60,6 +60,9 @@ next-env.d.ts
 # mobile screenshot automation output
 /mobile-screenshots/
 /mobile-screenshots.zip
+
+# Final QA automation reports
+.tmp-final-qa/
 .env*
 
 .vercel

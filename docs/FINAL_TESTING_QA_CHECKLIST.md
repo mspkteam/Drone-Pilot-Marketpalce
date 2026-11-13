@@ -148,3 +148,36 @@ Proposal submit blocker from Morosoft sticky extras: fixed in v0.27.114 (drafts 
 ---
 
 When client answers Stripe bank details / shop artwork / remaining phone formatting / timezone policy, re-open Wave 5 and re-mark those rows.
+
+---
+
+## Automation (regression)
+
+Playwright + focused unit suite for **Done** rows (Blocked Stripe/shop/timezone are skipped).
+
+```bash
+# App must be running (local or remote)
+npm run dev
+# other terminal:
+npm run qa:final
+```
+
+Optional env:
+
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `FINAL_QA_BASE_URL` | `http://localhost:3000` | Target site |
+| `FINAL_QA_SUITES` | `unit,marketing,client,pilot,admin` | Subset to run |
+| `FINAL_QA_CLIENT_EMAIL` | `client@dronepilot.local` | Seed client |
+| `FINAL_QA_PILOT_EMAIL` | `pilot@dronepilot.local` | Seed captain |
+| `FINAL_QA_PILOT_A1_EMAIL` | `pilot-a1@dronepilot.local` | A-1 Fast Forward check |
+| `FINAL_QA_ADMIN_EMAIL` | `admin@dronepilot.local` | Seed admin |
+| `FINAL_QA_PASSWORD` | `Demo123!` | Shared demo password |
+
+Example against Production after deploy:
+
+```bash
+FINAL_QA_BASE_URL=https://YOUR-VERCEL-DOMAIN npm run qa:final
+```
+
+JSON report: `.tmp-final-qa/report-*.json`

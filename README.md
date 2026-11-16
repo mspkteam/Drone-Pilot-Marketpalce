@@ -108,6 +108,23 @@ Job posting: [`docs/M06_CLIENT_JOB_POSTING.md`](docs/M06_CLIENT_JOB_POSTING.md)
 
 ---
 
+## Playwright QA (E2E)
+
+Automated audit suite under `e2e/` (Page Objects, fixtures, multi-browser).
+
+```bash
+npx playwright install
+export BASE_URL=https://drone-pilot-marketpalce.vercel.app   # default if unset
+npm run test:smoke      # fast smoke
+npm run test            # full headless suite
+npm run test:report     # HTML report
+npm run test:qa-audit-report
+```
+
+Unit tests (lib): `npm run test:unit`. Full instructions: [`docs/PLAYWRIGHT_QA.md`](docs/PLAYWRIGHT_QA.md). Latest audit: [`reports/QA-AUDIT-REPORT.md`](reports/QA-AUDIT-REPORT.md).
+
+---
+
 ## Getting started (developers)
 
 **Local (no Neon):** see [`docs/LOCAL_DEV.md`](docs/LOCAL_DEV.md) — set `USE_LOCAL_DB=1`, run `npm run db:setup`, then `npm run dev`.

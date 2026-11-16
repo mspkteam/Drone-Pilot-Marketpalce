@@ -2,3 +2,17 @@
 /waitlist-landing
 waitlist-landing/**
 waitlist-landing
+
+# Playwright QA framework + artifacts — not needed for Next/Vercel runtime
+/e2e
+e2e/**
+/playwright.config.ts
+playwright.config.ts
+/test-results
+test-results/**
+/blob-report
+blob-report/**
+/reports/html
+reports/html/**
+/playwright-report
+playwright-report/**

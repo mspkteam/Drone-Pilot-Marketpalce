@@ -19,6 +19,11 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Playwright QA (POM fixtures use Playwright's `use` helper — not React hooks)
+    "e2e/**",
+    "playwright.config.ts",
+    "reports/**",
+    "test-results/**",
   ]),
 ]);
 

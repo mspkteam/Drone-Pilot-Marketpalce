@@ -29,5 +29,13 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts"
   ],
-  "exclude": ["node_modules", "prisma", "waitlist-landing"]
+  "exclude": [
+    "node_modules",
+    "prisma",
+    "waitlist-landing",
+    "e2e",
+    "playwright.config.ts",
+    "reports",
+    "test-results"
+  ]
 }

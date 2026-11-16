@@ -111,9 +111,11 @@ See `docs/PLAYWRIGHT_QA.md`. Quick start:
 export BASE_URL=https://drone-pilot-marketpalce.vercel.app
 npm run test:smoke
 npm run test
-npm run test:report
+npm run test:report          # regenerates local reports/html (not shipped to Vercel)
 node scripts/generate-qa-audit-report.mjs
 ```
+
+Note: `reports/html/` is gitignored and `.vercelignore`d — keep `QA-AUDIT-REPORT.md` + `playwright-report.json` in git; open HTML via `npm run test:report` after a local run.
 
 ---
 *Report generated at 2026-11-16T05:03:23.611Z*

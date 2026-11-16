@@ -54,10 +54,19 @@ If admin credentials are unavailable, Admin journey tests skip with a reason (th
 
 | Path | Contents |
 |------|----------|
-| `reports/html/` | Playwright HTML report |
-| `reports/playwright-report.json` | Machine-readable results |
-| `reports/QA-AUDIT-REPORT.md` | Human QA audit summary |
-| `test-results/` | Screenshots, videos, traces on failure |
+| `reports/QA-AUDIT-REPORT.md` | Human QA audit summary (committed) |
+| `reports/playwright-report.json` | Machine-readable results (committed) |
+| `reports/html/` | Playwright HTML report (**local only** — regenerate after a run; excluded from Vercel deploy) |
+| `test-results/` | Screenshots, videos, traces on failure (gitignored) |
+
+Regenerate the HTML report after any run:
+
+```bash
+npm run test
+npm run test:report   # opens reports/html
+```
+
+`e2e/`, `playwright.config.ts`, and `reports/html` are listed in `.vercelignore` so Preview/Production installs stay lean and do not ship QA tooling.
 
 ## Safety
 

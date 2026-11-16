@@ -13,6 +13,11 @@
 
 # testing
 /coverage
+/test-results/
+/blob-report/
+/playwright/.cache/
+# Keep committed audit outputs under reports/; ignore local HTML cache noise only if needed
+# reports/html is generated and committed for QA audit PRs
 
 # next.js
 /.next/

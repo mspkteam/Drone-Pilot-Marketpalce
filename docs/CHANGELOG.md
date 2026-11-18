@@ -4,6 +4,14 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.131] — 2026-11-13
+
+### Fixed
+
+- **View listing 404:** pilots who already submitted a proposal can always reopen the job listing, even when the mission is assigned/closed or missing `approvedAt` (QA Squadron Vote Mission seed). Future squadron seed sets `approvedAt`.
+
+---
+
 ## [0.27.130] — 2026-11-13
 
 ### Fixed (client video — pilot profile edit)

@@ -271,9 +271,6 @@ export async function getOpenJobForPilot(
   jobId: string,
   pilotProfileId: string,
 ): Promise<PilotJobDetailDto | null> {
-  const tier = await getPilotActiveTier(pilotProfileId);
-  if (!tier) return null;
-
   const job = await prisma.job.findFirst({
     where: { id: jobId },
     include: {
@@ -286,44 +283,56 @@ export async function getOpenJobForPilot(
     },
   });
 
-  if (!job || !job.approvedAt) return null;
+  if (!job) return null;
 
   const hasOwnApplication = job.applications.length > 0;
   const isOpenForMarket = job.status === "open" || job.status === "in_bidding";
+  const tier = await getPilotActiveTier(pilotProfileId);
 
-  const { visible, locked } = await getVisibleJobsForPilot(pilotProfileId);
-  const inVisible = visible.some((v) => v.job.id === jobId);
-  const inLocked = locked.some((l) => l.job.id === jobId);
+  let visibleAt: Date = job.approvedAt ?? job.createdAt;
 
-  // Allow View listing after apply even when the job left open/in_bidding.
-  if (!hasOwnApplication && (!isOpenForMarket || (!inVisible && !inLocked))) {
-    return null;
+  // Pilots who already applied must always be able to reopen "View listing"
+  // even when the job is assigned/closed or missing approvedAt (seed/QA jobs).
+  if (!hasOwnApplication) {
+    if (!tier || !job.approvedAt) return null;
+
+    const { visible, locked } = await getVisibleJobsForPilot(pilotProfileId);
+    const inVisible = visible.some((v) => v.job.id === jobId);
+    const inLocked = locked.some((l) => l.job.id === jobId);
+    if (!isOpenForMarket || (!inVisible && !inLocked)) {
+      return null;
+    }
+
+    visibleAt =
+      visible.find((v) => v.job.id === jobId)?.visibleAt ??
+      locked.find((l) => l.job.id === jobId)?.visibleAt ??
+      job.approvedAt ??
+      job.createdAt;
   }
 
-  const visibleEntry = visible.find((v) => v.job.id === jobId);
-  const lockedEntry = locked.find((l) => l.job.id === jobId);
-  const visibleAt =
-    visibleEntry?.visibleAt ??
-    lockedEntry?.visibleAt ??
-    job.approvedAt ??
-    job.createdAt;
-
-  const applyCheck = await canPilotApplyToJobById(pilotProfileId, jobId);
+  const applyCheck = tier
+    ? await canPilotApplyToJobById(pilotProfileId, jobId)
+    : { allowed: false as const, reason: "Active membership required to bid." };
   // Drafts must remain editable/submittable; only non-draft apps block re-apply.
   const hasSubmittedApplication = job.applications.some(
     (app) => app.status !== "draft",
   );
   const canApply =
-    isOpenForMarket && applyCheck.allowed && !hasSubmittedApplication;
+    Boolean(tier) &&
+    isOpenForMarket &&
+    applyCheck.allowed &&
+    !hasSubmittedApplication;
 
   let applyBlockedMessage: string | null = null;
   if (!canApply) {
-    if (!applyCheck.allowed) {
-      applyBlockedMessage = applyCheck.reason ?? A1_APPLY_MESSAGE;
-    } else if (hasSubmittedApplication) {
+    if (hasSubmittedApplication) {
       applyBlockedMessage = "You already submitted a proposal for this job.";
     } else if (!isOpenForMarket) {
       applyBlockedMessage = "This job is no longer open for proposals.";
+    } else if (!tier) {
+      applyBlockedMessage = "Active membership is required to bid on jobs.";
+    } else if (!applyCheck.allowed) {
+      applyBlockedMessage = applyCheck.reason ?? A1_APPLY_MESSAGE;
     } else {
       applyBlockedMessage = A1_APPLY_MESSAGE;
     }
@@ -344,8 +353,8 @@ export async function getOpenJobForPilot(
     canApply,
     applyBlockedMessage,
     membership: {
-      tierName: tier.name,
-      jobVisibilityDelayHours: tier.jobVisibilityDelayHours,
+      tierName: tier?.name ?? "Membership",
+      jobVisibilityDelayHours: tier?.jobVisibilityDelayHours ?? 0,
     },
   };
 }

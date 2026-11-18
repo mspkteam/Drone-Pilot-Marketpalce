@@ -18,6 +18,8 @@ export type PilotProfileExtras = {
   mainDrones: string[];
   payloads: string[];
   localChipIds: string[];
+  /** OperatingRegion.code values the pilot is willing to work in. */
+  operatingRegionCodes: string[];
   avatarUrl: string | null;
   notifications: PilotNotificationPreferences;
 };
@@ -28,6 +30,7 @@ export const emptyPilotProfileExtras = (): PilotProfileExtras => ({
   mainDrones: [],
   payloads: [],
   localChipIds: [],
+  operatingRegionCodes: [],
   avatarUrl: null,
   notifications: { ...PILOT_NOTIFICATION_DEFAULTS },
 });
@@ -88,6 +91,9 @@ export function parseProfileExtrasJson(
         item.slice(0, PAYLOAD_MAX),
       ),
       localChipIds: asStringArray(parsed.localChipIds),
+      operatingRegionCodes: asStringArray(
+        (parsed as { operatingRegionCodes?: unknown }).operatingRegionCodes,
+      ).map((code) => code.trim().toLowerCase()),
       avatarUrl,
       notifications: parseNotifications(parsed.notifications),
     };
@@ -100,11 +106,14 @@ export function serializeProfileExtrasJson(extras: PilotProfileExtras): string {
   return JSON.stringify({
     callSign: extras.callSign.trim().slice(0, CALL_SIGN_MAX),
     languages: extras.languages.trim(),
-    mainDrones: extras.mainDrones.map((item) => item.trim()).filter(Boolean),
-    payloads: extras.payloads
+    mainDrones: (extras.mainDrones ?? []).map((item) => item.trim()).filter(Boolean),
+    payloads: (extras.payloads ?? [])
       .map((item) => item.trim().slice(0, PAYLOAD_MAX))
       .filter(Boolean),
-    localChipIds: extras.localChipIds.filter(Boolean),
+    localChipIds: (extras.localChipIds ?? []).filter(Boolean),
+    operatingRegionCodes: (extras.operatingRegionCodes ?? [])
+      .map((code) => code.trim().toLowerCase())
+      .filter(Boolean),
     avatarUrl: extras.avatarUrl,
     notifications: extras.notifications ?? { ...PILOT_NOTIFICATION_DEFAULTS },
   } satisfies PilotProfileExtras);

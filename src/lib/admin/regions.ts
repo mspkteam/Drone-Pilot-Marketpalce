@@ -13,10 +13,13 @@ export type OperatingRegionDto = {
 
 const DEFAULT_REGIONS = [
   { code: "north-america", name: "North America", timezone: "America/Chicago", sortOrder: 1 },
-  { code: "western-europe", name: "Western Europe", timezone: "Europe/London", sortOrder: 2 },
-  { code: "middle-east", name: "Middle East", timezone: "Asia/Dubai", sortOrder: 3 },
-  { code: "asia-pacific", name: "Asia Pacific", timezone: "Asia/Singapore", sortOrder: 4 },
-  { code: "latin-america", name: "Latin America", timezone: "America/Sao_Paulo", sortOrder: 5 },
+  { code: "latin-america", name: "South / Latin America", timezone: "America/Sao_Paulo", sortOrder: 2 },
+  { code: "western-europe", name: "Western Europe", timezone: "Europe/London", sortOrder: 3 },
+  { code: "eastern-europe", name: "Eastern Europe", timezone: "Europe/Warsaw", sortOrder: 4 },
+  { code: "middle-east", name: "Middle East", timezone: "Asia/Dubai", sortOrder: 5 },
+  { code: "africa", name: "Africa", timezone: "Africa/Johannesburg", sortOrder: 6 },
+  { code: "asia-pacific", name: "Asia Pacific", timezone: "Asia/Singapore", sortOrder: 7 },
+  { code: "oceania", name: "Oceania", timezone: "Pacific/Auckland", sortOrder: 8 },
 ] as const;
 
 function mapRegion(record: {
@@ -41,11 +44,14 @@ function mapRegion(record: {
   };
 }
 
+/** Seed missing defaults without wiping admin customizations. */
 async function ensureRegionsSeeded(): Promise<void> {
-  const count = await prisma.operatingRegion.count();
-  if (count > 0) return;
-
   for (const region of DEFAULT_REGIONS) {
+    const existing = await prisma.operatingRegion.findUnique({
+      where: { code: region.code },
+      select: { id: true },
+    });
+    if (existing) continue;
     await prisma.operatingRegion.create({ data: region });
   }
 }

@@ -19,6 +19,7 @@ describe("profile extras", () => {
       mainDrones: ["DJI Matrice 350 RTK"],
       payloads: ["LiDAR Scanner"],
       localChipIds: ["thermal"],
+      operatingRegionCodes: ["north-america", "middle-east"],
       avatarUrl: null,
       notifications: {
         jobAlerts: true,
@@ -29,6 +30,27 @@ describe("profile extras", () => {
     };
     const parsed = parseProfileExtrasJson(serializeProfileExtrasJson(extras));
     assert.deepEqual(parsed, extras);
+  });
+
+  it("defaults missing operatingRegionCodes on legacy extras", () => {
+    const legacy = {
+      callSign: "LEGACY",
+      languages: "",
+      mainDrones: [],
+      payloads: [],
+      localChipIds: [],
+      avatarUrl: null,
+      notifications: {
+        jobAlerts: true,
+        messages: true,
+        contracts: true,
+        membership: true,
+      },
+    };
+    const parsed = parseProfileExtrasJson(
+      serializeProfileExtrasJson(legacy as typeof legacy & { operatingRegionCodes: string[] }),
+    );
+    assert.deepEqual(parsed.operatingRegionCodes, []);
   });
 
   it("sanitizes unknown input", () => {

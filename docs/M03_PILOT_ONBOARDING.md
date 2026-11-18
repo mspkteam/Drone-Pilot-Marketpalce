@@ -17,9 +17,10 @@ Allow pilots to complete onboarding after registration: core profile fields, lic
 |-------|--------|
 | displayName | Required |
 | bio | Optional |
-| locationCity, locationRegion, locationCountry | City + country required on submit |
-| serviceRadiusKm | Optional |
+| locationCity, locationRegion, locationCountry | Separate City / State / Country fields; city + country required on submit |
+| serviceRadiusKm | Optional (UI collects miles, stores km) |
 | servicesOffered | JSON array of service ids |
+| profileExtrasJson.operatingRegionCodes | Optional chips: admin `OperatingRegion` codes the pilot will work in |
 | hourlyRateMin / hourlyRateMax | Optional |
 | licenseNumber | Required |
 | licenseCountry | Optional |
@@ -34,7 +35,7 @@ Allow pilots to complete onboarding after registration: core profile fields, lic
 | Route | Description |
 |-------|-------------|
 | `/dashboard/pilot/onboarding` | First-time onboarding form + compliance |
-| `/dashboard/pilot/profile` | Edit profile (after onboarding) |
+| `/dashboard/pilot/profile` | View/edit profile after onboarding. Approved/active profiles stay **view-locked** until **Edit profile** under Profile Complete (sticky on mobile); Save Profile re-locks. |
 | `/dashboard/pilot` | Dashboard with profile status summary |
 | `POST/PATCH/GET /api/pilot/profile` | Pilot-only API |
 

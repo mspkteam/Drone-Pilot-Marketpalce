@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { PilotProfileCompletionView } from "@/components/dashboard/pilot/profile/PilotProfileCompletionView";
 import { DashboardPageLayout } from "@/components/dashboard";
+import { listActiveOperatingRegions } from "@/lib/admin/regions";
 import { listCertificatesForPilot } from "@/lib/certificates/certificate";
 import {
   ensurePilotDraftProfile,
@@ -38,6 +39,8 @@ export default async function PilotProfilePage() {
   }> = [];
   let highestWing: { title: string; imageUrl: string | null } | null = null;
 
+  const regionsPromise = listActiveOperatingRegions();
+
   if (profile) {
     const [types, verifications, certRows, wings] = await Promise.all([
       getApprovedVerificationTypes(profile.id),
@@ -59,6 +62,11 @@ export default async function PilotProfilePage() {
       : null;
   }
 
+  const operatingRegions = (await regionsPromise).map((r) => ({
+    code: r.code,
+    name: r.name,
+  }));
+
   return (
     <DashboardPageLayout className="profile-onboarding-shell pilot-profile-shell">
       <PilotProfileCompletionView
@@ -67,6 +75,7 @@ export default async function PilotProfilePage() {
         approvedCredentials={approvedCredentials}
         certificates={certificates}
         highestWing={highestWing}
+        operatingRegions={operatingRegions}
       />
     </DashboardPageLayout>
   );

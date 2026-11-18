@@ -53,6 +53,14 @@
   padding: 1.5625rem;
 }
 
+.profile-onboarding-header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
 .profile-onboarding-eyebrow {
   margin: 0;
   font-size: 0.7rem;
@@ -82,6 +90,28 @@
   font-weight: 600;
 }
 
+.profile-onboarding-mode-pill {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  margin-top: 0.35rem;
+  border: 1px solid rgba(244, 241, 234, 0.18);
+  border-radius: 999px;
+  background: rgba(244, 241, 234, 0.04);
+  padding: 0.35rem 0.75rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.profile-onboarding-mode-pill--editing {
+  border-color: rgba(216, 179, 57, 0.45);
+  background: rgba(216, 179, 57, 0.12);
+  color: var(--color-gold);
+}
+
 .profile-onboarding-layout {
   display: grid;
   gap: 1.5rem;
@@ -100,6 +130,11 @@
   flex-direction: column;
   gap: 1.5rem;
   min-width: 0;
+  transition: opacity 0.2s ease;
+}
+
+.profile-onboarding-main--locked {
+  opacity: 0.88;
 }
 
 .profile-onboarding-section {
@@ -681,7 +716,7 @@ button.profile-onboarding-gallery-link {
   top: 1rem;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 0.875rem;
   min-width: 0;
 }
 
@@ -1013,6 +1048,65 @@ button.profile-onboarding-gallery-link {
   padding-top: 0.25rem;
 }
 
+.profile-onboarding-action-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  border: 1px solid var(--dashboard-card-border);
+  border-radius: 0.75rem;
+  background: var(--color-card-warm);
+  padding: 1rem;
+}
+
+.profile-onboarding-action-hint {
+  margin: 0 0 0.125rem;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: var(--color-text-muted);
+}
+
+.profile-onboarding-action-panel .profile-onboarding-btn-outline,
+.profile-onboarding-action-panel .profile-onboarding-btn-gold {
+  width: 100%;
+}
+
+.profile-onboarding-actions--mobile {
+  display: none;
+}
+
+@media (max-width: 1023px) {
+  .profile-onboarding-sidebar-stack .profile-onboarding-action-panel {
+    display: none;
+  }
+
+  .profile-onboarding-actions--mobile {
+    position: sticky;
+    bottom: 0.75rem;
+    z-index: 20;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: stretch;
+    gap: 0.5rem;
+    margin-top: 0.25rem;
+    border: 1px solid var(--dashboard-card-border);
+    border-radius: 0.75rem;
+    background: rgba(18, 16, 14, 0.94);
+    backdrop-filter: blur(10px);
+    padding: 0.75rem;
+    box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.35);
+  }
+
+  .profile-onboarding-actions--mobile .profile-onboarding-btn-outline,
+  .profile-onboarding-actions--mobile .profile-onboarding-btn-gold {
+    flex: 1 1 calc(50% - 0.25rem);
+    min-width: 8.5rem;
+  }
+
+  .profile-onboarding-page {
+    padding-bottom: 0.5rem;
+  }
+}
+
 .profile-onboarding-btn-outline {
   display: inline-flex;
   align-items: center;
@@ -1075,6 +1169,17 @@ button.profile-onboarding-gallery-link {
   border-color: rgba(239, 68, 68, 0.35);
   background: rgba(239, 68, 68, 0.08);
   color: var(--color-danger);
+}
+
+.profile-onboarding-banner--info {
+  border-color: rgba(244, 241, 234, 0.2);
+  background: rgba(244, 241, 234, 0.04);
+  color: var(--color-text-muted);
+}
+
+.profile-onboarding-banner--info strong {
+  color: var(--color-gold);
+  font-weight: 600;
 }
 
 .profile-onboarding-status-row {

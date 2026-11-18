@@ -52,16 +52,20 @@ type PilotProfileCompletionViewProps = {
     title: string;
     imageUrl: string | null;
   } | null;
+  /** Active marketplace operating regions (admin-managed). */
+  operatingRegions?: Array<{ code: string; name: string }>;
 };
 
 type PilotUiExtras = {
   callSign: string;
   droneEquipment: string;
   languages: string;
-  locationCombined: string;
+  locationCity: string;
+  locationRegion: string;
   serviceRadiusMi: string;
   hourlyRateDisplay: string;
   localChipIds: string[];
+  operatingRegionCodes: string[];
   avatarPreview: string | null;
   mainDrones: string[];
   payloads: string[];
@@ -72,18 +76,6 @@ type PilotUiExtras = {
 
 const PAYLOAD_MAX = 22;
 const PAYLOAD_EXAMPLES = ["LiDAR Scanner", "Thermal Imaging Camera"] as const;
-
-function formatLocation(city: string, region: string): string {
-  return [city, region].filter((p) => p.trim()).join(", ");
-}
-
-function parseLocation(value: string): { city: string; region: string } {
-  const parts = value.split(",").map((s) => s.trim());
-  if (parts.length >= 2) {
-    return { city: parts[0] ?? "", region: parts.slice(1).join(", ") };
-  }
-  return { city: value.trim(), region: "" };
-}
 
 function kmToMi(km: string): string {
   const n = Number(km);
@@ -104,10 +96,12 @@ function buildExtras(profile: PilotProfileDto | null): PilotUiExtras {
     callSign: extras.callSign,
     droneEquipment: "",
     languages: extras.languages,
-    locationCombined: formatLocation(form.locationCity, form.locationRegion),
+    locationCity: form.locationCity,
+    locationRegion: form.locationRegion,
     serviceRadiusMi: kmToMi(form.serviceRadiusKm),
     hourlyRateDisplay: form.hourlyRateMin || form.hourlyRateMax || "",
     localChipIds: extras.localChipIds,
+    operatingRegionCodes: extras.operatingRegionCodes,
     avatarPreview: extras.avatarUrl,
     mainDrones: extras.mainDrones,
     payloads: extras.payloads,
@@ -134,6 +128,7 @@ function extrasPayload(extras: PilotUiExtras): PilotProfileExtras {
     mainDrones,
     payloads,
     localChipIds: extras.localChipIds,
+    operatingRegionCodes: extras.operatingRegionCodes,
     avatarUrl: extras.avatarPreview,
     notifications: extras.notifications,
   };
@@ -184,6 +179,7 @@ export function PilotProfileCompletionView({
   approvedCredentials = [],
   certificates = [],
   highestWing = null,
+  operatingRegions = [],
 }: PilotProfileCompletionViewProps) {
   const router = useRouter();
   const avatarInputRef = useRef<HTMLInputElement>(null);
@@ -225,36 +221,37 @@ export function PilotProfileCompletionView({
     needsOnboarding &&
     (profile!.servicesOffered?.length ?? 0) === 0;
 
-  const strength = useMemo(() => {
-    const loc = parseLocation(extras.locationCombined);
-    return computePilotProfileStrength({
-      form: {
-        displayName: form.displayName,
-        bio: form.bio,
-        locationCity: loc.city || form.locationCity,
-        locationCountry: form.locationCountry,
-        servicesOffered: form.servicesOffered,
-        complianceAcknowledged: form.complianceAcknowledged,
-      },
-      avatarPreview: extras.avatarPreview,
-      portfolioCount: portfolioItems.length,
+  const strength = useMemo(
+    () =>
+      computePilotProfileStrength({
+        form: {
+          displayName: form.displayName,
+          bio: form.bio,
+          locationCity: extras.locationCity || form.locationCity,
+          locationCountry: form.locationCountry,
+          servicesOffered: form.servicesOffered,
+          complianceAcknowledged: form.complianceAcknowledged,
+        },
+        avatarPreview: extras.avatarPreview,
+        portfolioCount: portfolioItems.length,
+        insuranceVerified,
+        mainDrones: extras.mainDrones,
+        payloads: extras.payloads,
+        localChipIds: extras.localChipIds,
+        complianceAccepted: Boolean(profile?.complianceAcceptedAt),
+      }),
+    [
+      form,
+      extras.locationCity,
+      extras.avatarPreview,
+      extras.mainDrones,
+      extras.payloads,
+      extras.localChipIds,
+      portfolioItems.length,
       insuranceVerified,
-      mainDrones: extras.mainDrones,
-      payloads: extras.payloads,
-      localChipIds: extras.localChipIds,
-      complianceAccepted: Boolean(profile?.complianceAcceptedAt),
-    });
-  }, [
-    form,
-    extras.locationCombined,
-    extras.avatarPreview,
-    extras.mainDrones,
-    extras.payloads,
-    extras.localChipIds,
-    portfolioItems.length,
-    insuranceVerified,
-    profile?.complianceAcceptedAt,
-  ]);
+      profile?.complianceAcceptedAt,
+    ],
+  );
 
   function openPortfolioAdd() {
     setEditingPortfolioItem(null);
@@ -424,11 +421,10 @@ export function PilotProfileCompletionView({
   }
 
   function buildMergedForm(): PilotFormState {
-    const loc = parseLocation(extras.locationCombined);
     return {
       ...form,
-      locationCity: loc.city,
-      locationRegion: loc.region,
+      locationCity: extras.locationCity.trim(),
+      locationRegion: extras.locationRegion.trim(),
       serviceRadiusKm: miToKm(extras.serviceRadiusMi),
       hourlyRateMin: extras.hourlyRateDisplay,
       hourlyRateMax: extras.hourlyRateDisplay || form.hourlyRateMax,
@@ -437,6 +433,136 @@ export function PilotProfileCompletionView({
         extras.localChipIds,
       ),
     };
+  }
+
+  function toggleOperatingRegion(code: string) {
+    setExtras((current) => {
+      const selected = current.operatingRegionCodes.includes(code);
+      return {
+        ...current,
+        operatingRegionCodes: selected
+          ? current.operatingRegionCodes.filter((c) => c !== code)
+          : [...current.operatingRegionCodes, code],
+      };
+    });
+  }
+
+  function beginEditing() {
+    setSuccess(null);
+    setError(null);
+    setIsEditing(true);
+    window.setTimeout(() => {
+      const field = document.getElementById("displayName");
+      field?.scrollIntoView({ behavior: "smooth", block: "center" });
+      field?.focus();
+    }, 80);
+  }
+
+  function cancelEditing() {
+    setExtras(buildExtras(profile));
+    if (profile) setForm(pilotDtoToFormState(profile));
+    setIsEditing(false);
+    setError(null);
+    setSuccess(null);
+  }
+
+  function renderProfileActions(placement: "sidebar" | "mobile") {
+    const showEdit = canEdit && !needsOnboarding && !isEditing;
+    const showSaveControls = canEdit && (needsOnboarding || isEditing);
+
+    return (
+      <div
+        className={
+          placement === "sidebar"
+            ? "profile-onboarding-action-panel"
+            : "profile-onboarding-actions profile-onboarding-actions--mobile"
+        }
+      >
+        {placement === "sidebar" ? (
+          <p className="profile-onboarding-action-hint">
+            {needsOnboarding
+              ? "Finish required fields, then submit for review."
+              : isEditing
+                ? "You are editing. Save when finished, or cancel to discard."
+                : "Profile is view-only until you unlock it."}
+          </p>
+        ) : null}
+        {previewHref && !isPlaceholderDraft ? (
+          <Link
+            href={previewHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="profile-onboarding-btn-outline"
+          >
+            Preview Public Profile
+          </Link>
+        ) : (
+          <button
+            type="button"
+            className="profile-onboarding-btn-outline"
+            disabled
+            title="Save your profile first to preview"
+          >
+            Preview Public Profile
+          </button>
+        )}
+        {showEdit ? (
+          <button
+            type="button"
+            className="profile-onboarding-btn-gold"
+            onClick={beginEditing}
+          >
+            Edit profile
+          </button>
+        ) : null}
+        {showSaveControls ? (
+          <>
+            {!needsOnboarding ? (
+              <button
+                type="button"
+                className="profile-onboarding-btn-outline"
+                disabled={loading}
+                onClick={cancelEditing}
+              >
+                Cancel
+              </button>
+            ) : null}
+            {needsOnboarding ? (
+              <button
+                type="submit"
+                className="profile-onboarding-btn-outline"
+                disabled={loading}
+              >
+                {loading ? "Saving…" : "Save draft"}
+              </button>
+            ) : null}
+            {needsOnboarding || isRejected ? (
+              <button
+                type="button"
+                className="profile-onboarding-btn-gold"
+                disabled={loading}
+                onClick={() => void handleSubmitForReview()}
+              >
+                {loading
+                  ? "Submitting…"
+                  : isRejected
+                    ? "Resubmit for review"
+                    : "Submit for review"}
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="profile-onboarding-btn-gold"
+                disabled={loading}
+                onClick={() => void persistProfile({ completeOnboarding: false })}
+              >
+                {loading ? "Saving…" : "Save Profile"}
+              </button>
+            )}
+          </>
+        ) : null}
+      </div>
+    );
   }
 
   function validateForSubmit(merged: PilotFormState): string | null {
@@ -511,7 +637,9 @@ export function PilotProfileCompletionView({
         ? isRejected
           ? "Profile resubmitted for admin review."
           : "Profile submitted for review."
-        : "Draft saved. You can leave this page without losing your work.",
+        : needsOnboarding
+          ? "Draft saved. You can leave this page without losing your work."
+          : "Profile updated.",
     );
     router.refresh();
     return true;
@@ -530,16 +658,29 @@ export function PilotProfileCompletionView({
   return (
     <form className="profile-onboarding-page" onSubmit={(e) => void handleSave(e)}>
       <header className="profile-onboarding-header profile-onboarding-bracket-card">
-        <p className="profile-onboarding-eyebrow">OPERATIONS / PROFILE</p>
-        <h1 className="profile-onboarding-page-title">Pilot Profile</h1>
-        {profile ? (
-          <p className="profile-onboarding-status-line">
-            Status:{" "}
-            <span className="profile-onboarding-status-value">
-              {getProfileStatusLabel(profile.status)}
+        <div className="profile-onboarding-header-row">
+          <div>
+            <p className="profile-onboarding-eyebrow">OPERATIONS / PROFILE</p>
+            <h1 className="profile-onboarding-page-title">Pilot Profile</h1>
+            {profile ? (
+              <p className="profile-onboarding-status-line">
+                Status:{" "}
+                <span className="profile-onboarding-status-value">
+                  {getProfileStatusLabel(profile.status)}
+                </span>
+              </p>
+            ) : null}
+          </div>
+          {canEdit && !needsOnboarding ? (
+            <span
+              className={`profile-onboarding-mode-pill${
+                isEditing ? " profile-onboarding-mode-pill--editing" : ""
+              }`}
+            >
+              {isEditing ? "Editing" : "Viewing"}
             </span>
-          </p>
-        ) : null}
+          ) : null}
+        </div>
       </header>
 
       {error ? (
@@ -554,7 +695,11 @@ export function PilotProfileCompletionView({
       ) : null}
 
       <div className="profile-onboarding-layout">
-        <div className="profile-onboarding-main">
+        <div
+          className={`profile-onboarding-main${
+            fieldsLocked ? " profile-onboarding-main--locked" : ""
+          }`}
+        >
           <section className="profile-onboarding-section">
             <h2 className="profile-onboarding-section-title">IDENTITY</h2>
             <div className="profile-onboarding-identity-grid">
@@ -611,22 +756,35 @@ export function PilotProfileCompletionView({
                   />
                 </div>
                 <div className="profile-onboarding-field">
-                  <label className="profile-onboarding-label" htmlFor="location">
-                    LOCATION (CITY, REGION)
+                  <label className="profile-onboarding-label" htmlFor="locationCity">
+                    CITY
                   </label>
                   <div className="profile-onboarding-input-wrap">
                     <span className="profile-onboarding-input-icon">
                       <PinIcon />
                     </span>
                     <input
-                      id="location"
+                      id="locationCity"
                       className="profile-onboarding-input"
-                      value={extras.locationCombined}
-                      onChange={(e) => patchExtras({ locationCombined: e.target.value })}
+                      value={extras.locationCity}
+                      onChange={(e) => patchExtras({ locationCity: e.target.value })}
                       disabled={fieldsLocked || loading}
-                      placeholder="Seattle, WA"
+                      placeholder="Austin"
                     />
                   </div>
+                </div>
+                <div className="profile-onboarding-field">
+                  <label className="profile-onboarding-label" htmlFor="locationRegion">
+                    STATE / PROVINCE
+                  </label>
+                  <input
+                    id="locationRegion"
+                    className="profile-onboarding-input"
+                    value={extras.locationRegion}
+                    onChange={(e) => patchExtras({ locationRegion: e.target.value })}
+                    disabled={fieldsLocked || loading}
+                    placeholder="TX"
+                  />
                 </div>
                 <div className="profile-onboarding-field">
                   <label className="profile-onboarding-label" htmlFor="locationCountry">
@@ -643,7 +801,7 @@ export function PilotProfileCompletionView({
                 </div>
                 <div className="profile-onboarding-field">
                   <label className="profile-onboarding-label" htmlFor="serviceRadius">
-                    SERVICE RADIUS
+                    SERVICE RADIUS (MI)
                   </label>
                   <input
                     id="serviceRadius"
@@ -651,7 +809,7 @@ export function PilotProfileCompletionView({
                     value={extras.serviceRadiusMi}
                     onChange={(e) => patchExtras({ serviceRadiusMi: e.target.value })}
                     disabled={fieldsLocked || loading}
-                    placeholder="120 mi"
+                    placeholder="120"
                   />
                 </div>
                 <div className="profile-onboarding-field">
@@ -850,6 +1008,39 @@ export function PilotProfileCompletionView({
                 );
               })}
             </div>
+          </section>
+
+          <section className="profile-onboarding-section">
+            <h2 className="profile-onboarding-section-title">SERVICE REGIONS</h2>
+            <p className="profile-onboarding-section-copy">
+              Choose the regions where you are willing to work (for example North
+              America, Middle East). City and state above are your home base;
+              these chips are where you will take jobs.
+            </p>
+            {operatingRegions.length === 0 ? (
+              <p className="profile-onboarding-section-copy">
+                No operating regions are available yet. An admin can add them under
+                Regions.
+              </p>
+            ) : (
+              <div className="profile-onboarding-chips" role="group" aria-label="Service regions">
+                {operatingRegions.map((region) => {
+                  const selected = extras.operatingRegionCodes.includes(region.code);
+                  return (
+                    <button
+                      key={region.code}
+                      type="button"
+                      className={`profile-onboarding-chip${selected ? " profile-onboarding-chip--active" : ""}`}
+                      disabled={fieldsLocked || loading}
+                      aria-pressed={selected}
+                      onClick={() => toggleOperatingRegion(region.code)}
+                    >
+                      {region.name}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </section>
 
           <section className="profile-onboarding-section profile-onboarding-portfolio">
@@ -1089,6 +1280,8 @@ export function PilotProfileCompletionView({
             items={strength.items}
           />
 
+          {renderProfileActions("sidebar")}
+
           {extras.payloadPanelOpen ? (
           <aside className="profile-onboarding-payload-card">
             <div className="profile-onboarding-payload-head">
@@ -1215,80 +1408,7 @@ export function PilotProfileCompletionView({
         </div>
       </div>
 
-      <div className="profile-onboarding-actions">
-        {previewHref && !isPlaceholderDraft ? (
-          <Link
-            href={previewHref}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="profile-onboarding-btn-outline"
-          >
-            Preview Public Profile
-          </Link>
-        ) : (
-          <button
-            type="button"
-            className="profile-onboarding-btn-outline"
-            disabled
-            title="Save your profile first to preview"
-          >
-            Preview Public Profile
-          </button>
-        )}
-        {canEdit && !needsOnboarding && !isEditing ? (
-          <button
-            type="button"
-            className="profile-onboarding-btn-gold"
-            onClick={() => setIsEditing(true)}
-          >
-            Edit profile
-          </button>
-        ) : null}
-        {canEdit && (needsOnboarding || isEditing) ? (
-          <>
-            {!needsOnboarding ? (
-              <button
-                type="button"
-                className="profile-onboarding-btn-outline"
-                disabled={loading}
-                onClick={() => setIsEditing(false)}
-              >
-                Cancel
-              </button>
-            ) : null}
-            <button
-              type="submit"
-              className="profile-onboarding-btn-outline"
-              disabled={loading}
-            >
-              {loading ? "Saving…" : "Save draft"}
-            </button>
-            {needsOnboarding || isRejected ? (
-              <button
-                type="button"
-                className="profile-onboarding-btn-gold"
-                disabled={loading}
-                onClick={() => void handleSubmitForReview()}
-              >
-                {loading
-                  ? "Submitting…"
-                  : isRejected
-                    ? "Resubmit for review"
-                    : "Submit for review"}
-              </button>
-            ) : (
-              <button
-                type="button"
-                className="profile-onboarding-btn-gold"
-                disabled={loading}
-                onClick={() => void persistProfile({ completeOnboarding: false })}
-              >
-                {loading ? "Saving…" : "Save Profile"}
-              </button>
-            )}
-          </>
-        ) : null}
-      </div>
+      {renderProfileActions("mobile")}
 
       <PilotPortfolioAddModal
         open={portfolioModalOpen}

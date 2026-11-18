@@ -54,6 +54,7 @@ async function main() {
       );
     }
 
+    const now = new Date();
     const job = await prisma.job.create({
       data: {
         clientProfileId: client.id,
@@ -66,6 +67,7 @@ async function main() {
         locationRegion: "TX",
         locationCountry: "United States",
         status: "assigned",
+        approvedAt: now,
         currency: "USD",
       },
     });

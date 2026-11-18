@@ -1,5 +1,6 @@
 "use client";
 
+import { Headphones, X } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
@@ -27,6 +28,7 @@ import {
 import { cn } from "@/lib/utils";
 import type { SupportChatMessageDto } from "@/types/support";
 import type { SupportChatThreadDto } from "@/types/support";
+import "@/styles/support-widget.css";
 
 const STORAGE_CHAT_ID = "dm_support_chat_id";
 const STORAGE_GUEST_TOKEN = "dm_support_guest_token";
@@ -441,10 +443,10 @@ function SupportChatWidgetInner({
     !loading && (reply.trim().length > 0 || replyFiles.length > 0);
 
   return (
-    <div className="fixed bottom-4 right-4 z-[60] flex flex-col items-end gap-2 sm:bottom-6 sm:right-6">
+    <div className="support-widget-root">
       {view !== "closed" ? (
         <div
-          className="flex h-[min(80vh,640px)] w-[min(400px,calc(100vw-1.5rem))] flex-col overflow-hidden rounded-xl border border-border bg-background shadow-2xl sm:w-[min(420px,calc(100vw-2rem))]"
+          className="support-widget-panel"
           role="dialog"
           aria-label="Talk to Support"
         >
@@ -656,15 +658,35 @@ function SupportChatWidgetInner({
 
       <button
         type="button"
-        onClick={() => void openWidget()}
-        aria-label={view === "closed" ? "Talk to Support" : "Close support chat"}
+        onClick={() => {
+          if (view === "closed") {
+            void openWidget();
+            return;
+          }
+          setView("closed");
+          stopTypingPulse();
+        }}
+        aria-label={view === "closed" ? "Talk to Support" : "Minimize support chat"}
         aria-expanded={view !== "closed"}
-        className="ras-btn-primary relative shadow-lg"
+        title={view === "closed" ? "Talk to Support" : "Minimize"}
+        className={cn(
+          "support-widget-tab",
+          view !== "closed" && "support-widget-tab--open",
+        )}
       >
-        {view === "closed" ? "Talk to Support" : "Close chat"}
+        <span className="support-widget-tab-icon" aria-hidden>
+          {view === "closed" ? (
+            <Headphones strokeWidth={2} className="h-5 w-5" />
+          ) : (
+            <X strokeWidth={2} className="h-5 w-5" />
+          )}
+        </span>
+        <span className="support-widget-tab-label">
+          {view === "closed" ? "Support" : "Close"}
+        </span>
         {hasUnread && view === "closed" ? (
           <span
-            className="absolute -right-0.5 -top-0.5 h-3 w-3 rounded-full border-2 border-background bg-gold-light shadow-[0_0_8px_rgba(201,162,39,0.8)]"
+            className="support-widget-tab-badge"
             aria-label="New support message"
           />
         ) : null}

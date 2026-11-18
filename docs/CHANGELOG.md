@@ -4,6 +4,14 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.132] — 2026-11-13
+
+### Changed
+
+- **Talk to Support:** replaced the bottom-corner full button with a right-edge icon tab (headphones). Hover expands “Support”; click opens the chat. Unread stays a small badge. Avoids overlapping page actions.
+
+---
+
 ## [0.27.131] — 2026-11-13
 
 ### Fixed

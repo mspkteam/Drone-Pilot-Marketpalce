@@ -4,6 +4,16 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.130] — 2026-11-13
+
+### Fixed (client video — pilot profile edit)
+
+- **Pilot profile edit:** approved/active profiles stay view-locked by design; primary **Edit profile** / **Save Profile** actions sit under the Profile Complete card (sticky on mobile). Viewing/Editing mode pill replaces long banners; Cancel restores saved values.
+- **Location:** separate **City**, **State / Province**, and **Country** fields (plus service radius in miles).
+- **Service regions:** pilots can select admin-managed operating regions (North America, Middle East, etc.) on the profile; defaults seed eight regions.
+
+---
+
 ## [0.27.129] — 2026-11-13
 
 ### Fixed (audit follow-up from Client / Pilot / Admin strict passes)

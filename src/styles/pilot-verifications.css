@@ -313,6 +313,10 @@ a.pilot-verification-attached-name:hover {
   color: var(--color-gold);
 }
 
+.pilot-verification-doc-icon--draft {
+  color: var(--color-gold);
+}
+
 .pilot-verification-doc-icon--amendments_required {
   color: #f59e0b;
 }
@@ -343,6 +347,12 @@ a.pilot-verification-attached-name:hover {
 }
 
 .pilot-verification-doc-badge--pending {
+  border-color: rgba(216, 179, 57, 0.45);
+  background: rgba(216, 179, 57, 0.1);
+  color: var(--color-gold);
+}
+
+.pilot-verification-doc-badge--draft {
   border-color: rgba(216, 179, 57, 0.45);
   background: rgba(216, 179, 57, 0.1);
   color: var(--color-gold);
@@ -490,6 +500,51 @@ a.pilot-verification-attached-name:hover {
   border-color: var(--color-gold);
   color: var(--color-text);
   background: var(--color-gold-icon-wash);
+}
+
+.pilot-verification-submit-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.25rem;
+  border: 1px solid var(--dashboard-card-border);
+  border-radius: 0.75rem;
+  background: var(--color-card-warm);
+  padding: 1rem 1.25rem;
+}
+
+.pilot-verification-submit-copy {
+  margin: 0;
+  flex: 1 1 14rem;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--color-text-muted);
+}
+
+.pilot-verification-submit-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.5rem;
+  border: 1px solid rgba(216, 179, 57, 0.35);
+  border-radius: 0.375rem;
+  background: var(--color-gold);
+  padding: 0 1.25rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--color-cta-dark);
+  cursor: pointer;
+}
+
+.pilot-verification-submit-btn:hover:not(:disabled) {
+  background: var(--color-gold-soft);
+}
+
+.pilot-verification-submit-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 @media (max-width: 639px) {

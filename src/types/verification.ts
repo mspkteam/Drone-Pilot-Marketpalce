@@ -8,6 +8,7 @@ export const VERIFICATION_TYPES = [
 export type VerificationType = (typeof VERIFICATION_TYPES)[number];
 
 export const VERIFICATION_STATUSES = [
+  "draft",
   "pending",
   "amendments_required",
   "approved",

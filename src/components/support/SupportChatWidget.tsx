@@ -1,6 +1,6 @@
 "use client";
 
-import { Headphones, X } from "lucide-react";
+import { LifeBuoy, X } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
@@ -676,7 +676,7 @@ function SupportChatWidgetInner({
       >
         <span className="support-widget-tab-icon" aria-hidden>
           {view === "closed" ? (
-            <Headphones strokeWidth={2} className="h-5 w-5" />
+            <LifeBuoy strokeWidth={2} className="h-5 w-5" />
           ) : (
             <X strokeWidth={2} className="h-5 w-5" />
           )}

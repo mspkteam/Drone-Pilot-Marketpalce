@@ -39,6 +39,7 @@ export function PilotVerificationDocumentsView() {
   const [success, setSuccess] = useState<string | null>(null);
   const [uploadingCatalogId, setUploadingCatalogId] = useState<string | null>(null);
   const [removingCatalogId, setRemovingCatalogId] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
   const [cardErrors, setCardErrors] = useState<Record<string, string>>({});
   const [activeCatalogId, setActiveCatalogId] = useState<string | null>(null);
   const [licensePath, setLicensePath] = useState<PilotLicensePath>("faa");
@@ -84,6 +85,11 @@ export function PilotVerificationDocumentsView() {
   const progress = useMemo(
     () => computeVerificationProgress(cards, licensePath),
     [cards, licensePath],
+  );
+
+  const draftCount = useMemo(
+    () => visibleCards.filter((card) => card.uiStatus === "draft").length,
+    [visibleCards],
   );
 
   function selectLicensePath(path: PilotLicensePath) {
@@ -154,7 +160,9 @@ export function PilotVerificationDocumentsView() {
           [activeCatalogId]: data.error ?? "Upload failed.",
         }));
       } else {
-        setSuccess(`${card.title} submitted for admin review.`);
+        setSuccess(
+          `${card.title} saved. Click Submit for Verification when your documents are ready.`,
+        );
         await load();
       }
     } catch {
@@ -204,6 +212,32 @@ export function PilotVerificationDocumentsView() {
       }));
     } finally {
       setRemovingCatalogId(null);
+    }
+  }
+
+  async function handleSubmitForVerification() {
+    if (draftCount === 0 || submitting) return;
+    setSubmitting(true);
+    setError(null);
+    setSuccess(null);
+    try {
+      const res = await fetch("/api/pilot/verifications/submit", {
+        method: "POST",
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error ?? "Could not submit for verification.");
+        return;
+      }
+      const count = typeof data.count === "number" ? data.count : draftCount;
+      setSuccess(
+        `${count} document${count === 1 ? "" : "s"} submitted for admin review.`,
+      );
+      await load();
+    } catch {
+      setError("Could not submit for verification.");
+    } finally {
+      setSubmitting(false);
     }
   }
 
@@ -303,19 +337,40 @@ export function PilotVerificationDocumentsView() {
       {loading ? (
         <p className="pilot-verification-loading">Loading documents…</p>
       ) : (
-        <div className="pilot-verification-grid">
-          {visibleCards.map((card) => (
-            <PilotVerificationDocumentCardView
-              key={card.catalogId}
-              card={card}
-              uploading={uploadingCatalogId === card.catalogId}
-              removing={removingCatalogId === card.catalogId}
-              cardError={cardErrors[card.catalogId] ?? null}
-              onReplace={() => openFilePicker(card.catalogId)}
-              onRemove={() => void handleRemove(card.catalogId)}
-            />
-          ))}
-        </div>
+        <>
+          <div className="pilot-verification-grid">
+            {visibleCards.map((card) => (
+              <PilotVerificationDocumentCardView
+                key={card.catalogId}
+                card={card}
+                uploading={uploadingCatalogId === card.catalogId}
+                removing={removingCatalogId === card.catalogId}
+                cardError={cardErrors[card.catalogId] ?? null}
+                onReplace={() => openFilePicker(card.catalogId)}
+                onRemove={() => void handleRemove(card.catalogId)}
+              />
+            ))}
+          </div>
+
+          <div className="pilot-verification-submit-bar">
+            <p className="pilot-verification-submit-copy">
+              Uploads stay private until you submit. Review your files, then send
+              them for staff review.
+            </p>
+            <button
+              type="button"
+              className="pilot-verification-submit-btn"
+              disabled={draftCount === 0 || submitting || loading}
+              onClick={() => void handleSubmitForVerification()}
+            >
+              {submitting
+                ? "Submitting…"
+                : draftCount > 0
+                  ? `Submit for Verification (${draftCount})`
+                  : "Submit for Verification"}
+            </button>
+          </div>
+        </>
       )}
     </div>
   );

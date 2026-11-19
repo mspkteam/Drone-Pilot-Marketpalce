@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { PilotPortfolioAddModal } from "@/components/dashboard/pilot/portfolio/PilotPortfolioAddModal";
 import { ProfileStrengthPanel } from "@/components/dashboard/shared/profile/ProfileStrengthPanel";
 import { ComplianceChecklist } from "@/components/pilot/ComplianceChecklist";
@@ -34,6 +34,51 @@ import { isPublicPilotProfileEnabled } from "@/lib/public-access";
 import type { PilotProfileDto } from "@/types/pilot";
 
 const PORTFOLIO_API = "/api/pilot/portfolio" as const;
+const PROFILE_DRAFT_STORAGE_KEY = "ras.pilotProfileDraft.v1";
+
+type StoredProfileDraft = {
+  profileId: string | null;
+  form: PilotFormState;
+  extras: PilotUiExtras;
+  savedAt: number;
+};
+
+function readStoredProfileDraft(
+  profileId: string | null,
+): StoredProfileDraft | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.sessionStorage.getItem(PROFILE_DRAFT_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as StoredProfileDraft;
+    if (!parsed || typeof parsed !== "object") return null;
+    if ((parsed.profileId ?? null) !== (profileId ?? null)) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+function writeStoredProfileDraft(draft: StoredProfileDraft): void {
+  if (typeof window === "undefined") return;
+  try {
+    window.sessionStorage.setItem(
+      PROFILE_DRAFT_STORAGE_KEY,
+      JSON.stringify(draft),
+    );
+  } catch {
+    // Ignore quota / private-mode failures.
+  }
+}
+
+function clearStoredProfileDraft(): void {
+  if (typeof window === "undefined") return;
+  try {
+    window.sessionStorage.removeItem(PROFILE_DRAFT_STORAGE_KEY);
+  } catch {
+    // ignore
+  }
+}
 
 type PilotProfileCompletionViewProps = {
   profile: PilotProfileDto | null;
@@ -207,11 +252,55 @@ export function PilotProfileCompletionView({
   const [editingPortfolioItem, setEditingPortfolioItem] =
     useState<PilotPortfolioItem | null>(null);
   const [portfolioSaving, setPortfolioSaving] = useState(false);
+  const [draftHydrated, setDraftHydrated] = useState(false);
 
   const canEdit = !profile || profile.status !== "suspended";
   const needsOnboarding = !profile?.onboardingCompletedAt;
   const [isEditing, setIsEditing] = useState(needsOnboarding);
   const fieldsLocked = !canEdit || (!needsOnboarding && !isEditing);
+  const profileId = profile?.id ?? null;
+
+  useEffect(() => {
+    const stored = readStoredProfileDraft(profileId);
+    if (stored) {
+      setForm(stored.form);
+      setExtras(stored.extras);
+      if (!needsOnboarding) setIsEditing(true);
+    }
+    setDraftHydrated(true);
+    // Restore once per mount / profile id.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional mount hydrate
+  }, [profileId]);
+
+  useEffect(() => {
+    if (!draftHydrated || !canEdit) return;
+    if (!needsOnboarding && !isEditing) return;
+    writeStoredProfileDraft({
+      profileId,
+      form,
+      extras,
+      savedAt: Date.now(),
+    });
+  }, [
+    draftHydrated,
+    canEdit,
+    needsOnboarding,
+    isEditing,
+    profileId,
+    form,
+    extras,
+  ]);
+
+  function persistDraftToSession() {
+    if (!canEdit) return;
+    if (!needsOnboarding && !isEditing) return;
+    writeStoredProfileDraft({
+      profileId,
+      form,
+      extras,
+      savedAt: Date.now(),
+    });
+  }
   const isRejected = profile?.status === "rejected";
   const showCompliance = needsOnboarding || isRejected;
   /** Placeholder draft from ensurePilotDraftProfile — treat like empty for UX copy. */
@@ -462,6 +551,7 @@ export function PilotProfileCompletionView({
     setExtras(buildExtras(profile));
     if (profile) setForm(pilotDtoToFormState(profile));
     setIsEditing(false);
+    clearStoredProfileDraft();
     setError(null);
     setSuccess(null);
   }
@@ -629,6 +719,7 @@ export function PilotProfileCompletionView({
       payloads: extrasToSave.payloads,
       payloadPanelOpen: extrasToSave.payloads.length === 0,
     }));
+    clearStoredProfileDraft();
     if (!opts.completeOnboarding && !needsOnboarding) {
       setIsEditing(false);
     }
@@ -1135,7 +1226,11 @@ export function PilotProfileCompletionView({
             <h2 className="profile-onboarding-section-title">LICENSE &amp; COMPLIANCE</h2>
             <p className="profile-onboarding-section-note">
               Licenses and certificates appear here after admin approval on{" "}
-              <Link href="/dashboard/pilot/verifications" className="profile-onboarding-inline-link">
+              <Link
+                href="/dashboard/pilot/verifications"
+                className="profile-onboarding-inline-link"
+                onClick={persistDraftToSession}
+              >
                 Verification
               </Link>
               . They are not editable on this page.
@@ -1165,6 +1260,7 @@ export function PilotProfileCompletionView({
               <Link
                 href="/dashboard/pilot/verifications"
                 className="profile-onboarding-inline-link"
+                onClick={persistDraftToSession}
               >
                 {insuranceVerified
                   ? "View verification documents →"
@@ -1246,6 +1342,7 @@ export function PilotProfileCompletionView({
                     <Link
                       href="/dashboard/pilot/verifications/request-wings"
                       className="profile-onboarding-inline-link"
+                      onClick={persistDraftToSession}
                     >
                       Request Wings →
                     </Link>

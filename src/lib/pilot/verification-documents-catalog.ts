@@ -3,6 +3,7 @@ import type { VerificationDto, VerificationType } from "@/types/verification";
 export type PilotDocumentUiStatus =
   | "approved"
   | "pending"
+  | "draft"
   | "amendments_required"
   | "rejected"
   | "missing"
@@ -227,6 +228,8 @@ function mapVerificationStatus(
       return "approved";
     case "pending":
       return "pending";
+    case "draft":
+      return "draft";
     case "amendments_required":
       return "amendments_required";
     case "rejected":
@@ -276,14 +279,15 @@ function unitStatus(status: PilotDocumentUiStatus | undefined): PilotDocumentUiS
 }
 
 function isUnitSatisfied(status: PilotDocumentUiStatus): boolean {
-  return status === "approved" || status === "pending";
+  return status === "approved" || status === "pending" || status === "draft";
 }
 
 function isUnitPendingAction(status: PilotDocumentUiStatus): boolean {
   return (
     status === "missing" ||
     status === "rejected" ||
-    status === "amendments_required"
+    status === "amendments_required" ||
+    status === "draft"
   );
 }
 
@@ -295,6 +299,7 @@ function easaGroupStatus(
   );
   if (easa.some((c) => c.uiStatus === "approved")) return "approved";
   if (easa.some((c) => c.uiStatus === "pending")) return "pending";
+  if (easa.some((c) => c.uiStatus === "draft")) return "draft";
   if (easa.some((c) => c.uiStatus === "amendments_required")) {
     return "amendments_required";
   }
@@ -332,6 +337,7 @@ export function computeVerificationProgress(
   const score = requiredStatuses.reduce((sum, status) => {
     if (status === "approved") return sum + 1;
     if (status === "pending") return sum + 0.5;
+    if (status === "draft") return sum + 0.25;
     return sum;
   }, 0);
   const requiredUnitCount = requiredStatuses.length;

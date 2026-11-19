@@ -45,7 +45,7 @@ async function findConflictingOpenVerification(
     where: {
       pilotProfileId,
       type,
-      status: { in: ["pending", "amendments_required"] },
+      status: { in: ["draft", "pending", "amendments_required"] },
     },
     orderBy: { updatedAt: "desc" },
   });
@@ -271,7 +271,8 @@ export async function submitVerificationWithFile(
     const updated = await prisma.verification.update({
       where: { id: conflicting.id },
       data: {
-        status: "pending",
+        // Stage as draft until the pilot explicitly submits for review.
+        status: "draft",
         notes: input.notes,
         documentFileName: storedName,
         documentMimeType: fileCheck.mime,
@@ -289,7 +290,7 @@ export async function submitVerificationWithFile(
       pilotProfileId,
       type: input.type,
       notes: input.notes,
-      status: "pending",
+      status: "draft",
     },
   });
 
@@ -340,7 +341,7 @@ async function submitVerificationRecord(
     const updated = await prisma.verification.update({
       where: { id: conflicting.id },
       data: {
-        status: "pending",
+        status: "draft",
         documentUrl: data.documentUrl,
         documentFileName: data.documentFileName,
         documentMimeType: data.documentMimeType,
@@ -363,11 +364,64 @@ async function submitVerificationRecord(
       documentMimeType: data.documentMimeType,
       originalFileName: data.originalFileName,
       notes: data.notes,
-      status: "pending",
+      status: "draft",
     },
   });
 
   return { ok: true, verification: toVerificationDto(row) };
+}
+
+/** Move staged (draft) uploads into the admin review queue. */
+export async function submitDraftVerificationsForReview(
+  pilotProfileId: string,
+): Promise<
+  | { ok: true; count: number; verifications: VerificationDto[] }
+  | { ok: false; error: string; status: 400 }
+> {
+  const drafts = await prisma.verification.findMany({
+    where: {
+      pilotProfileId,
+      status: "draft",
+      OR: [
+        { documentFileName: { not: null } },
+        { documentUrl: { not: null } },
+      ],
+    },
+  });
+
+  if (drafts.length === 0) {
+    return {
+      ok: false,
+      error: "Upload at least one document before submitting for verification.",
+      status: 400,
+    };
+  }
+
+  const now = new Date();
+  await prisma.verification.updateMany({
+    where: {
+      pilotProfileId,
+      id: { in: drafts.map((d) => d.id) },
+    },
+    data: {
+      status: "pending",
+      submittedAt: now,
+      rejectionReason: null,
+      reviewedAt: null,
+      reviewedByUserId: null,
+    },
+  });
+
+  const updated = await prisma.verification.findMany({
+    where: { id: { in: drafts.map((d) => d.id) } },
+    orderBy: { updatedAt: "desc" },
+  });
+
+  return {
+    ok: true,
+    count: updated.length,
+    verifications: updated.map(toVerificationDto),
+  };
 }
 
 /** @deprecated Use submitVerificationWithUrl â€” kept for route compatibility */

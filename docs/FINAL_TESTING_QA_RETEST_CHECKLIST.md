@@ -14,8 +14,8 @@
 | Bucket | Count |
 |--------|------:|
 | PASS (on Production) | 63 |
-| PARTIAL | 1 (C20 button heights) |
-| OPEN (known gaps) | 3 |
+| PASS (code, pending Production deploy) | 3 (C20, P-OPEN2, P-OPEN3) |
+| OPEN (known gaps) | 1 (P-OPEN1 support auto-replies) |
 | BLOCKED (client) | 6 |
 
 ---
@@ -56,12 +56,12 @@
 | C17 | Field-level errors under the failing field (post-project) | [x] | [x] |
 | C18 | My Projects / quote card button alignment consistent | [x] | [x] |
 | C19 | View profile does **not** 404 | [x] | [x] |
-| C20 | Button sizes look consistent on primary client paths | PARTIAL | PARTIAL |
+| C20 | Button sizes look consistent on primary client paths | [x] | |
 | C21 | Request revision: no alert prompt; pilot gets notification | [x] | [x] |
 | C22 | Clicking revision notification shows update **without** hard browser refresh | [x] | [x] |
 | C23 | Invite code: purpose copy + copyable link | [x] | [x] |
 
-**C20 note:** Primary paths still mix `.ras-btn` 2.5rem, post-project 2.75rem, my-projects ~2.125rem. Cosmetic only.
+**C20 note (v0.27.134):** Primary client buttons unified to **2.5rem** (dashboard, post-project, my-projects, project-bids, find-pilots). Live Prod column pending deploy.
 
 ---
 
@@ -101,8 +101,8 @@
 | # | Item | Status | Notes |
 |---|------|--------|-------|
 | P-OPEN1 | Support chat “automated” | OPEN | Staffed chat; no auto-replies by design |
-| P-OPEN2 | Leave profile → Verification without Save draft | OPEN | No autosave |
-| P-OPEN3 | Manual “Submit for Verification” after upload | OPEN | Upload still submits immediately |
+| P-OPEN2 | Leave profile → Verification without Save draft | [x] code | sessionStorage draft + flush on Verification links (v0.27.134) |
+| P-OPEN3 | Manual “Submit for Verification” after upload | [x] code | Uploads stage as draft; explicit submit API (v0.27.134) |
 
 ---
 

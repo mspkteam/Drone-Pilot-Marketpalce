@@ -4,6 +4,24 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.134] — 2026-11-19
+
+### Fixed (Final Testing QA)
+
+- **P-OPEN2 — profile draft retention:** unsaved pilot profile edits persist in `sessionStorage` while editing; Verification / Request Wings links flush the draft first so leaving Profile does not wipe fields.
+- **P-OPEN3 — manual verification submit:** document uploads stage as `draft`; pilots review then click **Submit for Verification** (`POST /api/pilot/verifications/submit`) to move drafts to admin `pending`.
+- **C20 — client button heights:** primary client dashboard / post-project / my-projects / project-bids / find-pilots actions unified to **2.5rem** to match `.ras-btn`.
+
+---
+
+## [0.27.133] — 2026-11-13
+
+### Changed
+
+- **Talk to Support icon:** life buoy instead of headphones so it reads as help/support, not music.
+
+---
+
 ## [0.27.132] — 2026-11-13
 
 ### Changed

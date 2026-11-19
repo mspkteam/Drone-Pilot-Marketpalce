@@ -29,6 +29,7 @@ export function getVerificationDocumentLabel(input: {
 
 export function getVerificationStatusLabel(status: VerificationStatus): string {
   const labels: Record<VerificationStatus, string> = {
+    draft: "Ready to submit",
     pending: "Pending review",
     amendments_required: "Amendments required",
     approved: "Approved",
@@ -42,6 +43,8 @@ export function getVerificationStatusTone(
   status: VerificationStatus,
 ): "neutral" | "warning" | "success" | "error" {
   switch (status) {
+    case "draft":
+      return "neutral";
     case "pending":
     case "amendments_required":
       return "warning";

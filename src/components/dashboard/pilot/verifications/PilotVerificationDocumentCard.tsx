@@ -5,6 +5,7 @@ import type { PilotVerificationDocumentCard } from "@/lib/pilot/verification-doc
 const STATUS_LABEL: Record<PilotVerificationDocumentCard["uiStatus"], string> = {
   approved: "APPROVED",
   pending: "PENDING REVIEW",
+  draft: "READY TO SUBMIT",
   amendments_required: "AMENDMENTS REQUIRED",
   rejected: "REJECTED",
   missing: "MISSING",
@@ -38,6 +39,15 @@ function StatusIcon({ status }: { status: PilotVerificationDocumentCard["uiStatu
           <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5">
             <circle cx="9" cy="9" r="7" />
             <path d="M9 5.5V9l2.5 1.5" strokeLinecap="round" />
+          </svg>
+        </span>
+      );
+    case "draft":
+      return (
+        <span className={className} aria-hidden>
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <circle cx="9" cy="9" r="7" />
+            <path d="M5.5 9.25l2.25 2.25 4.75-5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </span>
       );

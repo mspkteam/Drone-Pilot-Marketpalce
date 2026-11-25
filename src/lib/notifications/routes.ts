@@ -125,6 +125,23 @@ export function getNotificationHref(
       if (area === "admin") return "/dashboard/admin/disputes";
       return null;
 
+    case "squadron_vote": {
+      const ballotId = payloadId(payload, "ballotId");
+      if (area === "pilot") {
+        return ballotId
+          ? `/dashboard/pilot/squadron-voting?ballot=${encodeURIComponent(ballotId)}`
+          : "/dashboard/pilot/squadron-voting";
+      }
+      if (area === "admin" && disputeId) {
+        return `/dashboard/admin/disputes/${disputeId}`;
+      }
+      if (area === "admin") return "/dashboard/admin/squadron-voting";
+      if (bookingId && area === "client") {
+        return `/dashboard/client/bookings/${bookingId}`;
+      }
+      return null;
+    }
+
     case "verification_approved":
     case "verification_rejected":
       if (payloadId(payload, "wingRequestId") && area === "pilot") {

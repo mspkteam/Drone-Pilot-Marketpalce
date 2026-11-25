@@ -26,16 +26,20 @@ Transactional **in-app notifications** plus **email logging** on key marketplace
 
 ## Events wired
 
-| Event | Recipient |
-|-------|-----------|
-| Register | New user (welcome) |
-| Job submitted | Client |
-| Job approved / rejected | Client |
-| New bid | Client |
-| Bid accepted | Pilot |
-| Booking confirmed / started / cancelled | Other party |
-| Booking completed | Client + pilot |
-| Review submitted | Review target |
+| Event | Recipient | Email |
+|-------|-----------|-------|
+| Register | New user (welcome) | Yes |
+| Job submitted | Client + staff | Yes (critical) |
+| Job approved / rejected | Client | Yes (critical) |
+| New bid | Client | Preference-gated |
+| Bid accepted | Pilot | Yes (critical) |
+| Booking confirmed / started / cancelled | Other party | Preference-gated |
+| Booking completed | Client + pilot | Yes (critical) |
+| Review submitted | Review target | Preference-gated |
+| Dispute updates | Parties | Yes (critical) |
+| Squadron vote open/close | Parties + A-4+ voters + staff | Yes (critical) |
+| Wing / verification | Pilot / staff | Yes (critical) |
+| Support chat | Staff / requester | Yes (critical) |
 
 ---
 

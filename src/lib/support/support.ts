@@ -170,7 +170,7 @@ async function notifyAdminsNewSupportChat(
         title: "New support chat",
         body: `${requesterName} started a support conversation.`,
         payload: { supportChatId: chatId },
-        sendEmail: false,
+        forceEmail: true,
       });
     });
   }
@@ -589,7 +589,7 @@ export async function sendSupportMessageAsAdmin(
         title: "Support replied",
         body: "Our support team sent you a new message.",
         payload: { supportChatId: chatId },
-        sendEmail: false,
+        forceEmail: true,
       });
     });
   }

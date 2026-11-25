@@ -267,6 +267,7 @@ function notifyDisputeParties(
         title,
         body,
         payload: { disputeId, bookingId },
+        forceEmail: true,
       });
     }
   });

@@ -4,8 +4,14 @@ import { parseClientProfilePreferences } from "@/lib/client/preferences";
 import { emailUser } from "@/lib/notifications/email";
 import { getNotificationHref } from "@/lib/notifications/routes";
 import { parseProfileExtrasJson } from "@/lib/pilot/profile-extras";
-import type { NotificationDto, NotificationType } from "@/types/notification";
+import {
+  CRITICAL_EMAIL_NOTIFICATION_TYPES,
+  type NotificationDto,
+  type NotificationType,
+} from "@/types/notification";
 import type { UserRole } from "@/types/roles";
+
+const CRITICAL_EMAIL_SET = new Set<string>(CRITICAL_EMAIL_NOTIFICATION_TYPES);
 
 export function toNotificationDto(
   n: Notification,
@@ -70,6 +76,7 @@ function pilotPrefAllowsEmail(
     case "booking_completed":
     case "review_received":
     case "dispute_update":
+    case "squadron_vote":
       return prefs.contracts;
     case "verification_approved":
     case "verification_rejected":
@@ -101,6 +108,7 @@ function clientPrefAllowsEmail(
     case "booking_status":
     case "booking_completed":
     case "dispute_update":
+    case "squadron_vote":
     case "review_received":
       return prefs.emailUpdates && prefs.projectUpdates;
     default:
@@ -154,6 +162,7 @@ export async function sendNotification(input: NotifyInput) {
   if (input.sendEmail !== false) {
     const allow =
       input.forceEmail === true ||
+      CRITICAL_EMAIL_SET.has(input.type) ||
       (await shouldSendEmail(input.userId, input.type));
     if (allow) {
       await emailUser(input.userId, input.title, input.body);

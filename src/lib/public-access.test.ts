@@ -58,6 +58,8 @@ describe("public access", () => {
   it("always allows auth routes", () => {
     assert.equal(isPublicMarketingPathAllowed("/login"), true);
     assert.equal(isPublicMarketingPathAllowed("/register"), true);
+    assert.equal(isPublicMarketingPathAllowed("/forgot-password"), true);
+    assert.equal(isPublicMarketingPathAllowed("/reset-password"), true);
     assert.equal(isPublicMarketingPathAllowed("/waitlist"), true);
     assert.equal(isPublicMarketingPathAllowed("/launch"), true);
   });

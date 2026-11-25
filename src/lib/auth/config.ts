@@ -22,10 +22,18 @@ export const PUBLIC_PATHS = [
   "/reputation",
   "/login",
   "/register",
+  "/forgot-password",
+  "/reset-password",
   "/waitlist",
 ] as const;
 
-export const AUTH_PATHS = ["/login", "/register", "/waitlist"] as const;
+export const AUTH_PATHS = [
+  "/login",
+  "/register",
+  "/forgot-password",
+  "/reset-password",
+  "/waitlist",
+] as const;
 
 export const DASHBOARD_PREFIX = "/dashboard";
 

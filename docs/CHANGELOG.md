@@ -4,6 +4,14 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.136] — 2026-11-25
+
+### Added
+
+- **Forgot password:** `/forgot-password` requests a one-hour email link; `/reset-password?token=` sets a new password (same strength rules as register). Login includes **Forgot password?** SMTP required on Production for real delivery; local/dev logs the link when SMTP is unset.
+
+---
+
 ## [0.27.135] — 2026-11-25
 
 ### Fixed

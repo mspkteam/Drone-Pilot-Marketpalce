@@ -9,6 +9,10 @@ const API_ROOT = join(process.cwd(), "src", "app", "api");
 const PUBLIC_API_SUFFIXES = [
   "auth/register/route.ts",
   "auth/[...nextauth]/route.ts",
+  "auth/forgot-password/route.ts",
+  "auth/reset-password/route.ts",
+  "auth/resend-verification/route.ts",
+  "auth/verify-email/route.ts",
   "waitlist/route.ts",
   "contact/route.ts",
 ] as const;

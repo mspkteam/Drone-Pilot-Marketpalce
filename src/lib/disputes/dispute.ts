@@ -731,27 +731,32 @@ async function applyResolutionPayment(
   resolutionAmount: number | null,
   agreedAmount: number,
 ) {
-  // Ensure an in-platform payment row exists (no Stripe). Create one if the
-  // booking completed without a ledger entry yet.
+  // Internal ledger only — no Stripe / saved payment method required.
   let payment = await prisma.payment.findUnique({
     where: { bookingId },
     include: { commission: true },
   });
 
   if (!payment) {
-    const { recordPaymentForCompletedBooking } = await import(
-      "@/lib/payments/payment"
-    );
-    await recordPaymentForCompletedBooking(bookingId);
-    payment = await prisma.payment.findUnique({
-      where: { bookingId },
-      include: { commission: true },
-    });
+    try {
+      const { recordPaymentForCompletedBooking } = await import(
+        "@/lib/payments/payment"
+      );
+      await recordPaymentForCompletedBooking(bookingId);
+      payment = await prisma.payment.findUnique({
+        where: { bookingId },
+        include: { commission: true },
+      });
+    } catch (err) {
+      console.warn(
+        "[disputes] recordPaymentForCompletedBooking skipped:",
+        err,
+      );
+    }
   }
 
   if (!payment) {
-    // Booking may not be completed yet — still create a pending internal ledger
-    // so resolve can record refund/payout without a card gateway.
+    // Create a pending internal ledger row so resolve works without a card gateway.
     const booking = await prisma.booking.findUnique({
       where: { id: bookingId },
       include: {
@@ -930,6 +935,9 @@ export async function resolveDispute(
   }
 
   const now = new Date();
+  const nextBookingStatus =
+    resolutionType === "refund" ? "cancelled" : "completed";
+
   const updated = await prisma.$transaction(async (tx) => {
     const d = await tx.dispute.update({
       where: { id: disputeId },
@@ -953,21 +961,35 @@ export async function resolveDispute(
       },
     });
 
+    // Clear disputed state without requiring Stripe / saved payment methods.
+    await tx.booking.update({
+      where: { id: dispute.bookingId },
+      data: { status: nextBookingStatus },
+    });
+
     return d;
   });
 
-  await applyResolutionPayment(
-    dispute.bookingId,
-    resolutionType,
-    resolutionAmount,
-    dispute.booking.agreedAmount,
-  );
+  // Ledger updates are best-effort until Stripe ships. Never block resolution.
+  try {
+    await applyResolutionPayment(
+      dispute.bookingId,
+      resolutionType,
+      resolutionAmount,
+      dispute.booking.agreedAmount,
+    );
+  } catch (err) {
+    console.error(
+      "[disputes] applyResolutionPayment skipped (payments deferred):",
+      err,
+    );
+  }
 
   notifyDisputeParties(
     dispute.booking.clientProfile.userId,
     dispute.booking.pilotProfile.userId,
     "Dispute resolved",
-    `Resolution: ${resolutionType}.`,
+    `Resolution: ${resolutionType}. Live payouts/refunds via payment methods are deferred — the case is closed on-platform.`,
     disputeId,
     dispute.bookingId,
   );

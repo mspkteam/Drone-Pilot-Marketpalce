@@ -81,14 +81,37 @@ export function formatDisplayDateShort(
   return date.toLocaleDateString("en-US", US_DATE_SHORT);
 }
 
-/** US datetime: "Sep 7, 2026, 3:45 PM" */
+export type FormatDisplayDateTimeOptions = {
+  /** IANA timezone (e.g. America/Chicago). Invalid values are ignored. */
+  timeZone?: string | null;
+  /** Append short zone name (CST, GMT+4) when a timeZone is applied. */
+  includeTimeZoneName?: boolean;
+};
+
+/** US datetime: "Sep 7, 2026, 3:45 PM" (optional region timezone). */
 export function formatDisplayDateTime(
   value: string | Date | null | undefined,
   fallback = "—",
+  options?: FormatDisplayDateTimeOptions,
 ): string {
   const date = toValidDate(value);
   if (!date) return fallback;
-  return date.toLocaleString("en-US", US_DATETIME);
+
+  const timeZone = options?.timeZone?.trim();
+  const formatOptions: Intl.DateTimeFormatOptions = { ...US_DATETIME };
+  if (timeZone) {
+    try {
+      Intl.DateTimeFormat(undefined, { timeZone });
+      formatOptions.timeZone = timeZone;
+      if (options?.includeTimeZoneName !== false) {
+        formatOptions.timeZoneName = "short";
+      }
+    } catch {
+      /* invalid IANA — fall back to runtime local */
+    }
+  }
+
+  return date.toLocaleString("en-US", formatOptions);
 }
 
 /** ISO calendar date → dd/mm/yyyy (post-project and date pickers). */

@@ -4,6 +4,14 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.139] — 2026-11-25
+
+### Fixed (Final Testing QA — B6)
+
+- **Notification timestamps by region:** bell times render in the user’s operating-region timezone (pilot: first selected region; client: billing country / project area; admin: America/Chicago), with a short zone label. Delivery stays immediate — no quiet-hours hold.
+
+---
+
 ## [0.27.138] — 2026-11-25
 
 ### Fixed

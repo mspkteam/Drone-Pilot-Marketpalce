@@ -113,7 +113,7 @@
 | 12 | Verification docs match / preview | DONE | In-modal preview + catalog titles |
 | 13 | Request more info keeps queue | DONE | Amendments status |
 | 14 | Preview Pricing / Full config 404 | DONE · SMOKE | Settings + `/configuration` alias; A14 |
-| 15 | Delayed notifications / timezone | BLOCKED | Regions have timezone fields; delivery policy TBD |
+| 15 | Delayed notifications / timezone | DONE (code) | Bell uses region TZ (v0.27.139); delivery immediate |
 
 **Note on A14 “Preview Pricing” label:** Full configuration 404 is fixed. Exact button string `Preview Pricing` is not present in commissions UI (rate edit + “Full configuration →”). Treat label rename as cosmetic / residual if client still wants that exact copy.
 

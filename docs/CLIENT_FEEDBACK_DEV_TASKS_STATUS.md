@@ -1,7 +1,7 @@
 # RAS Website — Developer Tasks & Testing Notes (status)
 
 **Source:** Client feedback 13 Nov 2026  
-**Codebase:** v0.27.134  
+**Codebase:** v0.27.139  
 **Scope cut (confirmed):** no Stripe/escrow · no Milestone 5 launch package  
 **Client reply pack:** `docs/CLIENT_REPLY_DRAFT_SECTIONS_10_11.md`
 
@@ -15,7 +15,7 @@
 | 6 | Subscription plans | **Completed** (non-pay) | Admin plan edits sync to public `/pricing` | Stripe for paid lifecycle later |
 | 7 | Commission calc / split | **Completed** (calc only) | 15% + override path + unit tests; no processor | Stripe escrow/payouts later |
 | 8 | Stripe escrow hold | **Blocked** | Research only — not implemented | Recommended approach approval |
-| 9 | Final testing / delivery | **In Progress** | Final QA 71 Done / 6 Blocked; Production `qa:final` green | Unblock Stripe/shop assets/timezone |
+| 9 | Final testing / delivery | **In Progress** | Final QA B6 timezone done; 5 Blocked remain (Stripe/shop) | Unblock Stripe / shop assets |
 
 ## Not in this release
 

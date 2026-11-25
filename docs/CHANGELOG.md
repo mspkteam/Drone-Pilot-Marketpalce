@@ -4,6 +4,15 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.135] — 2026-11-25
+
+### Fixed
+
+- **Test instant delete URL:** failures now show an alert (no silent console-only fail), retries work after a failed attempt, `delete` is accepted as an alias for `deleteUser`, and local `next dev` enables `?instantDelete=1` without an env flag. Production still needs `ALLOW_TEST_INSTANT_DELETE=true`.
+- **Hard delete:** stronger marketplace cascade + clearer Prisma error text; Fleet & Personnel **Delete** now permanently wipes members (`?permanent=1`). Member profile “Deactivate” remains the 30-day grace path.
+
+---
+
 ## [0.27.134] — 2026-11-19
 
 ### Fixed (Final Testing QA)

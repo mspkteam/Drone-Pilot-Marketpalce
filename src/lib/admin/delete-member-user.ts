@@ -13,16 +13,18 @@ export type DeleteMemberUserResult =
   | { ok: false; error: string; status: 400 | 403 | 404 };
 
 /**
- * Pilot/client: soft-deactivate (30-day reactivation window, then cron purge).
+ * Pilot/client: soft-deactivate (30-day reactivation window, then cron purge)
+ * unless `forceHard` / `allowSelf` is set for a permanent wipe.
  * Admin/moderator: hard-delete related rows. Cannot delete self or Super Admin
  * unless `allowSelf` is set (testing instant hard-delete for pilot/client only).
  */
 export async function deleteMemberUser(
   targetUserId: string,
   actorUserId: string,
-  options?: { allowSelf?: boolean },
+  options?: { allowSelf?: boolean; forceHard?: boolean },
 ): Promise<DeleteMemberUserResult> {
   const allowSelf = options?.allowSelf === true;
+  const forceHard = options?.forceHard === true || allowSelf;
 
   if (targetUserId === actorUserId && !allowSelf) {
     return {
@@ -56,9 +58,9 @@ export async function deleteMemberUser(
     };
   }
 
-  // QA: admin “delete” for members starts a 30-day grace period (unless self-test hard delete).
+  // QA: admin “delete” for members starts a 30-day grace period unless permanent wipe.
   if (
-    !allowSelf &&
+    !forceHard &&
     (target.role === "pilot" || target.role === "client")
   ) {
     if (target.status === "deactivated") {
@@ -131,9 +133,35 @@ export async function deleteMemberUser(
             where: { referredByInstructorId: pilot.id },
             data: { referredByInstructorId: null },
           });
+          // Clear marketplace graph before profile delete (avoids FK order issues).
+          await tx.conversation.deleteMany({
+            where: { pilotProfileId: pilot.id },
+          });
+          await tx.jobApplication.deleteMany({
+            where: { pilotProfileId: pilot.id },
+          });
+          await tx.review.deleteMany({
+            where: {
+              OR: [
+                { targetPilotProfileId: pilot.id },
+                { authorUserId: targetUserId },
+              ],
+            },
+          });
         }
 
         if (client) {
+          await tx.conversation.deleteMany({
+            where: { clientProfileId: client.id },
+          });
+          await tx.review.deleteMany({
+            where: {
+              OR: [
+                { targetClientProfileId: client.id },
+                { authorUserId: targetUserId },
+              ],
+            },
+          });
           await tx.job.deleteMany({ where: { clientProfileId: client.id } });
         }
 
@@ -192,10 +220,15 @@ export async function deleteMemberUser(
     );
   } catch (err) {
     console.error("[admin] deleteMemberUser failed:", err);
+    const detail =
+      err instanceof Error && err.message
+        ? err.message.slice(0, 280)
+        : "related records are still linked";
     return {
       ok: false,
-      error:
-        "Could not delete this account because related records are still linked. Suspend the login instead, or contact support.",
+      error: allowSelf
+        ? `Could not hard-delete this account: ${detail}`
+        : "Could not delete this account because related records are still linked. Suspend the login instead, or contact support.",
       status: 400,
     };
   }

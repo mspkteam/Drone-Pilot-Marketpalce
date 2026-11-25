@@ -74,13 +74,17 @@ export async function PATCH(request: Request, context: RouteContext) {
 
 /**
  * DELETE /api/admin/users/[id]
- * Hard-delete pilot/client (users:edit) or Admin/Moderator (Super Admin only).
+ * Pilot/client: soft-deactivate by default; pass `?permanent=1` for hard wipe.
+ * Admin/Moderator: hard-delete (Super Admin only).
  */
-export async function DELETE(_request: Request, context: RouteContext) {
+export async function DELETE(request: Request, context: RouteContext) {
   const { id } = await context.params;
   if (!id) {
     return NextResponse.json({ error: "User id is required." }, { status: 400 });
   }
+
+  const permanent =
+    new URL(request.url).searchParams.get("permanent") === "1";
 
   const target = await prisma.user.findUnique({
     where: { id },
@@ -108,7 +112,9 @@ export async function DELETE(_request: Request, context: RouteContext) {
       );
     }
 
-    const result = await deleteMemberUser(id, authResult.userId);
+    const result = await deleteMemberUser(id, authResult.userId, {
+      forceHard: true,
+    });
     if (!result.ok) {
       return NextResponse.json(
         { error: result.error },
@@ -138,7 +144,9 @@ export async function DELETE(_request: Request, context: RouteContext) {
     );
   }
 
-  const result = await deleteMemberUser(id, authResult.userId);
+  const result = await deleteMemberUser(id, authResult.userId, {
+    forceHard: permanent,
+  });
   if (!result.ok) {
     return NextResponse.json(
       { error: result.error },

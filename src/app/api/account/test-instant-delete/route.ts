@@ -15,7 +15,10 @@ import {
 export async function POST(request: Request) {
   if (!isTestInstantDeleteEnabled()) {
     return NextResponse.json(
-      { error: "Test instant delete is disabled." },
+      {
+        error:
+          "Test instant delete is disabled on this server. Set ALLOW_TEST_INSTANT_DELETE=true (or TEST_INSTANT_DELETE_TOKEN) in the environment, then redeploy.",
+      },
       { status: 403 },
     );
   }
@@ -39,7 +42,11 @@ export async function POST(request: Request) {
     };
     confirm = typeof body.confirm === "string" ? body.confirm : null;
     deleteUser =
-      typeof body.deleteUser === "string" ? body.deleteUser : null;
+      typeof body.deleteUser === "string"
+        ? body.deleteUser
+        : typeof (body as { delete?: string }).delete === "string"
+          ? (body as { delete?: string }).delete!
+          : null;
   } catch {
     confirm = null;
     deleteUser = null;
@@ -47,7 +54,10 @@ export async function POST(request: Request) {
 
   const { searchParams } = new URL(request.url);
   confirm = confirm ?? searchParams.get("instantDelete");
-  deleteUser = deleteUser ?? searchParams.get("deleteUser");
+  deleteUser =
+    deleteUser ??
+    searchParams.get("deleteUser") ??
+    searchParams.get("delete");
 
   if (!isValidTestInstantDeleteParam(confirm)) {
     return NextResponse.json(

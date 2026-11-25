@@ -155,15 +155,22 @@ export function AdminFleetPersonnel({
     try {
       const endpoint = row.isManagementUser
         ? `/api/admin/management-users/${row.id}`
-        : `/api/admin/users/${row.id}`;
+        : `/api/admin/users/${row.id}?permanent=1`;
       const res = await fetch(endpoint, { method: "DELETE" });
-      const json = (await res.json()) as { error?: string };
+      const json = (await res.json()) as {
+        error?: string;
+        mode?: "soft" | "hard";
+      };
       if (!res.ok) {
         setActionError(json.error ?? "Failed to delete account.");
         return;
       }
       setRows((current) => current.filter((item) => item.id !== row.id));
-      setActionMessage(`Deleted ${kind} account for ${row.name}.`);
+      setActionMessage(
+        json.mode === "soft"
+          ? `Deactivated ${kind} account for ${row.name} (30-day grace).`
+          : `Permanently deleted ${kind} account for ${row.name}.`,
+      );
     } catch {
       setActionError("Failed to delete account.");
     } finally {

@@ -1,8 +1,8 @@
 # Final Testing — QA retest checklist
 
 **Source:** `Drone-Final Testing/DroneFinalTesting.html` (22 Oct 2026)  
-**Production:** https://drone-pilot-marketpalce.vercel.app · **v0.27.129** (`production` `88b70c4` ← `main` `ba477f2`)  
-**Verified:** 13 Nov 2026 — code + unit; **deployed to Production**  
+**Production:** https://drone-pilot-marketpalce.vercel.app · **v0.27.139** (code on main; deploy when pushed)  
+**Verified:** 25 Nov 2026 — code + unit  
 **Marks:** `[x]` PASS (on Production) · `PARTIAL` · `BLOCKED` · `OPEN`
 
 > Code for PASS rows is live on Production. QA may still spot-check the Live Prod column during acceptance; OPEN/BLOCKED rows are not claimed as done.
@@ -14,9 +14,9 @@
 | Bucket | Count |
 |--------|------:|
 | PASS (on Production) | 63 |
-| PASS (code, pending Production deploy) | 3 (C20, P-OPEN2, P-OPEN3) |
+| PASS (code, pending Production deploy) | 4 (C20, P-OPEN2, P-OPEN3, B6) |
 | OPEN (known gaps) | 1 (P-OPEN1 support auto-replies) |
-| BLOCKED (client) | 6 |
+| BLOCKED (client) | 5 |
 
 ---
 
@@ -29,7 +29,7 @@
 | B3 | Pilot payment method realtime | Stripe | BLOCKED |
 | B4 | Pilot payment + SMTP realtime | Stripe / SMTP | BLOCKED |
 | B5 | Shop product pictures match product names | Client assets | BLOCKED |
-| B6 | Notifications delayed / timezone by region | Region policy | BLOCKED |
+| B6 | Notifications delayed / timezone by region | Dev (v0.27.139) | [x] code |
 
 ---
 

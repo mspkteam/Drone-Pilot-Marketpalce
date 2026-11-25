@@ -147,7 +147,7 @@ Proposal submit blocker from Morosoft sticky extras: fixed in v0.27.114 (drafts 
 | 12 | Verification docs match uploads / preview UX | Done | Catalog slot titles in admin cards (v0.27.121) |
 | 13 | Request more info deletes from queue | Done | Amendments keep queue |
 | 14 | Preview Pricing / Full configuration 404 | Done | |
-| 15 | Delayed notifications / timezone by region | Blocked on client | |
+| 15 | Delayed notifications / timezone by region | Done (code) | Region TZ display v0.27.139 |
 
 ---
 

@@ -5,6 +5,7 @@ import {
   listNotificationsForUser,
   markAllNotificationsRead,
 } from "@/lib/notifications/notify";
+import { resolveUserNotificationTimezone } from "@/lib/notifications/user-timezone";
 
 export async function GET(request: Request) {
   try {
@@ -19,16 +20,17 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const unreadOnly = searchParams.get("unreadOnly") === "1";
 
-    const [notifications, unreadCount] = await Promise.all([
+    const [notifications, unreadCount, timezone] = await Promise.all([
       listNotificationsForUser(session.user.id, {
         unreadOnly,
         limit: 30,
         role: session.user.role,
       }),
       getUnreadCount(session.user.id),
+      resolveUserNotificationTimezone(session.user.id),
     ]);
 
-    return NextResponse.json({ notifications, unreadCount });
+    return NextResponse.json({ notifications, unreadCount, timezone });
   } catch (error) {
     console.error("[GET /api/notifications]", error);
     return NextResponse.json(

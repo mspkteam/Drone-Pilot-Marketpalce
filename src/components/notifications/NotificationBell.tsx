@@ -20,6 +20,7 @@ export function NotificationBell({
   const [open, setOpen] = useState(false);
   const [notifications, setNotifications] = useState<NotificationDto[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [timezone, setTimezone] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
 
@@ -40,11 +41,15 @@ export function NotificationBell({
         error?: string;
         notifications?: NotificationDto[];
         unreadCount?: number;
+        timezone?: string;
       };
       if (data.error) return;
 
       setNotifications(data.notifications ?? []);
       setUnreadCount(data.unreadCount ?? 0);
+      if (typeof data.timezone === "string" && data.timezone.trim()) {
+        setTimezone(data.timezone.trim());
+      }
     } catch (error) {
       // Network blips, HMR restarts, and unmount aborts are expected in dev.
       if (error instanceof DOMException && error.name === "AbortError") return;
@@ -203,7 +208,11 @@ export function NotificationBell({
                           {n.body}
                         </p>
                         <p className="mt-1 flex items-center justify-between gap-2 text-[10px] text-muted-foreground">
-                          <span>{formatDisplayDateTime(n.createdAt)}</span>
+                          <span>
+                            {formatDisplayDateTime(n.createdAt, "—", {
+                              timeZone: timezone,
+                            })}
+                          </span>
                           {n.href ? (
                             <span className="text-gold-dark">View →</span>
                           ) : null}

@@ -34,7 +34,7 @@ Earlier checklists over-claimed relative to the HTML extras and some screenshot 
 | Client BILLING / Invoice PDF | Stripe |
 | Pilot payment method / SMTP realtime | Stripe / SMTP |
 | Shop product pictures | Assets |
-| Delayed notifications / timezone by region | Region policy deferred |
+| Delayed notifications / timezone by region | **Done (v0.27.139)** — timestamps use operating-region TZ; delivery immediate |
 
 ## Code already present (QA screenshots may be stale)
 

@@ -4,6 +4,7 @@ import {
   buildCalendarMonth,
   formatDisplayDate,
   formatDisplayDateShort,
+  formatDisplayDateTime,
   formatIsoDateForDisplay,
   isoDateFromParts,
   parseIsoDate,
@@ -38,5 +39,21 @@ describe("date format helpers", () => {
     const today = todayIsoDate();
     assert.match(today, /^\d{4}-\d{2}-\d{2}$/);
     assert.equal(isoDateFromParts(2026, 7, 9), "2026-07-09");
+  });
+
+  it("formats datetime in a region timezone", () => {
+    const iso = "2026-11-25T23:30:00.000Z";
+    const dubai = formatDisplayDateTime(iso, "—", {
+      timeZone: "Asia/Dubai",
+      includeTimeZoneName: false,
+    });
+    const chicago = formatDisplayDateTime(iso, "—", {
+      timeZone: "America/Chicago",
+      includeTimeZoneName: false,
+    });
+    // 23:30 UTC → 03:30 next day in Dubai; 17:30 same day in Chicago (CST)
+    assert.match(dubai, /Nov 26, 2026/);
+    assert.match(chicago, /Nov 25, 2026/);
+    assert.notEqual(dubai, chicago);
   });
 });

@@ -1,6 +1,10 @@
 import { prisma } from "@/lib/db";
 import { formatDisputeDisplayId } from "@/lib/admin/dispute-center-filters";
 import { listDisputesForAdmin } from "@/lib/disputes/dispute";
+import {
+  triggerSquadronBallotClosed,
+  triggerSquadronBallotOpened,
+} from "@/lib/notifications/triggers";
 import { membershipTierRank } from "@/lib/wings/conditions";
 
 export const SQUADRON_BALLOT_WINDOW_MS = 48 * 60 * 60 * 1000;
@@ -182,15 +186,30 @@ function mapBallot(record: BallotRecord, context: BallotContext): SquadronBallot
   };
 }
 
-async function countSquadronMembers(): Promise<number> {
+async function listSquadronVoterUserIds(
+  excludeUserIds: string[] = [],
+): Promise<string[]> {
   const subscriptions = await prisma.pilotSubscription.findMany({
     where: { status: "active" },
-    select: { subscriptionPlan: { select: { code: true } } },
+    select: {
+      subscriptionPlan: { select: { code: true } },
+      pilotProfile: { select: { userId: true } },
+    },
   });
 
-  return subscriptions.filter(
-    (subscription) => membershipTierRank(subscription.subscriptionPlan.code) >= 4,
-  ).length;
+  const exclude = new Set(excludeUserIds.filter(Boolean));
+  const ids: string[] = [];
+  for (const subscription of subscriptions) {
+    if (membershipTierRank(subscription.subscriptionPlan.code) < 4) continue;
+    const userId = subscription.pilotProfile.userId;
+    if (!userId || exclude.has(userId)) continue;
+    ids.push(userId);
+  }
+  return [...new Set(ids)];
+}
+
+async function countSquadronMembers(): Promise<number> {
+  return (await listSquadronVoterUserIds()).length;
 }
 
 function contextFromDispute(
@@ -290,8 +309,10 @@ export async function openSquadronBallot(
       booking: {
         include: {
           job: { select: { title: true } },
-          clientProfile: { select: { companyName: true, contactName: true } },
-          pilotProfile: { select: { displayName: true } },
+          clientProfile: {
+            select: { companyName: true, contactName: true, userId: true },
+          },
+          pilotProfile: { select: { displayName: true, userId: true } },
         },
       },
     },
@@ -300,7 +321,13 @@ export async function openSquadronBallot(
     return { ok: false, error: "Dispute not found.", status: 404 };
   }
 
-  const squadronMembers = await countSquadronMembers();
+  const clientUserId = dispute.booking.clientProfile.userId;
+  const pilotUserId = dispute.booking.pilotProfile.userId;
+  const voterUserIds = await listSquadronVoterUserIds([
+    clientUserId,
+    pilotUserId,
+  ]);
+  const squadronMembers = voterUserIds.length;
   const context: BallotContext = {
     missionTitle: dispute.booking.job.title,
     reason: dispute.reason,
@@ -323,6 +350,16 @@ export async function openSquadronBallot(
       openedByUserId,
       status: "open",
     },
+  });
+
+  triggerSquadronBallotOpened({
+    ballotId: record.id,
+    disputeId,
+    bookingId: dispute.bookingId,
+    missionTitle: dispute.booking.job.title,
+    clientUserId,
+    pilotUserId,
+    voterUserIds,
   });
 
   return {
@@ -485,8 +522,10 @@ export async function closeSquadronBallot(
           booking: {
             include: {
               job: { select: { title: true } },
-              clientProfile: { select: { companyName: true, contactName: true } },
-              pilotProfile: { select: { displayName: true } },
+              clientProfile: {
+                select: { companyName: true, contactName: true, userId: true },
+              },
+              pilotProfile: { select: { displayName: true, userId: true } },
             },
           },
         },
@@ -507,6 +546,16 @@ export async function closeSquadronBallot(
   });
 
   const squadronMembers = await countSquadronMembers();
+  triggerSquadronBallotClosed({
+    ballotId: record.id,
+    disputeId: ballot.disputeId,
+    bookingId: ballot.dispute.bookingId,
+    missionTitle: ballot.dispute.booking.job.title,
+    recommendation,
+    clientUserId: ballot.dispute.booking.clientProfile.userId,
+    pilotUserId: ballot.dispute.booking.pilotProfile.userId,
+  });
+
   return {
     ok: true,
     ballot: mapBallot(record, {

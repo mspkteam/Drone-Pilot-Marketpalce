@@ -52,7 +52,7 @@ export function triggerJobSubmitted(clientUserId: string, jobTitle: string, jobI
         title: "Job needs approval",
         body: `"${jobTitle}" was submitted and is waiting in Job Approval.`,
         payload: { jobId },
-        sendEmail: false,
+        forceEmail: true,
       });
     }
   });
@@ -78,7 +78,7 @@ export function triggerWingRequestSubmitted(
         title: "Wing request pending",
         body: `${pilotDisplayName} requested ${wingCode} wings for review.`,
         payload: { wingRequestId },
-        sendEmail: false,
+        forceEmail: true,
       });
     }
   });
@@ -222,5 +222,126 @@ export function triggerInstructorStudentInvite(
       body: `${instructorName} invited you to join as their student. Accept or decline on Membership.`,
       payload: { inviteId, instructorName },
     });
+  });
+}
+
+async function activeStaffUserIds() {
+  const admins = await prisma.user.findMany({
+    where: {
+      role: { in: ["super_admin", "admin", "moderator"] },
+      status: "active",
+    },
+    select: { id: true },
+  });
+  return admins.map((row) => row.id);
+}
+
+/** Squadron ballot opened — email A-4+ voters, parties, and staff. */
+export function triggerSquadronBallotOpened(input: {
+  ballotId: string;
+  disputeId: string;
+  bookingId: string;
+  missionTitle: string;
+  clientUserId: string;
+  pilotUserId: string;
+  voterUserIds: string[];
+}) {
+  notifyAsync(async () => {
+    const title = "Squadron vote opened";
+    const body = `A squadron ballot is open for "${input.missionTitle}". Eligible A-4+ pilots can review evidence and vote.`;
+    const partyBody = `Your dispute on "${input.missionTitle}" was escalated to Squadron Voting. Peers will review the case.`;
+
+    for (const userId of [input.clientUserId, input.pilotUserId]) {
+      await sendNotification({
+        userId,
+        type: "squadron_vote",
+        title,
+        body: partyBody,
+        payload: {
+          ballotId: input.ballotId,
+          disputeId: input.disputeId,
+          bookingId: input.bookingId,
+        },
+        forceEmail: true,
+      });
+    }
+
+    const partySet = new Set([input.clientUserId, input.pilotUserId]);
+    for (const userId of input.voterUserIds) {
+      if (partySet.has(userId)) continue;
+      await sendNotification({
+        userId,
+        type: "squadron_vote",
+        title,
+        body,
+        payload: {
+          ballotId: input.ballotId,
+          disputeId: input.disputeId,
+          bookingId: input.bookingId,
+        },
+        forceEmail: true,
+      });
+    }
+
+    for (const adminId of await activeStaffUserIds()) {
+      await sendNotification({
+        userId: adminId,
+        type: "squadron_vote",
+        title,
+        body: `Squadron ballot opened for "${input.missionTitle}".`,
+        payload: {
+          ballotId: input.ballotId,
+          disputeId: input.disputeId,
+          bookingId: input.bookingId,
+        },
+        forceEmail: true,
+      });
+    }
+  });
+}
+
+/** Squadron ballot closed — email parties + staff with the recommendation. */
+export function triggerSquadronBallotClosed(input: {
+  ballotId: string;
+  disputeId: string;
+  bookingId: string;
+  missionTitle: string;
+  recommendation: string;
+  clientUserId: string;
+  pilotUserId: string;
+}) {
+  notifyAsync(async () => {
+    const title = "Squadron vote closed";
+    const body = `Squadron voting closed for "${input.missionTitle}". ${input.recommendation}`;
+
+    for (const userId of [input.clientUserId, input.pilotUserId]) {
+      await sendNotification({
+        userId,
+        type: "squadron_vote",
+        title,
+        body,
+        payload: {
+          ballotId: input.ballotId,
+          disputeId: input.disputeId,
+          bookingId: input.bookingId,
+        },
+        forceEmail: true,
+      });
+    }
+
+    for (const adminId of await activeStaffUserIds()) {
+      await sendNotification({
+        userId: adminId,
+        type: "squadron_vote",
+        title,
+        body,
+        payload: {
+          ballotId: input.ballotId,
+          disputeId: input.disputeId,
+          bookingId: input.bookingId,
+        },
+        forceEmail: true,
+      });
+    }
   });
 }

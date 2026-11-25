@@ -4,6 +4,14 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.137] — 2026-11-25
+
+### Changed
+
+- **Critical emails:** Disputes, squadron voting (open/close), job approval queue, wing requests, verification outcomes, bid accepted, booking completed, instructor invites, and support chat now send email when SMTP is configured (forced past preference opt-outs). Squadron open also emails eligible A-4+ voters.
+
+---
+
 ## [0.27.136] — 2026-11-25
 
 ### Added

@@ -40,9 +40,9 @@ export function getDisputeResolutionLabel(
   type: DisputeResolutionType,
 ): string {
   const labels: Record<DisputeResolutionType, string> = {
-    full_payout: "Full payout to pilot",
-    partial_payout: "Partial payout",
-    refund: "Refund to client",
+    full_payout: "Full award to pilot (record only)",
+    partial_payout: "Partial award to pilot (record only)",
+    refund: "Refund to client (record only)",
   };
   return labels[type] ?? type;
 }

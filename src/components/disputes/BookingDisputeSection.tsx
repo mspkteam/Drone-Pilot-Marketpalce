@@ -158,9 +158,9 @@ export function BookingDisputeSection({
         {!dispute && canOpen ? (
           <>
             <p className="client-disputes-dispute-intro">
-              Open a dispute to flag payment or delivery issues on this booking.
+              Open a dispute to flag delivery or contract issues on this booking.
               Both parties can add notes and evidence; moderators review and an
-              admin resolves with payout or refund.
+              admin records a resolution. No payment method is required yet.
             </p>
             {showOpenForm ? (
               <>
@@ -339,9 +339,9 @@ export function BookingDisputeSection({
       {!dispute && canOpen ? (
         <div className="space-y-3">
           <p className="ras-help">
-            Open a dispute to flag payment or delivery issues on this booking.
+            Open a dispute to flag delivery or contract issues on this booking.
             Both parties can add notes and evidence; moderators review and an
-            admin resolves with payout or refund.
+            admin records a resolution. No payment method is required yet.
           </p>
           {showOpenForm ? (
             <>

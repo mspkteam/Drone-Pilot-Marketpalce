@@ -79,9 +79,9 @@ export function AdminDisputeResolveModal({
           Case: <strong>{disputeLabel}</strong>
         </p>
         <p className="admin-dispute-modal-info">
-          Resolutions update the in-platform payment ledger (refund / full
-          payout / partial payout). Card billing and Stripe payouts are not
-          enabled yet.
+          Choose an outcome to close the case (full / partial award or refund).
+          No payment method or Stripe is required right now — live payouts ship
+          later. This only records the decision and updates the booking status.
         </p>
 
         {needsReview ? (

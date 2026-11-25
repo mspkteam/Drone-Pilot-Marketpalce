@@ -4,6 +4,14 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.27.138] — 2026-11-25
+
+### Fixed
+
+- **Dispute resolve without payment method:** Admin can close disputes without Stripe/saved cards. Resolution updates booking status and records the outcome; payment ledger updates are best-effort until payments ship.
+
+---
+
 ## [0.27.137] — 2026-11-25
 
 ### Changed

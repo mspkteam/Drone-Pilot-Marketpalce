@@ -12,6 +12,8 @@ import { ACTIVE_MILESTONE } from "@/lib/milestones";
 export const ALWAYS_UNLOCKED_PUBLIC_PREFIXES = [
   "/login",
   "/register",
+  "/forgot-password",
+  "/reset-password",
   "/verify-email",
   "/waitlist",
   "/launch",

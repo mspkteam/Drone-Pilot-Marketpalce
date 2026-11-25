@@ -29,6 +29,12 @@ export function LoginForm() {
     const prefillPassword = searchParams.get("password");
     if (prefillEmail) setEmail(prefillEmail);
     if (prefillPassword) setPassword(prefillPassword);
+    if (searchParams.get("reset") === "1") {
+      setResendMsg("Password updated. Sign in with your new password.");
+    }
+    if (searchParams.get("deleted") === "1") {
+      setResendMsg("Account deleted. You can create a new account when registration is open.");
+    }
   }, [searchParams]);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -141,6 +147,12 @@ export function LoginForm() {
           labelClassName="block text-sm font-medium text-[var(--color-text)]"
           inputClassName={inputCls}
         />
+
+        <p className="text-right text-sm">
+          <Link href="/forgot-password" className="ras-link">
+            Forgot password?
+          </Link>
+        </p>
 
         <Button type="submit" className="w-full" disabled={loading}>
           {loading ? "Signing in…" : "Log in"}

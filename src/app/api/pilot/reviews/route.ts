@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { requirePilotSession } from "@/lib/auth/require-pilot";
-import { requirePilotEligibleToBid } from "@/lib/pilot/require-bidding";
+import { getPilotProfileByUserId } from "@/lib/pilot/profile";
 import { listReviewsForPilotUser } from "@/lib/reviews/review";
 
 export async function GET() {
@@ -12,14 +12,14 @@ export async function GET() {
     );
   }
 
-  const eligible = await requirePilotEligibleToBid(authResult.userId);
-  if (!eligible.ok) {
-    return NextResponse.json({ error: eligible.error }, { status: eligible.status });
+  const profile = await getPilotProfileByUserId(authResult.userId);
+  if (!profile) {
+    return NextResponse.json(
+      { error: "Pilot profile not found." },
+      { status: 404 },
+    );
   }
 
-  const reviews = await listReviewsForPilotUser(
-    authResult.userId,
-    eligible.profile.id,
-  );
+  const reviews = await listReviewsForPilotUser(authResult.userId, profile.id);
   return NextResponse.json({ reviews });
 }

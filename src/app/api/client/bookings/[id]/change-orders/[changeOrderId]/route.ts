@@ -25,10 +25,15 @@ export async function PATCH(request: Request, context: RouteContext) {
     bookingId: id,
     changeOrderId,
     clientProfileId: onboarded.profile.id,
+    clientUserId: authResult.userId,
     action: body.action,
+    request,
   });
   if (!result.ok) {
     return NextResponse.json({ error: result.error }, { status: result.status });
   }
-  return NextResponse.json({ changeOrder: result.changeOrder });
+  return NextResponse.json({
+    changeOrder: result.changeOrder,
+    ...(result.checkoutUrl ? { checkoutUrl: result.checkoutUrl } : {}),
+  });
 }

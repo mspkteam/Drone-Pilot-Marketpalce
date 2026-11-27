@@ -6,6 +6,7 @@ import {
   validateChangeOrderAmount,
 } from "@/lib/commission/constants";
 import { prisma } from "@/lib/db";
+import { isStripeConfigured } from "@/lib/stripe/client";
 import type {
   ChangeOrderDto,
   ChangeOrderStatus,
@@ -133,11 +134,13 @@ export async function respondToChangeOrder(input: {
   bookingId: string;
   changeOrderId: string;
   clientProfileId: string;
+  clientUserId: string;
   action: "accept" | "reject";
-}): Promise<Result<{ changeOrder: ChangeOrderDto }>> {
+  request?: Request;
+}): Promise<Result<{ changeOrder: ChangeOrderDto; checkoutUrl?: string }>> {
   const booking = await prisma.booking.findFirst({
     where: { id: input.bookingId, clientProfileId: input.clientProfileId },
-    include: { changeOrders: true },
+    include: { changeOrders: true, payment: { include: { commission: true } } },
   });
   if (!booking) return { ok: false, error: "Booking not found.", status: 404 };
 
@@ -165,27 +168,33 @@ export async function respondToChangeOrder(input: {
   if (!check.ok) return { ok: false, error: check.error, status: 400 };
 
   const rate = order.commissionRate;
+  const payment = booking.payment;
+  const needsStripeCharge =
+    isStripeConfigured() &&
+    payment?.provider === "stripe" &&
+    ["held", "held_dispute"].includes(payment.status);
+
   const row = await prisma.$transaction(async (tx) => {
-    const updated = await tx.bookingChangeOrder.update({
-      where: { id: order.id },
-      data: { status: "accepted", acceptedAt: new Date() },
-    });
     await tx.booking.update({
       where: { id: booking.id },
       data: { agreedAmount: order.proposedAmount, commissionRate: rate },
     });
 
-    // Ledger: if a payment line already exists, add the delta (internal provider, no Stripe).
-    const payment = await tx.payment.findUnique({
-      where: { bookingId: booking.id },
-      include: { commission: true },
-    });
-    if (payment) {
+    // Pending Stripe escrow: fold delta into unpaid Checkout totals and mark charged.
+    // Held Stripe escrow: defer ledger bump until change-order Checkout webhook.
+    // Internal / demo: bump ledger and mark charged immediately.
+    if (payment && !needsStripeCharge) {
       const gross = Math.round((payment.amountGross + order.deltaAmount) * 100) / 100;
       const { amount, amountNet } = calculateCommission(gross, rate);
+      const fee =
+        Math.round((payment.serviceFeeAmount + order.serviceFee) * 100) / 100;
       await tx.payment.update({
         where: { id: payment.id },
-        data: { amountGross: gross, amountNet },
+        data: {
+          amountGross: gross,
+          amountNet,
+          serviceFeeAmount: fee,
+        },
       });
       if (payment.commission) {
         await tx.commission.update({
@@ -193,8 +202,44 @@ export async function respondToChangeOrder(input: {
           data: { amount, rate },
         });
       }
+      return tx.bookingChangeOrder.update({
+        where: { id: order.id },
+        data: {
+          status: "charged",
+          acceptedAt: new Date(),
+          chargedAt: new Date(),
+        },
+      });
     }
-    return updated;
+
+    return tx.bookingChangeOrder.update({
+      where: { id: order.id },
+      data: needsStripeCharge
+        ? { status: "accepted", acceptedAt: new Date(), provider: "stripe" }
+        : {
+            status: "charged",
+            acceptedAt: new Date(),
+            chargedAt: new Date(),
+          },
+    });
   });
+
+  if (needsStripeCharge) {
+    const { createChangeOrderCheckout } = await import("@/lib/stripe/escrow");
+    const checkout = await createChangeOrderCheckout(
+      order.id,
+      input.clientUserId,
+      input.request,
+    );
+    if (!checkout.ok) {
+      return { ok: false, error: checkout.error, status: checkout.status };
+    }
+    return {
+      ok: true,
+      changeOrder: toChangeOrderDto(row),
+      checkoutUrl: checkout.url,
+    };
+  }
+
   return { ok: true, changeOrder: toChangeOrderDto(row) };
 }

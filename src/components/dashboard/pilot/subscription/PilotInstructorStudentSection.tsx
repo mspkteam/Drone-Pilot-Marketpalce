@@ -163,7 +163,7 @@ export function PilotInstructorStudentSection({
                 <span>
                   {invite.instructorName} invited you to join as their student.
                 </span>
-                <span className="pilot-instructor-row-actions" style={{ marginTop: 8 }}>
+                <span className="pilot-instructor-row-actions">
                   <button
                     type="button"
                     className="pilot-subscription-plan-btn pilot-subscription-plan-btn--select"

@@ -142,7 +142,7 @@ export async function getPilotReviewResetStatus(
     used: usage.used,
     usedAt: usage.usedAt?.toISOString() ?? null,
     feeNote:
-      "One-time review reset fee is pending client confirmation (example $10). No payment is collected in-app yet.",
+      "Paid review buy-back is not offered. Use Ask client to reconsider on a review (free), or request this one-time admin reset if eligible.",
   };
 }
 

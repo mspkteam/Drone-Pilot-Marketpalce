@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
+  buildSquadronRoster,
+  minimumVotesRecommendation,
   formatBallotTimeLeft,
   formatVoteDisplayId,
   majorityRecommendation,
@@ -44,6 +46,31 @@ describe("squadron voting helpers", () => {
     assert.match(text, /client/);
     assert.match(text, /Harbor Co/);
     assert.match(text, /14–9/);
+  });
+
+  it("builds a roster with not-voted commanders first", () => {
+    const roster = buildSquadronRoster(
+      ["u1", "u2", "u3"],
+      new Map([
+        ["u1", "Alpha"],
+        ["u2", "Bravo"],
+      ]),
+      [{ userId: "u1", vote: "approve", votedAt: "2026-01-01T00:00:00Z" }],
+    );
+    assert.deepEqual(
+      roster.map((entry) => [entry.name, entry.voted]),
+      [
+        ["Bravo", false],
+        ["Squadron Commander", false],
+        ["Alpha", true],
+      ],
+    );
+    assert.equal(roster.find((entry) => entry.userId === "u1")?.votedAt, "2026-01-01T00:00:00Z");
+  });
+
+  it("explains that the Super Admin decides below the minimum", () => {
+    assert.match(minimumVotesRecommendation(3), /3\/5/);
+    assert.match(minimumVotesRecommendation(3), /Super Admin decides/);
   });
 
   it("marks closed ballots without urgency", () => {

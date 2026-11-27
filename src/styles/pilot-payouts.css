@@ -1,0 +1,242 @@
+/* Pilot payout setup (UI only until Stripe Connect) */
+
+.pilot-payouts-shell.dashboard-page {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: none;
+}
+
+.pilot-payouts-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  width: 100%;
+  min-width: 0;
+}
+
+.pilot-payouts-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  border: 1px solid var(--dashboard-card-border);
+  border-radius: 0.375rem;
+  background: var(--color-card-warm);
+  padding: 1.5625rem;
+}
+
+.pilot-payouts-eyebrow {
+  margin: 0;
+  font-size: 0.7rem;
+  letter-spacing: 0.084em;
+  text-transform: uppercase;
+  color: var(--color-text-soft);
+}
+
+.pilot-payouts-title {
+  margin: 0.25rem 0 0;
+  font-size: clamp(1.75rem, 3vw, 2.25rem);
+  font-weight: 600;
+  line-height: 1.15;
+  color: var(--color-text);
+}
+
+.pilot-payouts-subtitle {
+  margin: 0.5rem 0 0;
+  max-width: 36rem;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+.pilot-payouts-panel {
+  border: 1px solid var(--dashboard-card-border);
+  border-radius: 0.75rem;
+  background: var(--color-card-warm);
+  padding: 1.375rem 1.5rem;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+}
+
+.pilot-payouts-panel-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.pilot-payouts-text {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+.pilot-payouts-hint {
+  margin: 0.75rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--color-text-soft);
+}
+
+.pilot-payouts-banner {
+  margin: 0;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(216, 179, 57, 0.4);
+  background: rgba(216, 179, 57, 0.08);
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  color: var(--color-gold);
+}
+
+.pilot-payouts-status-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.pilot-payouts-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  padding: 0 0.875rem;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.pilot-payouts-badge--complete {
+  color: #4ade80;
+  background: rgba(74, 222, 128, 0.1);
+}
+
+.pilot-payouts-badge--not_started,
+.pilot-payouts-badge--pending,
+.pilot-payouts-badge--needs_info {
+  color: var(--color-gold);
+  background: rgba(216, 179, 57, 0.1);
+}
+
+.pilot-payouts-badge--restricted {
+  color: var(--color-danger);
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.pilot-payouts-actions,
+.pilot-payouts-demo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.pilot-payouts-demo {
+  margin-top: 0.5rem;
+}
+
+.pilot-payouts-btn-outline,
+.pilot-payouts-btn-gold {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.5rem;
+  padding: 0 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.pilot-payouts-btn-outline {
+  border: 1px solid rgba(244, 241, 234, 0.14);
+  background: var(--color-panel);
+  color: var(--color-text);
+}
+
+.pilot-payouts-btn-outline:hover {
+  border-color: rgba(216, 179, 57, 0.45);
+  color: var(--color-gold);
+}
+
+.pilot-payouts-btn-gold {
+  border: 1px solid var(--color-gold);
+  background: linear-gradient(180deg, var(--color-gold), var(--color-gold-dark));
+  color: var(--color-cta-dark);
+}
+
+.pilot-payouts-btn-gold:hover:not(:disabled) {
+  background: linear-gradient(180deg, var(--color-gold-soft), var(--color-gold));
+}
+
+.pilot-payouts-btn-gold:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.pilot-payouts-chip {
+  min-height: 2rem;
+  padding: 0 0.75rem;
+  border: 1px solid var(--dashboard-card-border);
+  border-radius: 0.375rem;
+  background: var(--color-panel);
+  font-size: 0.75rem;
+  color: var(--color-text-soft);
+  cursor: pointer;
+}
+
+.pilot-payouts-chip--active {
+  border-color: var(--color-gold);
+  color: var(--color-gold);
+}
+
+.pilot-payouts-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pilot-payouts-step {
+  display: flex;
+  gap: 0.875rem;
+  align-items: flex-start;
+}
+
+.pilot-payouts-step-num {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 999px;
+  border: 1px solid var(--color-gold);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--color-gold);
+}
+
+.pilot-payouts-step-title {
+  margin: 0 0 0.25rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+@media (max-width: 640px) {
+  .pilot-payouts-panel {
+    padding: 1rem;
+  }
+}

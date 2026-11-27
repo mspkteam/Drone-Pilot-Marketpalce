@@ -33,6 +33,7 @@ export function toPaymentDto(
     payeeUserId: payment.payeeUserId,
     amountGross: payment.amountGross,
     amountNet: payment.amountNet,
+    serviceFeeAmount: payment.serviceFeeAmount,
     currency: payment.currency,
     provider: payment.provider,
     status: payment.status as PaymentStatus,
@@ -85,7 +86,17 @@ export async function recordPaymentForCompletedBooking(bookingId: string) {
   const existing = await prisma.payment.findUnique({
     where: { bookingId },
   });
-  if (existing) return existing;
+  if (existing) {
+    if (existing.provider === "stripe") {
+      try {
+        const { releaseEscrowForBooking } = await import("@/lib/stripe/escrow");
+        await releaseEscrowForBooking(bookingId);
+      } catch (err) {
+        console.error("[payments] escrow release failed:", err);
+      }
+    }
+    return existing;
+  }
 
   const booking = await prisma.booking.findUnique({
     where: { id: bookingId },
@@ -99,7 +110,9 @@ export async function recordPaymentForCompletedBooking(bookingId: string) {
     return null;
   }
 
-  const rate = await getEffectiveCommissionRateForPilot(booking.pilotProfile.id);
+  const rate =
+    booking.commissionRate ??
+    (await getEffectiveCommissionRateForPilot(booking.pilotProfile.id));
   const { amount, amountNet } = calculateCommission(booking.agreedAmount, rate);
 
   return prisma.$transaction(async (tx) => {

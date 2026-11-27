@@ -10,6 +10,14 @@ import {
 } from "@/lib/pilot/pilot-reviews-map";
 import type { ReviewListItemDto } from "@/types/review";
 
+type ReconsiderationStatus = "pending" | "kept" | "updated";
+
+const RECONSIDERATION_LABELS: Record<ReconsiderationStatus, string> = {
+  pending: "Reconsideration requested",
+  kept: "Client kept this review",
+  updated: "Client updated this review",
+};
+
 const REVIEWS_API = "/api/pilot/reviews" as const;
 
 export function PilotReviewsView() {
@@ -37,9 +45,32 @@ export function PilotReviewsView() {
       .finally(() => setLoading(false));
   }, []);
 
+  const [reconsiderations, setReconsiderations] = useState<
+    Record<string, ReconsiderationStatus>
+  >({});
+
+  const loadReconsiderations = useCallback(() => {
+    fetch("/api/pilot/reviews/reconsideration")
+      .then((res) => res.json())
+      .then((data) => {
+        const map: Record<string, ReconsiderationStatus> = {};
+        for (const r of (data.requests ?? []) as {
+          reviewId: string;
+          status: ReconsiderationStatus;
+        }[]) {
+          map[r.reviewId] = r.status;
+        }
+        setReconsiderations(map);
+      })
+      .catch(() => {
+        /* ignore */
+      });
+  }, []);
+
   useEffect(() => {
     loadReviews();
-  }, [loadReviews]);
+    loadReconsiderations();
+  }, [loadReviews, loadReconsiderations]);
 
   const { rows, summary } = useMemo(() => {
     const live = mapApiReviewsToPilotRows(reviews);
@@ -96,7 +127,12 @@ export function PilotReviewsView() {
             ) : (
               <div className="pilot-reviews-list">
                 {rows.map((row) => (
-                  <PilotReviewRowCard key={row.id} row={row} />
+                  <PilotReviewRowCard
+                    key={row.id}
+                    row={row}
+                    status={reconsiderations[row.id] ?? null}
+                    onRequested={loadReconsiderations}
+                  />
                 ))}
               </div>
             )}
@@ -199,7 +235,48 @@ function ReviewResetButton() {
   );
 }
 
-function PilotReviewRowCard({ row }: { row: PilotReviewRow }) {
+function PilotReviewRowCard({
+  row,
+  status,
+  onRequested,
+}: {
+  row: PilotReviewRow;
+  status: ReconsiderationStatus | null;
+  onRequested: () => void;
+}) {
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+
+  async function requestReconsideration() {
+    if (busy) return;
+    const note = window.prompt(
+      "Optional message to the client (free request — the client decides whether to keep or update the review):",
+      "",
+    );
+    if (note === null) return;
+    setBusy(true);
+    setMessage(null);
+    try {
+      const res = await fetch("/api/pilot/reviews/reconsideration", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reviewId: row.id, note }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setMessage(data.error ?? "Could not send request.");
+      } else {
+        onRequested();
+      }
+    } catch {
+      setMessage("Could not send request.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const canRequest = !status && row.rating < 5 && !row.id.startsWith("mock-");
+
   return (
     <article className="pilot-reviews-row">
       <div className="pilot-reviews-row-top">
@@ -208,6 +285,20 @@ function PilotReviewRowCard({ row }: { row: PilotReviewRow }) {
         <PilotReviewsStars value={row.rating} className="pilot-reviews-row-stars" />
       </div>
       <p className="pilot-reviews-row-text">{row.text}</p>
+      {status ? (
+        <p className="pilot-reviews-reset-msg">{RECONSIDERATION_LABELS[status]}</p>
+      ) : null}
+      {canRequest ? (
+        <button
+          type="button"
+          className="pilot-reviews-btn-outline"
+          disabled={busy}
+          onClick={() => void requestReconsideration()}
+        >
+          Ask client to reconsider
+        </button>
+      ) : null}
+      {message ? <p className="pilot-reviews-reset-msg">{message}</p> : null}
     </article>
   );
 }

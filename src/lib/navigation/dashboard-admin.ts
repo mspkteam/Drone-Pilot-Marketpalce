@@ -26,6 +26,11 @@ export const adminNavGroups: readonly DashboardNavGroup[] = [
         href: "/dashboard/admin/verifications",
         icon: "verification",
       },
+      {
+        label: "Background Checks",
+        href: "/dashboard/admin/background-checks",
+        icon: "verification",
+      },
       { label: "Job Approval", href: "/dashboard/admin/jobs", icon: "jobs" },
       {
         label: "Subscriptions",

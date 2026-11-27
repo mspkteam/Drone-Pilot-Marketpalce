@@ -1,7 +1,8 @@
 /** Terms & Conditions copy — Figma frame 808:47368 */
 
 export const TERMS_EFFECTIVE_DATE = "August 1, 2026";
-export const TERMS_LAST_UPDATED = "August 1, 2026";
+/** Payment & platform additions (v6 draft clauses) pending counsel final review. */
+export const TERMS_LAST_UPDATED = "November 27, 2026";
 
 export type TermsTextPart = {
   text: string;
@@ -300,7 +301,39 @@ export const TERMS_SECTIONS: TermsSection[] = [
         type: "paragraph",
         parts: [
           {
-            text: "All Providers, Pilots, and Service Professionals seeking to offer services through Remote Air Service acknowledge and agree that Remote Air Service may conduct background screening, identity verification, credential verification, license verification, and related screening processes before approving or maintaining an account.",
+            text: "Each Pilot must complete a background check. The fee is twenty US dollars ($20.00), paid after the Pilot's membership is paid and an admin has accepted the Pilot's profile.",
+          },
+        ],
+      },
+      {
+        type: "paragraph",
+        parts: [
+          {
+            text: "The check must be completed within thirty (30) days of profile acceptance. Until a Pilot is cleared, the Pilot cannot take marketplace jobs. If the check is not cleared by day 30, the Pilot's marketplace access is paused.",
+          },
+        ],
+      },
+      {
+        type: "paragraph",
+        parts: [
+          {
+            text: "The fee is non-refundable whatever the result. The check and fee are repeated when the membership is renewed.",
+          },
+        ],
+      },
+      {
+        type: "paragraph",
+        parts: [
+          {
+            text: "By paying the fee, the Pilot authorizes Remote Air Service and its service provider to carry out the check and to confirm the Pilot's license with the relevant aviation authority. Counsel may require additional adverse-action disclosures by jurisdiction.",
+          },
+        ],
+      },
+      {
+        type: "paragraph",
+        parts: [
+          {
+            text: "All Providers, Pilots, and Service Professionals seeking to offer services through Remote Air Service acknowledge and agree that Remote Air Service may also conduct identity verification, credential verification, license verification, and related screening processes before approving or maintaining an account.",
           },
         ],
       },
@@ -688,37 +721,14 @@ export const TERMS_SECTIONS: TermsSection[] = [
     title: "FEES AND COMMISSIONS",
     blocks: [
       {
-        type: "paragraph",
-        parts: [
-          {
-            text: "Remote Air Service may charge fees to Clients, Providers, or both.",
-          },
-        ],
-      },
-      {
-        type: "paragraph",
-        parts: [{ text: "Provider commission rates may vary." }],
-      },
-      {
-        type: "paragraph",
-        parts: [{ text: "Provider fees may range from 0% to 15% depending upon:" }],
-      },
-      {
-        type: "bullets",
-        items: [
-          "Promotional programs",
-          "Pilot incentive programs",
-          "Volume discounts",
-          "Strategic partnerships",
-          "Special circumstances",
-          "Launch promotions",
-        ],
+        type: "subheading",
+        text: "SECTION 11A. CLIENT SERVICE FEE (6%)",
       },
       {
         type: "paragraph",
         parts: [
           {
-            text: "Commission rates may be changed at any time with reasonable notice.",
+            text: "When a Client books a job, the Client pays the agreed job amount plus a service fee of six percent (6%) of the job amount. The service fee is shown as a separate line at checkout before the Client pays.",
           },
         ],
       },
@@ -726,7 +736,7 @@ export const TERMS_SECTIONS: TermsSection[] = [
         type: "paragraph",
         parts: [
           {
-            text: "Client service fees, processing fees, taxes, and related transaction charges may be included within project pricing or displayed separately.",
+            text: "The service fee is non-refundable in all cases, including when a job is cancelled, disputed, or fully refunded. The service fee also applies to any approved change order under these Terms.",
           },
         ],
       },
@@ -734,7 +744,27 @@ export const TERMS_SECTIONS: TermsSection[] = [
         type: "paragraph",
         parts: [
           {
-            text: "By using the Platform, users agree to all applicable fees disclosed at the time of transaction.",
+            text: "The service fee is separate from RAS's commission. The commission is taken from the Pilot's payment and is not an extra charge to the Client.",
+          },
+        ],
+      },
+      {
+        type: "subheading",
+        text: "SECTION 11B. PLATFORM COMMISSION",
+      },
+      {
+        type: "paragraph",
+        parts: [
+          {
+            text: "Remote Air Service's standard commission is fifteen percent (15%) of the job amount (or the per-pilot rate recorded at booking). Provider commission rates may vary by Super Admin override within platform limits.",
+          },
+        ],
+      },
+      {
+        type: "paragraph",
+        parts: [
+          {
+            text: "Commission rates may be changed prospectively with reasonable notice. By using the Platform, users agree to all applicable fees disclosed at the time of transaction.",
           },
         ],
       },
@@ -748,35 +778,77 @@ export const TERMS_SECTIONS: TermsSection[] = [
         type: "paragraph",
         parts: [
           {
-            text: "Payments are processed through approved payment providers selected by Remote Air Service.",
+            text: "Payments are processed through approved payment providers selected by Remote Air Service (including Stripe). Users authorize Remote Air Service and its payment partners to process transactions, hold funds in escrow, resolve disputes, issue refunds when appropriate, and deduct applicable fees.",
           },
         ],
       },
       {
-        type: "paragraph",
-        parts: [{ text: "Users authorize Remote Air Service and its payment partners to:" }],
+        type: "subheading",
+        text: "SECTION 12A. ESCROW AND PAYMENT RELEASE",
       },
       {
-        type: "bullets",
-        items: [
-          "Process transactions",
-          "Hold funds when necessary",
-          "Resolve disputes",
-          "Issue refunds when appropriate",
-          "Deduct applicable fees",
+        type: "paragraph",
+        parts: [
+          {
+            text: "A Client's payment is taken when the booking is accepted and is held in escrow until released. Funds are released when the Client approves the delivery, or automatically fourteen (14) days after the Pilot submits the deliverables, whichever happens first, unless a dispute is open.",
+          },
         ],
       },
       {
         type: "paragraph",
         parts: [
           {
-            text: "Remote Air Service reserves the right to delay payouts when fraud, disputes, compliance concerns, or suspicious activity are suspected.",
+            text: "If the Client requests revisions, the 14-day period restarts when the Pilot resubmits the deliverables. Opening a dispute pauses release. Funds stay held until the dispute is resolved. On release, RAS keeps its commission (15%, or the rate recorded at booking) and the Pilot receives the rest.",
+          },
+        ],
+      },
+      {
+        type: "paragraph",
+        parts: [
+          {
+            text: "A Pilot must finish payout setup with Stripe to receive funds. Until then, released funds stay held for the Pilot.",
           },
         ],
       },
       {
         type: "subheading",
-        text: "SECTION 12A. CHARGEBACKS AND PAYMENT DISPUTES",
+        text: "SECTION 12B. BOOKING WINDOW",
+      },
+      {
+        type: "paragraph",
+        parts: [
+          {
+            text: 'A job cannot be booked to end more than twenty-one (21) days after the booking date. If a Client tries to book further ahead, the Platform shows: "Jobs can only be booked up to 21 days in advance. Please choose an earlier date." This limit keeps payments in escrow for a reasonable time and leaves time for planning and contract assignment.',
+          },
+        ],
+      },
+      {
+        type: "subheading",
+        text: "SECTION 12C. CHANGE ORDERS",
+      },
+      {
+        type: "paragraph",
+        parts: [
+          {
+            text: "A price increase of up to twenty percent (20%) above the original agreed price requires a change order. The Pilot proposes the change order and the Client must accept it. It is charged as a separate payment, plus the 6% service fee, and is held and released under the escrow rules above. The commission rate recorded at booking applies to the change order.",
+          },
+        ],
+      },
+      {
+        type: "subheading",
+        text: "SECTION 12D. TAX INFORMATION",
+      },
+      {
+        type: "paragraph",
+        parts: [
+          {
+            text: "Clients and Pilots must give accurate tax information. Pilots provide it during Stripe payout setup. Clients provide their legal name and address, and a tax ID where required (for example for business Clients and where VAT applies). RAS and Stripe may use this information for invoices and tax reporting where the law requires.",
+          },
+        ],
+      },
+      {
+        type: "subheading",
+        text: "SECTION 12E. CHARGEBACKS AND PAYMENT DISPUTES",
       },
       {
         type: "paragraph",
@@ -1124,27 +1196,7 @@ export const TERMS_SECTIONS: TermsSection[] = [
         type: "paragraph",
         parts: [
           {
-            text: "Mission fees are generally non-refundable once a mission has been completed and deliverables have been provided.",
-          },
-        ],
-      },
-      {
-        type: "paragraph",
-        parts: [{ text: "If a Client disputes a completed mission:" }],
-      },
-      {
-        type: "bullets",
-        items: [
-          "Remote Air Service may conduct a review.",
-          "Platform staff may examine evidence submitted by both parties.",
-          "A determination will be made regarding whether the mission was substantially completed according to project requirements.",
-        ],
-      },
-      {
-        type: "paragraph",
-        parts: [
-          {
-            text: "If Remote Air Service determines that the mission was completed according to agreed standards, no refund shall be issued.",
+            text: "On a full refund, the Client receives the job amount back, RAS keeps no commission, and the Pilot receives nothing for that job. The 6% service fee is not refunded.",
           },
         ],
       },
@@ -1152,20 +1204,24 @@ export const TERMS_SECTIONS: TermsSection[] = [
         type: "paragraph",
         parts: [
           {
-            text: "In some circumstances, Remote Air Service may offer a promotional credit, discount, or goodwill accommodation toward a future mission.",
+            text: "On a partial payout, RAS's commission applies only to the amount paid to the Pilot, and the remainder is refunded to the Client. The service fee is not refunded.",
           },
         ],
       },
       {
         type: "paragraph",
-        parts: [{ text: "Such accommodations:" }],
+        parts: [
+          {
+            text: "A chargeback made through a bank follows the card network and Stripe dispute process. RAS may submit evidence and may hold related funds while it is reviewed. Payment processing fees charged by Stripe are not refunded.",
+          },
+        ],
       },
       {
-        type: "bullets",
-        items: [
-          "Are discretionary.",
-          "Are not guaranteed.",
-          "Do not establish future obligations.",
+        type: "paragraph",
+        parts: [
+          {
+            text: "In some circumstances, Remote Air Service may offer a promotional credit or goodwill accommodation toward a future mission. Such accommodations are discretionary, are not guaranteed, and do not establish future obligations.",
+          },
         ],
       },
     ],
@@ -1178,25 +1234,31 @@ export const TERMS_SECTIONS: TermsSection[] = [
         type: "paragraph",
         parts: [
           {
-            text: "Remote Air Service reserves the right to review project disputes and make administrative determinations regarding:",
+            text: "A Client or Pilot may open a dispute. Funds stay held while it is open, and ratings and awards for the job are paused.",
           },
-        ],
-      },
-      {
-        type: "bullets",
-        items: [
-          "Deliverables",
-          "Communications",
-          "Project completion",
-          "Refund eligibility",
-          "Account actions",
         ],
       },
       {
         type: "paragraph",
         parts: [
           {
-            text: "Platform determinations are final for purposes of Platform administration.",
+            text: "The Client and Pilot have three (3) days to try to agree on an outcome. If they cannot agree, the dispute goes to a vote by Squadron Commanders for forty-eight (48) hours. The vote is advisory. The result is a majority of the votes cast, as long as a minimum number of votes is reached. A Squadron Commander who has a connection to either party does not vote.",
+          },
+        ],
+      },
+      {
+        type: "paragraph",
+        parts: [
+          {
+            text: "The Super Admin makes the final decision. If the minimum number of votes is not reached, the Super Admin decides without a vote. The Super Admin may award the full refund to the Client, the Pilot's full payout, or a partial or custom split. RAS carries out the decision through Stripe.",
+          },
+        ],
+      },
+      {
+        type: "paragraph",
+        parts: [
+          {
+            text: "How each commander voted is visible to commanders and admins only, not to the Client or the Pilot. Nothing herein limits rights under applicable consumer protection laws or access to courts where required.",
           },
         ],
       },
@@ -1293,6 +1355,34 @@ export const TERMS_SECTIONS: TermsSection[] = [
         parts: [
           {
             text: "Users represent that they possess all necessary rights to content submitted to the Platform.",
+          },
+        ],
+      },
+      {
+        type: "subheading",
+        text: "SECTION 18A. REVIEWS AND RATINGS",
+      },
+      {
+        type: "paragraph",
+        parts: [
+          {
+            text: "Reviews must be honest. Reviews cannot be bought, sold, or removed in exchange for payment.",
+          },
+        ],
+      },
+      {
+        type: "paragraph",
+        parts: [
+          {
+            text: "A Pilot may send the Client a free review reconsideration request. The Client decides whether to keep or change the review. No one may pressure the Client or offer anything in return.",
+          },
+        ],
+      },
+      {
+        type: "paragraph",
+        parts: [
+          {
+            text: "Only RAS administrators may remove a review, and only for abuse, fraud, evidence of dealings off the Platform, a violation of these Terms, or a resolved dispute that voids the rating. Pilot ratings give more weight to recent jobs.",
           },
         ],
       },
@@ -1852,6 +1942,18 @@ export const TERMS_SECTIONS: TermsSection[] = [
         parts: [
           {
             text: "Termination decisions are made at Remote Air Service's sole discretion.",
+          },
+        ],
+      },
+      {
+        type: "subheading",
+        text: "SECTION 27A. MEMBERSHIP AND PROFILES",
+      },
+      {
+        type: "paragraph",
+        parts: [
+          {
+            text: "Grade time counts only while membership is active. If membership lapses, grade time stops and marketplace privileges pause. A cancelled profile keeps its grade for thirty (30) days and is then permanently deleted if not reactivated.",
           },
         ],
       },

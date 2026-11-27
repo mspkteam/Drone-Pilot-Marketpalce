@@ -939,6 +939,7 @@ export async function placeUniformOrder(
 export async function payUniformOrder(
   orderId: string,
   userId: string,
+  options?: { stripeCheckoutSessionId?: string; stripePaymentIntentId?: string },
 ): Promise<
   | { ok: true; order: UniformOrderDto }
   | { ok: false; error: string; status: 400 | 403 | 404 }
@@ -967,6 +968,12 @@ export async function payUniformOrder(
       status: "paid",
       paymentStatus: "paid",
       paidAt: now,
+      ...(options?.stripeCheckoutSessionId
+        ? { stripeCheckoutSessionId: options.stripeCheckoutSessionId }
+        : {}),
+      ...(options?.stripePaymentIntentId
+        ? { stripePaymentIntentId: options.stripePaymentIntentId }
+        : {}),
     },
     include: { items: true },
   });

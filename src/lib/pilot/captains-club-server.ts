@@ -14,7 +14,7 @@ import {
   sortCaptainsClub,
   specialtyOptionsFromCaptains,
 } from "@/lib/pilot/captains-club";
-import { averageRating } from "@/lib/reviews/review";
+import { weightedAverageRating } from "@/lib/reviews/weighted-rating";
 import { parseServicesOffered } from "@/lib/pilot/profile";
 import { parseProfileExtrasJson } from "@/lib/pilot/profile-extras";
 import { PILOT_SERVICE_OPTIONS, type PilotServiceId } from "@/types/pilot";
@@ -146,14 +146,14 @@ export async function listCaptainsClubPilots(): Promise<CaptainClubPilot[]> {
       targetPilotProfileId: { in: pilotIds },
       status: "published",
     },
-    select: { targetPilotProfileId: true, rating: true },
+    select: { targetPilotProfileId: true, rating: true, createdAt: true },
   });
 
-  const reviewMap = new Map<string, number[]>();
+  const reviewMap = new Map<string, { rating: number; createdAt: Date }[]>();
   for (const review of reviews) {
     if (!review.targetPilotProfileId) continue;
     const ratings = reviewMap.get(review.targetPilotProfileId) ?? [];
-    ratings.push(review.rating);
+    ratings.push({ rating: review.rating, createdAt: review.createdAt });
     reviewMap.set(review.targetPilotProfileId, ratings);
   }
 
@@ -164,7 +164,7 @@ export async function listCaptainsClubPilots(): Promise<CaptainClubPilot[]> {
     );
     const approvedTypes = new Set(pilot.verifications.map((entry) => entry.type));
     const ratings = reviewMap.get(pilot.id) ?? [];
-    const average = averageRating(ratings.map((rating) => ({ rating })));
+    const average = weightedAverageRating(ratings);
 
     const clubSub = pilot.subscriptions.find((sub) => {
       const code = sub.subscriptionPlan.code;

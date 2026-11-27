@@ -23,6 +23,10 @@ function welcomeHref(
   payload: Record<string, unknown> | null,
   role: UserRole,
 ): string | null {
+  if (payloadId(payload, "backgroundCheckId") && role === "pilot") {
+    return "/dashboard/pilot/background-check";
+  }
+
   const orderId = payloadId(payload, "orderId");
   if (orderId) return `/dashboard/pilot/shop/orders/${orderId}`;
 

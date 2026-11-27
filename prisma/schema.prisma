@@ -10,50 +10,52 @@ datasource db {
 }
 
 model User {
-  id              String         @id @default(cuid())
-  email           String         @unique
-  passwordHash    String
-  role            String
-  status          String         @default("active")
+  id                         String                   @id @default(cuid())
+  email                      String                   @unique
+  passwordHash               String
+  role                       String
+  status                     String                   @default("active")
   /// Set when the user deactivates; login within 30 days restores `active` and grade.
-  deactivatedAt   DateTime?
+  deactivatedAt              DateTime?
   /// Platform RAS member number (6 digits, starts at 001000). Pilots and clients.
-  memberNumber    String?        @unique
+  memberNumber               String?                  @unique
+  /// Stripe Customer id for client billing / pilot purchases.
+  stripeCustomerId           String?                  @unique
   /// Admin note when account is held for review / ToS (not shown to the user).
-  moderationNote  String?
-  emailVerifiedAt DateTime?
+  moderationNote             String?
+  emailVerifiedAt            DateTime?
   /// Unique recruiting invite code for this member (pilots/clients).
-  inviteCode      String?        @unique
+  inviteCode                 String?                  @unique
   /// Stacked membership discount % earned from successful invites (max 50).
-  inviteRewardPercent Int        @default(0)
+  inviteRewardPercent        Int                      @default(0)
   /// When invite reward discount expires (end of following membership year window).
-  inviteRewardExpiresAt DateTime?
+  inviteRewardExpiresAt      DateTime?
   /// User who invited this account (invite code redemption).
-  invitedByUserId String?
-  invitedBy       User?          @relation("UserInvites", fields: [invitedByUserId], references: [id], onDelete: SetNull)
-  invitedUsers    User[]         @relation("UserInvites")
+  invitedByUserId            String?
+  invitedBy                  User?                    @relation("UserInvites", fields: [invitedByUserId], references: [id], onDelete: SetNull)
+  invitedUsers               User[]                   @relation("UserInvites")
   /// Invitee membership discount percent (typically 10).
-  inviteeDiscountPercent Int     @default(0)
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
-  pilotProfile    PilotProfile?
-  clientProfile   ClientProfile?
-  reviewsWritten       Review[]
-  notifications        Notification[]
-  messagesSent         Message[]
-  conversationReadStates ConversationReadState[]
-  disputesOpened       Dispute[]       @relation("DisputeOpenedBy")
-  disputesReviewed     Dispute[]       @relation("DisputeReviewedBy")
-  disputesResolved     Dispute[]       @relation("DisputeResolvedBy")
-  disputeEntries       DisputeEntry[]
-  uniformOrders        UniformOrder[]
-  supportChatsRequested SupportChat[]     @relation("SupportChatRequester")
-  supportChatsAssigned  SupportChat[]     @relation("SupportChatAssigned")
-  supportMessagesSent   SupportChatMessage[]
-  emailVerificationTokens EmailVerificationToken[]
-  passwordResetTokens     PasswordResetToken[]
-  inviteRedemptionsAsInviter InviteRedemption[] @relation("InviteInviter")
-  inviteRedemptionAsInvitee  InviteRedemption?  @relation("InviteInvitee")
+  inviteeDiscountPercent     Int                      @default(0)
+  createdAt                  DateTime                 @default(now())
+  updatedAt                  DateTime                 @updatedAt
+  pilotProfile               PilotProfile?
+  clientProfile              ClientProfile?
+  reviewsWritten             Review[]
+  notifications              Notification[]
+  messagesSent               Message[]
+  conversationReadStates     ConversationReadState[]
+  disputesOpened             Dispute[]                @relation("DisputeOpenedBy")
+  disputesReviewed           Dispute[]                @relation("DisputeReviewedBy")
+  disputesResolved           Dispute[]                @relation("DisputeResolvedBy")
+  disputeEntries             DisputeEntry[]
+  uniformOrders              UniformOrder[]
+  supportChatsRequested      SupportChat[]            @relation("SupportChatRequester")
+  supportChatsAssigned       SupportChat[]            @relation("SupportChatAssigned")
+  supportMessagesSent        SupportChatMessage[]
+  emailVerificationTokens    EmailVerificationToken[]
+  passwordResetTokens        PasswordResetToken[]
+  inviteRedemptionsAsInviter InviteRedemption[]       @relation("InviteInviter")
+  inviteRedemptionAsInvitee  InviteRedemption?        @relation("InviteInvitee")
 }
 
 model EmailVerificationToken {
@@ -79,13 +81,13 @@ model PasswordResetToken {
 }
 
 model InviteRedemption {
-  id           String   @id @default(cuid())
-  inviterId    String
-  inviter      User     @relation("InviteInviter", fields: [inviterId], references: [id], onDelete: Cascade)
-  inviteeId    String   @unique
-  invitee      User     @relation("InviteInvitee", fields: [inviteeId], references: [id], onDelete: Cascade)
-  inviteCode   String
-  createdAt    DateTime @default(now())
+  id         String   @id @default(cuid())
+  inviterId  String
+  inviter    User     @relation("InviteInviter", fields: [inviterId], references: [id], onDelete: Cascade)
+  inviteeId  String   @unique
+  invitee    User     @relation("InviteInvitee", fields: [inviteeId], references: [id], onDelete: Cascade)
+  inviteCode String
+  createdAt  DateTime @default(now())
 
   @@index([inviterId, createdAt])
 }
@@ -109,58 +111,68 @@ model Notification {
 }
 
 model PilotProfile {
-  id                    String              @id @default(cuid())
-  userId                String              @unique
-  user                  User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-  displayName           String
-  bio                   String?
-  locationCity          String?
-  locationRegion        String?
-  locationCountry       String?
-  serviceRadiusKm       Int?
-  servicesOffered       String              @default("[]")
-  portfolioJson         String              @default("[]")
+  id                               String                         @id @default(cuid())
+  userId                           String                         @unique
+  user                             User                           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  displayName                      String
+  bio                              String?
+  locationCity                     String?
+  locationRegion                   String?
+  locationCountry                  String?
+  serviceRadiusKm                  Int?
+  servicesOffered                  String                         @default("[]")
+  portfolioJson                    String                         @default("[]")
   /// JSON: call sign, languages, drones, payloads, extra service chips, avatar (see lib/pilot/profile-extras.ts)
-  profileExtrasJson     String              @default("{}")
-  hourlyRateMin         Float?
-  hourlyRateMax         Float?
-  licenseNumber         String
-  licenseCountry        String?
-  isPublic              Boolean             @default(false)
-  status                String              @default("draft")
-  /** Demo instructor add-on flag until Stripe (M316). */
-  instructorAddonActive Boolean             @default(false)
-  instructorAddonPeriodEnd DateTime?
-  instructorDiscountCode String?            @unique
-  referredByInstructorId String?
-  referredByInstructor   PilotProfile?      @relation("InstructorStudents", fields: [referredByInstructorId], references: [id], onDelete: SetNull)
-  instructorStudents     PilotProfile[]     @relation("InstructorStudents")
-  instructorWingRequests InstructorWingRequest[] @relation("InstructorWingRequests")
-  studentWingRequests    InstructorWingRequest[] @relation("StudentWingRequests")
-  instructorStudentInvitesSent     InstructorStudentInvite[] @relation("InstructorStudentInvitesSent")
-  instructorStudentInvitesReceived InstructorStudentInvite[] @relation("InstructorStudentInvitesReceived")
-  aviatorWingRequests    AviatorWingRequest[]
-  complianceAcceptedAt  DateTime?
-  onboardingCompletedAt DateTime?
-  commissionOverrideEnabled   Boolean   @default(false)
-  commissionOverrideRate      Float?
-  commissionOverrideReason    String?
-  commissionOverrideEffective String?
-  commissionOverrideUpdatedAt DateTime?
-  commissionOverrideSetById   String?
-  /** Set when an admin-approved one-time review reset is used (lifetime). */
-  reviewResetUsedAt     DateTime?
-  createdAt             DateTime            @default(now())
-  updatedAt             DateTime            @updatedAt
-  applications          JobApplication[]
-  bookings              Booking[]
-  reviewsReceived       Review[]            @relation("ReviewsForPilot")
-  subscriptions         PilotSubscription[]
-  verifications         Verification[]
-  conversationsAsPilot  Conversation[] @relation("PilotConversations")
-  certificates          PilotCertificate[]
-  wings                 PilotWing[]
-  reviewResetRequests   ReviewResetRequest[]
+  profileExtrasJson                String                         @default("{}")
+  hourlyRateMin                    Float?
+  hourlyRateMax                    Float?
+  licenseNumber                    String
+  licenseCountry                   String?
+  isPublic                         Boolean                        @default(false)
+  status                           String                         @default("draft")
+  /**
+   * Demo instructor add-on flag until Stripe (M316).
+   */
+  instructorAddonActive            Boolean                        @default(false)
+  /// Stripe Connect Express account id (acct_...).
+  stripeConnectAccountId           String?                        @unique
+  /// not_started | pending | complete | needs_info | restricted
+  stripeConnectStatus              String                         @default("not_started")
+  instructorAddonPeriodEnd         DateTime?
+  instructorDiscountCode           String?                        @unique
+  referredByInstructorId           String?
+  referredByInstructor             PilotProfile?                  @relation("InstructorStudents", fields: [referredByInstructorId], references: [id], onDelete: SetNull)
+  instructorStudents               PilotProfile[]                 @relation("InstructorStudents")
+  instructorWingRequests           InstructorWingRequest[]        @relation("InstructorWingRequests")
+  studentWingRequests              InstructorWingRequest[]        @relation("StudentWingRequests")
+  instructorStudentInvitesSent     InstructorStudentInvite[]      @relation("InstructorStudentInvitesSent")
+  instructorStudentInvitesReceived InstructorStudentInvite[]      @relation("InstructorStudentInvitesReceived")
+  aviatorWingRequests              AviatorWingRequest[]
+  complianceAcceptedAt             DateTime?
+  onboardingCompletedAt            DateTime?
+  commissionOverrideEnabled        Boolean                        @default(false)
+  commissionOverrideRate           Float?
+  commissionOverrideReason         String?
+  commissionOverrideEffective      String?
+  commissionOverrideUpdatedAt      DateTime?
+  commissionOverrideSetById        String?
+  /**
+   * Set when an admin-approved one-time review reset is used (lifetime).
+   */
+  reviewResetUsedAt                DateTime?
+  createdAt                        DateTime                       @default(now())
+  updatedAt                        DateTime                       @updatedAt
+  applications                     JobApplication[]
+  bookings                         Booking[]
+  reviewsReceived                  Review[]                       @relation("ReviewsForPilot")
+  subscriptions                    PilotSubscription[]
+  verifications                    Verification[]
+  conversationsAsPilot             Conversation[]                 @relation("PilotConversations")
+  certificates                     PilotCertificate[]
+  wings                            PilotWing[]
+  reviewResetRequests              ReviewResetRequest[]
+  reviewReconsiderationRequests    ReviewReconsiderationRequest[] @relation("PilotReconsiderationRequests")
+  backgroundCheck                  PilotBackgroundCheck?
 }
 
 model Verification {
@@ -188,23 +200,24 @@ model Verification {
 }
 
 model ClientProfile {
-  id                    String    @id @default(cuid())
-  userId                String    @unique
-  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  companyName           String?
-  contactName           String
-  phone                 String?
-  billingAddress        String?
+  id                            String                         @id @default(cuid())
+  userId                        String                         @unique
+  user                          User                           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  companyName                   String?
+  contactName                   String
+  phone                         String?
+  billingAddress                String?
   /// JSON: extended profile fields + notification preferences (see lib/client/preferences.ts)
-  preferencesJson       String?
-  status                String    @default("draft")
-  onboardingCompletedAt DateTime?
-  createdAt             DateTime  @default(now())
-  updatedAt             DateTime  @updatedAt
-  jobs                  Job[]
-  bookings              Booking[]
-  reviewsReceived       Review[]         @relation("ReviewsForClient")
-  conversationsAsClient Conversation[]   @relation("ClientConversations")
+  preferencesJson               String?
+  status                        String                         @default("draft")
+  onboardingCompletedAt         DateTime?
+  createdAt                     DateTime                       @default(now())
+  updatedAt                     DateTime                       @updatedAt
+  jobs                          Job[]
+  bookings                      Booking[]
+  reviewsReceived               Review[]                       @relation("ReviewsForClient")
+  reviewReconsiderationRequests ReviewReconsiderationRequest[] @relation("ClientReconsiderationRequests")
+  conversationsAsClient         Conversation[]                 @relation("ClientConversations")
 }
 
 model Job {
@@ -241,26 +254,28 @@ model Job {
 }
 
 model JobApplication {
-  id                    String       @id @default(cuid())
-  jobId                 String
-  job                   Job          @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  pilotProfileId        String
-  pilotProfile          PilotProfile @relation(fields: [pilotProfileId], references: [id], onDelete: Cascade)
-  proposedAmount        Float
-  /** Baseline bid used for +20% revise cap (set on first submit). */
+  id                     String        @id @default(cuid())
+  jobId                  String
+  job                    Job           @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  pilotProfileId         String
+  pilotProfile           PilotProfile  @relation(fields: [pilotProfileId], references: [id], onDelete: Cascade)
+  proposedAmount         Float
+  /**
+   * Baseline bid used for +20% revise cap (set on first submit).
+   */
   originalProposedAmount Float?
-  revisionCount         Int          @default(0)
-  currency              String       @default("USD")
-  message               String?
-  estimatedDeliveryDate DateTime?
-  proposalDetailsJson   String?
-  status                String       @default("submitted")
-  shortlistedAt         DateTime?
-  clientViewedAt        DateTime?
-  submittedAt           DateTime     @default(now())
-  updatedAt             DateTime     @updatedAt
-  booking               Booking?
-  conversation          Conversation?
+  revisionCount          Int           @default(0)
+  currency               String        @default("USD")
+  message                String?
+  estimatedDeliveryDate  DateTime?
+  proposalDetailsJson    String?
+  status                 String        @default("submitted")
+  shortlistedAt          DateTime?
+  clientViewedAt         DateTime?
+  submittedAt            DateTime      @default(now())
+  updatedAt              DateTime      @updatedAt
+  booking                Booking?
+  conversation           Conversation?
 
   @@unique([jobId, pilotProfileId])
   @@index([jobId])
@@ -268,33 +283,79 @@ model JobApplication {
 }
 
 model Booking {
-  id                String         @id @default(cuid())
-  jobId             String         @unique
-  job               Job            @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  jobApplicationId  String         @unique
-  jobApplication    JobApplication @relation(fields: [jobApplicationId], references: [id], onDelete: Cascade)
-  pilotProfileId    String
-  pilotProfile      PilotProfile   @relation(fields: [pilotProfileId], references: [id], onDelete: Cascade)
-  clientProfileId   String
-  clientProfile     ClientProfile  @relation(fields: [clientProfileId], references: [id], onDelete: Cascade)
-  agreedAmount      Float
-  currency          String         @default("USD")
-  status            String         @default("pending")
-  scheduledStartAt  DateTime?
-  scheduledEndAt    DateTime?
-  completedAt       DateTime?
-  cancelledAt       DateTime?
-  createdAt         DateTime       @default(now())
-  updatedAt         DateTime       @updatedAt
-  reviews           Review[]
-  payment           Payment?
-  commission        Commission?
-  conversation      Conversation?
-  dispute           Dispute?
-  delivery          BookingDelivery?
+  id               String               @id @default(cuid())
+  jobId            String               @unique
+  job              Job                  @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  jobApplicationId String               @unique
+  jobApplication   JobApplication       @relation(fields: [jobApplicationId], references: [id], onDelete: Cascade)
+  pilotProfileId   String
+  pilotProfile     PilotProfile         @relation(fields: [pilotProfileId], references: [id], onDelete: Cascade)
+  clientProfileId  String
+  clientProfile    ClientProfile        @relation(fields: [clientProfileId], references: [id], onDelete: Cascade)
+  agreedAmount     Float
+  /**
+   * Commission rate locked at first ledger use (booking-level lock).
+   */
+  commissionRate   Float?
+  currency         String               @default("USD")
+  status           String               @default("pending")
+  scheduledStartAt DateTime?
+  scheduledEndAt   DateTime?
+  completedAt      DateTime?
+  cancelledAt      DateTime?
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+  reviews          Review[]
+  payment          Payment?
+  commission       Commission?
+  conversation     Conversation?
+  dispute          Dispute?
+  delivery         BookingDelivery?
+  changeOrders     BookingChangeOrder[]
 
   @@index([pilotProfileId])
   @@index([clientProfileId])
+  @@index([status])
+}
+
+model BookingChangeOrder {
+  id               String    @id @default(cuid())
+  bookingId        String
+  booking          Booking   @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  /**
+   * New total job amount if accepted.
+   */
+  proposedAmount   Float
+  /**
+   * Increase over the amount at proposal time.
+   */
+  deltaAmount      Float
+  /**
+   * 6% client service fee on the delta.
+   */
+  serviceFee       Float
+  currency         String    @default("USD")
+  /**
+   * proposed | accepted | rejected | charged
+   */
+  status           String    @default("proposed")
+  note             String?
+  proposedByUserId String
+  /**
+   * Locked from booking at proposal time.
+   */
+  commissionRate   Float
+  /**
+   * Ledger provider until Stripe: internal.
+   */
+  provider         String    @default("internal")
+  acceptedAt       DateTime?
+  rejectedAt       DateTime?
+  chargedAt        DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  @@index([bookingId])
   @@index([status])
 }
 
@@ -315,27 +376,31 @@ model BookingDelivery {
 }
 
 model Dispute {
-  id               String          @id @default(cuid())
-  bookingId        String          @unique
-  booking          Booking         @relation(fields: [bookingId], references: [id], onDelete: Cascade)
-  openedByUserId   String
-  openedByUser     User            @relation("DisputeOpenedBy", fields: [openedByUserId], references: [id], onDelete: Cascade)
-  openedByRole     String
-  status           String          @default("open")
-  reason           String
-  resolutionType   String?
-  resolutionAmount Float?
-  resolutionNotes  String?
-  reviewedByUserId String?
-  reviewedByUser   User?           @relation("DisputeReviewedBy", fields: [reviewedByUserId], references: [id], onDelete: SetNull)
-  reviewedAt       DateTime?
-  resolvedByUserId String?
-  resolvedByUser   User?           @relation("DisputeResolvedBy", fields: [resolvedByUserId], references: [id], onDelete: SetNull)
-  resolvedAt       DateTime?
-  createdAt        DateTime        @default(now())
-  updatedAt        DateTime        @updatedAt
-  entries          DisputeEntry[]
-  squadronBallot   SquadronBallot?
+  id                     String          @id @default(cuid())
+  bookingId              String          @unique
+  booking                Booking         @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  openedByUserId         String
+  openedByUser           User            @relation("DisputeOpenedBy", fields: [openedByUserId], references: [id], onDelete: Cascade)
+  openedByRole           String
+  status                 String          @default("open")
+  reason                 String
+  resolutionType         String?
+  resolutionAmount       Float?
+  /// Custom split: amount returned to the client (ledger only). Pilot amount is `resolutionAmount`.
+  resolutionClientAmount Float?
+  resolutionNotes        String?
+  /// RAS Payment v6: 3-day party agreement window; squadron vote cannot open before this (auto-opens after).
+  agreementEndsAt        DateTime?
+  reviewedByUserId       String?
+  reviewedByUser         User?           @relation("DisputeReviewedBy", fields: [reviewedByUserId], references: [id], onDelete: SetNull)
+  reviewedAt             DateTime?
+  resolvedByUserId       String?
+  resolvedByUser         User?           @relation("DisputeResolvedBy", fields: [resolvedByUserId], references: [id], onDelete: SetNull)
+  resolvedAt             DateTime?
+  createdAt              DateTime        @default(now())
+  updatedAt              DateTime        @updatedAt
+  entries                DisputeEntry[]
+  squadronBallot         SquadronBallot?
 
   @@index([status])
   @@index([openedByUserId])
@@ -354,7 +419,9 @@ model ModeratorPermissionRecord {
   @@index([preset])
 }
 
-/** Append-only history of Super Admin permission map changes (M284). */
+/**
+ * Append-only history of Super Admin permission map changes (M284).
+ */
 model ModeratorPermissionAuditLog {
   id             String   @id @default(cuid())
   targetUserId   String
@@ -397,27 +464,27 @@ model CmsArticleRecord {
 }
 
 model CmsResourceRecord {
-  id              String    @id @default(cuid())
-  title           String
-  slug            String    @unique
-  resourceType    String
-  summary         String
-  body            String
-  featuredImage   String?
-  fileUrl         String?
-  externalUrl     String?
-  category        String
-  tagsJson        String    @default("[]")
-  audience        String    @default("public")
-  status          String    @default("draft")
-  featured        Boolean   @default(false)
-  downloadCtaLabel String   @default("Download")
-  publishedAt     DateTime?
-  seoTitle        String
-  seoDescription  String
-  sortOrder       Int       @default(0)
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  id               String    @id @default(cuid())
+  title            String
+  slug             String    @unique
+  resourceType     String
+  summary          String
+  body             String
+  featuredImage    String?
+  fileUrl          String?
+  externalUrl      String?
+  category         String
+  tagsJson         String    @default("[]")
+  audience         String    @default("public")
+  status           String    @default("draft")
+  featured         Boolean   @default(false)
+  downloadCtaLabel String    @default("Download")
+  publishedAt      DateTime?
+  seoTitle         String
+  seoDescription   String
+  sortOrder        Int       @default(0)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 
   @@index([status])
   @@index([publishedAt])
@@ -477,20 +544,20 @@ model DisputeEntry {
 }
 
 model Conversation {
-  id               String         @id @default(cuid())
+  id               String                  @id @default(cuid())
   jobId            String
-  job              Job            @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  jobApplicationId String         @unique
-  jobApplication   JobApplication @relation(fields: [jobApplicationId], references: [id], onDelete: Cascade)
-  bookingId        String?        @unique
-  booking          Booking?       @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  job              Job                     @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  jobApplicationId String                  @unique
+  jobApplication   JobApplication          @relation(fields: [jobApplicationId], references: [id], onDelete: Cascade)
+  bookingId        String?                 @unique
+  booking          Booking?                @relation(fields: [bookingId], references: [id], onDelete: SetNull)
   clientProfileId  String
-  clientProfile    ClientProfile  @relation("ClientConversations", fields: [clientProfileId], references: [id], onDelete: Cascade)
+  clientProfile    ClientProfile           @relation("ClientConversations", fields: [clientProfileId], references: [id], onDelete: Cascade)
   pilotProfileId   String
-  pilotProfile     PilotProfile   @relation("PilotConversations", fields: [pilotProfileId], references: [id], onDelete: Cascade)
+  pilotProfile     PilotProfile            @relation("PilotConversations", fields: [pilotProfileId], references: [id], onDelete: Cascade)
   lastMessageAt    DateTime?
-  createdAt        DateTime       @default(now())
-  updatedAt        DateTime       @updatedAt
+  createdAt        DateTime                @default(now())
+  updatedAt        DateTime                @updatedAt
   messages         Message[]
   readStates       ConversationReadState[]
 
@@ -539,6 +606,17 @@ model Payment {
   currency          String      @default("USD")
   provider          String      @default("internal")
   providerPaymentId String?
+  /// Checkout Session id for the escrow charge.
+  stripeCheckoutSessionId String?
+  serviceFeeAmount  Float       @default(0)
+  /// Client escrow charge captured.
+  paidAt            DateTime?
+  /// Pilot payout (Transfer) completed.
+  releasedAt        DateTime?
+  stripeTransferId  String?
+  /// Why auto-release was skipped (no connect account, dispute, ...).
+  releaseNote       String?
+  /// pending | held | held_dispute | succeeded | failed | refunded | processing
   status            String      @default("succeeded")
   createdAt         DateTime    @default(now())
   updatedAt         DateTime    @updatedAt
@@ -549,35 +627,41 @@ model Payment {
 }
 
 model Commission {
-  id            String    @id @default(cuid())
-  bookingId     String    @unique
-  booking       Booking   @relation(fields: [bookingId], references: [id], onDelete: Cascade)
-  paymentId     String?   @unique
-  payment       Payment?  @relation(fields: [paymentId], references: [id], onDelete: SetNull)
-  rate          Float     @default(0.1)
-  amount        Float
-  currency      String    @default("USD")
-  status        String    @default("calculated")
-  calculatedAt  DateTime  @default(now())
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id           String   @id @default(cuid())
+  bookingId    String   @unique
+  booking      Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  paymentId    String?  @unique
+  payment      Payment? @relation(fields: [paymentId], references: [id], onDelete: SetNull)
+  rate         Float    @default(0.1)
+  amount       Float
+  currency     String   @default("USD")
+  status       String   @default("calculated")
+  calculatedAt DateTime @default(now())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 model Review {
-  id                    String         @id @default(cuid())
-  bookingId             String
-  booking               Booking        @relation(fields: [bookingId], references: [id], onDelete: Cascade)
-  authorUserId          String
-  authorUser            User           @relation(fields: [authorUserId], references: [id], onDelete: Cascade)
-  targetPilotProfileId  String?
-  targetPilotProfile    PilotProfile?  @relation("ReviewsForPilot", fields: [targetPilotProfileId], references: [id], onDelete: Cascade)
-  targetClientProfileId String?
-  targetClientProfile   ClientProfile? @relation("ReviewsForClient", fields: [targetClientProfileId], references: [id], onDelete: Cascade)
-  rating                Int
-  comment               String?
-  status                String         @default("published")
-  createdAt             DateTime       @default(now())
-  updatedAt             DateTime       @updatedAt
+  id                      String                         @id @default(cuid())
+  bookingId               String
+  booking                 Booking                        @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  authorUserId            String
+  authorUser              User                           @relation(fields: [authorUserId], references: [id], onDelete: Cascade)
+  targetPilotProfileId    String?
+  targetPilotProfile      PilotProfile?                  @relation("ReviewsForPilot", fields: [targetPilotProfileId], references: [id], onDelete: Cascade)
+  targetClientProfileId   String?
+  targetClientProfile     ClientProfile?                 @relation("ReviewsForClient", fields: [targetClientProfileId], references: [id], onDelete: Cascade)
+  rating                  Int
+  comment                 String?
+  status                  String                         @default("published")
+  /// abuse | fraud | off_platform | tos | dispute_void (admin hide/remove)
+  moderationReasonCode    String?
+  moderationNote          String?
+  moderatedAt             DateTime?
+  moderatedByUserId       String?
+  createdAt               DateTime                       @default(now())
+  updatedAt               DateTime                       @updatedAt
+  reconsiderationRequests ReviewReconsiderationRequest[]
 
   @@unique([bookingId, authorUserId])
   @@index([targetPilotProfileId])
@@ -585,7 +669,35 @@ model Review {
   @@index([authorUserId])
 }
 
-/** Pilot request to remove/hide non-5★ reviews (moderator approves). */
+/**
+ * Free pilot → client request to reconsider a review. Client keeps or updates; nothing is deleted.
+ */
+model ReviewReconsiderationRequest {
+  id                 String        @id @default(cuid())
+  reviewId           String
+  review             Review        @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  pilotProfileId     String
+  pilotProfile       PilotProfile  @relation("PilotReconsiderationRequests", fields: [pilotProfileId], references: [id], onDelete: Cascade)
+  clientProfileId    String
+  clientProfile      ClientProfile @relation("ClientReconsiderationRequests", fields: [clientProfileId], references: [id], onDelete: Cascade)
+  /// pending | kept | updated
+  status             String        @default("pending")
+  pilotNote          String?
+  previousRating     Int
+  newRating          Int?
+  clientResponseNote String?
+  respondedAt        DateTime?
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+
+  @@index([reviewId])
+  @@index([pilotProfileId])
+  @@index([clientProfileId, status])
+}
+
+/**
+ * Pilot request to remove/hide non-5★ reviews (moderator approves).
+ */
 model ReviewResetRequest {
   id               String       @id @default(cuid())
   pilotProfileId   String
@@ -670,9 +782,13 @@ model CertificateTemplate {
   bodyTemplate         String
   backgroundImageUrl   String?
   layoutKey            String?
-  /** JSON array of { field, x, y, font, ... } percent overrides for drag-aligned overlays. */
+  /**
+   * JSON array of { field, x, y, font, ... } percent overrides for drag-aligned overlays.
+   */
   overlayPositionsJson String?
-  /** Auto-issue rule — see CERTIFICATE_AUTO_RULES (manual_only default). */
+  /**
+   * Auto-issue rule — see CERTIFICATE_AUTO_RULES (manual_only default).
+   */
   autoRule             String             @default("manual_only")
   ruleParam            String?
   threshold            Int?
@@ -710,7 +826,9 @@ model WingDefinition {
   title       String
   description String
   category    String      @default("milestone")
-  /** COMMON | UNCOMMON | RARE | EPIC | LEGENDARY | MYTHIC */
+  /**
+   * COMMON | UNCOMMON | RARE | EPIC | LEGENDARY | MYTHIC
+   */
   rarity      String      @default("COMMON")
   iconLabel   String?
   imageUrl    String?
@@ -744,7 +862,9 @@ model PilotWing {
   @@index([earnedAt])
 }
 
-/** Admin-reviewed aviator wing requests (Figma Request Wings). Distinct from instructor student awards. */
+/**
+ * Admin-reviewed aviator wing requests (Figma Request Wings). Distinct from instructor student awards.
+ */
 model AviatorWingRequest {
   id               String       @id @default(cuid())
   pilotProfileId   String
@@ -769,19 +889,21 @@ model AviatorWingRequest {
   @@index([createdAt])
 }
 
-/** Student wing requests reviewed by an active Remote Pilot Instructor. */
+/**
+ * Student wing requests reviewed by an active Remote Pilot Instructor.
+ */
 model InstructorWingRequest {
-  id                 String       @id @default(cuid())
+  id                  String       @id @default(cuid())
   instructorProfileId String
-  instructorProfile  PilotProfile @relation("InstructorWingRequests", fields: [instructorProfileId], references: [id], onDelete: Cascade)
-  studentProfileId   String
-  studentProfile     PilotProfile @relation("StudentWingRequests", fields: [studentProfileId], references: [id], onDelete: Cascade)
-  wingCode           String
-  status             String       @default("pending")
-  instructorNote     String?
-  createdAt          DateTime     @default(now())
-  updatedAt          DateTime     @updatedAt
-  resolvedAt         DateTime?
+  instructorProfile   PilotProfile @relation("InstructorWingRequests", fields: [instructorProfileId], references: [id], onDelete: Cascade)
+  studentProfileId    String
+  studentProfile      PilotProfile @relation("StudentWingRequests", fields: [studentProfileId], references: [id], onDelete: Cascade)
+  wingCode            String
+  status              String       @default("pending")
+  instructorNote      String?
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
+  resolvedAt          DateTime?
 
   @@index([instructorProfileId, status])
   @@index([studentProfileId])
@@ -807,29 +929,29 @@ model InstructorStudentInvite {
 }
 
 model UniformProduct {
-  id          String                   @id @default(cuid())
-  name        String
-  slug        String                   @unique
-  description String
-  imageUrl    String?
-  isActive    Boolean                  @default(true)
-  sortOrder   Int                      @default(0)
+  id                String                  @id @default(cuid())
+  name              String
+  slug              String                  @unique
+  description       String
+  imageUrl          String?
+  isActive          Boolean                 @default(true)
+  sortOrder         Int                     @default(0)
   /// Admin catalog category (UNIFORM, DIGITAL, PATCHES, …).
-  category    String?
+  category          String?
   /// Digital goods skip physical shipping UX when true.
-  isDigital   Boolean                  @default(false)
+  isDigital         Boolean                 @default(false)
   /// Per-product low-stock threshold for admin inventory badges.
-  lowStockThreshold Int                @default(10)
+  lowStockThreshold Int                     @default(10)
   /// Minimum membership tier code (e.g. A6_CAPTAIN). Null = no minimum.
-  minTierCode String?
+  minTierCode       String?
   /// Exact membership tier required (e.g. epaulettes for that grade only).
-  exactTierCode String?
+  exactTierCode     String?
   /// WingDefinition.code the pilot must already hold to see/order this item.
-  requiredWingCode String?
-  createdAt   DateTime                 @default(now())
-  updatedAt   DateTime                 @updatedAt
-  variants    UniformProductVariant[]
-  images      UniformProductImage[]
+  requiredWingCode  String?
+  createdAt         DateTime                @default(now())
+  updatedAt         DateTime                @updatedAt
+  variants          UniformProductVariant[]
+  images            UniformProductImage[]
 
   @@index([isActive])
   @@index([sortOrder])
@@ -874,6 +996,8 @@ model UniformOrder {
   user            User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   status          String             @default("pending_payment")
   paymentStatus   String             @default("pending")
+  stripeCheckoutSessionId String?
+  stripePaymentIntentId   String?
   currency        String             @default("USD")
   subtotal        Float
   shippingAmount  Float              @default(0)
@@ -920,22 +1044,22 @@ model UniformOrderItem {
 }
 
 model SupportChat {
-  id               String               @id @default(cuid())
-  requesterUserId  String?
-  requesterUser    User?                @relation("SupportChatRequester", fields: [requesterUserId], references: [id], onDelete: SetNull)
-  guestToken       String?              @unique
-  requesterRole    String
-  requesterName    String
-  requesterEmail   String
-  subject          String?
-  initialMessage   String
-  status           String               @default("open")
-  assignedAdminId  String?
-  assignedAdmin    User?                @relation("SupportChatAssigned", fields: [assignedAdminId], references: [id], onDelete: SetNull)
-  lastMessageAt    DateTime             @default(now())
-  createdAt        DateTime             @default(now())
-  updatedAt        DateTime             @updatedAt
-  messages         SupportChatMessage[]
+  id              String               @id @default(cuid())
+  requesterUserId String?
+  requesterUser   User?                @relation("SupportChatRequester", fields: [requesterUserId], references: [id], onDelete: SetNull)
+  guestToken      String?              @unique
+  requesterRole   String
+  requesterName   String
+  requesterEmail  String
+  subject         String?
+  initialMessage  String
+  status          String               @default("open")
+  assignedAdminId String?
+  assignedAdmin   User?                @relation("SupportChatAssigned", fields: [assignedAdminId], references: [id], onDelete: SetNull)
+  lastMessageAt   DateTime             @default(now())
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+  messages        SupportChatMessage[]
 
   @@index([requesterUserId])
   @@index([requesterEmail])
@@ -960,4 +1084,39 @@ model SupportChatMessage {
 
   @@index([supportChatId])
   @@index([createdAt])
+}
+
+/// Manual pilot background check (RAS Payment v6). No third-party API; admin sets status.
+model PilotBackgroundCheck {
+  id                   String       @id @default(cuid())
+  pilotProfileId       String       @unique
+  pilotProfile         PilotProfile @relation(fields: [pilotProfileId], references: [id], onDelete: Cascade)
+  /// not_started | paid | in_review | cleared | not_cleared
+  status               String       @default("not_started")
+  /// Start of 30-day window (admin profile acceptance). Null = legacy pilot, use launch constant.
+  deadlineStartedAt    DateTime?
+  consentAcceptedAt    DateTime?
+  feeAmountCents       Int          @default(2000)
+  /// Demo pay until Stripe.
+  paidAt               DateTime?
+  paymentReference     String?
+  reviewedAt           DateTime?
+  reviewedById         String?
+  adminNotes           String?
+  faaCertificateNumber String?
+  faaVerifiedById      String?
+  faaVerifiedAt        DateTime?
+  createdAt            DateTime     @default(now())
+  updatedAt            DateTime     @updatedAt
+
+  @@index([status])
+}
+
+/// Processed Stripe webhook events (idempotency).
+model StripeWebhookEvent {
+  id          String   @id
+  type        String
+  processedAt DateTime @default(now())
+
+  @@index([type])
 }

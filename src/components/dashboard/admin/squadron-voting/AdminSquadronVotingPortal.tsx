@@ -6,6 +6,7 @@ import type {
   SquadronBallotDto,
   SquadronVotingMetrics,
 } from "@/lib/admin/squadron-voting";
+import { SquadronRoster } from "@/components/dashboard/squadron/SquadronRoster";
 import { useModeratorPermissions } from "@/contexts/ModeratorPermissionsContext";
 
 const EMPTY_METRICS: SquadronVotingMetrics = {
@@ -344,6 +345,7 @@ function VoteCard({
             {ballot.votedCount} of {ballot.squadronMembers} {officerLabel} voted (
             {ballot.turnoutPct}% turnout)
           </p>
+          <SquadronRoster ballot={ballot} />
           {ballot.recommendation ? (
             <p className="admin-squadron-recommendation">{ballot.recommendation}</p>
           ) : null}

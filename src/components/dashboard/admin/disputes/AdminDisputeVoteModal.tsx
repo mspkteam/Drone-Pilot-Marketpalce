@@ -66,8 +66,9 @@ export function AdminDisputeVoteModal({
         </h2>
         <p className="admin-dispute-modal-text">
           Open a 48-hour peer moderation poll for <strong>{disputeLabel}</strong>.
-          A-4+ officers can side with the client or the pilot. You can override
-          or close early from Squadron Voting.
+          A-4+ officers can side with the client or the pilot. A minimum of 5
+          votes is required; otherwise the Super Admin decides. Voting is only
+          available after the 3-day party agreement period.
         </p>
         {error ? (
           <p className="admin-dispute-modal-error" role="alert">

@@ -11,6 +11,11 @@ export type ClientProfilePreferences = {
   billingEmail?: string;
   projectTypes?: string[];
   logoPath?: string | null;
+  /** Legal / invoicing name (falls back to contactName). */
+  legalName?: string;
+  /** Optional business tax / VAT ID (clients only; never pilot SSN). */
+  taxId?: string;
+  taxIdRequired?: boolean;
   notifications?: ClientNotificationPreferences;
 };
 
@@ -23,6 +28,9 @@ export const CLIENT_PROFILE_PREFERENCES_DEFAULTS: ClientProfilePreferences = {
   billingEmail: "",
   projectTypes: [],
   logoPath: null,
+  legalName: "",
+  taxId: "",
+  taxIdRequired: false,
   notifications: undefined,
 };
 
@@ -74,6 +82,9 @@ export function serializeClientProfilePreferences(
     Boolean(normalized.approvalContact?.trim()) ||
     Boolean(normalized.billingEmail?.trim()) ||
     Boolean(normalized.logoPath) ||
+    Boolean(normalized.legalName?.trim()) ||
+    Boolean(normalized.taxId?.trim()) ||
+    normalized.taxIdRequired === true ||
     (normalized.projectTypes?.length ?? 0) > 0 ||
     normalized.preferredContact !== "Email" ||
     normalized.notifications != null;
@@ -117,6 +128,15 @@ export function mergeClientProfilePreferences(
   if (Object.prototype.hasOwnProperty.call(patch, "logoPath")) {
     next.logoPath = patch.logoPath ?? null;
   }
+  if (Object.prototype.hasOwnProperty.call(patch, "legalName")) {
+    next.legalName = patch.legalName?.trim() ?? "";
+  }
+  if (Object.prototype.hasOwnProperty.call(patch, "taxId")) {
+    next.taxId = patch.taxId?.trim() ?? "";
+  }
+  if (Object.prototype.hasOwnProperty.call(patch, "taxIdRequired")) {
+    next.taxIdRequired = Boolean(patch.taxIdRequired);
+  }
   if (Object.prototype.hasOwnProperty.call(patch, "notifications")) {
     next.notifications = normalizeNotificationPreferences(patch.notifications);
   }
@@ -144,6 +164,9 @@ export function normalizeClientProfilePreferencesInput(
       ? input.projectTypes.map((item) => item.trim()).filter(Boolean)
       : [],
     logoPath: input.logoPath ?? null,
+    legalName: input.legalName?.trim() ?? "",
+    taxId: input.taxId?.trim() ?? "",
+    taxIdRequired: input.taxIdRequired === true,
     notifications: normalizeNotificationPreferences(input.notifications),
   };
 }

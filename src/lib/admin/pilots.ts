@@ -1,3 +1,4 @@
+import { startBackgroundCheckWindow } from "@/lib/background-check/service";
 import { prisma } from "@/lib/db";
 import { toMembershipTierDto } from "@/lib/membership/membership";
 import {
@@ -209,6 +210,9 @@ export async function approvePilotProfile(pilotProfileId: string) {
     where: { id: pilotProfileId },
     data: { status: "approved", isPublic: true },
   });
+
+  // Starts the 30-day background check window.
+  await startBackgroundCheckWindow(pilotProfileId);
 
   // Await email so serverless hosts do not freeze before SMTP completes.
   await sendNotification({

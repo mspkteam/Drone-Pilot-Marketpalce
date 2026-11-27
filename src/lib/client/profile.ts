@@ -52,6 +52,9 @@ export function toClientProfilePreferencesDto(
     billingEmail: parsed.billingEmail ?? "",
     projectTypes: parsed.projectTypes ?? [],
     logoPath: parsed.logoPath ?? null,
+    legalName: parsed.legalName ?? "",
+    taxId: parsed.taxId ?? "",
+    taxIdRequired: parsed.taxIdRequired ?? false,
     notifications: parsed.notifications ?? { ...CLIENT_NOTIFICATION_DEFAULTS },
   };
 }

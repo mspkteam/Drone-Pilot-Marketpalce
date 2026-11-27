@@ -24,6 +24,9 @@ export type ClientProfilePreferencesDto = {
   billingEmail: string;
   projectTypes: string[];
   logoPath: string | null;
+  legalName: string;
+  taxId: string;
+  taxIdRequired: boolean;
   notifications: {
     emailUpdates: boolean;
     newBids: boolean;

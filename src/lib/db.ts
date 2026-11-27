@@ -2,7 +2,7 @@ import { PrismaClient } from "@/generated/prisma/client";
 import { createPrismaClient } from "@/lib/create-prisma-client";
 
 /** Bump when Prisma schema changes so dev HMR does not keep an old client. */
-const PRISMA_CLIENT_SCHEMA_VERSION = 51;
+const PRISMA_CLIENT_SCHEMA_VERSION = 55;
 
 const globalForPrisma = globalThis as unknown as {
   prisma?: PrismaClient;
@@ -49,6 +49,10 @@ function isStalePrismaClient(client: PrismaClient): boolean {
     squadronBallot?: unknown;
     aviatorWingRequest?: unknown;
     passwordResetToken?: unknown;
+    reviewReconsiderationRequest?: unknown;
+    bookingChangeOrder?: unknown;
+    pilotBackgroundCheck?: unknown;
+    stripeWebhookEvent?: unknown;
   };
   return (
     typeof c.pilotProfile === "undefined" ||
@@ -87,7 +91,11 @@ function isStalePrismaClient(client: PrismaClient): boolean {
     typeof c.operatingRegion === "undefined" ||
     typeof c.squadronBallot === "undefined" ||
     typeof c.aviatorWingRequest === "undefined" ||
-    typeof c.passwordResetToken === "undefined"
+    typeof c.passwordResetToken === "undefined" ||
+    typeof c.reviewReconsiderationRequest === "undefined" ||
+    typeof c.pilotBackgroundCheck === "undefined" ||
+    typeof c.stripeWebhookEvent === "undefined" ||
+    typeof c.bookingChangeOrder === "undefined"
   );
 }
 

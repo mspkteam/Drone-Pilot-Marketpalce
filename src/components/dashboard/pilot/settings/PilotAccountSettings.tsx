@@ -451,9 +451,13 @@ export function PilotAccountSettings() {
             <h2 className="pilot-settings-card-title">PAYMENT INFO</h2>
             <p className="pilot-settings-card-copy">
               Mission payouts and membership billing use separate flows from uniform shop
-              orders. Stripe Connect payout settings are pending backend integration.
+              orders. Tax and identity details are collected by Stripe Connect during
+              payout setup (not stored here). Payout status: not connected yet.
             </p>
             <div className="pilot-settings-link-row">
+              <Link href="/dashboard/pilot/payouts" className="pilot-settings-link-card">
+                Payout setup
+              </Link>
               <Link href="/dashboard/pilot/payments" className="pilot-settings-link-card">
                 View earnings &amp; payouts
               </Link>

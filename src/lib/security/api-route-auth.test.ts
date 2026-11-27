@@ -15,6 +15,10 @@ const PUBLIC_API_SUFFIXES = [
   "auth/verify-email/route.ts",
   "waitlist/route.ts",
   "contact/route.ts",
+  // Secret / signature protected (Bearer CRON_SECRET or Stripe signature).
+  "cron/purge-deactivated/route.ts",
+  "cron/release-payments/route.ts",
+  "stripe/webhook/route.ts",
 ] as const;
 
 const AUTH_GUARD_PATTERNS = [

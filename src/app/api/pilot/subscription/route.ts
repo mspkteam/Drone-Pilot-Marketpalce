@@ -6,6 +6,8 @@ import {
   setPilotMembershipTier,
 } from "@/lib/subscriptions/subscription";
 import { getPilotProfileByUserId, isOnboardingComplete } from "@/lib/pilot/profile";
+import { isStripeConfigured } from "@/lib/stripe/client";
+import { createMembershipCheckout } from "@/lib/stripe/checkout";
 
 export async function GET() {
   const authResult = await requirePilotSession();
@@ -50,6 +52,23 @@ export async function POST(request: Request) {
     const planId = body.planId as string | undefined;
     if (!planId) {
       return NextResponse.json({ error: "Plan ID is required." }, { status: 400 });
+    }
+
+    if (isStripeConfigured()) {
+      const checkout = await createMembershipCheckout({
+        userId: authResult.userId,
+        pilotProfileId: profile.id,
+        planId,
+        instructorCode: body.instructorCode,
+        request,
+      });
+      if (checkout.ok) {
+        return NextResponse.json({ checkoutUrl: checkout.url });
+      }
+      // Free enrollment (e.g. 100% discount) falls through to direct activation.
+      if (!checkout.error.startsWith("Nothing to charge")) {
+        return NextResponse.json({ error: checkout.error }, { status: checkout.status });
+      }
     }
 
     const result = await setPilotMembershipTier(profile.id, planId, body.instructorCode);

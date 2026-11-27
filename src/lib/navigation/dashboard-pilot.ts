@@ -89,6 +89,11 @@ export function buildPilotNavGroups(options?: {
         { label: "Profile", href: "/dashboard/pilot/profile", icon: "profile" },
         { label: "Verification", href: "/dashboard/pilot/verifications", icon: "verification" },
         {
+          label: "Background Check",
+          href: "/dashboard/pilot/background-check",
+          icon: "verification",
+        },
+        {
           label: "Request Wings",
           href: "/dashboard/pilot/verifications/request-wings",
           icon: "wings",

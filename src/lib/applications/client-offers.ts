@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/db";
 import { toApplicationDto } from "@/lib/applications/application";
 import { parseProfileExtrasJson } from "@/lib/pilot/profile-extras";
-import { averageRating } from "@/lib/reviews/review";
+import { weightedAverageRating } from "@/lib/reviews/weighted-rating";
 import type { ClientJobApplicationDto } from "@/types/booking";
 import { jobAcceptsApplications } from "@/lib/bookings/status";
 
@@ -103,21 +103,21 @@ async function getReviewStatsForPilots(pilotProfileIds: string[]) {
       targetPilotProfileId: { in: pilotProfileIds },
       status: "published",
     },
-    select: { targetPilotProfileId: true, rating: true },
+    select: { targetPilotProfileId: true, rating: true, createdAt: true },
   });
 
-  const grouped = new Map<string, number[]>();
+  const grouped = new Map<string, { rating: number; createdAt: Date }[]>();
   for (const review of reviews) {
     if (!review.targetPilotProfileId) continue;
     const ratings = grouped.get(review.targetPilotProfileId) ?? [];
-    ratings.push(review.rating);
+    ratings.push({ rating: review.rating, createdAt: review.createdAt });
     grouped.set(review.targetPilotProfileId, ratings);
   }
 
   const result = new Map<string, { average: number | null; count: number }>();
   for (const [id, ratings] of grouped) {
     result.set(id, {
-      average: averageRating(ratings.map((rating) => ({ rating }))),
+      average: weightedAverageRating(ratings),
       count: ratings.length,
     });
   }

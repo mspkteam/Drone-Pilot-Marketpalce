@@ -28,6 +28,7 @@ export function ClientAccountSettings() {
   const [notifications, setNotifications] = useState<ClientNotificationPreferences>(
     () => ({ ...CLIENT_NOTIFICATION_DEFAULTS }),
   );
+  const [tax, setTax] = useState({ legalName: "", taxId: "", taxIdRequired: false });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -68,6 +69,11 @@ export function ClientAccountSettings() {
         const profileDto = profileData.profile as ClientProfileDto;
         setProfileForm(clientDtoToFormState(profileDto));
         setNotifications(notificationPreferencesFromProfile(profileDto.preferences));
+        setTax({
+          legalName: profileDto.preferences.legalName ?? "",
+          taxId: profileDto.preferences.taxId ?? "",
+          taxIdRequired: profileDto.preferences.taxIdRequired ?? false,
+        });
       } else {
         setProfileForm({
           companyName: "",
@@ -109,7 +115,7 @@ export function ClientAccountSettings() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...clientFormToPayload(profileForm, false),
-          preferences: { notifications },
+          preferences: { notifications, ...tax },
         }),
       });
       const data = await res.json();
@@ -123,6 +129,11 @@ export function ClientAccountSettings() {
         const profileDto = data.profile as ClientProfileDto;
         setProfileForm(clientDtoToFormState(profileDto));
         setNotifications(notificationPreferencesFromProfile(profileDto.preferences));
+        setTax({
+          legalName: profileDto.preferences.legalName ?? "",
+          taxId: profileDto.preferences.taxId ?? "",
+          taxIdRequired: profileDto.preferences.taxIdRequired ?? false,
+        });
       }
 
       setSuccess("Settings saved.");
@@ -269,10 +280,54 @@ export function ClientAccountSettings() {
             />
           </label>
 
+          <label className="client-settings-field client-settings-field--full">
+            <span className="client-settings-label">
+              Legal name{" "}
+              <span className="client-settings-optional">
+                (optional — defaults to your contact name)
+              </span>
+            </span>
+            <input
+              className="client-settings-input"
+              value={tax.legalName}
+              onChange={(e) => setTax((t) => ({ ...t, legalName: e.target.value }))}
+            />
+          </label>
+
+          <label className="client-settings-field client-settings-field--full">
+            <span className="client-settings-label">
+              Tax ID / VAT number{" "}
+              <span className="client-settings-optional">(optional)</span>
+            </span>
+            <input
+              className="client-settings-input"
+              value={tax.taxId}
+              maxLength={64}
+              autoComplete="off"
+              onChange={(e) => setTax((t) => ({ ...t, taxId: e.target.value }))}
+            />
+            <span className="client-settings-card-hint">
+              For business clients: EIN, VAT, or GST number to print on invoices.
+              Individuals can leave this blank. Do not enter a personal SSN.
+            </span>
+          </label>
+
+          <label className="client-settings-field client-settings-field--full">
+            <ClientSettingsToggle
+              id="client-tax-id-required"
+              checked={tax.taxIdRequired}
+              onChange={(checked) =>
+                setTax((t) => ({ ...t, taxIdRequired: checked }))
+              }
+            />
+            <span className="client-settings-label">
+              I am a business and require a tax ID on invoices
+            </span>
+          </label>
+
           <div className="client-settings-field-grid">
             <label className="client-settings-field client-settings-field--full">
-              <span className="client-settings-label">Billing address</span>
-              <input
+              <span className="client-settings-label">Billing address</span>              <input
                 className="client-settings-input"
                 value={profileForm.billingLine1}
                 onChange={(e) => updateForm({ billingLine1: e.target.value })}

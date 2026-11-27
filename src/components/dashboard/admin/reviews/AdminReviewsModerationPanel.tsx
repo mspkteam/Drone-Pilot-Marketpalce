@@ -6,6 +6,11 @@ import type {
   AdminReviewListItem,
   ReviewResetRequestDto,
 } from "@/lib/reviews/review-reset";
+import {
+  REVIEW_MODERATION_REASON_CODES,
+  REVIEW_MODERATION_REASON_LABELS,
+  type ReviewModerationReasonCode,
+} from "@/lib/reviews/moderation-reasons";
 
 type ReviewFilter = "below5" | "all" | "hidden" | "published";
 
@@ -18,6 +23,9 @@ export function AdminReviewsModerationPanel() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [reasonById, setReasonById] = useState<
+    Record<string, ReviewModerationReasonCode | "">
+  >({});
 
   const load = useCallback(async (nextFilter: ReviewFilter) => {
     setLoading(true);
@@ -88,7 +96,11 @@ export function AdminReviewsModerationPanel() {
 
   async function patchReview(
     id: string,
-    payload: { status?: "published" | "hidden" | "flagged"; rating?: number },
+    payload: {
+      status?: "published" | "hidden" | "flagged";
+      rating?: number;
+      reasonCode?: ReviewModerationReasonCode;
+    },
     successMessage: string,
   ) {
     setBusyId(id);
@@ -291,6 +303,17 @@ export function AdminReviewsModerationPanel() {
                   {review.comment ? (
                     <p className="admin-reviews-note">{review.comment}</p>
                   ) : null}
+                  {review.status === "hidden" && review.moderationReasonCode ? (
+                    <p className="admin-reviews-meta">
+                      Removed:{" "}
+                      {REVIEW_MODERATION_REASON_LABELS[
+                        review.moderationReasonCode as ReviewModerationReasonCode
+                      ] ?? review.moderationReasonCode}
+                      {review.moderatedAt
+                        ? ` · ${formatDisplayDateShort(review.moderatedAt)}`
+                        : ""}
+                    </p>
+                  ) : null}
                 </div>
                 <div className="admin-reviews-actions">
                   <button
@@ -307,17 +330,38 @@ export function AdminReviewsModerationPanel() {
                   >
                     Set 5★
                   </button>
+                  <select
+                    className="admin-reviews-filter"
+                    aria-label="Removal reason"
+                    value={reasonById[review.id] ?? ""}
+                    onChange={(e) =>
+                      setReasonById((prev) => ({
+                        ...prev,
+                        [review.id]: e.target.value as ReviewModerationReasonCode | "",
+                      }))
+                    }
+                  >
+                    <option value="">Reason…</option>
+                    {REVIEW_MODERATION_REASON_CODES.map((code) => (
+                      <option key={code} value={code}>
+                        {REVIEW_MODERATION_REASON_LABELS[code]}
+                      </option>
+                    ))}
+                  </select>
                   <button
                     type="button"
                     className="admin-reviews-btn-ghost"
-                    disabled={busyId === review.id}
-                    onClick={() =>
+                    disabled={busyId === review.id || !reasonById[review.id]}
+                    title="Select a reason code to hide"
+                    onClick={() => {
+                      const reasonCode = reasonById[review.id];
+                      if (!reasonCode) return;
                       void patchReview(
                         review.id,
-                        { status: "hidden" },
+                        { status: "hidden", reasonCode },
                         "Review hidden.",
-                      )
-                    }
+                      );
+                    }}
                   >
                     Hide
                   </button>

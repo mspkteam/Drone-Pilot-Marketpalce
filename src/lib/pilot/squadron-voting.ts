@@ -62,9 +62,20 @@ export async function getPilotSquadronGrade(userId: string): Promise<{
   };
 }
 
-function toPilotBallot(ballot: SquadronBallotDto): SquadronBallotDto {
+/**
+ * The voted / not-voted roster and individual votes are for Squadron Commanders
+ * and admins only — parties to the dispute never see them.
+ */
+function toPilotBallot(
+  ballot: SquadronBallotDto,
+  options: { isParty?: boolean; eligible?: boolean } = {},
+): SquadronBallotDto {
+  const hideRoster = options.isParty || options.eligible === false;
   return {
     ...ballot,
+    roster: hideRoster ? null : ballot.roster,
+    notVotedCount: hideRoster ? null : ballot.notVotedCount,
+    votes: options.isParty ? [] : ballot.votes,
     evidenceHref: `/dashboard/pilot/squadron-voting?ballot=${ballot.id}`,
   };
 }
@@ -78,7 +89,12 @@ export async function getPilotSquadronVotingDashboard(
     listPartyDisputeIdsForUser(userId),
   ]);
 
-  const ballots = dashboard.ballots.map(toPilotBallot);
+  const ballots = dashboard.ballots.map((ballot) =>
+    toPilotBallot(ballot, {
+      isParty: partyDisputeIds.has(ballot.disputeId),
+      eligible: grade.eligible,
+    }),
+  );
   const isPartyOnOpenBallot = ballots.some(
     (ballot) =>
       ballot.status === "open" && partyDisputeIds.has(ballot.disputeId),
@@ -126,7 +142,7 @@ export async function castPilotSquadronVote(
 
   const result = await castSquadronVote(ballotId, userId, vote, comment);
   if (!result.ok) return result;
-  return { ok: true, ballot: toPilotBallot(result.ballot) };
+  return { ok: true, ballot: toPilotBallot(result.ballot, { eligible: true }) };
 }
 
 export async function getPilotSquadronEvidence(

@@ -2,14 +2,12 @@ import { formatDisplayDate } from "@/lib/format/date";
 import { PILOT_MOCK_REVIEWS } from "@/lib/pilot/dashboard-overview-mock";
 import type { ReviewListItemDto } from "@/types/review";
 
-function averageRating(reviews: { rating: number }[]): number | null {
-  if (reviews.length === 0) return null;
-  const sum = reviews.reduce((acc, review) => acc + review.rating, 0);
-  return Math.round((sum / reviews.length) * 10) / 10;
-}
+import { weightedAverageRating } from "@/lib/reviews/weighted-rating";
 
 export type PilotReviewRow = {
   id: string;
+  /** ISO timestamp — used for recency-weighted average. */
+  createdAt: string;
   title: string;
   date: string;
   rating: number;
@@ -34,6 +32,7 @@ export function mapReviewToPilotRow(review: ReviewListItemDto): PilotReviewRow {
 
   return {
     id: review.id,
+    createdAt: review.createdAt,
     title,
     date: formatReviewDate(review.createdAt),
     rating: review.rating,
@@ -45,6 +44,7 @@ export function buildPilotReviewsMockRows(): PilotReviewRow[] {
   const template = PILOT_MOCK_REVIEWS[0]!;
   return Array.from({ length: 5 }, (_, index) => ({
     id: `mock-review-${index + 1}`,
+    createdAt: new Date().toISOString(),
     title: template.title,
     date: template.date,
     rating: template.rating,
@@ -61,7 +61,7 @@ export function summarizePilotReviews(rows: PilotReviewRow[]): PilotReviewsSumma
     };
   }
 
-  const avg = averageRating(rows) ?? 0;
+  const avg = weightedAverageRating(rows) ?? 0;
   return {
     averageRating: avg,
     count: rows.length,

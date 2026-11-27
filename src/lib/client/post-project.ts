@@ -1,4 +1,5 @@
 import type { JobCategoryId } from "@/types/job";
+import { validateBookingWindow } from "@/lib/bookings/booking-window";
 import { formatIsoDateForDisplay } from "@/lib/format/date";
 import {
   POST_PROJECT_DELIVERABLES,
@@ -210,6 +211,12 @@ export function validatePostProjectStepFields(
     ) {
       errors.completionDate =
         "Expected completion date cannot be before the project deadline.";
+    }
+    const windowError =
+      validateBookingWindow(form.completionDate || null) ??
+      validateBookingWindow(form.deadline || null);
+    if (windowError && !errors.completionDate) {
+      errors.completionDate = windowError;
     }
   }
   return errors;

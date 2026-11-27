@@ -1,3 +1,4 @@
+import { validateBookingWindow } from "@/lib/bookings/booking-window";
 import { JOB_CATEGORIES, type JobCategoryId } from "@/types/job";
 
 const VALID_CATEGORIES = new Set(JOB_CATEGORIES.map((c) => c.id));
@@ -60,6 +61,10 @@ export function validateJobInput(input: JobInput): ValidationResult<JobInput> {
 
   let scheduledDate: string | null = input.scheduledDate ?? null;
   if (scheduledDate === "") scheduledDate = null;
+  const windowError = validateBookingWindow(scheduledDate);
+  if (windowError) {
+    return { ok: false, error: windowError };
+  }
 
   return {
     ok: true,

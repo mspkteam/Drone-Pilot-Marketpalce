@@ -4,6 +4,40 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.28.0] — 2026-11-27
+
+### Added (RAS Payment Record v6 + Terms Additions — Wave 1 non-Stripe, then Stripe test-mode)
+
+- **Terms:** live `/terms` updated with draft clauses (6% service fee, escrow/14-day release, 21-day booking window, change orders, refunds/commission, disputes 3-day+48h vote, background check, reviews, tax, membership) — pending counsel final review. `TERMS_LAST_UPDATED` → November 27, 2026.
+- **21-day booking window:** `src/lib/bookings/booking-window.ts` — validated at job post and booking accept; exact RAS error string.
+- **Disputes:** 3-day agreement period before squadron vote; voted/not-voted roster (admins + eligible commanders); `SQUADRON_MIN_VOTES = 5`; Super Admin `custom_split` / full refund / 85% payout via `computeDisputeSplit`.
+- **Reviews:** free client reconsideration request; weighted ratings (365-day half-life); admin hide requires policy reason codes.
+- **Background check:** `PilotBackgroundCheck` + pilot/admin pages; $20 via Stripe Checkout when configured (demo fallback); 30-day marketplace gate from admin acceptance.
+- **Tax + payouts UI:** client legalName / taxId in preferences; `/dashboard/pilot/payouts` Appendix B guide + Connect Account Link.
+- **6% service fee + change orders:** `SERVICE_FEE_RATE`, payment breakdown UI, `BookingChangeOrder` (+20% cap, client accept).
+
+### Added (Stripe test-mode — Phase 1–2)
+
+- **Core:** `src/lib/stripe/` — client, config, money, customer, checkout, connect, escrow, webhook. See `docs/STRIPE_TEST_MODE.md`.
+- **Schema:** `User.stripeCustomerId`; Connect fields on pilot; Payment escrow fields; `StripeWebhookEvent`. `db.ts` guard v55.
+- **Webhook:** `POST /api/stripe/webhook` — Checkout completion + Connect `account.updated`.
+- **Checkout:** membership / Fast Forward / instructor / background check / shop / job escrow when keys exist; demo fallback otherwise.
+- **Connect Express:** `/api/pilot/payouts/connect`; payout UI redirects to Stripe.
+- **Job escrow:** pay job + 6% at booking; Transfer on approval or 14-day cron; disputes → `held_dispute`.
+- **Client billing:** saved cards list / add / remove; Pay now on unpaid bookings.
+
+---
+## [0.27.140] — 2026-11-27
+
+### Added (RAS Payment v6 — review rules, no paid buy-back)
+
+- **Free review reconsideration:** `ReviewReconsiderationRequest` — pilot asks the client to reconsider a published <5★ review (`/api/pilot/reviews/reconsideration`); client keeps or updates the rating (`/api/client/reviews/reconsideration[/id]`). Nothing is hidden/deleted without the client. Legacy lifetime reset remains as admin/legacy.
+- **Weighted ratings:** `weightedAverageRating` (`src/lib/reviews/weighted-rating.ts`, exponential decay, 365-day half-life, 0.1 floor) now drives public/pilot/client-offer/Captain's Club/dashboard averages. Unit tests added.
+- **Admin removal reason codes:** `abuse | fraud | off_platform | tos | dispute_void` required when hiding a review; stored on `Review` (`moderationReasonCode`, `moderationNote`, `moderatedAt`, `moderatedByUserId`) and shown in `AdminReviewsModerationPanel`.
+- Schema: run `prisma db push` (additive). Prisma client schema version → 52.
+
+---
+
 ## [0.27.139] — 2026-11-25
 
 ### Fixed (Final Testing QA — B6)

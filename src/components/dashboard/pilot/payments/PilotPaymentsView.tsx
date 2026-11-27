@@ -89,6 +89,9 @@ export function PilotPaymentsView({ commissionRatePercent }: PilotPaymentsViewPr
           </p>
         </div>
         <div className="pilot-payments-header-actions">
+          <Link href="/dashboard/pilot/payouts" className="pilot-payments-btn-outline">
+            Payout setup
+          </Link>
           <Link href={JOBS_HREF} className="pilot-payments-btn-outline">
             My jobs →
           </Link>

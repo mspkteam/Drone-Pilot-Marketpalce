@@ -26,6 +26,9 @@ export function PilotUniformOrderDetail({
       const data = await res.json();
       if (!res.ok) {
         setError(data.error ?? "Payment failed.");
+      } else if (data.checkoutUrl) {
+        window.location.href = data.checkoutUrl;
+        return;
       } else {
         setOrder(data.order);
       }

@@ -2,6 +2,7 @@ import type { PilotProfile } from "@/generated/prisma/client";
 import { listOpenJobsForPilot } from "@/lib/applications/application";
 import { listCertificatesForPilot } from "@/lib/certificates/certificate";
 import { prisma } from "@/lib/db";
+import { weightedAverageRating } from "@/lib/reviews/weighted-rating";
 import { listPaymentsForPilotUser } from "@/lib/payments/payment";
 import { computePilotGradeProgressPct } from "@/lib/pilot/pilot-profile-strength";
 import { getApprovedVerificationTypes } from "@/lib/verification/verification";
@@ -54,13 +55,12 @@ export async function getPilotDashboardOverview(
     prisma.booking.count({
       where: { pilotProfileId, status: "completed" },
     }),
-    prisma.review.aggregate({
+    prisma.review.findMany({
       where: {
         targetPilotProfileId: pilotProfileId,
         status: "published",
       },
-      _avg: { rating: true },
-      _count: { rating: true },
+      select: { rating: true, createdAt: true },
     }),
     listPublicPilotWings(pilotProfileId),
     listCertificatesForPilot(pilotProfileId),
@@ -77,7 +77,6 @@ export async function getPilotDashboardOverview(
     ? jobsSnapshot.jobs.length + jobsSnapshot.lockedJobs.length
     : 0;
 
-  const avg = reviewAgg._avg.rating;
   const insuranceVerified = verifiedTypes.includes("insurance");
 
   return {
@@ -86,11 +85,8 @@ export async function getPilotDashboardOverview(
     submittedBids: applicationCount,
     completedBookings,
     demoEarningsUsd: earningsUsd,
-    averageRating:
-      reviewAgg._count.rating > 0 && avg != null
-        ? Math.round(avg * 10) / 10
-        : null,
-    reviewCount: reviewAgg._count.rating,
+    averageRating: weightedAverageRating(reviewAgg),
+    reviewCount: reviewAgg.length,
     wingsCount: wings.length,
     certificatesCount: certificates.length,
     verifiedTypes,

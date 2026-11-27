@@ -144,6 +144,15 @@ export function PilotSubscriptionView() {
     load()
       .catch(() => setError("Failed to load membership data."))
       .finally(() => setLoading(false));
+    const checkout = new URLSearchParams(window.location.search).get("checkout");
+    if (checkout === "success") {
+      setSuccess(
+        "Payment received. Your membership updates as soon as Stripe confirms — refresh in a few seconds if it has not changed yet.",
+      );
+      void new Promise((r) => setTimeout(r, 4000)).then(() => load().catch(() => undefined));
+    } else if (checkout === "cancelled") {
+      setError("Checkout was cancelled. No charge was made.");
+    }
   }, []);
 
   const fastForwardCards = useMemo(
@@ -199,6 +208,10 @@ export function PilotSubscriptionView() {
       const data = await res.json();
       if (!res.ok) {
         setError(data.error ?? "Failed to update membership.");
+        return;
+      }
+      if (data.checkoutUrl) {
+        window.location.href = data.checkoutUrl;
         return;
       }
 
@@ -271,6 +284,10 @@ export function PilotSubscriptionView() {
       const data = await res.json();
       if (!res.ok) {
         setError(data.error ?? "Failed to update instructor add-on.");
+        return;
+      }
+      if (data.checkoutUrl) {
+        window.location.href = data.checkoutUrl;
         return;
       }
       setInstructorStatus(data.status);

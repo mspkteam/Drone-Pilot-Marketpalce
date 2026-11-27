@@ -1,5 +1,7 @@
 export const PAYMENT_STATUSES = [
   "pending",
+  "held",
+  "held_dispute",
   "processing",
   "succeeded",
   "failed",
@@ -35,6 +37,8 @@ export type PaymentDto = {
   payeeUserId: string;
   amountGross: number;
   amountNet: number;
+  /** 6% client service fee (Stripe escrow); 0 for internal ledger rows. */
+  serviceFeeAmount?: number;
   currency: string;
   provider: string;
   status: PaymentStatus;

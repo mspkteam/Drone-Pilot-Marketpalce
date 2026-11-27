@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { ClientReconsiderationRequests } from "@/components/reviews/ClientReconsiderationRequests";
 import { ReviewsList } from "@/components/reviews/ReviewsList";
 import {
   getClientProfileByUserId,
@@ -36,6 +37,7 @@ export default async function ClientReviewsPage() {
       </PageHeader>
 
       <div className="mt-8 max-w-3xl">
+        <ClientReconsiderationRequests />
         <ReviewsList
           apiPath="/api/client/reviews"
           bookingsBase="/dashboard/client/bookings"

@@ -12,6 +12,7 @@ import {
   getPilotActiveTier,
   getVisibleJobsForPilot,
 } from "@/lib/membership/membership";
+import { requireMarketplaceNotPaused } from "@/lib/background-check/service";
 import { prisma } from "@/lib/db";
 import { parseJobPostProjectMetadata } from "@/lib/jobs/post-project-metadata";
 import { parseClientProfilePreferences } from "@/lib/client/preferences";
@@ -373,6 +374,11 @@ export async function createJobApplication(
   | { ok: true; application: JobApplicationDto }
   | { ok: false; error: string; status: 400 | 403 | 404 | 409 }
 > {
+  const bgGate = await requireMarketplaceNotPaused(pilotProfileId);
+  if (!bgGate.ok) {
+    return { ok: false, error: bgGate.error, status: 403 };
+  }
+
   const applyCheck = await canPilotApplyToJobById(pilotProfileId, jobId);
   if (!applyCheck.allowed) {
     return {
@@ -498,6 +504,11 @@ export async function saveJobApplicationDraft(
   | { ok: true; application: JobApplicationDto }
   | { ok: false; error: string; status: 403 | 404 | 409 }
 > {
+  const bgGate = await requireMarketplaceNotPaused(pilotProfileId);
+  if (!bgGate.ok) {
+    return { ok: false, error: bgGate.error, status: 403 };
+  }
+
   const applyCheck = await canPilotApplyToJobById(pilotProfileId, jobId);
   if (!applyCheck.allowed) {
     return {
@@ -705,6 +716,11 @@ export async function reviseApplication(
   | { ok: true; application: JobApplicationDto }
   | { ok: false; error: string; status: 400 | 403 | 404 | 409 }
 > {
+  const bgGate = await requireMarketplaceNotPaused(pilotProfileId);
+  if (!bgGate.ok) {
+    return { ok: false, error: bgGate.error, status: 403 };
+  }
+
   const app = await prisma.jobApplication.findFirst({
     where: { id: applicationId, pilotProfileId },
     include: { job: { select: { status: true, title: true } } },

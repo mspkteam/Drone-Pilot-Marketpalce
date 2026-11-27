@@ -13,7 +13,10 @@ export async function PATCH(request: Request, context: RouteContext) {
     );
   }
 
-  let body: { status?: "published" | "hidden" | "flagged"; rating?: number };
+  let body: { status?: "published" | "hidden" | "flagged"; rating?: number;
+    reasonCode?: string;
+    note?: string;
+  };
   try {
     body = (await request.json()) as typeof body;
   } catch {
@@ -24,6 +27,9 @@ export async function PATCH(request: Request, context: RouteContext) {
   const result = await updateReviewForAdmin(id, {
     status: body.status,
     rating: body.rating,
+    reasonCode: body.reasonCode,
+    note: body.note,
+    adminUserId: authResult.userId,
   });
 
   if (!result.ok) {

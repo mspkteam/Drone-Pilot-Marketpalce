@@ -2,7 +2,10 @@ import { evaluatePilotAwards } from "@/lib/certificates/awards";
 import { syncInstructorAddonWithMembership } from "@/lib/membership/instructor-addon";
 import { getFastForwardFeeUsd, PILOT_ANNUAL_MEMBERSHIP_FEE_USD } from "@/lib/membership/pilot-membership-catalog";
 import { applyInstructorDiscountCode } from "@/lib/instructor/discount";
-import { instructorMembershipDiscountUsd } from "@/lib/instructor/constants";
+import {
+  instructorMembershipDiscountUsd,
+  normalizeInstructorDiscountCode,
+} from "@/lib/instructor/constants";
 import { getMembershipInviteDiscountPercent } from "@/lib/invites/invite-codes";
 import { toMembershipTierDto } from "@/lib/membership/membership";
 import { prisma } from "@/lib/db";
@@ -64,6 +67,52 @@ function addYears(date: Date, years: number) {
   return d;
 }
 
+/**
+ * Read-only: annual membership discount (USD) that enrollment would apply.
+ * Mirrors the enrollment branch of setPilotMembershipTier without side effects.
+ */
+export async function previewMembershipDiscountUsd(
+  pilotProfileId: string,
+  instructorCode?: string | null,
+): Promise<number> {
+  let discount = 0;
+  const profile = await prisma.pilotProfile.findUnique({
+    where: { id: pilotProfileId },
+    select: {
+      userId: true,
+      referredByInstructorId: true,
+      referredByInstructor: { select: { instructorAddonActive: true } },
+    },
+  });
+  if (!profile) return 0;
+
+  if (instructorCode?.trim()) {
+    const code = normalizeInstructorDiscountCode(instructorCode);
+    const instructor = await prisma.pilotProfile.findFirst({
+      where: { instructorDiscountCode: code, instructorAddonActive: true },
+      select: { id: true },
+    });
+    const canApply =
+      instructor &&
+      instructor.id !== pilotProfileId &&
+      (!profile.referredByInstructorId ||
+        profile.referredByInstructorId === instructor.id);
+    if (canApply) {
+      discount = instructorMembershipDiscountUsd(PILOT_ANNUAL_MEMBERSHIP_FEE_USD);
+    }
+  } else if (profile.referredByInstructor?.instructorAddonActive) {
+    discount = instructorMembershipDiscountUsd(PILOT_ANNUAL_MEMBERSHIP_FEE_USD);
+  }
+
+  const invitePct = await getMembershipInviteDiscountPercent(profile.userId);
+  if (invitePct > 0) {
+    const inviteUsd = Math.round(
+      (PILOT_ANNUAL_MEMBERSHIP_FEE_USD * invitePct) / 100,
+    );
+    if (inviteUsd > discount) discount = inviteUsd;
+  }
+  return discount;
+}
 export type SetPilotMembershipResult =
   | {
       ok: true;
@@ -78,6 +127,7 @@ export async function setPilotMembershipTier(
   pilotProfileId: string,
   planId: string,
   instructorCode?: string | null,
+  options?: { externalSubscriptionId?: string },
 ): Promise<SetPilotMembershipResult> {
   const plan = await prisma.subscriptionPlan.findFirst({
     where: { id: planId, isActive: true },
@@ -154,7 +204,7 @@ export async function setPilotMembershipTier(
         status: "active",
         currentPeriodStart: now,
         currentPeriodEnd: periodEnd,
-        externalSubscriptionId: "demo_internal",
+        externalSubscriptionId: options?.externalSubscriptionId ?? "demo_internal",
         instructorDiscountCode: appliedCode,
         instructorDiscountUsd: membershipDiscountUsd,
       },

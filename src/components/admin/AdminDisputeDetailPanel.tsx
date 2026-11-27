@@ -33,6 +33,7 @@ export function AdminDisputeDetailPanel({
     useState<DisputeResolutionType>("full_payout");
   const [resolutionNotes, setResolutionNotes] = useState("");
   const [resolutionAmount, setResolutionAmount] = useState("");
+  const [resolutionClientAmount, setResolutionClientAmount] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   const load = useCallback(async () => {
@@ -90,8 +91,13 @@ export function AdminDisputeDetailPanel({
           resolutionType,
           resolutionNotes,
           resolutionAmount:
-            resolutionType === "partial_payout"
+            resolutionType === "partial_payout" ||
+            resolutionType === "custom_split"
               ? parseFloat(resolutionAmount)
+              : undefined,
+          resolutionClientAmount:
+            resolutionType === "custom_split"
+              ? parseFloat(resolutionClientAmount)
               : undefined,
         }),
       });
@@ -278,7 +284,8 @@ export function AdminDisputeDetailPanel({
               ))}
             </select>
           </FormField>
-          {resolutionType === "partial_payout" ? (
+          {resolutionType === "partial_payout" ||
+          resolutionType === "custom_split" ? (
             <FormField label="Pilot payout amount" htmlFor="partial-amount">
               <input
                 id="partial-amount"
@@ -288,6 +295,19 @@ export function AdminDisputeDetailPanel({
                 className={inputClassName}
                 value={resolutionAmount}
                 onChange={(e) => setResolutionAmount(e.target.value)}
+              />
+            </FormField>
+          ) : null}
+          {resolutionType === "custom_split" ? (
+            <FormField label="Client refund amount" htmlFor="client-amount">
+              <input
+                id="client-amount"
+                type="number"
+                min={0}
+                step="0.01"
+                className={inputClassName}
+                value={resolutionClientAmount}
+                onChange={(e) => setResolutionClientAmount(e.target.value)}
               />
             </FormField>
           ) : null}

@@ -1,4 +1,5 @@
-﻿import type { Booking } from "@/generated/prisma/client";
+import type { Booking } from "@/generated/prisma/client";
+import { isPilotMarketplacePaused } from "@/lib/background-check/service";
 import { prisma } from "@/lib/db";
 import {
   triggerBidAccepted,
@@ -7,9 +8,11 @@ import {
 } from "@/lib/notifications/triggers";
 import { linkBookingToConversation } from "@/lib/messaging/messaging";
 import { recordPaymentForCompletedBooking } from "@/lib/payments/payment";
+import { ensureEscrowPaymentForBooking } from "@/lib/stripe/escrow";
 import { evaluatePilotAwards } from "@/lib/certificates/awards";
 import type { BookingDto, BookingListItemDto, BookingStatus } from "@/types/booking";
 import type { DeliveryStatus } from "@/types/delivery";
+import { validateBookingWindow } from "@/lib/bookings/booking-window";
 import { jobAcceptsApplications } from "@/lib/bookings/status";
 
 const bookingInclude = {
@@ -192,11 +195,25 @@ export async function acceptJobApplication(
     };
   }
 
+  if (await isPilotMarketplacePaused(application.pilotProfileId)) {
+    return {
+      ok: false,
+      error:
+        "This pilot's marketplace access is paused pending a background check, so they cannot be hired right now.",
+      status: 400,
+    };
+  }
+
   const proposedDelivery = application.estimatedDeliveryDate;
   const scheduledEndAt =
     proposedDelivery && !Number.isNaN(proposedDelivery.getTime())
       ? proposedDelivery
       : null;
+
+  const windowError = validateBookingWindow(scheduledEndAt ?? job.scheduledDate);
+  if (windowError) {
+    return { ok: false, error: windowError, status: 400 };
+  }
 
   const result = await prisma.$transaction(async (tx) => {
     const booking = await tx.booking.create({
@@ -236,6 +253,7 @@ export async function acceptJobApplication(
   });
 
   await linkBookingToConversation(application.id, result.id);
+  await ensureEscrowPaymentForBooking(result.id);
 
   return { ok: true, booking: toListItem(result) };
 }

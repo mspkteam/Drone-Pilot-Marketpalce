@@ -10,6 +10,7 @@ import {
   formatMissionDisplayId,
 } from "@/lib/admin/dispute-center-filters";
 import type { SquadronBallotDto } from "@/lib/admin/squadron-voting";
+import { SquadronRoster } from "@/components/dashboard/squadron/SquadronRoster";
 import {
   getDisputeEntryTypeLabel,
   getDisputeResolutionLabel,
@@ -300,6 +301,7 @@ export function AdminDisputeDetailView({
               <p className="admin-dispute-side-copy">
                 Client {ballot.clientVotes} · Pilot {ballot.pilotVotes}
               </p>
+              <SquadronRoster ballot={ballot} />
               <Link
                 href="/dashboard/admin/squadron-voting"
                 className="admin-dispute-side-link"
@@ -340,10 +342,18 @@ export function AdminDisputeDetailView({
                   <button
                     type="button"
                     className="admin-dispute-btn admin-dispute-btn--outline"
+                    disabled={dispute.agreementPeriodActive}
                     onClick={() => setVoteOpen(true)}
                   >
                     {ballot ? "Open squadron vote" : "Send to squadron vote"}
                   </button>
+                ) : null}
+                {dispute.agreementPeriodActive ? (
+                  <p className="admin-dispute-side-copy">
+                    3-day agreement period ends{" "}
+                    {new Date(dispute.agreementEndsAt).toLocaleString()}. The
+                    squadron vote opens automatically afterwards.
+                  </p>
                 ) : null}
                 {canResolve && dispute.canResolve ? (
                   <button

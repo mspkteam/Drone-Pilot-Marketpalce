@@ -10,6 +10,7 @@ export const DISPUTE_RESOLUTION_TYPES = [
   "full_payout",
   "partial_payout",
   "refund",
+  "custom_split",
 ] as const;
 
 export type DisputeResolutionType = (typeof DISPUTE_RESOLUTION_TYPES)[number];
@@ -39,7 +40,11 @@ export type DisputeSummaryDto = {
   openedByUserId: string;
   resolutionType: DisputeResolutionType | null;
   resolutionAmount: number | null;
+  resolutionClientAmount: number | null;
   resolutionNotes: string | null;
+  /** ISO end of the 3-day agreement window before squadron voting may start. */
+  agreementEndsAt: string;
+  agreementPeriodActive: boolean;
   reviewedAt: string | null;
   resolvedAt: string | null;
   createdAt: string;

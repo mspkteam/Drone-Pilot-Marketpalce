@@ -2,6 +2,13 @@ import type { Dispute, DisputeEntry } from "@/generated/prisma/client";
 import { calculateCommission } from "@/lib/commission/constants";
 import { getEffectiveCommissionRate } from "@/lib/admin/platform-settings";
 import { prisma } from "@/lib/db";
+import {
+  computeAgreementEndsAt,
+  computeDisputeSplit,
+  type DisputeSplit,
+  isAgreementPeriodActive,
+  resolveAgreementEndsAt,
+} from "@/lib/disputes/dispute-rules";
 import { notifyAsync, sendNotification } from "@/lib/notifications/notify";
 import type { BookingStatus } from "@/types/booking";
 import type {
@@ -136,6 +143,7 @@ function toEntryDto(
 }
 
 function toSummaryDto(dispute: DisputeWithBooking): DisputeSummaryDto {
+  const agreementEndsAt = resolveAgreementEndsAt(dispute);
   return {
     id: dispute.id,
     bookingId: dispute.bookingId,
@@ -145,7 +153,11 @@ function toSummaryDto(dispute: DisputeWithBooking): DisputeSummaryDto {
     openedByUserId: dispute.openedByUserId,
     resolutionType: dispute.resolutionType as DisputeResolutionType | null,
     resolutionAmount: dispute.resolutionAmount,
+    resolutionClientAmount: dispute.resolutionClientAmount,
     resolutionNotes: dispute.resolutionNotes,
+    agreementEndsAt: agreementEndsAt.toISOString(),
+    agreementPeriodActive:
+      dispute.status !== "resolved" && isAgreementPeriodActive(agreementEndsAt),
     reviewedAt: dispute.reviewedAt?.toISOString() ?? null,
     resolvedAt: dispute.resolvedAt?.toISOString() ?? null,
     createdAt: dispute.createdAt.toISOString(),
@@ -344,6 +356,7 @@ export async function openDispute(
     };
   }
 
+  const openedAt = new Date();
   const dispute = await prisma.$transaction(async (tx) => {
     await tx.booking.update({
       where: { id: bookingId },
@@ -357,6 +370,7 @@ export async function openDispute(
         openedByRole: role,
         reason: trimmedReason,
         status: "open",
+        agreementEndsAt: computeAgreementEndsAt(openedAt),
         entries: {
           create: {
             authorUserId: userId,
@@ -370,6 +384,13 @@ export async function openDispute(
 
     return created;
   });
+
+  try {
+    const { markEscrowDisputed } = await import("@/lib/stripe/escrow");
+    await markEscrowDisputed(bookingId);
+  } catch (err) {
+    console.error("[disputes] markEscrowDisputed failed:", err);
+  }
 
   notifyDisputeParties(
     ctx.booking.clientUserId,
@@ -728,9 +749,18 @@ export async function startDisputeReview(
 async function applyResolutionPayment(
   bookingId: string,
   resolutionType: DisputeResolutionType,
-  resolutionAmount: number | null,
+  split: DisputeSplit,
   agreedAmount: number,
 ) {
+  // Stripe-held escrow: refund / transfer via Stripe instead of ledger-only.
+  try {
+    const { settleEscrowForDispute } = await import("@/lib/stripe/escrow");
+    if (await settleEscrowForDispute(bookingId, split)) return;
+  } catch (err) {
+    console.error("[disputes] settleEscrowForDispute failed:", err);
+    return; // keep Stripe funds held for manual follow-up
+  }
+
   // Internal ledger only — no Stripe / saved payment method required.
   let payment = await prisma.payment.findUnique({
     where: { bookingId },
@@ -803,65 +833,25 @@ async function applyResolutionPayment(
     });
   }
 
-  if (resolutionType === "refund") {
-    await prisma.$transaction(async (tx) => {
-      await tx.payment.update({
-        where: { id: payment.id },
-        data: { status: "refunded", amountNet: 0 },
-      });
-      if (payment.commission) {
-        await tx.commission.update({
-          where: { id: payment.commission.id },
-          data: { status: "waived", amount: 0 },
-        });
-      }
-    });
-    return;
-  }
-
-  if (resolutionType === "full_payout") {
-    await prisma.payment.update({
+  // Ledger only: pilot net + platform commission come from the computed split.
+  const fullRefund = resolutionType === "refund";
+  await prisma.$transaction(async (tx) => {
+    await tx.payment.update({
       where: { id: payment.id },
       data: {
-        status: "succeeded",
-        amountNet: payment.amountGross,
+        status: fullRefund ? "refunded" : "succeeded",
+        amountNet: split.pilotAmount,
       },
     });
-    return;
-  }
-
-  if (resolutionType === "partial_payout") {
-    const pilotNet =
-      resolutionAmount ?? payment.amountNet;
-    const capped = Math.min(
-      Math.max(0, pilotNet),
-      payment.amountGross,
-    );
-    const { amount: commissionAmount } = calculateCommission(
-      payment.amountGross,
-      await getEffectiveCommissionRate(),
-    );
-    const adjustedCommission = Math.min(
-      commissionAmount,
-      payment.amountGross - capped,
-    );
-
-    await prisma.$transaction(async (tx) => {
-      await tx.payment.update({
-        where: { id: payment.id },
-        data: {
-          status: "succeeded",
-          amountNet: capped,
-        },
+    if (payment.commission) {
+      await tx.commission.update({
+        where: { id: payment.commission.id },
+        data: fullRefund
+          ? { status: "waived", amount: 0 }
+          : { amount: split.platformAmount },
       });
-      if (payment.commission) {
-        await tx.commission.update({
-          where: { id: payment.commission.id },
-          data: { amount: adjustedCommission },
-        });
-      }
-    });
-  }
+    }
+  });
 }
 
 export async function resolveDispute(
@@ -870,7 +860,10 @@ export async function resolveDispute(
   input: {
     resolutionType: string;
     resolutionNotes: string;
+    /** partial_payout / custom_split: pilot payout amount. */
     resolutionAmount?: number | null;
+    /** custom_split: amount returned to the client. */
+    resolutionClientAmount?: number | null;
   },
 ): Promise<
   | { ok: true; dispute: DisputeDetailDto }
@@ -914,29 +907,26 @@ export async function resolveDispute(
     };
   }
 
-  let resolutionAmount: number | null = null;
-  if (resolutionType === "partial_payout") {
-    const amount = input.resolutionAmount;
-    if (typeof amount !== "number" || amount <= 0) {
-      return {
-        ok: false,
-        error: "Partial payout requires a positive pilot payout amount.",
-        status: 400,
-      };
-    }
-    if (amount > dispute.booking.agreedAmount) {
-      return {
-        ok: false,
-        error: "Payout amount cannot exceed the agreed booking amount.",
-        status: 400,
-      };
-    }
-    resolutionAmount = amount;
+  const splitResult = computeDisputeSplit({
+    resolutionType,
+    agreedAmount: dispute.booking.agreedAmount,
+    commissionRate: await getEffectiveCommissionRate(),
+    pilotAmount: input.resolutionAmount,
+    clientAmount: input.resolutionClientAmount,
+  });
+  if (!splitResult.ok) {
+    return { ok: false, error: splitResult.error, status: 400 };
   }
+  const split = splitResult.split;
+  // Always record the pilot / client amounts so every outcome is auditable.
+  const resolutionAmount = split.pilotAmount;
+  const resolutionClientAmount = split.clientAmount;
 
   const now = new Date();
   const nextBookingStatus =
-    resolutionType === "refund" ? "cancelled" : "completed";
+    resolutionType === "refund" || split.pilotAmount === 0
+      ? "cancelled"
+      : "completed";
 
   const updated = await prisma.$transaction(async (tx) => {
     const d = await tx.dispute.update({
@@ -945,6 +935,7 @@ export async function resolveDispute(
         status: "resolved",
         resolutionType,
         resolutionAmount,
+        resolutionClientAmount,
         resolutionNotes: notes,
         resolvedByUserId: adminUserId,
         resolvedAt: now,
@@ -975,7 +966,7 @@ export async function resolveDispute(
     await applyResolutionPayment(
       dispute.bookingId,
       resolutionType,
-      resolutionAmount,
+      split,
       dispute.booking.agreedAmount,
     );
   } catch (err) {

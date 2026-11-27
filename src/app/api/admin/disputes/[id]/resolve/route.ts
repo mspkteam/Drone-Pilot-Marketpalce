@@ -19,6 +19,7 @@ export async function POST(request: Request, context: RouteContext) {
     resolutionType: body.resolutionType ?? "",
     resolutionNotes: body.resolutionNotes ?? "",
     resolutionAmount: body.resolutionAmount,
+    resolutionClientAmount: body.resolutionClientAmount,
   });
 
   if (!result.ok) {

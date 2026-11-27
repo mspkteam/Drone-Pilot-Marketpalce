@@ -101,6 +101,15 @@ function sanitizeClientPreferencesPatch(
       patch.logoPath = logo;
     }
   }
+  if (Object.prototype.hasOwnProperty.call(input, "legalName")) {
+    patch.legalName = input.legalName?.trim().slice(0, 200) ?? "";
+  }
+  if (Object.prototype.hasOwnProperty.call(input, "taxId")) {
+    patch.taxId = input.taxId?.trim().slice(0, 64) ?? "";
+  }
+  if (Object.prototype.hasOwnProperty.call(input, "taxIdRequired")) {
+    patch.taxIdRequired = Boolean(input.taxIdRequired);
+  }
   if (Object.prototype.hasOwnProperty.call(input, "notifications")) {
     patch.notifications = input.notifications;
   }

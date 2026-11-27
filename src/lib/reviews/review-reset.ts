@@ -1,5 +1,9 @@
 import { prisma } from "@/lib/db";
 import { evaluatePilotAwards } from "@/lib/certificates/awards";
+import {
+  isReviewModerationReasonCode,
+  type ReviewModerationReasonCode,
+} from "@/lib/reviews/moderation-reasons";
 
 export type ReviewResetRequestDto = {
   id: string;
@@ -342,6 +346,9 @@ export type AdminReviewListItem = {
   targetPilotProfileId: string | null;
   targetClientProfileId: string | null;
   bookingId: string;
+  moderationReasonCode: string | null;
+  moderationNote: string | null;
+  moderatedAt: string | null;
 };
 
 export async function listReviewsForAdmin(options?: {
@@ -379,12 +386,22 @@ export async function listReviewsForAdmin(options?: {
     targetPilotProfileId: row.targetPilotProfileId,
     targetClientProfileId: row.targetClientProfileId,
     bookingId: row.bookingId,
+    moderationReasonCode: row.moderationReasonCode,
+    moderationNote: row.moderationNote,
+    moderatedAt: row.moderatedAt?.toISOString() ?? null,
   }));
 }
 
 export async function updateReviewForAdmin(
   reviewId: string,
-  input: { status?: "published" | "hidden" | "flagged"; rating?: number },
+  input: {
+    status?: "published" | "hidden" | "flagged";
+    rating?: number;
+    /** Required when hiding/removing. */
+    reasonCode?: ReviewModerationReasonCode | string;
+    note?: string | null;
+    adminUserId?: string;
+  },
 ): Promise<
   | { ok: true; review: AdminReviewListItem }
   | { ok: false; error: string; status: 400 | 404 }
@@ -399,6 +416,15 @@ export async function updateReviewForAdmin(
     return { ok: false, error: "Invalid review status.", status: 400 };
   }
 
+  if (input.status === "hidden" && !isReviewModerationReasonCode(input.reasonCode)) {
+    return {
+      ok: false,
+      error:
+        "A reason code is required to hide a review (abuse, fraud, off_platform, tos, dispute_void).",
+      status: 400,
+    };
+  }
+
   const existing = await prisma.review.findUnique({ where: { id: reviewId } });
   if (!existing) {
     return { ok: false, error: "Review not found.", status: 404 };
@@ -409,6 +435,21 @@ export async function updateReviewForAdmin(
     data: {
       ...(input.status ? { status: input.status } : {}),
       ...(input.rating != null ? { rating: input.rating } : {}),
+      ...(input.status === "hidden"
+        ? {
+            moderationReasonCode: input.reasonCode as string,
+            moderationNote: input.note?.trim().slice(0, 1000) || null,
+            moderatedAt: new Date(),
+            moderatedByUserId: input.adminUserId ?? null,
+          }
+        : input.status === "published"
+          ? {
+              moderationReasonCode: null,
+              moderationNote: null,
+              moderatedAt: null,
+              moderatedByUserId: null,
+            }
+          : {}),
     },
     include: {
       authorUser: { select: { email: true } },
@@ -438,6 +479,9 @@ export async function updateReviewForAdmin(
       targetPilotProfileId: updated.targetPilotProfileId,
       targetClientProfileId: updated.targetClientProfileId,
       bookingId: updated.bookingId,
+      moderationReasonCode: updated.moderationReasonCode,
+      moderationNote: updated.moderationNote,
+      moderatedAt: updated.moderatedAt?.toISOString() ?? null,
     },
   };
 }

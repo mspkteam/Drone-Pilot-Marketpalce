@@ -28,6 +28,7 @@ export function AdminDisputeResolveModal({
     useState<DisputeResolutionType>("full_payout");
   const [resolutionNotes, setResolutionNotes] = useState("");
   const [resolutionAmount, setResolutionAmount] = useState("");
+  const [resolutionClientAmount, setResolutionClientAmount] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -46,8 +47,13 @@ export function AdminDisputeResolveModal({
           resolutionType,
           resolutionNotes,
           resolutionAmount:
-            resolutionType === "partial_payout"
+            resolutionType === "partial_payout" ||
+            resolutionType === "custom_split"
               ? parseFloat(resolutionAmount)
+              : undefined,
+          resolutionClientAmount:
+            resolutionType === "custom_split"
+              ? parseFloat(resolutionClientAmount)
               : undefined,
         }),
       });
@@ -112,7 +118,8 @@ export function AdminDisputeResolveModal({
               </select>
             </label>
 
-            {resolutionType === "partial_payout" ? (
+            {resolutionType === "partial_payout" ||
+            resolutionType === "custom_split" ? (
               <label className="admin-dispute-field">
                 <span className="admin-dispute-field-label">
                   Pilot payout amount
@@ -124,6 +131,23 @@ export function AdminDisputeResolveModal({
                   className="admin-dispute-input"
                   value={resolutionAmount}
                   onChange={(event) => setResolutionAmount(event.target.value)}
+                />
+              </label>
+            ) : null}
+            {resolutionType === "custom_split" ? (
+              <label className="admin-dispute-field">
+                <span className="admin-dispute-field-label">
+                  Client refund amount (remainder = platform)
+                </span>
+                <input
+                  type="number"
+                  min={0}
+                  step="0.01"
+                  className="admin-dispute-input"
+                  value={resolutionClientAmount}
+                  onChange={(event) =>
+                    setResolutionClientAmount(event.target.value)
+                  }
                 />
               </label>
             ) : null}

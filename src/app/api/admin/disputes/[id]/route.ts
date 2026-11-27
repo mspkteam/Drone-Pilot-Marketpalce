@@ -30,6 +30,7 @@ export async function GET(_request: Request, context: RouteContext) {
   const squadronBallot = await getSquadronBallotByDisputeId(
     result.dispute.id,
     authResult.userId,
+    { includeRoster: true },
   );
 
   return NextResponse.json({ dispute: result.dispute, squadronBallot });

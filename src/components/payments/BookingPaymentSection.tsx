@@ -1,7 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { PaymentBreakdown } from "@/components/payments/PaymentBreakdown";
+import { useCallback, useEffect, useState } from "react";
+import { BookingChangeOrders } from "@/components/payments/BookingChangeOrders";
+import {
+  EstimatedPaymentBreakdown,
+  PaymentBreakdown,
+} from "@/components/payments/PaymentBreakdown";
+import type { ChangeOrderSummaryDto } from "@/types/change-order";
 import type { PaymentDto } from "@/types/payment";
 
 type BookingPaymentSectionProps = {
@@ -16,38 +21,61 @@ export function BookingPaymentSection({
   actor,
 }: BookingPaymentSectionProps) {
   const [payment, setPayment] = useState<PaymentDto | null>(null);
-  const [loading, setLoading] = useState(bookingStatus === "completed");
+  const [summary, setSummary] = useState<ChangeOrderSummaryDto | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const apiBase =
     actor === "client" ? "/api/client/bookings" : "/api/pilot/bookings";
+  const completed = bookingStatus === "completed";
+  const cancelled = bookingStatus === "cancelled";
+
+  const load = useCallback(async () => {
+    const [paymentData, summaryData] = await Promise.all([
+      completed
+        ? fetch(`${apiBase}/${bookingId}/payment`).then((r) => r.json())
+        : Promise.resolve({ payment: null }),
+      fetch(`${apiBase}/${bookingId}/change-orders`).then((r) => r.json()),
+    ]);
+    setPayment(paymentData.payment ?? null);
+    setSummary(summaryData.summary ?? null);
+  }, [apiBase, bookingId, completed]);
 
   useEffect(() => {
-    if (bookingStatus !== "completed") {
-      setLoading(false);
-      return;
-    }
-
-    fetch(`${apiBase}/${bookingId}/payment`)
-      .then((res) => res.json())
-      .then((data) => setPayment(data.payment ?? null))
+    load()
+      .catch(() => undefined)
       .finally(() => setLoading(false));
-  }, [bookingId, bookingStatus, apiBase]);
+  }, [load]);
 
-  if (bookingStatus !== "completed") {
-    return null;
-  }
-
+  if (cancelled) return null;
   if (loading) {
     return <p className="ras-help">Loading payment details…</p>;
   }
 
-  if (!payment) {
-    return (
-      <p className="ras-panel ras-muted text-sm">
-        Payment record will appear shortly after completion.
-      </p>
-    );
-  }
-
-  return <PaymentBreakdown payment={payment} viewerRole={actor} />;
+  return (
+    <div className="space-y-4">
+      {payment ? (
+        <PaymentBreakdown payment={payment} viewerRole={actor} />
+      ) : summary ? (
+        <EstimatedPaymentBreakdown
+          jobAmount={summary.currentAmount}
+          currency={summary.currency}
+          commissionRate={summary.commissionRate}
+          viewerRole={actor}
+        />
+      ) : completed ? (
+        <p className="ras-panel ras-muted text-sm">
+          Payment record will appear shortly after completion.
+        </p>
+      ) : null}
+      {summary && !completed ? (
+        <BookingChangeOrders
+          bookingId={bookingId}
+          bookingStatus={bookingStatus}
+          actor={actor}
+          summary={summary}
+          onChanged={() => void load()}
+        />
+      ) : null}
+    </div>
+  );
 }

@@ -12,8 +12,10 @@ import {
 } from "@/lib/pilot/profile";
 import { PILOT_INSTRUCTOR_ADDON_FEE_USD } from "@/lib/membership/pilot-membership-catalog";
 import { prisma } from "@/lib/db";
-import { averageRating } from "@/lib/reviews/review";
+import { weightedAverageRating } from "@/lib/reviews/weighted-rating";
 import { parsePortfolioJson } from "@/lib/pilot/portfolio";
+import { isStripeConfigured } from "@/lib/stripe/client";
+import { createInstructorCheckout } from "@/lib/stripe/checkout";
 
 function formatTrainingLocation(profile: {
   locationCity: string | null;
@@ -74,7 +76,8 @@ export async function GET() {
       targetPilotProfileId: profile.id,
       status: "published",
     },
-    select: { rating: true },
+    select: { rating: true, createdAt: true },
+    orderBy: { createdAt: "desc" },
     take: 100,
   });
 
@@ -87,7 +90,7 @@ export async function GET() {
       bio: profile.bio,
       flightSchool: resolveFlightSchool(profile.portfolioJson),
       trainingLocation: formatTrainingLocation(profile),
-      averageRating: averageRating(ratings),
+      averageRating: weightedAverageRating(ratings),
     },
   });
 }
@@ -112,6 +115,17 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const active = body.active === true;
+    if (active && isStripeConfigured()) {
+      const checkout = await createInstructorCheckout({
+        userId: authResult.userId,
+        pilotProfileId: profile.id,
+        request,
+      });
+      if (!checkout.ok) {
+        return NextResponse.json({ error: checkout.error }, { status: checkout.status });
+      }
+      return NextResponse.json({ checkoutUrl: checkout.url });
+    }
     const result = await setPilotInstructorAddon(profile.id, active);
     if (!result.ok) {
       return NextResponse.json({ error: result.error }, { status: result.status });

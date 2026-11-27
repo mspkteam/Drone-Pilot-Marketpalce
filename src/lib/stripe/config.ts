@@ -15,6 +15,9 @@ export const STRIPE_SERVICE_FEE_RATE = SERVICE_FEE_RATE;
 /** Days after delivery submission before funds auto-release to the pilot. */
 export const AUTO_RELEASE_DAYS = 14;
 
+/** Client approval reminder offsets (days after delivery submit) within the 14-day window. */
+export const ESCROW_REMINDER_DAYS = [7, 12] as const;
+
 export type StripeConnectStatus =
   | "not_started"
   | "pending"

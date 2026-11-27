@@ -1,5 +1,6 @@
 import type Stripe from "stripe";
 import { getEffectiveCommissionRateForPilot } from "@/lib/admin/pilot-rates";
+import { calculateCommission } from "@/lib/commission/constants";
 import { prisma } from "@/lib/db";
 import { sendNotification } from "@/lib/notifications/notify";
 import { getAppBaseUrl, getStripe, isStripeConfigured } from "@/lib/stripe/client";
@@ -285,9 +286,25 @@ export async function releaseEscrowForBooking(
   const chargeId =
     typeof pi.latest_charge === "string" ? pi.latest_charge : pi.latest_charge?.id;
 
+  const remainingNetCents = Math.max(
+    0,
+    toCents(payment.amountNet) - toCents(payment.changeOrderReleasedNet ?? 0),
+  );
+  if (remainingNetCents <= 0) {
+    await prisma.payment.update({
+      where: { id: payment.id },
+      data: {
+        status: "succeeded",
+        releasedAt: new Date(),
+        releaseNote: null,
+      },
+    });
+    return { released: true, transferId: payment.stripeTransferId ?? "already_paid" };
+  }
+
   const transfer = await stripe.transfers.create(
     {
-      amount: toCents(payment.amountNet),
+      amount: remainingNetCents,
       currency: STRIPE_CURRENCY,
       destination: pilot.stripeConnectAccountId,
       transfer_group: `booking_${bookingId}`,
@@ -355,6 +372,319 @@ export async function releaseHeldPaymentsForPilot(pilotProfileId: string) {
       console.error("[stripe/escrow] release failed", row.bookingId, err);
     }
   }
+}
+
+/**
+ * Create Checkout for an accepted change order (delta + 6% fee) when escrow is held.
+ */
+export async function createChangeOrderCheckout(
+  changeOrderId: string,
+  clientUserId: string,
+  request?: Request,
+): Promise<
+  | { ok: true; url: string }
+  | { ok: false; error: string; status: 400 | 404 | 409 }
+> {
+  if (!isStripeConfigured()) {
+    return { ok: false, error: "Stripe is not configured.", status: 400 };
+  }
+
+  const order = await prisma.bookingChangeOrder.findUnique({
+    where: { id: changeOrderId },
+    include: {
+      booking: {
+        include: {
+          job: { select: { title: true } },
+          clientProfile: { select: { userId: true } },
+          payment: true,
+        },
+      },
+    },
+  });
+  if (!order || order.booking.clientProfile.userId !== clientUserId) {
+    return { ok: false, error: "Change order not found.", status: 404 };
+  }
+  if (order.status !== "accepted") {
+    return {
+      ok: false,
+      error: "Only accepted change orders can be charged.",
+      status: 409,
+    };
+  }
+  if (order.chargedAt) {
+    return { ok: false, error: "Change order already charged.", status: 409 };
+  }
+
+  const payment = order.booking.payment;
+  if (!payment || payment.provider !== "stripe") {
+    return { ok: false, error: "No Stripe escrow payment for this booking.", status: 400 };
+  }
+  if (!["held", "held_dispute"].includes(payment.status)) {
+    return {
+      ok: false,
+      error: "Change-order Checkout requires held escrow funds.",
+      status: 400,
+    };
+  }
+
+  const stripe = getStripe();
+  const customer = await getOrCreateStripeCustomer(clientUserId);
+  const deltaCents = toCents(order.deltaAmount);
+  const feeCents = toCents(order.serviceFee);
+  const base = getAppBaseUrl(request);
+  const metadata = {
+    kind: "change_order",
+    bookingId: order.bookingId,
+    changeOrderId: order.id,
+    paymentId: payment.id,
+    userId: clientUserId,
+  };
+
+  const session = await stripe.checkout.sessions.create({
+    mode: "payment",
+    customer,
+    line_items: [
+      {
+        quantity: 1,
+        price_data: {
+          currency: STRIPE_CURRENCY,
+          unit_amount: deltaCents,
+          product_data: {
+            name: `Change order: ${order.booking.job.title}`,
+          },
+        },
+      },
+      {
+        quantity: 1,
+        price_data: {
+          currency: STRIPE_CURRENCY,
+          unit_amount: feeCents,
+          product_data: { name: "Service fee (6%) on increase" },
+        },
+      },
+    ],
+    payment_intent_data: {
+      transfer_group: `booking_${order.bookingId}`,
+      metadata,
+    },
+    metadata,
+    success_url: `${base}/dashboard/client/bookings?change_order=success`,
+    cancel_url: `${base}/dashboard/client/bookings?change_order=cancelled`,
+  });
+
+  await prisma.bookingChangeOrder.update({
+    where: { id: order.id },
+    data: {
+      provider: "stripe",
+      stripeCheckoutSessionId: session.id,
+    },
+  });
+  if (!session.url) {
+    return { ok: false, error: "Stripe did not return a checkout URL.", status: 400 };
+  }
+  return { ok: true, url: session.url };
+}
+
+/** Webhook: change-order Checkout paid → mark charged, bump ledger, Transfer pilot delta. */
+export async function handleChangeOrderCheckoutCompleted(
+  session: Stripe.Checkout.Session,
+) {
+  const changeOrderId = session.metadata?.changeOrderId;
+  if (!changeOrderId || session.payment_status !== "paid") return;
+
+  const order = await prisma.bookingChangeOrder.findUnique({
+    where: { id: changeOrderId },
+    include: {
+      booking: {
+        include: {
+          job: { select: { title: true } },
+          payment: { include: { commission: true } },
+          pilotProfile: {
+            select: {
+              id: true,
+              userId: true,
+              stripeConnectAccountId: true,
+              stripeConnectStatus: true,
+            },
+          },
+          clientProfile: { select: { userId: true } },
+        },
+      },
+    },
+  });
+  if (!order || order.chargedAt) return;
+
+  const payment = order.booking.payment;
+  if (!payment) return;
+
+  const rate = order.commissionRate;
+  const amounts = computeEscrowAmountsCents(order.deltaAmount, rate);
+  const newGross =
+    Math.round((payment.amountGross + order.deltaAmount) * 100) / 100;
+  const newNet =
+    Math.round((payment.amountNet + fromCents(amounts.pilotNetCents)) * 100) / 100;
+  const newFee =
+    Math.round((payment.serviceFeeAmount + order.serviceFee) * 100) / 100;
+  const { amount: commissionAmount } = calculateCommission(newGross, rate);
+
+  let transferredDelta = 0;
+  const pilot = order.booking.pilotProfile;
+  if (
+    amounts.pilotNetCents > 0 &&
+    pilot.stripeConnectAccountId &&
+    pilot.stripeConnectStatus === "complete"
+  ) {
+    try {
+      const stripe = getStripe();
+      const piId =
+        typeof session.payment_intent === "string"
+          ? session.payment_intent
+          : (session.payment_intent?.id ?? null);
+      let chargeId: string | undefined;
+      if (piId) {
+        const pi = await stripe.paymentIntents.retrieve(piId);
+        chargeId =
+          typeof pi.latest_charge === "string"
+            ? pi.latest_charge
+            : (pi.latest_charge?.id ?? undefined);
+      }
+      await stripe.transfers.create(
+        {
+          amount: amounts.pilotNetCents,
+          currency: STRIPE_CURRENCY,
+          destination: pilot.stripeConnectAccountId,
+          transfer_group: `booking_${order.bookingId}`,
+          ...(chargeId ? { source_transaction: chargeId } : {}),
+          metadata: {
+            bookingId: order.bookingId,
+            changeOrderId: order.id,
+            paymentId: payment.id,
+          },
+        },
+        { idempotencyKey: `change_order_${order.id}` },
+      );
+      transferredDelta = fromCents(amounts.pilotNetCents);
+    } catch (err) {
+      console.error("[stripe/escrow] change-order transfer failed", order.id, err);
+    }
+  }
+
+  await prisma.$transaction(async (tx) => {
+    await tx.bookingChangeOrder.update({
+      where: { id: order.id },
+      data: {
+        status: "charged",
+        chargedAt: new Date(),
+        provider: "stripe",
+        stripeCheckoutSessionId: session.id,
+      },
+    });
+    await tx.payment.update({
+      where: { id: payment.id },
+      data: {
+        amountGross: newGross,
+        amountNet: newNet,
+        serviceFeeAmount: newFee,
+        changeOrderReleasedNet:
+          Math.round((payment.changeOrderReleasedNet + transferredDelta) * 100) / 100,
+      },
+    });
+    if (payment.commission) {
+      await tx.commission.update({
+        where: { id: payment.commission.id },
+        data: { amount: commissionAmount, rate },
+      });
+    }
+  });
+
+  const title = order.booking.job.title;
+  await sendNotification({
+    userId: order.booking.clientProfile.userId,
+    type: "booking_status",
+    title: "Change order paid",
+    body: `Your change-order payment for "${title}" was received.`,
+    payload: bookingLink(order.bookingId),
+  });
+  await sendNotification({
+    userId: pilot.userId,
+    type: "booking_status",
+    title: "Change order funded",
+    body: transferredDelta
+      ? `Client paid the increase on "${title}". Your share was sent to your payout account.`
+      : `Client paid the increase on "${title}". Your share will follow with escrow release.`,
+    payload: bookingLink(order.bookingId),
+  });
+}
+
+/**
+ * Cron helper: email clients at day 7 and day 12 after delivery submit
+ * while escrow is still held awaiting approval.
+ */
+export async function processEscrowApprovalReminders(now = new Date()) {
+  const dayMs = 24 * 60 * 60 * 1000;
+  const held = await prisma.payment.findMany({
+    where: {
+      provider: "stripe",
+      status: "held",
+      booking: {
+        dispute: null,
+        delivery: { status: "submitted", submittedAt: { not: null } },
+      },
+    },
+    include: {
+      booking: {
+        include: {
+          job: { select: { title: true } },
+          delivery: { select: { submittedAt: true } },
+          clientProfile: { select: { userId: true } },
+        },
+      },
+    },
+  });
+
+  let sent7 = 0;
+  let sent12 = 0;
+  for (const payment of held) {
+    const submittedAt = payment.booking.delivery?.submittedAt;
+    if (!submittedAt) continue;
+    const ageDays = (now.getTime() - submittedAt.getTime()) / dayMs;
+    const title = payment.booking.job.title;
+    const userId = payment.booking.clientProfile.userId;
+    const payload = bookingLink(payment.bookingId);
+
+    if (ageDays >= 7 && ageDays < AUTO_RELEASE_DAYS && !payment.escrowReminder7SentAt) {
+      await sendNotification({
+        userId,
+        type: "booking_status",
+        title: "Reminder: approve delivery",
+        body: `Delivery for "${title}" is waiting for your review. Funds auto-release in ${Math.max(1, Math.ceil(AUTO_RELEASE_DAYS - ageDays))} day(s) if you take no action.`,
+        payload,
+        forceEmail: true,
+      });
+      await prisma.payment.update({
+        where: { id: payment.id },
+        data: { escrowReminder7SentAt: now },
+      });
+      sent7 += 1;
+    }
+
+    if (ageDays >= 12 && ageDays < AUTO_RELEASE_DAYS && !payment.escrowReminder12SentAt) {
+      await sendNotification({
+        userId,
+        type: "booking_status",
+        title: "Final reminder: approve delivery",
+        body: `Only a few days left to review "${title}" before escrow auto-releases to the pilot.`,
+        payload,
+        forceEmail: true,
+      });
+      await prisma.payment.update({
+        where: { id: payment.id },
+        data: { escrowReminder12SentAt: now },
+      });
+      sent12 += 1;
+    }
+  }
+  return { checked: held.length, sent7, sent12 };
 }
 
 /**

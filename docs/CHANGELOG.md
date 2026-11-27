@@ -4,6 +4,20 @@ All notable project changes are documented here. Format based on [Keep a Changel
 
 ---
 
+## [0.28.1] — 2026-11-27
+
+### Added (early payment gaps)
+
+- **Change-order Stripe charge:** accepting a change order on held escrow opens Checkout for delta + 6% fee; webhook marks `charged`, updates payment ledger, and Transfers the pilot’s share of the increase. Pending unpaid escrow folds the delta into the main Checkout totals instead.
+- **Escrow approval reminders:** cron `/api/cron/release-payments` emails clients at day 7 and day 12 after delivery submit (before 14-day auto-release).
+- **Invoice PDF:** `GET /api/client/payments/[id]/invoice` + enabled PDF download on client Billing.
+
+### Schema
+
+- `BookingChangeOrder.stripeCheckoutSessionId`; `Payment.changeOrderReleasedNet`, `escrowReminder7SentAt`, `escrowReminder12SentAt`. Prisma client schema version → 56.
+
+---
+
 ## [0.28.0] — 2026-11-27
 
 ### Added (RAS Payment Record v6 + Terms Additions — Wave 1 non-Stripe, then Stripe test-mode)

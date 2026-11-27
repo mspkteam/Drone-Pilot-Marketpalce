@@ -40,13 +40,17 @@ Trigger manually: `stripe trigger checkout.session.completed` (no metadata — w
 | Uniform order | `POST /api/pilot/shop/orders/[id]/pay` | webhook → order paid |
 | Pilot payouts | `POST /api/pilot/payouts/connect` → Account Link | `account.updated` → `stripeConnectStatus` |
 | Job escrow | accept proposal → `Payment(pending)`; client `POST /api/client/bookings/[id]/payment` | webhook → `held` |
-| Escrow release | client approves delivery, or cron `GET /api/cron/release-payments` (14 days after submit) | Transfer of pilot net; commission `collected` |
+| Change order (held) | client Accept on change order → Checkout for delta + 6% | webhook `kind=change_order` → `charged` + pilot Transfer of delta net |
+| Escrow release | client approves delivery, or cron `GET /api/cron/release-payments` (14 days after submit) | Transfer of remaining pilot net; commission `collected` |
+| Approval reminders | same cron, day 7 and day 12 after delivery submit | email + in-app to client |
+| Invoice PDF | `GET /api/client/payments/[id]/invoice` | generated PDF (no Stripe Invoicing product) |
 | Client cards | `GET/POST/DELETE /api/client/billing/payment-methods` | setup-mode Checkout |
 
 ### Escrow rules
 
 - Client charge = job amount + 6% service fee (Checkout, USD cents). Pilot net = job − commission (15% default / per-pilot override).
 - Funds are charged to the platform account and moved with a Transfer (`source_transaction` = the charge) on release.
+- Mid-job change orders on **held** escrow open a second Checkout for the increase; pilot share of the delta Transfers immediately when possible. Unpaid (`pending`) escrow folds the delta into the main Checkout instead.
 - Pilot Connect not `complete` → funds stay `held`, pilot is notified; they release automatically when `account.updated` reports complete.
 - Open dispute → `held_dispute`; auto-release skips it. Resolution refunds the client share and transfers the pilot share.
 - Design note: the PaymentIntent is created by Checkout (when the client pays) rather than at accept time; the `Payment` row (status `pending`) is created at accept and stores `providerPaymentId` after payment.

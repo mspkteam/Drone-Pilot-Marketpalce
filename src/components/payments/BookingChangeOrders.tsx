@@ -43,6 +43,10 @@ export function BookingChangeOrders({
         setError(data.error ?? "Request failed.");
         return;
       }
+      if (typeof data.checkoutUrl === "string" && data.checkoutUrl) {
+        window.location.href = data.checkoutUrl;
+        return;
+      }
       setAmount("");
       setNote("");
       onChanged();

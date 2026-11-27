@@ -11,6 +11,13 @@ export function PilotDashboardHero({ data }: PilotDashboardHeroProps) {
   const proposalCount = data.hero.proposalsAwaitingResponse;
   const jobLabel = jobCount === 1 ? "job" : "jobs";
   const proposalLabel = proposalCount === 1 ? "proposal" : "proposals";
+  const isNewPilot =
+    data.stats.completedJobs === 0 &&
+    (data.profileStrength.pct < 50 ||
+      /^new pilot$/i.test(data.displayName.trim()));
+  const greeting = isNewPilot
+    ? `Welcome, ${data.displayName}`
+    : `Welcome back, ${data.displayName}`;
 
   return (
     <section className="pilot-dashboard-hero pilot-dashboard-bracket-card" aria-label="Pilot status">
@@ -19,9 +26,7 @@ export function PilotDashboardHero({ data }: PilotDashboardHeroProps) {
       <div className="pilot-dashboard-hero-inner">
         <div className="pilot-dashboard-hero-copy">
           <p className="pilot-dashboard-eyebrow">PILOT STATUS · ACTIVE</p>
-          <h1 className="pilot-dashboard-hero-title">
-            Welcome back, {data.displayName}
-          </h1>
+          <h1 className="pilot-dashboard-hero-title">{greeting}</h1>
           <p className="pilot-dashboard-hero-desc">
             You have{" "}
             <span className="pilot-dashboard-gold">

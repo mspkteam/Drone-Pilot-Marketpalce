@@ -21,7 +21,12 @@
   flex-direction: column;
   width: 100%;
   max-width: none;
-  gap: 0;
+  gap: 1.25rem;
+}
+
+.pilot-dashboard-shell.dashboard-page > [role="status"] {
+  margin: 0;
+  flex-shrink: 0;
 }
 
 .pilot-dashboard-page {
@@ -196,13 +201,14 @@
 
 .pilot-dashboard-hero-actions {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  grid-template-rows: repeat(2, 2.625rem);
+  grid-template-columns: repeat(2, minmax(11.5rem, 1fr));
+  grid-template-rows: repeat(2, 2.75rem);
   gap: 0.75rem;
   flex-shrink: 0;
-  align-self: flex-start;
+  align-self: stretch;
   width: 100%;
-  max-width: 21.825rem;
+  max-width: 28rem;
+  min-width: min(100%, 24rem);
 }
 
 @media (max-width: 479px) {
@@ -217,13 +223,14 @@
 .pilot-dashboard-btn-outline {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   box-sizing: border-box;
   width: 100%;
   min-width: 0;
   height: 100%;
-  min-height: 2.625rem;
+  min-height: 2.75rem;
   border-radius: var(--pd-radius-sm);
-  padding: 0 0.8125rem;
+  padding: 0 1rem;
   font-size: 0.875rem;
   font-weight: 700;
   text-decoration: none;
@@ -232,7 +239,6 @@
 }
 
 .pilot-dashboard-btn-primary {
-  justify-content: center;
   gap: 0.625rem;
   border: 1px solid var(--color-border-gold);
   background: var(--pd-gold);
@@ -244,7 +250,6 @@
 }
 
 .pilot-dashboard-btn-outline {
-  justify-content: space-between;
   gap: 0.5rem;
   border: 1px solid var(--pd-btn-border);
   background: var(--color-bg-soft);
@@ -906,7 +911,7 @@
   width: 100%;
   min-width: 0;
   height: 100%;
-  min-height: 2.625rem;
+  min-height: 2.75rem;
   border-radius: var(--pd-radius-sm);
   border: 1px solid var(--color-border-gold);
   background: var(--pd-gold);
@@ -921,14 +926,14 @@
   width: 100%;
   min-width: 0;
   height: 100%;
-  min-height: 2.625rem;
+  min-height: 2.75rem;
   border-radius: var(--pd-radius-sm);
   border: 1px solid var(--pd-btn-border);
   background: var(--color-bg-soft);
   color: var(--pd-gold);
   font-size: 0.875rem;
   font-weight: 700;
-  justify-content: space-between;
+  justify-content: center;
   gap: 0.5rem;
 }
 

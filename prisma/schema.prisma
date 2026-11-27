@@ -349,6 +349,8 @@ model BookingChangeOrder {
    * Ledger provider until Stripe: internal.
    */
   provider         String    @default("internal")
+  /// Stripe Checkout Session for the delta + 6% fee charge.
+  stripeCheckoutSessionId String?
   acceptedAt       DateTime?
   rejectedAt       DateTime?
   chargedAt        DateTime?
@@ -616,6 +618,11 @@ model Payment {
   stripeTransferId  String?
   /// Why auto-release was skipped (no connect account, dispute, ...).
   releaseNote       String?
+  /// Pilot net already paid out via change-order Transfers (cents of dollars).
+  changeOrderReleasedNet Float   @default(0)
+  /// Day-7 / day-12 client approval reminder markers (14-day auto-release window).
+  escrowReminder7SentAt  DateTime?
+  escrowReminder12SentAt DateTime?
   /// pending | held | held_dispute | succeeded | failed | refunded | processing
   status            String      @default("succeeded")
   createdAt         DateTime    @default(now())

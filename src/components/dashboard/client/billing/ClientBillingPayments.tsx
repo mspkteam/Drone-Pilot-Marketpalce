@@ -133,8 +133,7 @@ export function ClientBillingPayments() {
       <header className="client-billing-header">
         <h1 className="client-billing-title">Billing &amp; Payments</h1>
         <p className="client-billing-subtitle">
-          Receipts from completed projects. Live card methods, Stripe test mode, and
-          downloadable invoice PDFs are waiting on client confirmation.
+          Saved cards, escrow receipts, and downloadable invoice PDFs for your projects.
         </p>
       </header>
 
@@ -239,15 +238,14 @@ export function ClientBillingPayments() {
                         : payments[index].status}
                     </span>
                   ) : null}
-                  <button
-                    type="button"
+                  <a
                     className="client-billing-btn-outline client-billing-pdf-btn"
-                    disabled
-                    title="PDF receipts ship with Stripe invoicing"
+                    href={`/api/client/payments/${invoice.paymentId}/invoice`}
+                    download={`${invoice.invoiceId}.pdf`}
                   >
                     <DownloadIcon />
                     PDF
-                  </button>
+                  </a>
                 </div>
               </li>
             ))}

@@ -1,8 +1,11 @@
 import { NextResponse } from "next/server";
-import { processDueEscrowReleases } from "@/lib/stripe/escrow";
+import {
+  processDueEscrowReleases,
+  processEscrowApprovalReminders,
+} from "@/lib/stripe/escrow";
 
 /**
- * Auto-release held escrow payments whose delivery has waited 14+ days for client review.
+ * Day-7/12 client approval reminders, then 14-day auto-release of held escrow.
  * Protect with CRON_SECRET (Authorization: Bearer <secret>) when set.
  */
 export async function GET(request: Request) {
@@ -14,8 +17,9 @@ export async function GET(request: Request) {
     }
   }
   try {
+    const reminders = await processEscrowApprovalReminders();
     const result = await processDueEscrowReleases();
-    return NextResponse.json({ ok: true, ...result });
+    return NextResponse.json({ ok: true, reminders, ...result });
   } catch (err) {
     console.error("[cron/release-payments]", err);
     return NextResponse.json({ error: "Release run failed" }, { status: 500 });

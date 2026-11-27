@@ -6,7 +6,10 @@ import { sendNotification } from "@/lib/notifications/notify";
 import { payUniformOrder } from "@/lib/shop/shop";
 import { setPilotMembershipTier } from "@/lib/subscriptions/subscription";
 import { syncConnectAccount } from "@/lib/stripe/connect";
-import { handleEscrowCheckoutCompleted } from "@/lib/stripe/escrow";
+import {
+  handleChangeOrderCheckoutCompleted,
+  handleEscrowCheckoutCompleted,
+} from "@/lib/stripe/escrow";
 
 async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   if (session.mode === "payment" && session.payment_status !== "paid") return;
@@ -75,6 +78,9 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     }
     case "escrow":
       await handleEscrowCheckoutCompleted(session);
+      return;
+    case "change_order":
+      await handleChangeOrderCheckoutCompleted(session);
       return;
     case "client_setup":
       return;
